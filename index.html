@@ -1,100 +1,208 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سبورة شرح</title>
-<style>
-body{
-    margin:0;
-    background:#f2f2f2;
-    font-family:Arial;
-    display:flex;
-    flex-direction:column;
-    height:100vh;
-}
-header{
-    background:#222;
-    color:white;
-    padding:10px;
-    text-align:center;
-}
-canvas{
-    flex:1;
-    background:white;
-    touch-action:none;
-}
-.tools{
-    background:#ddd;
-    padding:8px;
-    text-align:center;
-}
-button{
-    padding:8px 12px;
-    margin:3px;
-    font-size:16px;
-}
-</style>
+    <title>سبورة بث مباشر</title>
+    <style>
+        body { margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        canvas { flex: 1; background: white; border: 1px solid #ccc; }
+        .tools { padding: 10px; background: #333; text-align: center; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
+        .btn-primary { background: #4CAF50; color: white; border: none; }
+        .btn-danger { background: #f44336; color: white; border: none; }
+        .btn-warning { background: #ff9800; color: white; border: none; }
+        #status { color: white; margin-top: 10px; }
+    </style>
 </head>
-
 <body>
+    <canvas id="canvas"></canvas>
+    <div class="tools">
+        <button class="btn-primary" onclick="startAudio()">🎤 بدء البث الصوتي</button>
+        <button class="btn-danger" onclick="stopAudio()">🔴 إيقاف البث</button>
+        <button class="btn-warning" onclick="clearBoard()">🧽 مسح السبورة</button>
+        <div id="status"></div>
+    </div>
 
-<header>
-    سبورة شرح مباشر 🎓
-</header>
+    <!-- إضافة Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- إضافة PeerJS للصوت -->
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
-<canvas id="board"></canvas>
-
-<div class="tools">
-    <button onclick="clearBoard()">🧽 مسح</button>
-    <button onclick="startMic()">🎤 تشغيل الميكروفون</button>
-</div>
-
-<script>
-const canvas = document.getElementById("board");
-const ctx = canvas.getContext("2d");
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight - 120;
-
-let drawing = false;
-
-function getMousePos(e) {
-    const rect = canvas.getBoundingClientRect();
-    return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
+    <script>
+    // ===== 1. ضع بيانات Firebase هنا =====
+    const firebaseConfig = {
+        apiKey: "ضع_المفتاح_هنا",
+        authDomain: "myclass2.firebaseapp.com",
+        databaseURL: "https://myclass2-default-rtdb.firebaseio.com",
+        projectId: "myclass2",
+        storageBucket: "myclass2.appspot.com",
+        messagingSenderId: "123456789",
+        appId: "1:123456789:web:abc123"
     };
-}
 
-canvas.addEventListener("mousedown", (e) => {
-    drawing = true;
-    const pos = getMousePos(e);
-    ctx.beginPath();          // مهم جدا
-    ctx.moveTo(pos.x, pos.y);
-});
-
-canvas.addEventListener("mouseup", () => {
-    drawing = false;
-});
-
-canvas.addEventListener("mousemove", (e) => {
-    if (!drawing) return;
-
-    const pos = getMousePos(e);
-
-    ctx.lineWidth = 3;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = "black";
-
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-});
-
-function clearBoard(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-}
-</script>
-
+    // تهيئة Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    
+    // ===== 2. إعدادات الرسم =====
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let lastX = 0, lastY = 0;
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - 100;
+    
+    function getMousePos(e) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        };
+    }
+    
+    // ===== 3. إرسال الرسم إلى Firebase =====
+    function sendDrawing(x, y, isDrawing) {
+        database.ref('drawings').push({
+            x: x,
+            y: y,
+            isDrawing: isDrawing,
+            userId: peer?.id || 'teacher',
+            timestamp: Date.now()
+        });
+    }
+    
+    // ===== 4. استقبال الرسم من Firebase =====
+    database.ref('drawings').on('child_added', (snapshot) => {
+        const data = snapshot.val();
+        
+        // ما نكرش الرسم بتاعنا
+        if (data.userId === peer?.id) return;
+        
+        if (data.isDrawing) {
+            // رسم خط
+            ctx.lineTo(data.x, data.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(data.x, data.y);
+        } else {
+            // بداية خط جديد
+            ctx.beginPath();
+            ctx.moveTo(data.x, data.y);
+        }
+    });
+    
+    // ===== 5. أحداث الرسم =====
+    canvas.addEventListener('mousedown', (e) => {
+        const pos = getMousePos(e);
+        drawing = true;
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        sendDrawing(pos.x, pos.y, false);
+    });
+    
+    canvas.addEventListener('mousemove', (e) => {
+        if (!drawing) return;
+        
+        const pos = getMousePos(e);
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = 'black';
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        
+        sendDrawing(pos.x, pos.y, true);
+    });
+    
+    canvas.addEventListener('mouseup', () => {
+        drawing = false;
+    });
+    
+    canvas.addEventListener('mouseleave', () => {
+        drawing = false;
+    });
+    
+    // دعم اللمس للموبايل
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const pos = {
+            x: touch.clientX - rect.left,
+            y: touch.clientY - rect.top
+        };
+        drawing = true;
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        sendDrawing(pos.x, pos.y, false);
+    });
+    
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!drawing) return;
+        
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const pos = {
+            x: touch.clientX - rect.left,
+            y: touch.clientY - rect.top
+        };
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        
+        sendDrawing(pos.x, pos.y, true);
+    });
+    
+    canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        drawing = false;
+    });
+    
+    // مسح السبورة
+    function clearBoard() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        database.ref('drawings').remove();
+    }
+    
+    // ===== 6. نظام الصوت =====
+    let localStream;
+    let peer;
+    
+    peer = new Peer();
+    
+    peer.on('open', (id) => {
+        document.getElementById('status').innerHTML = `
+            ✅ البث جاهز - معرفك: <strong>${id}</strong>
+        `;
+    });
+    
+    peer.on('call', (call) => {
+        if (localStream) {
+            call.answer(localStream);
+        }
+    });
+    
+    async function startAudio() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            document.getElementById('status').innerHTML = '🔴 البث الصوتي شغال';
+        } catch (err) {
+            alert('خطأ في الميكروفون: ' + err.message);
+        }
+    }
+    
+    function stopAudio() {
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+            localStream = null;
+            document.getElementById('status').innerHTML = '⏹️ البث متوقف';
+        }
+    }
+    </script>
 </body>
 </html>
