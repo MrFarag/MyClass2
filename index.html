@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سبورة شرح</title>
+<style>
+body{
+    margin:0;
+    background:#f2f2f2;
+    font-family:Arial;
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+}
+header{
+    background:#222;
+    color:white;
+    padding:10px;
+    text-align:center;
+}
+canvas{
+    flex:1;
+    background:white;
+    touch-action:none;
+}
+.tools{
+    background:#ddd;
+    padding:8px;
+    text-align:center;
+}
+button{
+    padding:8px 12px;
+    margin:3px;
+    font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    سبورة شرح مباشر 🎓
+</header>
+
+<canvas id="board"></canvas>
+
+<div class="tools">
+    <button onclick="clearBoard()">🧽 مسح</button>
+    <button onclick="startMic()">🎤 تشغيل الميكروفون</button>
+</div>
+
+<script>
+const canvas = document.getElementById("board");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight - 120;
+
+let drawing = false;
+
+function getMousePos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+    };
+}
+
+canvas.addEventListener("mousedown", (e) => {
+    drawing = true;
+    const pos = getMousePos(e);
+    ctx.beginPath();          // مهم جدا
+    ctx.moveTo(pos.x, pos.y);
+});
+
+canvas.addEventListener("mouseup", () => {
+    drawing = false;
+});
+
+canvas.addEventListener("mousemove", (e) => {
+    if (!drawing) return;
+
+    const pos = getMousePos(e);
+
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "black";
+
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+});
+
+function clearBoard(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+</script>
+
+</body>
+</html>
