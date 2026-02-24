@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MyClass2 - المدرس</title>
     <style>
         * {
@@ -23,17 +23,17 @@
         .header {
             background: #c0392b;
             color: white;
-            padding: 10px;
+            padding: 8px;
             text-align: center;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
         }
         
         .boards-container {
             display: flex;
             flex: 1;
-            gap: 10px;
-            padding: 10px;
+            gap: 5px;
+            padding: 5px;
             min-height: 0;
         }
         
@@ -42,15 +42,16 @@
             display: flex;
             flex-direction: column;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 6px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
             overflow: hidden;
         }
         
         .board-label {
-            padding: 8px;
+            padding: 4px;
             text-align: center;
             font-weight: bold;
+            font-size: 12px;
         }
         
         .board-label.teacher-main {
@@ -84,23 +85,24 @@
         
         .tools {
             background: #34495e;
-            padding: 15px;
+            padding: 8px 5px;
             display: flex;
-            gap: 10px;
+            gap: 5px;
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
         }
         
         button {
-            padding: 12px 24px;
+            padding: 6px 10px;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
+            border-radius: 4px;
+            font-size: 12px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
-            min-width: 120px;
+            transition: all 0.2s;
+            min-width: 50px;
+            flex: 0 1 auto;
         }
         
         button:hover {
@@ -111,32 +113,34 @@
         .btn-success { background: #27ae60; color: white; }
         .btn-danger { background: #e74c3c; color: white; }
         .btn-warning { background: #f39c12; color: white; }
+        .btn { background: #95a5a6; color: white; }
         
         .status {
             background: #2c3e50;
             color: #ecf0f1;
-            padding: 8px;
+            padding: 4px 8px;
             text-align: center;
-            font-size: 14px;
+            font-size: 11px;
             border-top: 1px solid #34495e;
         }
         
         .student-list {
             background: #34495e;
             color: white;
-            padding: 5px 15px;
+            padding: 4px 10px;
             display: flex;
-            gap: 10px;
+            gap: 5px;
             flex-wrap: wrap;
             align-items: center;
             border-top: 1px solid #2c3e50;
+            font-size: 11px;
         }
         
         .student-badge {
             background: #27ae60;
-            padding: 5px 10px;
+            padding: 3px 8px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 10px;
         }
         
         .status span {
@@ -145,28 +149,45 @@
         }
         
         @media (max-width: 768px) {
-            .boards-container { flex-direction: column; }
-            button { padding: 8px 16px; font-size: 14px; min-width: 80px; }
+            .boards-container { 
+                flex-direction: row; 
+            }
+            
+            button { 
+                padding: 5px 8px; 
+                font-size: 11px; 
+                min-width: 40px;
+            }
+            
+            .board-label {
+                font-size: 10px;
+                padding: 3px;
+            }
+            
+            .header {
+                font-size: 14px;
+                padding: 5px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        👨‍🏫 MyClass2 - المدرس (سبورتي المدرس وسبورات الطلاب)
+        👨‍🏫 MyClass2 - المدرس
     </div>
     
     <div class="boards-container">
         <!-- سبورة المدرس الرئيسية -->
         <div class="board-wrapper">
-            <div class="board-label teacher-main">✏️ سبورة المدرس - اكتب هنا</div>
+            <div class="board-label teacher-main">✏️ المدرس</div>
             <div class="canvas-container">
                 <canvas id="teacherBoard"></canvas>
             </div>
         </div>
         
-        <!-- سبورة عرض الطلاب (هتظهر هنا كتابات الطلاب) -->
+        <!-- سبورة عرض الطلاب -->
         <div class="board-wrapper">
-            <div class="board-label student-view">👥 سبورة الطلاب - كتاباتهم تظهر هنا</div>
+            <div class="board-label student-view">👥 الطلاب</div>
             <div class="canvas-container">
                 <canvas id="studentBoard"></canvas>
             </div>
@@ -174,25 +195,25 @@
     </div>
     
     <div class="student-list" id="studentList">
-        <span>🟢 الطلاب المتصلين:</span>
-        <span id="onlineStudents">لا يوجد طلاب</span>
+        <span>🟢 المتصلين:</span>
+        <span id="onlineStudents">0</span>
     </div>
     
     <div class="tools">
-        <button class="btn-danger" onclick="clearBoard()">🧽 مسح الكل</button>
-        <button class="btn-success" onclick="startAudio()">🎤 بدء البث الصوتي</button>
-        <button class="btn-danger" onclick="stopAudio()">🔇 إيقاف الصوت</button>
-        <button class="btn-warning" onclick="changeColor('red')">🔴 أحمر</button>
-        <button class="btn-primary" onclick="changeColor('blue')">🔵 أزرق</button>
-        <button class="btn-success" onclick="changeColor('green')">🟢 أخضر</button>
-        <button class="btn" onclick="changeColor('black')">⚫ أسود</button>
-        <button class="btn" onclick="changePenSize(2)">✏️ رفيع</button>
-        <button class="btn" onclick="changePenSize(5)">✏️ متوسط</button>
-        <button class="btn" onclick="changePenSize(8)">✏️ سميك</button>
+        <button class="btn-danger" onclick="clearBoard()">🧽 مسح</button>
+        <button class="btn-success" onclick="startAudio()">🎤 صوت</button>
+        <button class="btn-danger" onclick="stopAudio()">🔇 إيقاف</button>
+        <button class="btn-warning" onclick="changeColor('red')">🔴</button>
+        <button class="btn-primary" onclick="changeColor('blue')">🔵</button>
+        <button class="btn-success" onclick="changeColor('green')">🟢</button>
+        <button class="btn" onclick="changeColor('black')">⚫</button>
+        <button class="btn" onclick="changePenSize(2)">✏️1</button>
+        <button class="btn" onclick="changePenSize(5)">✏️2</button>
+        <button class="btn" onclick="changePenSize(8)">✏️3</button>
     </div>
     
     <div class="status" id="status">
-        🔵 الحالة: <span id="statusText">جاري الاتصال بالخادم...</span>
+        <span id="statusText">جاري الاتصال...</span>
     </div>
 
     <!-- Firebase SDK -->
@@ -343,9 +364,9 @@
             const students = snapshot.val();
             if (students) {
                 const count = Object.keys(students).length;
-                onlineStudentsSpan.innerText = count + ' طالب متصل';
+                onlineStudentsSpan.innerText = count;
             } else {
-                onlineStudentsSpan.innerText = 'لا يوجد طلاب';
+                onlineStudentsSpan.innerText = '0';
             }
         });
         
@@ -375,13 +396,11 @@
         function changeColor(color) {
             currentColor = color;
             teacherCtx.strokeStyle = color;
-            statusText.innerText = `لون القلم: ${color}`;
         }
         
         function changePenSize(size) {
             currentSize = size;
             teacherCtx.lineWidth = size;
-            statusText.innerText = `حجم القلم: ${size}`;
         }
         
         // بث الصوت
@@ -389,7 +408,7 @@
         
         async function startAudio() {
             try {
-                statusText.innerText = 'جاري طلب إذن الميكروفون...';
+                statusText.innerText = '🎤 جاري...';
                 
                 localStream = await navigator.mediaDevices.getUserMedia({ 
                     audio: {
@@ -399,7 +418,7 @@
                     } 
                 });
                 
-                statusText.innerText = '🎤 البث الصوتي شغال';
+                statusText.innerText = '🎤 شغال';
                 
                 database.ref('audioStream/teacher').set({
                     active: true,
@@ -408,7 +427,7 @@
                 
             } catch (err) {
                 console.error('خطأ:', err);
-                statusText.innerText = '❌ خطأ في الميكروفون';
+                statusText.innerText = '❌ خطأ';
                 alert('لا يمكن الوصول للميكروفون');
             }
         }
@@ -418,7 +437,7 @@
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
                 database.ref('audioStream/teacher').remove();
-                statusText.innerText = '🔇 البث الصوتي متوقف';
+                statusText.innerText = '🔇 متوقف';
             }
         }
         
