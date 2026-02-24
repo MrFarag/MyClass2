@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyClass2 - الطالب</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2980b9;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .boards-container {
+            display: flex;
+            flex: 1;
+            gap: 10px;
+            padding: 10px;
+            min-height: 0;
+        }
+        
+        .board-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .board-label {
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .board-label.teacher {
+            background: #c0392b;
+            color: white;
+        }
+        
+        .board-label.student {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: white;
+            overflow: hidden;
+        }
+        
+        #teacherBoard, #myBoard {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: white;
+            touch-action: none;
+        }
+        
+        #myBoard {
+            cursor: crosshair;
+        }
+        
+        .tools {
+            background: #34495e;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-primary { background: #3498db; color: white; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-warning { background: #f39c12; color: white; }
+        
+        .status {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 8px;
+            text-align: center;
+            font-size: 14px;
+            border-top: 1px solid #34495e;
+        }
+        
+        .status span {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .boards-container { flex-direction: column; }
+            button { padding: 8px 16px; font-size: 14px; min-width: 80px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        👨‍🎓 MyClass2 - الطالب (تشوف المدرس وتكتب في سبورتك)
+    </div>
+    
+    <div class="boards-container">
+        <!-- سبورة المدرس (عرض فقط) -->
+        <div class="board-wrapper">
+            <div class="board-label teacher">👨‍🏫 سبورة المدرس - عرض فقط</div>
+            <div class="canvas-container">
+                <canvas id="teacherBoard"></canvas>
+            </div>
+        </div>
+        
+        <!-- سبورة الطالب الخاصة (بيكتب فيها) -->
+        <div class="board-wrapper">
+            <div class="board-label student">✏️ سبورتي الخاصة - اكتب هنا (تظهر عند المدرس)</div>
+            <div class="canvas-container">
+                <canvas id="myBoard"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tools">
+        <button class="btn-warning" onclick="changeMyColor('red')">🔴 أحمر</button>
+        <button class="btn-primary" onclick="changeMyColor('blue')">🔵 أزرق</button>
+        <button class="btn-success" onclick="changeMyColor('green')">🟢 أخضر</button>
+        <button class="btn" onclick="changeMyColor('black')">⚫ أسود</button>
+        <button class="btn" onclick="changeMySize(2)">✏️ رفيع</button>
+        <button class="btn" onclick="changeMySize(5)">✏️ متوسط</button>
+        <button class="btn" onclick="changeMySize(8)">✏️ سميك</button>
+        <button class="btn-danger" onclick="clearMyBoard()">🧽 مسح سبورتي</button>
+    </div>
+    
+    <div class="status" id="status">
+        🔵 الحالة: <span id="statusText">جاري الاتصال بالخادم...</span>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // 🔥 تهيئة Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
+            authDomain: "myclaive.firebaseapp.com",
+            databaseURL: "https://myclaive-default-rtdb.firebaseio.com",
+            projectId: "myclaive",
+            storageBucket: "myclaive.firebasestorage.app",
+            messagingSenderId: "507299311714",
+            appId: "1:507299311714:web:c90440ee4353cfac17613b",
+            measurementId: "G-Z29BWWTW9P"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        // عناصر السبورات
+        const teacherCanvas = document.getElementById('teacherBoard');
+        const myCanvas = document.getElementById('myBoard');
+        const teacherCtx = teacherCanvas.getContext('2d');
+        const myCtx = myCanvas.getContext('2d');
+        const statusText = document.getElementById('statusText');
+        
+        // متغيرات الرسم
+        let drawing = false;
+        let myColor = 'black';
+        let mySize = 3;
+        let lastX = 0;
+        let lastY = 0;
+        let studentId = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        
+        // ضبط حجم السبورات
+        function resizeCanvases() {
+            teacherCanvas.width = document.querySelectorAll('.canvas-container')[0].clientWidth;
+            teacherCanvas.height = document.querySelectorAll('.canvas-container')[0].clientHeight;
+            
+            myCanvas.width = document.querySelectorAll('.canvas-container')[1].clientWidth;
+            myCanvas.height = document.querySelectorAll('.canvas-container')[1].clientHeight;
+            
+            [teacherCtx, myCtx].forEach(ctx => {
+                ctx.lineWidth = mySize;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+            });
+            
+            myCtx.strokeStyle = myColor;
+        }
+        
+        window.addEventListener('load', resizeCanvases);
+        window.addEventListener('resize', resizeCanvases);
+        
+        // الحصول على موقع الماوس
+        function getMousePos(e, canvas) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            let clientX, clientY;
+            
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+        
+        // استقبال رسم المدرس
+        database.ref('teacherDrawings').on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            
+            teacherCtx.strokeStyle = data.color;
+            teacherCtx.lineWidth = data.size || 3;
+            teacherCtx.lineCap = 'round';
+            
+            teacherCtx.beginPath();
+            teacherCtx.moveTo(data.lastX, data.lastY);
+            teacherCtx.lineTo(data.x, data.y);
+            teacherCtx.stroke();
+        });
+        
+        // استقبال أمر مسح من المدرس
+        database.ref('teacherCommands').on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            if (data.type === 'clear') {
+                teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
+            }
+        });
+        
+        // الرسم في سبورة الطالب
+        function startDrawing(e) {
+            e.preventDefault();
+            drawing = true;
+            
+            const pos = getMousePos(e, myCanvas);
+            lastX = pos.x;
+            lastY = pos.y;
+            
+            myCtx.beginPath();
+            myCtx.moveTo(pos.x, pos.y);
+        }
+        
+        function draw(e) {
+            e.preventDefault();
+            if (!drawing) return;
+            
+            const pos = getMousePos(e, myCanvas);
+            
+            // رسم في سبورة الطالب
+            myCtx.strokeStyle = myColor;
+            myCtx.lineWidth = mySize;
+            myCtx.lineTo(pos.x, pos.y);
+            myCtx.stroke();
+            myCtx.beginPath();
+            myCtx.moveTo(pos.x, pos.y);
+            
+            // بث الرسم للمدرس
+            const drawData = {
+                x: pos.x,
+                y: pos.y,
+                lastX: lastX,
+                lastY: lastY,
+                color: myColor,
+                size: mySize,
+                studentId: studentId,
+                timestamp: Date.now()
+            };
+            
+            database.ref('studentDrawings').push(drawData);
+            
+            lastX = pos.x;
+            lastY = pos.y;
+        }
+        
+        function stopDrawing() {
+            drawing = false;
+            myCtx.beginPath();
+        }
+        
+        // أحداث الماوس للطالب
+        myCanvas.addEventListener('mousedown', startDrawing);
+        myCanvas.addEventListener('mousemove', draw);
+        myCanvas.addEventListener('mouseup', stopDrawing);
+        myCanvas.addEventListener('mouseleave', stopDrawing);
+        
+        myCanvas.addEventListener('touchstart', startDrawing, { passive: false });
+        myCanvas.addEventListener('touchmove', draw, { passive: false });
+        myCanvas.addEventListener('touchend', stopDrawing);
+        myCanvas.addEventListener('touchcancel', stopDrawing);
+        
+        // وظائف الطالب
+        function changeMyColor(color) {
+            myColor = color;
+            myCtx.strokeStyle = color;
+            statusText.innerText = `لوني: ${color}`;
+        }
+        
+        function changeMySize(size) {
+            mySize = size;
+            myCtx.lineWidth = size;
+            statusText.innerText = `حجم قلمي: ${size}`;
+        }
+        
+        function clearMyBoard() {
+            myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
+        }
+        
+        // مراقبة بث الصوت من المدرس
+        database.ref('audioStream/teacher').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.active) {
+                statusText.innerText = '🎧 المدرس يبث صوت حالياً';
+            } else {
+                statusText.innerText = 'متصل بالخادم ✓';
+            }
+        });
+        
+        // منع القائمة اليمنى
+        teacherCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        myCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        
+        // تسجيل الطالب كمتصل
+        database.ref('onlineStudents/' + studentId).set({
+            online: true,
+            timestamp: Date.now()
+        });
+        
+        // إزالة الطالب عند الخروج
+        window.addEventListener('beforeunload', () => {
+            database.ref('onlineStudents/' + studentId).remove();
+        });
+    </script>
+</body>
+</html>
