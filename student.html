@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MyClass2 - الطالب</title>
     <style>
         * {
@@ -23,17 +23,17 @@
         .header {
             background: #2980b9;
             color: white;
-            padding: 10px;
+            padding: 8px;
             text-align: center;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
         }
         
         .boards-container {
             display: flex;
             flex: 1;
-            gap: 10px;
-            padding: 10px;
+            gap: 5px;
+            padding: 5px;
             min-height: 0;
         }
         
@@ -42,15 +42,16 @@
             display: flex;
             flex-direction: column;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 6px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
             overflow: hidden;
         }
         
         .board-label {
-            padding: 8px;
+            padding: 4px;
             text-align: center;
             font-weight: bold;
+            font-size: 12px;
         }
         
         .board-label.teacher {
@@ -84,23 +85,24 @@
         
         .tools {
             background: #34495e;
-            padding: 15px;
+            padding: 8px 5px;
             display: flex;
-            gap: 10px;
+            gap: 5px;
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
         }
         
         button {
-            padding: 12px 24px;
+            padding: 6px 10px;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
+            border-radius: 4px;
+            font-size: 12px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
-            min-width: 120px;
+            transition: all 0.2s;
+            min-width: 50px;
+            flex: 0 1 auto;
         }
         
         button:hover {
@@ -111,13 +113,14 @@
         .btn-success { background: #27ae60; color: white; }
         .btn-danger { background: #e74c3c; color: white; }
         .btn-warning { background: #f39c12; color: white; }
+        .btn { background: #95a5a6; color: white; }
         
         .status {
             background: #2c3e50;
             color: #ecf0f1;
-            padding: 8px;
+            padding: 4px 8px;
             text-align: center;
-            font-size: 14px;
+            font-size: 11px;
             border-top: 1px solid #34495e;
         }
         
@@ -127,28 +130,45 @@
         }
         
         @media (max-width: 768px) {
-            .boards-container { flex-direction: column; }
-            button { padding: 8px 16px; font-size: 14px; min-width: 80px; }
+            .boards-container { 
+                flex-direction: row; 
+            }
+            
+            button { 
+                padding: 5px 8px; 
+                font-size: 11px; 
+                min-width: 40px;
+            }
+            
+            .board-label {
+                font-size: 10px;
+                padding: 3px;
+            }
+            
+            .header {
+                font-size: 14px;
+                padding: 5px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        👨‍🎓 MyClass2 - الطالب (تشوف المدرس وتكتب في سبورتك)
+        👨‍🎓 MyClass2 - الطالب
     </div>
     
     <div class="boards-container">
-        <!-- سبورة المدرس (عرض فقط) -->
+        <!-- سبورة المدرس (كاملة) -->
         <div class="board-wrapper">
-            <div class="board-label teacher">👨‍🏫 سبورة المدرس - عرض فقط</div>
+            <div class="board-label teacher">👨‍🏫 المدرس</div>
             <div class="canvas-container">
                 <canvas id="teacherBoard"></canvas>
             </div>
         </div>
         
-        <!-- سبورة الطالب الخاصة (بيكتب فيها) -->
+        <!-- سبورة الطالب -->
         <div class="board-wrapper">
-            <div class="board-label student">✏️ سبورتي الخاصة - اكتب هنا (تظهر عند المدرس)</div>
+            <div class="board-label student">✏️ سبورتي</div>
             <div class="canvas-container">
                 <canvas id="myBoard"></canvas>
             </div>
@@ -156,18 +176,18 @@
     </div>
     
     <div class="tools">
-        <button class="btn-warning" onclick="changeMyColor('red')">🔴 أحمر</button>
-        <button class="btn-primary" onclick="changeMyColor('blue')">🔵 أزرق</button>
-        <button class="btn-success" onclick="changeMyColor('green')">🟢 أخضر</button>
-        <button class="btn" onclick="changeMyColor('black')">⚫ أسود</button>
-        <button class="btn" onclick="changeMySize(2)">✏️ رفيع</button>
-        <button class="btn" onclick="changeMySize(5)">✏️ متوسط</button>
-        <button class="btn" onclick="changeMySize(8)">✏️ سميك</button>
-        <button class="btn-danger" onclick="clearMyBoard()">🧽 مسح سبورتي</button>
+        <button class="btn-warning" onclick="changeMyColor('red')">🔴</button>
+        <button class="btn-primary" onclick="changeMyColor('blue')">🔵</button>
+        <button class="btn-success" onclick="changeMyColor('green')">🟢</button>
+        <button class="btn" onclick="changeMyColor('black')">⚫</button>
+        <button class="btn" onclick="changeMySize(2)">✏️1</button>
+        <button class="btn" onclick="changeMySize(5)">✏️2</button>
+        <button class="btn" onclick="changeMySize(8)">✏️3</button>
+        <button class="btn-danger" onclick="clearMyBoard()">🧽 مسح</button>
     </div>
     
     <div class="status" id="status">
-        🔵 الحالة: <span id="statusText">جاري الاتصال بالخادم...</span>
+        <span id="statusText">جاري الاتصال...</span>
     </div>
 
     <!-- Firebase SDK -->
@@ -213,13 +233,10 @@
             myCanvas.width = document.querySelectorAll('.canvas-container')[1].clientWidth;
             myCanvas.height = document.querySelectorAll('.canvas-container')[1].clientHeight;
             
-            [teacherCtx, myCtx].forEach(ctx => {
-                ctx.lineWidth = mySize;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-            });
-            
             myCtx.strokeStyle = myColor;
+            myCtx.lineWidth = mySize;
+            myCtx.lineCap = 'round';
+            myCtx.lineJoin = 'round';
         }
         
         window.addEventListener('load', resizeCanvases);
@@ -334,13 +351,11 @@
         function changeMyColor(color) {
             myColor = color;
             myCtx.strokeStyle = color;
-            statusText.innerText = `لوني: ${color}`;
         }
         
         function changeMySize(size) {
             mySize = size;
             myCtx.lineWidth = size;
-            statusText.innerText = `حجم قلمي: ${size}`;
         }
         
         function clearMyBoard() {
@@ -351,9 +366,9 @@
         database.ref('audioStream/teacher').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data && data.active) {
-                statusText.innerText = '🎧 المدرس يبث صوت حالياً';
+                statusText.innerText = '🎧 المدرس يبث صوت';
             } else {
-                statusText.innerText = 'متصل بالخادم ✓';
+                statusText.innerText = 'متصل ✓';
             }
         });
         
