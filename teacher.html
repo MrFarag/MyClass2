@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyClass2 - المدرس</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #c0392b;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .boards-container {
+            display: flex;
+            flex: 1;
+            gap: 10px;
+            padding: 10px;
+            min-height: 0;
+        }
+        
+        .board-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .board-label {
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .board-label.teacher-main {
+            background: #c0392b;
+            color: white;
+        }
+        
+        .board-label.student-view {
+            background: #2980b9;
+            color: white;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: white;
+            overflow: hidden;
+        }
+        
+        #teacherBoard, #studentBoard {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: white;
+            touch-action: none;
+        }
+        
+        #teacherBoard {
+            cursor: crosshair;
+        }
+        
+        .tools {
+            background: #34495e;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-primary { background: #3498db; color: white; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-warning { background: #f39c12; color: white; }
+        
+        .status {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 8px;
+            text-align: center;
+            font-size: 14px;
+            border-top: 1px solid #34495e;
+        }
+        
+        .student-list {
+            background: #34495e;
+            color: white;
+            padding: 5px 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            border-top: 1px solid #2c3e50;
+        }
+        
+        .student-badge {
+            background: #27ae60;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .status span {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .boards-container { flex-direction: column; }
+            button { padding: 8px 16px; font-size: 14px; min-width: 80px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        👨‍🏫 MyClass2 - المدرس (سبورتي المدرس وسبورات الطلاب)
+    </div>
+    
+    <div class="boards-container">
+        <!-- سبورة المدرس الرئيسية -->
+        <div class="board-wrapper">
+            <div class="board-label teacher-main">✏️ سبورة المدرس - اكتب هنا</div>
+            <div class="canvas-container">
+                <canvas id="teacherBoard"></canvas>
+            </div>
+        </div>
+        
+        <!-- سبورة عرض الطلاب (هتظهر هنا كتابات الطلاب) -->
+        <div class="board-wrapper">
+            <div class="board-label student-view">👥 سبورة الطلاب - كتاباتهم تظهر هنا</div>
+            <div class="canvas-container">
+                <canvas id="studentBoard"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="student-list" id="studentList">
+        <span>🟢 الطلاب المتصلين:</span>
+        <span id="onlineStudents">لا يوجد طلاب</span>
+    </div>
+    
+    <div class="tools">
+        <button class="btn-danger" onclick="clearBoard()">🧽 مسح الكل</button>
+        <button class="btn-success" onclick="startAudio()">🎤 بدء البث الصوتي</button>
+        <button class="btn-danger" onclick="stopAudio()">🔇 إيقاف الصوت</button>
+        <button class="btn-warning" onclick="changeColor('red')">🔴 أحمر</button>
+        <button class="btn-primary" onclick="changeColor('blue')">🔵 أزرق</button>
+        <button class="btn-success" onclick="changeColor('green')">🟢 أخضر</button>
+        <button class="btn" onclick="changeColor('black')">⚫ أسود</button>
+        <button class="btn" onclick="changePenSize(2)">✏️ رفيع</button>
+        <button class="btn" onclick="changePenSize(5)">✏️ متوسط</button>
+        <button class="btn" onclick="changePenSize(8)">✏️ سميك</button>
+    </div>
+    
+    <div class="status" id="status">
+        🔵 الحالة: <span id="statusText">جاري الاتصال بالخادم...</span>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // 🔥 تهيئة Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
+            authDomain: "myclaive.firebaseapp.com",
+            databaseURL: "https://myclaive-default-rtdb.firebaseio.com",
+            projectId: "myclaive",
+            storageBucket: "myclaive.firebasestorage.app",
+            messagingSenderId: "507299311714",
+            appId: "1:507299311714:web:c90440ee4353cfac17613b",
+            measurementId: "G-Z29BWWTW9P"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        // عناصر السبورات
+        const teacherCanvas = document.getElementById('teacherBoard');
+        const studentCanvas = document.getElementById('studentBoard');
+        const teacherCtx = teacherCanvas.getContext('2d');
+        const studentCtx = studentCanvas.getContext('2d');
+        const statusText = document.getElementById('statusText');
+        const onlineStudentsSpan = document.getElementById('onlineStudents');
+        
+        // متغيرات الرسم
+        let drawing = false;
+        let currentColor = 'black';
+        let currentSize = 3;
+        let lastX = 0;
+        let lastY = 0;
+        let teacherId = 'teacher_' + Date.now();
+        
+        // ضبط حجم السبورات
+        function resizeCanvases() {
+            teacherCanvas.width = document.querySelectorAll('.canvas-container')[0].clientWidth;
+            teacherCanvas.height = document.querySelectorAll('.canvas-container')[0].clientHeight;
+            
+            studentCanvas.width = document.querySelectorAll('.canvas-container')[1].clientWidth;
+            studentCanvas.height = document.querySelectorAll('.canvas-container')[1].clientHeight;
+            
+            [teacherCtx, studentCtx].forEach(ctx => {
+                ctx.lineWidth = currentSize;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.strokeStyle = currentColor;
+            });
+        }
+        
+        window.addEventListener('load', resizeCanvases);
+        window.addEventListener('resize', resizeCanvases);
+        
+        // الحصول على موقع الماوس
+        function getMousePos(e, canvas) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            let clientX, clientY;
+            
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+        
+        // الرسم في سبورة المدرس
+        function startDrawing(e) {
+            e.preventDefault();
+            drawing = true;
+            
+            const pos = getMousePos(e, teacherCanvas);
+            lastX = pos.x;
+            lastY = pos.y;
+            
+            teacherCtx.beginPath();
+            teacherCtx.moveTo(pos.x, pos.y);
+        }
+        
+        function draw(e) {
+            e.preventDefault();
+            if (!drawing) return;
+            
+            const pos = getMousePos(e, teacherCanvas);
+            
+            // رسم في سبورة المدرس
+            teacherCtx.strokeStyle = currentColor;
+            teacherCtx.lineWidth = currentSize;
+            teacherCtx.lineTo(pos.x, pos.y);
+            teacherCtx.stroke();
+            teacherCtx.beginPath();
+            teacherCtx.moveTo(pos.x, pos.y);
+            
+            // بث الرسم للطلاب
+            const drawData = {
+                x: pos.x,
+                y: pos.y,
+                lastX: lastX,
+                lastY: lastY,
+                color: currentColor,
+                size: currentSize,
+                type: 'teacher',
+                teacherId: teacherId,
+                timestamp: Date.now()
+            };
+            
+            database.ref('teacherDrawings').push(drawData);
+            
+            lastX = pos.x;
+            lastY = pos.y;
+        }
+        
+        function stopDrawing() {
+            drawing = false;
+            teacherCtx.beginPath();
+        }
+        
+        // استقبال كتابات الطلاب
+        database.ref('studentDrawings').on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            
+            // رسم في سبورة الطلاب (اللي عند المدرس)
+            studentCtx.strokeStyle = data.color;
+            studentCtx.lineWidth = data.size || 3;
+            studentCtx.lineCap = 'round';
+            
+            studentCtx.beginPath();
+            studentCtx.moveTo(data.lastX, data.lastY);
+            studentCtx.lineTo(data.x, data.y);
+            studentCtx.stroke();
+        });
+        
+        // مراقبة الطلاب المتصلين
+        database.ref('onlineStudents').on('value', (snapshot) => {
+            const students = snapshot.val();
+            if (students) {
+                const count = Object.keys(students).length;
+                onlineStudentsSpan.innerText = count + ' طالب متصل';
+            } else {
+                onlineStudentsSpan.innerText = 'لا يوجد طلاب';
+            }
+        });
+        
+        // أحداث الماوس للمدرس
+        teacherCanvas.addEventListener('mousedown', startDrawing);
+        teacherCanvas.addEventListener('mousemove', draw);
+        teacherCanvas.addEventListener('mouseup', stopDrawing);
+        teacherCanvas.addEventListener('mouseleave', stopDrawing);
+        
+        teacherCanvas.addEventListener('touchstart', startDrawing, { passive: false });
+        teacherCanvas.addEventListener('touchmove', draw, { passive: false });
+        teacherCanvas.addEventListener('touchend', stopDrawing);
+        teacherCanvas.addEventListener('touchcancel', stopDrawing);
+        
+        // وظائف الأزرار
+        function clearBoard() {
+            teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
+            studentCtx.clearRect(0, 0, studentCanvas.width, studentCanvas.height);
+            
+            database.ref('teacherCommands').push({
+                type: 'clear',
+                teacherId: teacherId,
+                timestamp: Date.now()
+            });
+        }
+        
+        function changeColor(color) {
+            currentColor = color;
+            teacherCtx.strokeStyle = color;
+            statusText.innerText = `لون القلم: ${color}`;
+        }
+        
+        function changePenSize(size) {
+            currentSize = size;
+            teacherCtx.lineWidth = size;
+            statusText.innerText = `حجم القلم: ${size}`;
+        }
+        
+        // بث الصوت
+        let localStream;
+        
+        async function startAudio() {
+            try {
+                statusText.innerText = 'جاري طلب إذن الميكروفون...';
+                
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    } 
+                });
+                
+                statusText.innerText = '🎤 البث الصوتي شغال';
+                
+                database.ref('audioStream/teacher').set({
+                    active: true,
+                    timestamp: Date.now()
+                });
+                
+            } catch (err) {
+                console.error('خطأ:', err);
+                statusText.innerText = '❌ خطأ في الميكروفون';
+                alert('لا يمكن الوصول للميكروفون');
+            }
+        }
+        
+        function stopAudio() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+                database.ref('audioStream/teacher').remove();
+                statusText.innerText = '🔇 البث الصوتي متوقف';
+            }
+        }
+        
+        // منع القائمة اليمنى
+        teacherCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        studentCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        
+        // إعلان وجود المدرس
+        database.ref('teacher/online').set({
+            online: true,
+            timestamp: Date.now()
+        });
+    </script>
+</body>
+</html>
