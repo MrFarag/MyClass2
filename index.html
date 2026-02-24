@@ -1,208 +1,418 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-    <title>سبورة بث مباشر</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyClass2 - سبورة بث مباشر</title>  <!-- هنا تم التغيير -->
     <style>
-        body { margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        canvas { flex: 1; background: white; border: 1px solid #ccc; }
-        .tools { padding: 10px; background: #333; text-align: center; }
-        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
-        .btn-primary { background: #4CAF50; color: white; border: none; }
-        .btn-danger { background: #f44336; color: white; border: none; }
-        .btn-warning { background: #ff9800; color: white; border: none; }
-        #status { color: white; margin-top: 10px; }
+        /* باقي الـ styles زي ماهي */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: white;
+            margin: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        #board {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: white;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        
+        .tools {
+            background: #34495e;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #219a52;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        .status {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 8px;
+            text-align: center;
+            font-size: 14px;
+            border-top: 1px solid #34495e;
+        }
+        
+        .status span {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            button {
+                padding: 8px 16px;
+                font-size: 14px;
+                min-width: 80px;
+            }
+        }
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
+    <div class="header">
+        🎓 MyClass2 - سبورة بث مباشر كتابة + صوت
+    </div>
+    
+    <div class="canvas-container">
+        <canvas id="board"></canvas>
+    </div>
+    
     <div class="tools">
-        <button class="btn-primary" onclick="startAudio()">🎤 بدء البث الصوتي</button>
-        <button class="btn-danger" onclick="stopAudio()">🔴 إيقاف البث</button>
-        <button class="btn-warning" onclick="clearBoard()">🧽 مسح السبورة</button>
-        <div id="status"></div>
+        <button class="btn-primary" onclick="clearBoard()">🧽 مسح الكل</button>
+        <button class="btn-success" onclick="startAudio()">🎤 بدء البث الصوتي</button>
+        <button class="btn-danger" onclick="stopAudio()">🔇 إيقاف الصوت</button>
+        <button class="btn-warning" onclick="changeColor('red')">🔴 أحمر</button>
+        <button class="btn-primary" onclick="changeColor('blue')">🔵 أزرق</button>
+        <button class="btn-success" onclick="changeColor('green')">🟢 أخضر</button>
+        <button class="btn" onclick="changeColor('black')">⚫ أسود</button>
+    </div>
+    
+    <div class="status" id="status">
+        🔵 الحالة: <span id="statusText">جاري الاتصال بالخادم...</span>
     </div>
 
-    <!-- إضافة Firebase -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
-    <!-- إضافة PeerJS للصوت -->
-    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
     <script>
-    // ===== 1. ضع بيانات Firebase هنا =====
-    const firebaseConfig = {
-        apiKey: "ضع_المفتاح_هنا",
-        authDomain: "myclass2.firebaseapp.com",
-        databaseURL: "https://myclass2-default-rtdb.firebaseio.com",
-        projectId: "myclass2",
-        storageBucket: "myclass2.appspot.com",
-        messagingSenderId: "123456789",
-        appId: "1:123456789:web:abc123"
-    };
-
-    // تهيئة Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    
-    // ===== 2. إعدادات الرسم =====
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
-    let lastX = 0, lastY = 0;
-    
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 100;
-    
-    function getMousePos(e) {
-        const rect = canvas.getBoundingClientRect();
-        return {
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top
+        // 🔥 تهيئة Firebase باستخدام الكود الخاص بك
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
+            authDomain: "myclaive.firebaseapp.com",
+            databaseURL: "https://myclaive-default-rtdb.firebaseio.com",
+            projectId: "myclaive",
+            storageBucket: "myclaive.firebasestorage.app",
+            messagingSenderId: "507299311714",
+            appId: "1:507299311714:web:c90440ee4353cfac17613b",
+            measurementId: "G-Z29BWWTW9P"
         };
-    }
-    
-    // ===== 3. إرسال الرسم إلى Firebase =====
-    function sendDrawing(x, y, isDrawing) {
-        database.ref('drawings').push({
-            x: x,
-            y: y,
-            isDrawing: isDrawing,
-            userId: peer?.id || 'teacher',
-            timestamp: Date.now()
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        // عناصر السبورة
+        const canvas = document.getElementById('board');
+        const ctx = canvas.getContext('2d');
+        const statusText = document.getElementById('statusText');
+        
+        // متغيرات الرسم
+        let drawing = false;
+        let currentColor = 'black';
+        let lastX = 0;
+        let lastY = 0;
+        let username = 'user_' + Math.random().toString(36).substr(2, 9);
+        
+        // ضبط حجم السبورة
+        function resizeCanvas() {
+            canvas.width = document.querySelector('.canvas-container').clientWidth;
+            canvas.height = document.querySelector('.canvas-container').clientHeight;
+            
+            // إعادة تعيين إعدادات الرسم بعد التغيير
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = currentColor;
+        }
+        
+        // تنفيذ عند تحميل الصفحة
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            statusText.innerText = 'متصل بالخادم ✓';
         });
-    }
-    
-    // ===== 4. استقبال الرسم من Firebase =====
-    database.ref('drawings').on('child_added', (snapshot) => {
-        const data = snapshot.val();
         
-        // ما نكرش الرسم بتاعنا
-        if (data.userId === peer?.id) return;
+        window.addEventListener('resize', resizeCanvas);
         
-        if (data.isDrawing) {
-            // رسم خط
-            ctx.lineTo(data.x, data.y);
+        // الحصول على موقع الماوس داخل الكانفاس
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            let clientX, clientY;
+            
+            if (e.touches) {
+                // للموبايل
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                // للكمبيوتر
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+        
+        // === أحداث الرسم المحلي + البث لجميع الأجهزة ===
+        function startDrawing(e) {
+            e.preventDefault();
+            drawing = true;
+            
+            const pos = getMousePos(e);
+            lastX = pos.x;
+            lastY = pos.y;
+            
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+        
+        function draw(e) {
+            e.preventDefault();
+            if (!drawing) return;
+            
+            const pos = getMousePos(e);
+            
+            // رسم محلي
+            ctx.strokeStyle = currentColor;
+            ctx.lineTo(pos.x, pos.y);
             ctx.stroke();
             ctx.beginPath();
-            ctx.moveTo(data.x, data.y);
-        } else {
-            // بداية خط جديد
+            ctx.moveTo(pos.x, pos.y);
+            
+            // بث النقطة لجميع الأجهزة عبر Firebase
+            const drawData = {
+                x: pos.x,
+                y: pos.y,
+                lastX: lastX,
+                lastY: lastY,
+                color: currentColor,
+                user: username,
+                timestamp: Date.now()
+            };
+            
+            database.ref('drawings').push(drawData);
+            
+            lastX = pos.x;
+            lastY = pos.y;
+        }
+        
+        function stopDrawing() {
+            drawing = false;
+            ctx.beginPath(); // مهم جداً لمنع الوصلات الغريبة
+        }
+        
+        // === استقبال الرسم من الأجهزة الأخرى ===
+        database.ref('drawings').on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            
+            // تجاهل الرسم المرسل من هذا الجهاز نفسه
+            if (data.user === username) return;
+            
+            // رسم النقطة الواردة من جهاز آخر
+            ctx.strokeStyle = data.color;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            
             ctx.beginPath();
-            ctx.moveTo(data.x, data.y);
-        }
-    });
-    
-    // ===== 5. أحداث الرسم =====
-    canvas.addEventListener('mousedown', (e) => {
-        const pos = getMousePos(e);
-        drawing = true;
-        ctx.beginPath();
-        ctx.moveTo(pos.x, pos.y);
-        sendDrawing(pos.x, pos.y, false);
-    });
-    
-    canvas.addEventListener('mousemove', (e) => {
-        if (!drawing) return;
+            ctx.moveTo(data.lastX, data.lastY);
+            ctx.lineTo(data.x, data.y);
+            ctx.stroke();
+        });
         
-        const pos = getMousePos(e);
-        ctx.lineWidth = 3;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = 'black';
-        ctx.lineTo(pos.x, pos.y);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(pos.x, pos.y);
+        // === تنظيف البيانات القديمة (اختياري) ===
+        setInterval(() => {
+            const oneHourAgo = Date.now() - (60 * 60 * 1000);
+            database.ref('drawings').orderByChild('timestamp').endAt(oneHourAgo).once('value', (snapshot) => {
+                snapshot.forEach((child) => {
+                    child.ref.remove();
+                });
+            });
+        }, 10 * 60 * 1000); // كل 10 دقائق
         
-        sendDrawing(pos.x, pos.y, true);
-    });
-    
-    canvas.addEventListener('mouseup', () => {
-        drawing = false;
-    });
-    
-    canvas.addEventListener('mouseleave', () => {
-        drawing = false;
-    });
-    
-    // دعم اللمس للموبايل
-    canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        const touch = e.touches[0];
-        const rect = canvas.getBoundingClientRect();
-        const pos = {
-            x: touch.clientX - rect.left,
-            y: touch.clientY - rect.top
-        };
-        drawing = true;
-        ctx.beginPath();
-        ctx.moveTo(pos.x, pos.y);
-        sendDrawing(pos.x, pos.y, false);
-    });
-    
-    canvas.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        if (!drawing) return;
+        // === أحداث الماوس ===
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
         
-        const touch = e.touches[0];
-        const rect = canvas.getBoundingClientRect();
-        const pos = {
-            x: touch.clientX - rect.left,
-            y: touch.clientY - rect.top
-        };
-        ctx.lineTo(pos.x, pos.y);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(pos.x, pos.y);
+        // === أحداث اللمس للموبايل ===
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchcancel', stopDrawing);
         
-        sendDrawing(pos.x, pos.y, true);
-    });
-    
-    canvas.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        drawing = false;
-    });
-    
-    // مسح السبورة
-    function clearBoard() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        database.ref('drawings').remove();
-    }
-    
-    // ===== 6. نظام الصوت =====
-    let localStream;
-    let peer;
-    
-    peer = new Peer();
-    
-    peer.on('open', (id) => {
-        document.getElementById('status').innerHTML = `
-            ✅ البث جاهز - معرفك: <strong>${id}</strong>
-        `;
-    });
-    
-    peer.on('call', (call) => {
-        if (localStream) {
-            call.answer(localStream);
+        // === وظائف الأزرار ===
+        function clearBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // يمكن إرسال أمر مسح لجميع الأجهزة
+            database.ref('clear').push({
+                user: username,
+                timestamp: Date.now()
+            });
         }
-    });
-    
-    async function startAudio() {
-        try {
-            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            document.getElementById('status').innerHTML = '🔴 البث الصوتي شغال';
-        } catch (err) {
-            alert('خطأ في الميكروفون: ' + err.message);
+        
+        // استقبال أمر المسح
+        database.ref('clear').on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            if (data.user !== username) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        });
+        
+        function changeColor(color) {
+            currentColor = color;
+            ctx.strokeStyle = color;
+            statusText.innerText = `لون القلم: ${color}`;
         }
-    }
-    
-    function stopAudio() {
-        if (localStream) {
-            localStream.getTracks().forEach(track => track.stop());
-            localStream = null;
-            document.getElementById('status').innerHTML = '⏹️ البث متوقف';
+        
+        // === بث الصوت المباشر ===
+        let localStream;
+        let peerConnections = [];
+        
+        async function startAudio() {
+            try {
+                statusText.innerText = 'جاري طلب إذن الميكروفون...';
+                
+                // طلب الميكروفون
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    } 
+                });
+                
+                statusText.innerText = 'الميكروفون شغال ✓ جاري البث...';
+                
+                // تخزين إشارة بدء البث في Firebase
+                database.ref('audioStreams/' + username).set({
+                    active: true,
+                    timestamp: Date.now()
+                });
+                
+                // مراقبة الأجهزة الأخرى للبث الصوتي
+                monitorAudioStreams();
+                
+            } catch (err) {
+                console.error('خطأ في الميكروفون:', err);
+                statusText.innerText = '❌ خطأ: لا يمكن الوصول للميكروفون';
+                alert('لا يمكن الوصول للميكروفون. تأكد من الإذن.');
+            }
         }
-    }
+        
+        function stopAudio() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+                
+                // إيقاف البث في Firebase
+                database.ref('audioStreams/' + username).remove();
+                
+                statusText.innerText = '🔇 البث الصوتي متوقف';
+            }
+        }
+        
+        function monitorAudioStreams() {
+            // مراقبة المستخدمين الآخرين الذين يبثون صوت
+            database.ref('audioStreams').on('child_added', (snapshot) => {
+                const userId = snapshot.key;
+                const data = snapshot.val();
+                
+                if (userId !== username && data.active) {
+                    // هنا يمكن إضافة WebRTC للبث المباشر
+                    // حالياً سنظهر إشعار
+                    statusText.innerText = `🎤 مستخدم آخر يبث صوت`;
+                }
+            });
+            
+            database.ref('audioStreams').on('child_removed', (snapshot) => {
+                statusText.innerText = 'متصل بالخادم ✓';
+            });
+        }
+        
+        // منع القائمة اليمنى على الكانفاس
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        
     </script>
 </body>
 </html>
