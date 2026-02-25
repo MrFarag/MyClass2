@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>MyClass2 - الطالب</title>
     <style>
         * {
@@ -35,16 +35,22 @@
             gap: 5px;
             padding: 5px;
             min-height: 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory;
         }
         
         .board-wrapper {
-            flex: 1;
+            flex: 0 0 auto;
+            width: 90%;
             display: flex;
             flex-direction: column;
             background: white;
             border-radius: 6px;
             box-shadow: 0 1px 5px rgba(0,0,0,0.1);
             overflow: hidden;
+            scroll-snap-align: start;
         }
         
         .board-label {
@@ -68,15 +74,16 @@
             flex: 1;
             position: relative;
             background: white;
-            overflow: hidden;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
         #teacherBoard, #myBoard {
-            width: 100%;
-            height: 100%;
+            width: 200%;
+            height: 200%;
             display: block;
             background: white;
-            touch-action: none;
+            touch-action: pan-x pan-y;
         }
         
         #myBoard {
@@ -109,10 +116,16 @@
             transform: scale(1.05);
         }
         
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
         .btn-primary { background: #3498db; color: white; }
         .btn-success { background: #27ae60; color: white; }
         .btn-danger { background: #e74c3c; color: white; }
         .btn-warning { background: #f39c12; color: white; }
+        .btn-info { background: #00bcd4; color: white; }
         .btn { background: #95a5a6; color: white; }
         
         .status {
@@ -124,14 +137,24 @@
             border-top: 1px solid #34495e;
         }
         
+        .permission-badge {
+            background: #f39c12;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        
         .status span {
             color: #f1c40f;
             font-weight: bold;
         }
         
         @media (max-width: 768px) {
-            .boards-container { 
-                flex-direction: row; 
+            .board-wrapper {
+                width: 90%;
             }
             
             button { 
@@ -155,21 +178,22 @@
 <body>
     <div class="header">
         👨‍🎓 MyClass2 - الطالب
+        <span id="permissionBadge" class="permission-badge" style="display: none;">🟢 يمكنك الكتابة</span>
     </div>
     
-    <div class="boards-container">
-        <!-- سبورة المدرس (كاملة) -->
+    <div class="boards-container" id="boardsContainer">
+        <!-- سبورة المدرس -->
         <div class="board-wrapper">
-            <div class="board-label teacher">👨‍🏫 المدرس</div>
-            <div class="canvas-container">
+            <div class="board-label teacher">👨‍🏫 المدرس (اسحب للتنقل)</div>
+            <div class="canvas-container" id="teacherContainer">
                 <canvas id="teacherBoard"></canvas>
             </div>
         </div>
         
         <!-- سبورة الطالب -->
         <div class="board-wrapper">
-            <div class="board-label student">✏️ سبورتي</div>
-            <div class="canvas-container">
+            <div class="board-label student">✏️ سبورتي (اسحب للتنقل)</div>
+            <div class="canvas-container" id="myContainer">
                 <canvas id="myBoard"></canvas>
             </div>
         </div>
@@ -183,7 +207,8 @@
         <button class="btn" onclick="changeMySize(2)">✏️1</button>
         <button class="btn" onclick="changeMySize(5)">✏️2</button>
         <button class="btn" onclick="changeMySize(8)">✏️3</button>
-        <button class="btn-danger" onclick="clearMyBoard()">🧽 مسح</button>
+        <button class="btn-danger" onclick="clearMyBoard()">🧽 مسح سبورتي</button>
+        <button class="btn-info" onclick="resetView()">🔄 تصغير</button>
     </div>
     
     <div class="status" id="status">
@@ -193,6 +218,8 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- PeerJS for WebRTC -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
     <script>
         // 🔥 تهيئة Firebase
@@ -216,6 +243,7 @@
         const teacherCtx = teacherCanvas.getContext('2d');
         const myCtx = myCanvas.getContext('2d');
         const statusText = document.getElementById('statusText');
+        const permissionBadge = document.getElementById('permissionBadge');
         
         // متغيرات الرسم
         let drawing = false;
@@ -224,14 +252,18 @@
         let lastX = 0;
         let lastY = 0;
         let studentId = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        let canDraw = true; // يأخذها من المدرس
+        
+        // WebRTC للصوت
+        let peer;
+        let call;
         
         // ضبط حجم السبورات
         function resizeCanvases() {
-            teacherCanvas.width = document.querySelectorAll('.canvas-container')[0].clientWidth;
-            teacherCanvas.height = document.querySelectorAll('.canvas-container')[0].clientHeight;
-            
-            myCanvas.width = document.querySelectorAll('.canvas-container')[1].clientWidth;
-            myCanvas.height = document.querySelectorAll('.canvas-container')[1].clientHeight;
+            teacherCanvas.width = 2000;
+            teacherCanvas.height = 2000;
+            myCanvas.width = 2000;
+            myCanvas.height = 2000;
             
             myCtx.strokeStyle = myColor;
             myCtx.lineWidth = mySize;
@@ -240,13 +272,14 @@
         }
         
         window.addEventListener('load', resizeCanvases);
-        window.addEventListener('resize', resizeCanvases);
         
         // الحصول على موقع الماوس
-        function getMousePos(e, canvas) {
+        function getMousePos(e, canvas, container) {
             const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
+            const containerRect = container.getBoundingClientRect();
+            
+            const scrollLeft = container.scrollLeft;
+            const scrollTop = container.scrollTop;
             
             let clientX, clientY;
             
@@ -259,8 +292,8 @@
             }
             
             return {
-                x: (clientX - rect.left) * scaleX,
-                y: (clientY - rect.top) * scaleY
+                x: (clientX - containerRect.left + scrollLeft),
+                y: (clientY - containerRect.top + scrollTop)
             };
         }
         
@@ -286,12 +319,34 @@
             }
         });
         
+        // مراقبة صلاحية الرسم
+        database.ref('onlineStudents/' + studentId).on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                canDraw = data.canDraw !== false;
+                if (canDraw) {
+                    permissionBadge.style.display = 'inline-block';
+                    permissionBadge.innerHTML = '🟢 يمكنك الكتابة';
+                    permissionBadge.style.backgroundColor = '#27ae60';
+                } else {
+                    permissionBadge.style.display = 'inline-block';
+                    permissionBadge.innerHTML = '🔴 الكتابة ممنوعة';
+                    permissionBadge.style.backgroundColor = '#e74c3c';
+                }
+            }
+        });
+        
         // الرسم في سبورة الطالب
         function startDrawing(e) {
             e.preventDefault();
+            if (!canDraw) {
+                alert('المدرس منع الكتابة حالياً');
+                return;
+            }
             drawing = true;
             
-            const pos = getMousePos(e, myCanvas);
+            const container = document.getElementById('myContainer');
+            const pos = getMousePos(e, myCanvas, container);
             lastX = pos.x;
             lastY = pos.y;
             
@@ -301,9 +356,10 @@
         
         function draw(e) {
             e.preventDefault();
-            if (!drawing) return;
+            if (!drawing || !canDraw) return;
             
-            const pos = getMousePos(e, myCanvas);
+            const container = document.getElementById('myContainer');
+            const pos = getMousePos(e, myCanvas, container);
             
             // رسم في سبورة الطالب
             myCtx.strokeStyle = myColor;
@@ -349,26 +405,62 @@
         
         // وظائف الطالب
         function changeMyColor(color) {
+            if (!canDraw) {
+                alert('المدرس منع الكتابة');
+                return;
+            }
             myColor = color;
             myCtx.strokeStyle = color;
         }
         
         function changeMySize(size) {
+            if (!canDraw) {
+                alert('المدرس منع الكتابة');
+                return;
+            }
             mySize = size;
             myCtx.lineWidth = size;
         }
         
         function clearMyBoard() {
+            if (!canDraw) {
+                alert('المدرس منع الكتابة');
+                return;
+            }
             myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
         }
         
-        // مراقبة بث الصوت من المدرس
-        database.ref('audioStream/teacher').on('value', (snapshot) => {
+        function resetView() {
+            document.getElementById('teacherContainer').scrollTo(0, 0);
+            document.getElementById('myContainer').scrollTo(0, 0);
+        }
+        
+        // استقبال بث الصوت من المدرس
+        database.ref('audioStream/teacher').on('value', async (snapshot) => {
             const data = snapshot.val();
-            if (data && data.active) {
-                statusText.innerText = '🎧 المدرس يبث صوت';
+            if (data && data.active && data.peerId) {
+                statusText.innerText = '🎧 جاري الاتصال بالصوت...';
+                
+                // إنشاء PeerJS للطالب
+                peer = new Peer();
+                
+                peer.on('open', (id) => {
+                    // الاتصال بالمدرس
+                    call = peer.call(data.peerId, localStream);
+                    
+                    call.on('stream', (remoteStream) => {
+                        // تشغيل الصوت
+                        const audio = new Audio();
+                        audio.srcObject = remoteStream;
+                        audio.play();
+                        statusText.innerText = '🎧 صوت المدرس شغال';
+                    });
+                });
             } else {
-                statusText.innerText = 'متصل ✓';
+                if (call) {
+                    call.close();
+                }
+                statusText.innerText = 'لا يوجد بث صوتي';
             }
         });
         
@@ -379,6 +471,7 @@
         // تسجيل الطالب كمتصل
         database.ref('onlineStudents/' + studentId).set({
             online: true,
+            canDraw: true,
             timestamp: Date.now()
         });
         
