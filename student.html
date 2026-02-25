@@ -23,7 +23,6 @@
             color: white;
         }
         
-        /* الهيدر */
         .header {
             background: #2c3e50;
             padding: 12px 15px;
@@ -50,11 +49,6 @@
             font-size: 13px;
         }
         
-        .permission-badge i {
-            margin-right: 5px;
-        }
-        
-        /* السكرول الأفقي للسبورات - للطالب فقط */
         .horizontal-scroll {
             display: flex;
             flex: 1;
@@ -67,7 +61,6 @@
             background: #1a2634;
         }
         
-        /* كل سبورة */
         .board-card {
             flex: 0 0 auto;
             width: 90%;
@@ -106,26 +99,8 @@
         
         .board-title i {
             margin-right: 8px;
-            font-size: 18px;
         }
         
-        .board-controls button {
-            background: rgba(255,255,255,0.15);
-            border: none;
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.2s;
-        }
-        
-        .board-controls button:hover {
-            background: #e67e22;
-        }
-        
-        /* السكرول الرأسي داخل السبورة */
         .canvas-wrapper {
             flex: 1;
             overflow: auto;
@@ -139,7 +114,6 @@
             height: 2000px;
             display: block;
             background: white;
-            box-shadow: inset 0 0 0 1px #ddd;
         }
         
         #myCanvas {
@@ -150,7 +124,6 @@
             cursor: default;
         }
         
-        /* شريط الأدوات */
         .toolbar {
             background: #34495e;
             padding: 12px 15px;
@@ -168,7 +141,6 @@
             background: #2c3e50;
             padding: 6px 10px;
             border-radius: 40px;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
         }
         
         .tool-btn {
@@ -181,10 +153,6 @@
             font-size: 18px;
             cursor: pointer;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 3px 5px rgba(0,0,0,0.2);
         }
         
         .tool-btn:hover:not(:disabled) {
@@ -199,7 +167,6 @@
         
         .tool-btn.active {
             background: #3498db;
-            box-shadow: 0 0 15px #3498db;
         }
         
         .color-palette {
@@ -217,7 +184,6 @@
             border: 3px solid #34495e;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 3px 5px rgba(0,0,0,0.2);
         }
         
         .color-btn:hover:not(.disabled) {
@@ -230,12 +196,6 @@
             box-shadow: 0 0 15px white;
         }
         
-        .color-btn.disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        
-        /* حالة الاتصال */
         .connection-status {
             padding: 6px 15px;
             background: #1a2634;
@@ -262,34 +222,9 @@
             background: #e67e22;
             box-shadow: 0 0 10px #e67e22;
         }
-        
-        /* تلميحات */
-        .hint {
-            font-size: 11px;
-            color: #bdc3c7;
-            margin-top: 3px;
-        }
-        
-        @media (max-width: 480px) {
-            .board-card {
-                width: 95%;
-            }
-            
-            .tool-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
-            
-            .color-btn {
-                width: 30px;
-                height: 30px;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- الهيدر -->
     <div class="header">
         <div class="logo">
             <i class="fas fa-user-graduate"></i> MyClass2 - الطالب
@@ -299,36 +234,25 @@
         </div>
     </div>
     
-    <!-- السكرول الأفقي للسبورات (للموبايل) -->
-    <div class="horizontal-scroll" id="horizontalScroll">
+    <div class="horizontal-scroll">
         <!-- سبورة المدرس -->
         <div class="board-card">
             <div class="board-header teacher">
                 <span class="board-title">
                     <i class="fas fa-chalkboard-teacher"></i> المدرس
                 </span>
-                <div class="board-controls">
-                    <button onclick="resetScroll('teacher')" title="تصغير العرض">
-                        <i class="fas fa-compress-alt"></i>
-                    </button>
-                </div>
             </div>
             <div class="canvas-wrapper" id="teacherWrapper">
                 <canvas class="board-canvas" id="teacherCanvas"></canvas>
             </div>
         </div>
         
-        <!-- سبورة الطالب الخاصة -->
+        <!-- سبورة الطالب -->
         <div class="board-card">
             <div class="board-header student">
                 <span class="board-title">
                     <i class="fas fa-pencil-alt"></i> سبورتي
                 </span>
-                <div class="board-controls">
-                    <button onclick="resetScroll('my')" title="تصغير العرض">
-                        <i class="fas fa-compress-alt"></i>
-                    </button>
-                </div>
             </div>
             <div class="canvas-wrapper" id="myWrapper">
                 <canvas class="board-canvas" id="myCanvas"></canvas>
@@ -336,33 +260,27 @@
         </div>
     </div>
     
-    <!-- شريط الأدوات -->
     <div class="toolbar">
-        <!-- الألوان -->
         <div class="color-palette">
-            <div class="color-btn active" style="background: black;" onclick="changeColor('black')" title="أسود"></div>
-            <div class="color-btn" style="background: red;" onclick="changeColor('red')" title="أحمر"></div>
-            <div class="color-btn" style="background: blue;" onclick="changeColor('blue')" title="أزرق"></div>
-            <div class="color-btn" style="background: green;" onclick="changeColor('green')" title="أخضر"></div>
-            <div class="color-btn" style="background: purple;" onclick="changeColor('purple')" title="بنفسجي"></div>
+            <div class="color-btn active" style="background: black;" onclick="changeColor('black')"></div>
+            <div class="color-btn" style="background: red;" onclick="changeColor('red')"></div>
+            <div class="color-btn" style="background: blue;" onclick="changeColor('blue')"></div>
+            <div class="color-btn" style="background: green;" onclick="changeColor('green')"></div>
         </div>
         
-        <!-- أحجام القلم -->
         <div class="tool-group">
-            <button class="tool-btn" onclick="changeSize(2)" title="قلم رفيع"><i class="fas fa-pen"></i></button>
-            <button class="tool-btn" onclick="changeSize(5)" title="قلم متوسط"><i class="fas fa-pen-fancy"></i></button>
-            <button class="tool-btn" onclick="changeSize(8)" title="قلم سميك"><i class="fas fa-paint-brush"></i></button>
+            <button class="tool-btn" onclick="changeSize(2)"><i class="fas fa-pen"></i></button>
+            <button class="tool-btn" onclick="changeSize(5)"><i class="fas fa-pen-fancy"></i></button>
+            <button class="tool-btn" onclick="changeSize(8)"><i class="fas fa-paint-brush"></i></button>
         </div>
         
-        <!-- الأدوات -->
         <div class="tool-group">
-            <button class="tool-btn active" id="penBtn" onclick="setPen()" title="قلم"><i class="fas fa-pencil-alt"></i></button>
-            <button class="tool-btn" id="eraserBtn" onclick="setEraser()" title="ممحاة"><i class="fas fa-eraser"></i></button>
-            <button class="tool-btn" onclick="clearMyBoard()" title="مسح سبورتي"><i class="fas fa-trash-alt"></i></button>
+            <button class="tool-btn active" id="penBtn" onclick="setPen()"><i class="fas fa-pencil-alt"></i></button>
+            <button class="tool-btn" id="eraserBtn" onclick="setEraser()"><i class="fas fa-eraser"></i></button>
+            <button class="tool-btn" onclick="clearMyBoard()"><i class="fas fa-trash-alt"></i></button>
         </div>
     </div>
     
-    <!-- حالة الاتصال -->
     <div class="connection-status" id="status">
         <span class="status-badge online" id="connectionBadge"></span>
         <span id="statusText">جاري الاتصال...</span>
@@ -373,7 +291,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        // ================== إعداد Firebase ==================
+        // ================== Firebase ==================
         const firebaseConfig = {
             apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
             authDomain: "myclaive.firebaseapp.com",
@@ -400,7 +318,7 @@
         const connectionBadge = document.getElementById('connectionBadge');
         const permissionBadge = document.getElementById('permissionBadge');
         
-        // ================== متغيرات الرسم ==================
+        // ================== متغيرات ==================
         let drawing = false;
         let currentTool = 'pen';
         let currentColor = 'black';
@@ -410,17 +328,16 @@
         
         const studentId = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
         
-        // ================== الصوت ==================
-        let audioContext = null;
-        let audioStream = null;
-        let audioElement = null;
-        
         // ================== تهيئة الكانفاس ==================
         function initCanvases() {
             teacherCanvas.width = 2000;
             teacherCanvas.height = 2000;
             myCanvas.width = 2000;
             myCanvas.height = 2000;
+            
+            // تنظيف أي رسم قديم
+            teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
+            myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
             
             [teacherCtx, myCtx].forEach(ctx => {
                 ctx.lineCap = 'round';
@@ -431,7 +348,7 @@
         }
         initCanvases();
         
-        // ================== الحصول على موقع الرسم بدقة ==================
+        // ================== موقع الرسم ==================
         function getDrawingPosition(e, canvas, wrapper) {
             const rect = canvas.getBoundingClientRect();
             const wrapperRect = wrapper.getBoundingClientRect();
@@ -449,7 +366,6 @@
                 clientY = e.clientY;
             }
             
-            // حساب الموقع بدقة مع السكرول
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
             
@@ -482,7 +398,6 @@
             
             const pos = getDrawingPosition(e, myCanvas, myWrapper);
             
-            // تطبيق الأداة الحالية
             if (currentTool === 'eraser') {
                 myCtx.globalCompositeOperation = 'destination-out';
                 myCtx.strokeStyle = 'rgba(0,0,0,1)';
@@ -524,7 +439,7 @@
         }
         
         // ================== استقبال رسم المدرس ==================
-        // رسم المدرس على سبورته
+        // استقبال رسم المدرس على سبورته - مسح القديم أولاً
         db.ref('teacherDrawings').on('child_added', (snapshot) => {
             const data = snapshot.val();
             
@@ -538,7 +453,7 @@
             teacherCtx.stroke();
         });
         
-        // رسم المدرس على سبورة الطلاب
+        // استقبال رسم المدرس على سبورة الطلاب
         db.ref('teacherDrawingsOnStudent').on('child_added', (snapshot) => {
             const data = snapshot.val();
             
@@ -552,7 +467,19 @@
             myCtx.stroke();
         });
         
-        // أوامر المدرس (مسح)
+        // ================== المسح الفوري عند الرفش ==================
+        // لما الطالب يدخل جديد، يمسح أي رسم قديم
+        window.addEventListener('load', () => {
+            // مسح السبورات
+            teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
+            myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
+            
+            // طلب رسم جديد من المدرس فقط (بدون القديم)
+            // ملاحظة: مش بنجيب الرسم القديم من Firebase
+            console.log('تم مسح السبورات - جاهز لاستقبال رسم جديد');
+        });
+        
+        // ================== أوامر المدرس ==================
         db.ref('teacherCommands').on('child_added', (snapshot) => {
             const data = snapshot.val();
             if (data.type === 'clear') {
@@ -562,41 +489,17 @@
         });
         
         // ================== الصوت ==================
-        function initAudio() {
-            try {
-                // إنشاء عنصر صوت مخفي
-                audioElement = new Audio();
-                audioElement.autoplay = true;
-                
-                // مراقبة بث الصوت من المدرس
-                db.ref('audioStream/teacher').on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    
-                    if (data && data.active) {
-                        statusText.innerText = '🎧 المدرس يبث صوت';
-                        connectionBadge.className = 'status-badge audio';
-                        
-                        // محاولة تشغيل الصوت (هذا مثال بسيط)
-                        // في التطبيق الحقيقي، نحتاج WebRTC أو رابط صوت مباشر
-                        console.log('المدرس يبث صوت');
-                        
-                    } else {
-                        statusText.innerText = '✓ متصل';
-                        connectionBadge.className = 'status-badge online';
-                    }
-                });
-                
-            } catch (err) {
-                console.error('خطأ في إعداد الصوت:', err);
+        db.ref('audioStream/teacher').on('value', (snapshot) => {
+            const data = snapshot.val();
+            
+            if (data && data.active) {
+                statusText.innerText = '🎧 المدرس يبث صوت';
+                connectionBadge.className = 'status-badge audio';
+            } else {
+                statusText.innerText = '✓ متصل';
+                connectionBadge.className = 'status-badge online';
             }
-        }
-        
-        // تشغيل الصوت يدوياً (للتغلب على قيود المتصفح)
-        function enableAudio() {
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-        }
+        });
         
         // ================== وظائف الطالب ==================
         function changeColor(color) {
@@ -635,15 +538,7 @@
             myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
         }
         
-        function resetScroll(board) {
-            if (board === 'teacher') {
-                teacherWrapper.scrollTo({ left: 0, top: 0, behavior: 'smooth' });
-            } else {
-                myWrapper.scrollTo({ left: 0, top: 0, behavior: 'smooth' });
-            }
-        }
-        
-        // ================== مراقبة صلاحية الرسم ==================
+        // ================== صلاحية الرسم ==================
         db.ref('teacherControls').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -658,19 +553,17 @@
             }
         });
         
-        // ================== أحداث الماوس ==================
+        // ================== أحداث ==================
         myCanvas.addEventListener('mousedown', startDrawing);
         myCanvas.addEventListener('mousemove', draw);
         myCanvas.addEventListener('mouseup', stopDrawing);
         myCanvas.addEventListener('mouseleave', stopDrawing);
         
-        // للموبايل
         myCanvas.addEventListener('touchstart', startDrawing, { passive: false });
         myCanvas.addEventListener('touchmove', draw, { passive: false });
         myCanvas.addEventListener('touchend', stopDrawing);
         myCanvas.addEventListener('touchcancel', stopDrawing);
         
-        // منع القائمة اليمنى
         [teacherCanvas, myCanvas].forEach(canvas => {
             canvas.addEventListener('contextmenu', (e) => e.preventDefault());
         });
@@ -682,17 +575,9 @@
             timestamp: Date.now()
         });
         
-        // عند الخروج
         window.addEventListener('beforeunload', () => {
             db.ref('onlineStudents/' + studentId).remove();
         });
-        
-        // تفعيل الصوت عند أول لمسة (للتغلب على قيود المتصفح)
-        document.body.addEventListener('touchstart', enableAudio, { once: true });
-        document.body.addEventListener('click', enableAudio, { once: true });
-        
-        // تهيئة الصوت
-        initAudio();
         
         // تنشيط القلم
         setPen();
