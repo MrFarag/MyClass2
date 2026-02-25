@@ -1,334 +1,412 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MyClass2 - الطالب</title>
-    <!-- Font Awesome للأيقونات -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        
+
+        :root {
+            --header-h: 50px;
+            --toolbar-h: 62px;
+            --status-h: 42px;
+            --gap: 8px;
+            --boards-padding: 8px;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: none;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a2634;
+            background: #111b27;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
             color: white;
         }
-        
-        /* الهيدر */
+
+        /* ===== HEADER ===== */
         .header {
-            background: #2c3e50;
-            padding: 12px 15px;
+            height: var(--header-h);
+            min-height: var(--header-h);
+            background: #1e2d3d;
+            padding: 0 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 3px solid #3498db;
+            border-bottom: 2px solid #3498db;
+            flex-shrink: 0;
+            z-index: 10;
         }
-        
+
         .logo {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        
-        .logo i {
-            color: #3498db;
-            margin-right: 5px;
-        }
-        
+
+        .logo i { color: #3498db; }
+
         .permission-badge {
             background: #27ae60;
-            padding: 5px 12px;
-            border-radius: 30px;
-            font-size: 13px;
-        }
-        
-        /* السبورات تحت بعض - vertical layout */
-        .boards-vertical {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            overflow: hidden;
-            padding: 10px;
-            gap: 10px;
-            background: #1a2634;
-        }
-        
-        /* كل سبورة */
-        .board-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #2c3e50;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            border: 1px solid #3d566e;
-        }
-        
-        .board-header {
-            padding: 10px 15px;
-            background: #34495e;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .board-header.teacher {
-            border-bottom: 3px solid #e67e22;
-        }
-        
-        .board-header.student {
-            border-bottom: 3px solid #27ae60;
-        }
-        
-        .board-title {
-            font-size: 15px;
-            font-weight: bold;
-        }
-        
-        .board-title i {
-            margin-right: 8px;
-        }
-        
-        /* حاوية الكانفاس مع السكرول */
-        .canvas-wrapper {
-            flex: 1;
-            overflow: auto;
-            background: #f5f5f5;
-            -webkit-overflow-scrolling: touch;
-            position: relative;
-        }
-        
-        .board-canvas {
-            width: 2000px;
-            height: 2000px;
-            display: block;
-            background: white;
-        }
-        
-        #myCanvas {
-            cursor: crosshair;
-        }
-        
-        #teacherCanvas {
-            cursor: default;
-        }
-        
-        /* شريط الأدوات */
-        .toolbar {
-            background: #34495e;
-            padding: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-            justify-content: center;
-            border-top: 3px solid #3498db;
-        }
-        
-        .tool-group {
-            display: flex;
-            gap: 5px;
-            background: #2c3e50;
-            padding: 5px 10px;
-            border-radius: 30px;
-        }
-        
-        .tool-btn {
-            width: 40px;
-            height: 40px;
-            border: none;
-            border-radius: 50%;
-            background: #3d566e;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .tool-btn:hover:not(:disabled) {
-            background: #3498db;
-            transform: scale(1.1);
-        }
-        
-        .tool-btn.active {
-            background: #3498db;
-        }
-        
-        .color-palette {
-            display: flex;
-            gap: 5px;
-            background: #2c3e50;
-            padding: 5px 10px;
-            border-radius: 30px;
-        }
-        
-        .color-btn {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 2px solid #34495e;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .color-btn:hover {
-            transform: scale(1.15);
-            border-color: white;
-        }
-        
-        .color-btn.active {
-            border-color: white;
-            box-shadow: 0 0 10px white;
-        }
-        
-        /* حالة الاتصال */
-        .status-bar {
-            background: #1a2634;
-            padding: 8px 15px;
-            font-size: 13px;
-            color: #ecf0f1;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-top: 1px solid #34495e;
-        }
-        
-        .status-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-        
-        .status-dot.online {
-            background: #27ae60;
-            box-shadow: 0 0 10px #27ae60;
-        }
-        
-        .status-dot.audio {
-            background: #e67e22;
-            box-shadow: 0 0 10px #e67e22;
-            animation: pulse 1s infinite;
-        }
-        
-        .audio-badge {
-            background: #e67e22;
-            padding: 3px 10px;
+            padding: 4px 10px;
             border-radius: 20px;
             font-size: 12px;
             display: flex;
             align-items: center;
             gap: 5px;
         }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+
+        /* ===== BOARDS AREA ===== */
+        .boards-vertical {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: var(--boards-padding);
+            gap: var(--gap);
+            overflow: hidden;
+            min-height: 0;
         }
-        
-        @media (max-width: 480px) {
-            .tool-btn {
-                width: 35px;
-                height: 35px;
-                font-size: 14px;
-            }
-            
-            .color-btn {
-                width: 28px;
-                height: 28px;
-            }
+
+        .board-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1e2d3d;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #2c4159;
+            min-height: 0;
+        }
+
+        .board-header {
+            padding: 7px 12px;
+            background: #243447;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .board-header.teacher { border-bottom: 3px solid #e67e22; }
+        .board-header.student { border-bottom: 3px solid #27ae60; }
+
+        .board-title {
+            font-size: 13px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .audio-badge {
+            background: #e67e22;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            animation: pulseBadge 1s infinite;
+        }
+
+        @keyframes pulseBadge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* ===== CANVAS WRAPPER ===== */
+        .canvas-wrapper {
+            flex: 1;
+            overflow: auto;
+            background: #f5f5f5;
+            -webkit-overflow-scrolling: touch;
+            min-height: 0;
+            position: relative;
+        }
+
+        .board-canvas {
+            width: 2000px;
+            height: 2000px;
+            display: block;
+            background: white;
+        }
+
+        #myCanvas { cursor: crosshair; touch-action: none; }
+        #teacherCanvas { cursor: default; touch-action: pan-x pan-y; }
+
+        /* ===== TOOLBAR ===== */
+        .toolbar {
+            height: var(--toolbar-h);
+            min-height: var(--toolbar-h);
+            background: #1e2d3d;
+            border-top: 2px solid #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 10px;
+            flex-shrink: 0;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+
+        .toolbar::-webkit-scrollbar { display: none; }
+
+        .color-palette {
+            display: flex;
+            gap: 5px;
+            background: #111b27;
+            padding: 5px 8px;
+            border-radius: 25px;
+            align-items: center;
+        }
+
+        .color-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+        }
+
+        .color-btn.active {
+            border-color: white;
+            box-shadow: 0 0 8px rgba(255,255,255,0.5);
+            transform: scale(1.15);
+        }
+
+        .tool-group {
+            display: flex;
+            gap: 4px;
+            background: #111b27;
+            padding: 5px 8px;
+            border-radius: 25px;
+            align-items: center;
+        }
+
+        .tool-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: #2c4159;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tool-btn:active { transform: scale(0.9); }
+        .tool-btn.active { background: #3498db; }
+        .tool-btn:hover { background: #3498db; }
+
+        /* ===== STATUS BAR ===== */
+        .status-bar {
+            height: var(--status-h);
+            min-height: var(--status-h);
+            background: #0e1820;
+            padding: 0 12px;
+            font-size: 12px;
+            color: #aab8c8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #243447;
+            flex-shrink: 0;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .status-dot.online { background: #27ae60; box-shadow: 0 0 8px #27ae60; }
+        .status-dot.connecting { background: #f39c12; animation: blink 0.8s infinite; }
+        .status-dot.audio { background: #e67e22; animation: blink 1s infinite; }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Audio Controls */
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .audio-icon {
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .audio-icon.muted { color: #e74c3c; }
+        .audio-icon.active { color: #e67e22; }
+        .audio-icon.mic-on { color: #27ae60; }
+
+        .volume-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+        }
+
+        .volume-btn:active { opacity: 0.6; }
+
+        /* Audio active animation */
+        .audio-waves {
+            display: flex;
+            gap: 2px;
+            align-items: center;
+        }
+
+        .audio-waves span {
+            display: block;
+            width: 3px;
+            background: #e67e22;
+            border-radius: 2px;
+            animation: wave 0.8s infinite ease-in-out;
+        }
+
+        .audio-waves span:nth-child(1) { height: 8px; animation-delay: 0s; }
+        .audio-waves span:nth-child(2) { height: 14px; animation-delay: 0.15s; }
+        .audio-waves span:nth-child(3) { height: 8px; animation-delay: 0.3s; }
+
+        @keyframes wave {
+            0%, 100% { transform: scaleY(0.5); }
+            50% { transform: scaleY(1.2); }
         }
     </style>
 </head>
 <body>
+
     <!-- الهيدر -->
     <div class="header">
         <div class="logo">
-            <i class="fas fa-user-graduate"></i> MyClass2
+            <i class="fas fa-user-graduate"></i>
+            MyClass2
         </div>
         <div class="permission-badge" id="permissionBadge">
             <i class="fas fa-lock-open"></i> يمكنك الكتابة
         </div>
     </div>
-    
-    <!-- السبورات تحت بعض - vertical -->
+
+    <!-- السبورات تحت بعض -->
     <div class="boards-vertical">
+
         <!-- سبورة المدرس (فوق) -->
         <div class="board-container">
             <div class="board-header teacher">
                 <span class="board-title">
-                    <i class="fas fa-chalkboard-teacher"></i> المدرس
+                    <i class="fas fa-chalkboard-teacher" style="color:#e67e22"></i> سبورة المدرس
                 </span>
-                <span id="teacherAudioBadge" style="display: none;" class="audio-badge">
-                    <i class="fas fa-volume-up"></i> صوت
+                <span id="teacherAudioBadge" style="display:none;" class="audio-badge">
+                    <i class="fas fa-volume-up"></i> صوت مباشر
                 </span>
             </div>
             <div class="canvas-wrapper" id="teacherWrapper">
                 <canvas class="board-canvas" id="teacherCanvas"></canvas>
             </div>
         </div>
-        
-        <!-- سبورة الطالب (تحت) -->
+
+        <!-- سبورتي (تحت) -->
         <div class="board-container">
             <div class="board-header student">
                 <span class="board-title">
-                    <i class="fas fa-pencil-alt"></i> سبورتي
+                    <i class="fas fa-pencil-alt" style="color:#27ae60"></i> سبورتي
                 </span>
             </div>
             <div class="canvas-wrapper" id="myWrapper">
                 <canvas class="board-canvas" id="myCanvas"></canvas>
             </div>
         </div>
+
     </div>
-    
+
     <!-- شريط الأدوات -->
     <div class="toolbar">
+
         <!-- الألوان -->
         <div class="color-palette">
-            <div class="color-btn active" style="background: black;" onclick="changeColor('black')"></div>
-            <div class="color-btn" style="background: red;" onclick="changeColor('red')"></div>
-            <div class="color-btn" style="background: blue;" onclick="changeColor('blue')"></div>
-            <div class="color-btn" style="background: green;" onclick="changeColor('green')"></div>
+            <div class="color-btn active" style="background:#111111" onclick="changeColor('black',this)" title="أسود"></div>
+            <div class="color-btn" style="background:#e74c3c" onclick="changeColor('#e74c3c',this)" title="أحمر"></div>
+            <div class="color-btn" style="background:#3498db" onclick="changeColor('#3498db',this)" title="أزرق"></div>
+            <div class="color-btn" style="background:#27ae60" onclick="changeColor('#27ae60',this)" title="أخضر"></div>
+            <div class="color-btn" style="background:#f39c12" onclick="changeColor('#f39c12',this)" title="برتقالي"></div>
         </div>
-        
-        <!-- الأحجام -->
+
+        <!-- الحجم والأدوات -->
         <div class="tool-group">
-            <button class="tool-btn" onclick="changeSize(2)"><i class="fas fa-pen"></i></button>
-            <button class="tool-btn" onclick="changeSize(5)"><i class="fas fa-pen-fancy"></i></button>
-            <button class="tool-btn" onclick="changeSize(8)"><i class="fas fa-paint-brush"></i></button>
+            <button class="tool-btn" onclick="changeSize(2)" title="رفيع"><i class="fas fa-pen"></i></button>
+            <button class="tool-btn active" onclick="changeSize(5)" title="وسط"><i class="fas fa-pen-fancy"></i></button>
+            <button class="tool-btn" onclick="changeSize(10)" title="سميك"><i class="fas fa-paint-brush"></i></button>
         </div>
-        
+
         <!-- الأدوات -->
         <div class="tool-group">
-            <button class="tool-btn active" id="penBtn" onclick="setPen()"><i class="fas fa-pencil-alt"></i></button>
-            <button class="tool-btn" id="eraserBtn" onclick="setEraser()"><i class="fas fa-eraser"></i></button>
-            <button class="tool-btn" onclick="clearMyBoard()"><i class="fas fa-trash-alt"></i></button>
+            <button class="tool-btn active" id="penBtn" onclick="setPen()" title="قلم"><i class="fas fa-pencil-alt"></i></button>
+            <button class="tool-btn" id="eraserBtn" onclick="setEraser()" title="ممحاة"><i class="fas fa-eraser"></i></button>
+            <button class="tool-btn" onclick="clearMyBoard()" title="مسح الكل" style="color:#e74c3c"><i class="fas fa-trash-alt"></i></button>
         </div>
+
     </div>
-    
-    <!-- حالة الاتصال مع الصوت -->
+
+    <!-- شريط الحالة -->
     <div class="status-bar">
         <div class="status-left">
-            <span class="status-dot" id="statusDot"></span>
+            <span class="status-dot connecting" id="statusDot"></span>
             <span id="statusText">جاري الاتصال...</span>
         </div>
-        <div id="audioStatus">
-            <i class="fas fa-microphone-slash" style="color: #e74c3c;"></i>
+        <!-- عناصر الصوت -->
+        <div class="audio-controls">
+            <!-- مايك الطالب -->
+            <button class="volume-btn" id="micBtn" onclick="toggleMic()" title="المايكروفون">
+                <i class="fas fa-microphone-slash audio-icon muted" id="micIcon"></i>
+            </button>
+            <!-- صوت المدرس -->
+            <div id="audioStatus" class="audio-icon muted">
+                <i class="fas fa-volume-mute" id="speakerIcon"></i>
+            </div>
+            <!-- موجات الصوت (تظهر عند البث) -->
+            <div class="audio-waves" id="audioWaves" style="display:none;">
+                <span></span><span></span><span></span>
+            </div>
         </div>
     </div>
 
@@ -337,343 +415,309 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        // ================== Firebase ==================
-        const firebaseConfig = {
-            apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
-            authDomain: "myclaive.firebaseapp.com",
-            databaseURL: "https://myclaive-default-rtdb.firebaseio.com",
-            projectId: "myclaive",
-            storageBucket: "myclaive.firebasestorage.app",
-            messagingSenderId: "507299311714",
-            appId: "1:507299311714:web:c90440ee4353cfac17613b"
-        };
+    // ================== Firebase ==================
+    const firebaseConfig = {
+        apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
+        authDomain: "myclaive.firebaseapp.com",
+        databaseURL: "https://myclaive-default-rtdb.firebaseio.com",
+        projectId: "myclaive",
+        storageBucket: "myclaive.firebasestorage.app",
+        messagingSenderId: "507299311714",
+        appId: "1:507299311714:web:c90440ee4353cfac17613b"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        
-        // ================== عناصر الصفحة ==================
-        const teacherCanvas = document.getElementById('teacherCanvas');
-        const myCanvas = document.getElementById('myCanvas');
-        const teacherCtx = teacherCanvas.getContext('2d');
-        const myCtx = myCanvas.getContext('2d');
-        
-        const statusText = document.getElementById('statusText');
-        const statusDot = document.getElementById('statusDot');
-        const permissionBadge = document.getElementById('permissionBadge');
-        const audioStatus = document.getElementById('audioStatus');
-        const teacherAudioBadge = document.getElementById('teacherAudioBadge');
-        
-        // ================== متغيرات الرسم ==================
-        let drawing = false;
-        let currentTool = 'pen';
-        let currentColor = 'black';
-        let currentSize = 3;
-        let lastX = 0, lastY = 0;
-        let canDraw = true;
-        
-        const studentId = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-        
-        // ================== الصوت ==================
-        let audioElement = null;
-        let isAudioPlaying = false;
-        
-        // تهيئة الصوت
-        function initAudio() {
-            try {
-                // إنشاء عنصر صوت
-                audioElement = new Audio();
-                audioElement.autoplay = true;
-                
-                // مراقبة بث الصوت من المدرس
-                db.ref('audioStream/teacher').on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    
-                    if (data && data.active) {
-                        // المدرس يبث صوت
-                        statusText.innerText = 'المدرس يبث صوت';
-                        statusDot.className = 'status-dot audio';
-                        audioStatus.innerHTML = '<i class="fas fa-volume-up" style="color: #e67e22;"></i> صوت مباشر';
-                        teacherAudioBadge.style.display = 'flex';
-                        
-                        // تشغيل الصوت (مثال - هنا نحتاج رابط حقيقي)
-                        playAudioStream();
-                        
-                    } else {
-                        // لا يوجد بث
-                        statusText.innerText = 'متصل';
-                        statusDot.className = 'status-dot online';
-                        audioStatus.innerHTML = '<i class="fas fa-microphone-slash" style="color: #e74c3c;"></i>';
-                        teacherAudioBadge.style.display = 'none';
-                        
-                        // إيقاف الصوت
-                        stopAudioStream();
-                    }
-                });
-                
-            } catch (err) {
-                console.error('خطأ في الصوت:', err);
-                statusText.innerText = 'خطأ في الصوت';
-            }
+    // ================== عناصر ==================
+    const teacherCanvas = document.getElementById('teacherCanvas');
+    const myCanvas = document.getElementById('myCanvas');
+    const teacherCtx = teacherCanvas.getContext('2d');
+    const myCtx = myCanvas.getContext('2d');
+
+    const statusText   = document.getElementById('statusText');
+    const statusDot    = document.getElementById('statusDot');
+    const permissionBadge  = document.getElementById('permissionBadge');
+    const teacherAudioBadge = document.getElementById('teacherAudioBadge');
+    const micBtn       = document.getElementById('micBtn');
+    const micIcon      = document.getElementById('micIcon');
+    const speakerIcon  = document.getElementById('speakerIcon');
+    const audioWaves   = document.getElementById('audioWaves');
+    const audioStatus  = document.getElementById('audioStatus');
+
+    // ================== متغيرات ==================
+    let drawing = false;
+    let currentTool  = 'pen';
+    let currentColor = 'black';
+    let currentSize  = 5;
+    let lastX = 0, lastY = 0;
+    let canDraw = true;
+    let micStream = null;
+    let isMicOn = false;
+
+    const studentId = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+
+    // ================== تهيئة الكانفاس ==================
+    function initCanvases() {
+        teacherCanvas.width  = 2000; teacherCanvas.height = 2000;
+        myCanvas.width       = 2000; myCanvas.height      = 2000;
+        [teacherCtx, myCtx].forEach(ctx => {
+            ctx.lineCap   = 'round';
+            ctx.lineJoin  = 'round';
+            ctx.lineWidth = currentSize;
+            ctx.strokeStyle = currentColor;
+        });
+    }
+    initCanvases();
+
+    // ================== موقع الرسم ==================
+    function getPos(e, canvas, wrapperId) {
+        const wrapper = document.getElementById(wrapperId);
+        const wRect   = wrapper.getBoundingClientRect();
+        const scaleX  = canvas.width  / wrapper.clientWidth;
+        const scaleY  = canvas.height / wrapper.clientHeight;
+
+        let cx, cy;
+        if (e.touches && e.touches.length > 0) {
+            cx = e.touches[0].clientX;
+            cy = e.touches[0].clientY;
+        } else {
+            cx = e.clientX;
+            cy = e.clientY;
         }
-        
-        // تشغيل الصوت
-        function playAudioStream() {
-            if (!audioElement) return;
-            
-            // هذا مثال - في الواقع هنحتاج رابط بث حقيقي من المدرس
-            // audioElement.src = 'رابط الصوت';
-            // audioElement.play();
-            
-            isAudioPlaying = true;
-            console.log('جاري تشغيل الصوت...');
-        }
-        
-        // إيقاف الصوت
-        function stopAudioStream() {
-            if (audioElement) {
-                audioElement.pause();
-                audioElement.src = '';
-            }
-            isAudioPlaying = false;
-        }
-        
-        // تفعيل الصوت (للتغلب على قيود المتصفح)
-        function enableAudio() {
-            if (audioElement) {
-                audioElement.play().catch(e => console.log('المتصفح منع التشغيل التلقائي'));
-            }
-        }
-        
-        // ================== تهيئة الكانفاس ==================
-        function initCanvases() {
-            teacherCanvas.width = 2000;
-            teacherCanvas.height = 2000;
-            myCanvas.width = 2000;
-            myCanvas.height = 2000;
-            
-            // مسح أي رسم قديم
-            teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
-            myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-            
-            [teacherCtx, myCtx].forEach(ctx => {
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.lineWidth = currentSize;
-                ctx.strokeStyle = currentColor;
-            });
-        }
-        initCanvases();
-        
-        // ================== موقع الرسم ==================
-        function getDrawingPosition(e, canvas, wrapperId) {
-            const wrapper = document.getElementById(wrapperId);
-            const rect = canvas.getBoundingClientRect();
-            const wrapperRect = wrapper.getBoundingClientRect();
-            
-            const scrollLeft = wrapper.scrollLeft;
-            const scrollTop = wrapper.scrollTop;
-            
-            let clientX, clientY;
-            
-            if (e.touches) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-            
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            
-            const x = (clientX - wrapperRect.left) * scaleX + scrollLeft;
-            const y = (clientY - wrapperRect.top) * scaleY + scrollTop;
-            
-            return { x, y };
-        }
-        
-        // ================== الرسم ==================
-        function startDrawing(e) {
-            e.preventDefault();
-            if (!canDraw) {
-                alert('الكتابة ممنوعة من المدرس');
-                return;
-            }
-            drawing = true;
-            
-            const pos = getDrawingPosition(e, myCanvas, 'myWrapper');
-            lastX = pos.x;
-            lastY = pos.y;
-            
-            myCtx.beginPath();
-            myCtx.moveTo(pos.x, pos.y);
-        }
-        
-        function draw(e) {
-            e.preventDefault();
-            if (!drawing || !canDraw) return;
-            
-            const pos = getDrawingPosition(e, myCanvas, 'myWrapper');
-            
-            if (currentTool === 'eraser') {
-                myCtx.globalCompositeOperation = 'destination-out';
-                myCtx.strokeStyle = 'rgba(0,0,0,1)';
-                myCtx.lineWidth = 30;
-            } else {
-                myCtx.globalCompositeOperation = 'source-over';
-                myCtx.strokeStyle = currentColor;
-                myCtx.lineWidth = currentSize;
-            }
-            
-            myCtx.lineTo(pos.x, pos.y);
-            myCtx.stroke();
-            myCtx.beginPath();
-            myCtx.moveTo(pos.x, pos.y);
-            
-            // بث الرسم للمدرس
-            const drawData = {
-                x: pos.x,
-                y: pos.y,
-                lastX: lastX,
-                lastY: lastY,
-                color: currentTool === 'eraser' ? 'white' : currentColor,
-                size: currentTool === 'eraser' ? 30 : currentSize,
-                studentId: studentId,
-                timestamp: Date.now()
-            };
-            
-            db.ref('studentDrawings').push(drawData);
-            
-            lastX = pos.x;
-            lastY = pos.y;
-        }
-        
-        function stopDrawing() {
-            drawing = false;
-            myCtx.beginPath();
+
+        return {
+            x: (cx - wRect.left + wrapper.scrollLeft) * scaleX,
+            y: (cy - wRect.top  + wrapper.scrollTop)  * scaleY
+        };
+    }
+
+    // ================== الرسم ==================
+    function startDrawing(e) {
+        e.preventDefault();
+        if (!canDraw) { showNoPermission(); return; }
+        drawing = true;
+        const pos = getPos(e, myCanvas, 'myWrapper');
+        lastX = pos.x; lastY = pos.y;
+        myCtx.beginPath();
+        myCtx.moveTo(pos.x, pos.y);
+    }
+
+    function draw(e) {
+        e.preventDefault();
+        if (!drawing || !canDraw) return;
+
+        const pos = getPos(e, myCanvas, 'myWrapper');
+
+        if (currentTool === 'eraser') {
+            myCtx.globalCompositeOperation = 'destination-out';
+            myCtx.strokeStyle = 'rgba(0,0,0,1)';
+            myCtx.lineWidth   = 30;
+        } else {
             myCtx.globalCompositeOperation = 'source-over';
+            myCtx.strokeStyle = currentColor;
+            myCtx.lineWidth   = currentSize;
         }
-        
-        // ================== استقبال رسم المدرس ==================
-        db.ref('teacherDrawings').on('child_added', (snapshot) => {
-            const data = snapshot.val();
-            
-            teacherCtx.strokeStyle = data.color;
-            teacherCtx.lineWidth = data.size || 3;
-            teacherCtx.lineCap = 'round';
-            
-            teacherCtx.beginPath();
-            teacherCtx.moveTo(data.lastX, data.lastY);
-            teacherCtx.lineTo(data.x, data.y);
-            teacherCtx.stroke();
-        });
-        
-        db.ref('teacherDrawingsOnStudent').on('child_added', (snapshot) => {
-            const data = snapshot.val();
-            
-            myCtx.strokeStyle = data.color;
-            myCtx.lineWidth = data.size || 3;
-            myCtx.lineCap = 'round';
-            
-            myCtx.beginPath();
-            myCtx.moveTo(data.lastX, data.lastY);
-            myCtx.lineTo(data.x, data.y);
-            myCtx.stroke();
-        });
-        
-        // ================== أوامر المدرس ==================
-        db.ref('teacherCommands').on('child_added', (snapshot) => {
-            const data = snapshot.val();
-            if (data.type === 'clear') {
-                teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
-                myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-            }
-        });
-        
-        // ================== وظائف الطالب ==================
-        function changeColor(color) {
-            if (!canDraw) return;
-            currentColor = color;
-            currentTool = 'pen';
-            
-            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            document.getElementById('penBtn').classList.add('active');
-            document.getElementById('eraserBtn').classList.remove('active');
-        }
-        
-        function changeSize(size) {
-            if (!canDraw) return;
-            currentSize = size;
-        }
-        
-        function setPen() {
-            if (!canDraw) return;
-            currentTool = 'pen';
-            document.getElementById('penBtn').classList.add('active');
-            document.getElementById('eraserBtn').classList.remove('active');
-        }
-        
-        function setEraser() {
-            if (!canDraw) return;
-            currentTool = 'eraser';
-            document.getElementById('eraserBtn').classList.add('active');
-            document.getElementById('penBtn').classList.remove('active');
-        }
-        
-        function clearMyBoard() {
-            if (!canDraw) return;
-            myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-        }
-        
-        // ================== صلاحية الرسم ==================
-        db.ref('teacherControls').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                canDraw = data.studentsCanDraw;
-                if (canDraw) {
-                    permissionBadge.innerHTML = '<i class="fas fa-lock-open"></i> يمكنك الكتابة';
-                    permissionBadge.style.backgroundColor = '#27ae60';
-                } else {
-                    permissionBadge.innerHTML = '<i class="fas fa-lock"></i> الكتابة ممنوعة';
-                    permissionBadge.style.backgroundColor = '#e74c3c';
-                }
-            }
-        });
-        
-        // ================== أحداث ==================
-        myCanvas.addEventListener('mousedown', startDrawing);
-        myCanvas.addEventListener('mousemove', draw);
-        myCanvas.addEventListener('mouseup', stopDrawing);
-        myCanvas.addEventListener('mouseleave', stopDrawing);
-        
-        myCanvas.addEventListener('touchstart', startDrawing, { passive: false });
-        myCanvas.addEventListener('touchmove', draw, { passive: false });
-        myCanvas.addEventListener('touchend', stopDrawing);
-        
-        [teacherCanvas, myCanvas].forEach(canvas => {
-            canvas.addEventListener('contextmenu', (e) => e.preventDefault());
-        });
-        
-        // تفعيل الصوت عند أول تفاعل
-        document.body.addEventListener('touchstart', enableAudio, { once: true });
-        document.body.addEventListener('click', enableAudio, { once: true });
-        
-        // ================== تسجيل الطالب ==================
-        db.ref('onlineStudents/' + studentId).set({
-            online: true,
-            canDraw: true,
+
+        myCtx.lineTo(pos.x, pos.y);
+        myCtx.stroke();
+        myCtx.beginPath();
+        myCtx.moveTo(pos.x, pos.y);
+
+        db.ref('studentDrawings').push({
+            x: pos.x, y: pos.y,
+            lastX, lastY,
+            color: currentTool === 'eraser' ? 'white' : currentColor,
+            size:  currentTool === 'eraser' ? 30 : currentSize,
+            studentId,
             timestamp: Date.now()
         });
-        
-        window.addEventListener('beforeunload', () => {
-            db.ref('onlineStudents/' + studentId).remove();
-        });
-        
-        // بدء التشغيل
-        initAudio();
-        setPen();
+
+        lastX = pos.x; lastY = pos.y;
+    }
+
+    function stopDrawing() {
+        drawing = false;
+        myCtx.beginPath();
+        myCtx.globalCompositeOperation = 'source-over';
+    }
+
+    // ================== استقبال رسم المدرس ==================
+    db.ref('teacherDrawings').on('child_added', snap => {
+        const d = snap.val();
+        teacherCtx.strokeStyle = d.color;
+        teacherCtx.lineWidth   = d.size || 3;
+        teacherCtx.lineCap     = 'round';
+        teacherCtx.beginPath();
+        teacherCtx.moveTo(d.lastX, d.lastY);
+        teacherCtx.lineTo(d.x, d.y);
+        teacherCtx.stroke();
+    });
+
+    db.ref('teacherDrawingsOnStudent').on('child_added', snap => {
+        const d = snap.val();
+        myCtx.strokeStyle = d.color;
+        myCtx.lineWidth   = d.size || 3;
+        myCtx.lineCap     = 'round';
+        myCtx.beginPath();
+        myCtx.moveTo(d.lastX, d.lastY);
+        myCtx.lineTo(d.x, d.y);
+        myCtx.stroke();
+    });
+
+    db.ref('teacherCommands').on('child_added', snap => {
+        const d = snap.val();
+        if (d.type === 'clear') {
+            teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
+            myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
+        }
+    });
+
+    // ================== صلاحية الرسم ==================
+    db.ref('teacherControls').on('value', snap => {
+        const d = snap.val();
+        if (d) {
+            canDraw = d.studentsCanDraw;
+            permissionBadge.innerHTML = canDraw
+                ? '<i class="fas fa-lock-open"></i> يمكنك الكتابة'
+                : '<i class="fas fa-lock"></i> الكتابة ممنوعة';
+            permissionBadge.style.background = canDraw ? '#27ae60' : '#e74c3c';
+        }
+    });
+
+    // ================== الصوت - استقبال بث المدرس ==================
+    let audioElement = new Audio();
+    audioElement.autoplay = true;
+
+    db.ref('audioStream/teacher').on('value', snap => {
+        const d = snap.val();
+        if (d && d.active) {
+            statusText.textContent = 'المدرس يبث صوتاً';
+            statusDot.className = 'status-dot audio';
+            speakerIcon.className = 'fas fa-volume-up';
+            audioStatus.className = 'audio-icon active';
+            audioWaves.style.display = 'flex';
+            teacherAudioBadge.style.display = 'flex';
+            if (d.streamUrl) {
+                audioElement.src = d.streamUrl;
+                audioElement.play().catch(() => {});
+            }
+        } else {
+            statusText.textContent = 'متصل';
+            statusDot.className = 'status-dot online';
+            speakerIcon.className = 'fas fa-volume-mute';
+            audioStatus.className = 'audio-icon muted';
+            audioWaves.style.display = 'none';
+            teacherAudioBadge.style.display = 'none';
+            audioElement.pause();
+            audioElement.src = '';
+        }
+    });
+
+    // ================== المايكروفون ==================
+    async function toggleMic() {
+        if (!isMicOn) {
+            try {
+                micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                isMicOn = true;
+                micIcon.className = 'fas fa-microphone audio-icon mic-on';
+                micBtn.title = 'إيقاف المايكروفون';
+                // سجّل في Firebase أن الطالب يبث
+                db.ref('studentAudio/' + studentId).set({ active: true, timestamp: Date.now() });
+                // هنا يمكن إضافة منطق بث الصوت الفعلي (WebRTC / MediaRecorder)
+            } catch (err) {
+                alert('لم يتم السماح بالوصول للمايكروفون');
+                console.error(err);
+            }
+        } else {
+            if (micStream) {
+                micStream.getTracks().forEach(t => t.stop());
+                micStream = null;
+            }
+            isMicOn = false;
+            micIcon.className = 'fas fa-microphone-slash audio-icon muted';
+            micBtn.title = 'تشغيل المايكروفون';
+            db.ref('studentAudio/' + studentId).set({ active: false });
+        }
+    }
+
+    // ================== أدوات الرسم ==================
+    function changeColor(color, el) {
+        if (!canDraw) return;
+        currentColor = color;
+        currentTool  = 'pen';
+        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+        if (el) el.classList.add('active');
+        document.getElementById('penBtn').classList.add('active');
+        document.getElementById('eraserBtn').classList.remove('active');
+    }
+
+    function changeSize(size) {
+        currentSize = size;
+        document.querySelectorAll('.tool-group .tool-btn').forEach(b => b.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+    }
+
+    function setPen() {
+        currentTool = 'pen';
+        document.getElementById('penBtn').classList.add('active');
+        document.getElementById('eraserBtn').classList.remove('active');
+    }
+
+    function setEraser() {
+        currentTool = 'eraser';
+        document.getElementById('eraserBtn').classList.add('active');
+        document.getElementById('penBtn').classList.remove('active');
+    }
+
+    function clearMyBoard() {
+        if (!canDraw) return;
+        myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
+    }
+
+    function showNoPermission() {
+        permissionBadge.style.animation = 'none';
+        permissionBadge.offsetHeight;
+        permissionBadge.style.animation = 'shake 0.3s';
+    }
+
+    // ================== أحداث الرسم ==================
+    myCanvas.addEventListener('mousedown',  startDrawing);
+    myCanvas.addEventListener('mousemove',  draw);
+    myCanvas.addEventListener('mouseup',    stopDrawing);
+    myCanvas.addEventListener('mouseleave', stopDrawing);
+    myCanvas.addEventListener('touchstart', startDrawing, { passive: false });
+    myCanvas.addEventListener('touchmove',  draw,         { passive: false });
+    myCanvas.addEventListener('touchend',   stopDrawing);
+    myCanvas.addEventListener('touchcancel',stopDrawing);
+
+    [teacherCanvas, myCanvas].forEach(c => {
+        c.addEventListener('contextmenu', e => e.preventDefault());
+    });
+
+    // تفعيل الصوت عند أول تفاعل
+    document.body.addEventListener('touchstart', () => audioElement.play().catch(()=>{}), { once: true });
+    document.body.addEventListener('click',      () => audioElement.play().catch(()=>{}), { once: true });
+
+    // ================== الاتصال ==================
+    db.ref('.info/connected').on('value', snap => {
+        if (snap.val()) {
+            statusText.textContent = 'متصل';
+            statusDot.className = 'status-dot online';
+        } else {
+            statusText.textContent = 'جاري الاتصال...';
+            statusDot.className = 'status-dot connecting';
+        }
+    });
+
+    // ================== تسجيل الطالب ==================
+    db.ref('onlineStudents/' + studentId).set({ online: true, canDraw: true, timestamp: Date.now() });
+    window.addEventListener('beforeunload', () => {
+        db.ref('onlineStudents/' + studentId).remove();
+        db.ref('studentAudio/' + studentId).remove();
+        if (micStream) micStream.getTracks().forEach(t => t.stop());
+    });
+
+    setPen();
     </script>
 </body>
 </html>
