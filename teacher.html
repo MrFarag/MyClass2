@@ -767,66 +767,81 @@
             db.ref('teacherControls').set({ studentsCanDraw });
         }
 
-        // ================== الميكروفون والصوت ==================
-        async function toggleAudio() {
-            const btn = document.getElementById('audioBtn');
-            const indicator = document.getElementById('micIndicator');
+// ================== الميكروفون والصوت مع البث المباشر ==================
+async function toggleAudio() {
+    const btn = document.getElementById('audioBtn');
+    const indicator = document.getElementById('micIndicator');
 
-            if (!audioActive) {
-                try {
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                    btn.disabled = true;
+    if (!audioActive) {
+        try {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
 
-                    audioStream = await navigator.mediaDevices.getUserMedia({
-                        audio: {
-                            echoCancellation: true,
-                            noiseSuppression: true,
-                            autoGainControl: true,
-                            sampleRate: 44100
-                        }
-                    });
+            audioStream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                }
+            });
 
-                    audioActive = true;
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
-                    btn.classList.add('mic-on');
-                    indicator.classList.add('active');
+            audioActive = true;
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+            btn.classList.add('mic-on');
+            indicator.classList.add('active');
 
-                    document.getElementById('statusText').innerText = '🎤 الميكروفون شغال';
-
+            // ✅ بث الصوت للطلاب
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioContext.createMediaStreamSource(audioStream);
+            const destination = audioContext.createMediaStreamDestination();
+            source.connect(destination);
+            
+            const mediaRecorder = new MediaRecorder(destination.stream);
+            
+            mediaRecorder.ondataavailable = event => {
+                const reader = new FileReader();
+                reader.readAsDataURL(event.data);
+                reader.onloadend = () => {
                     db.ref('audioStream/teacher').set({
                         active: true,
+                        audioData: reader.result,
                         timestamp: Date.now()
                     });
+                };
+            };
+            
+            // بث كل ثانيتين
+            mediaRecorder.start(2000);
+            window.teacherMediaRecorder = mediaRecorder;
 
-                } catch (err) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-microphone"></i>';
-                    console.error('Mic error:', err);
+            document.getElementById('statusText').innerText = '🎤 يتم بث الصوت...';
 
-                    let msg = 'لا يمكن الوصول للميكروفون';
-                    if (err.name === 'NotAllowedError') {
-                        msg = '❌ تم رفض الإذن للميكروفون\n\nاسمح للمتصفح بالوصول للميكروفون من الإعدادات';
-                    } else if (err.name === 'NotFoundError') {
-                        msg = '❌ لا يوجد ميكروفون متصل بالجهاز';
-                    } else if (err.name === 'NotReadableError') {
-                        msg = '❌ الميكروفون مستخدم من تطبيق آخر';
-                    }
-                    alert(msg);
-                }
-            } else {
-                if (audioStream) {
-                    audioStream.getTracks().forEach(t => t.stop());
-                    audioStream = null;
-                }
-                audioActive = false;
-                btn.innerHTML = '<i class="fas fa-microphone"></i>';
-                btn.classList.remove('mic-on');
-                indicator.classList.remove('active');
-                document.getElementById('statusText').innerText = '🔇 الميكروفون متوقف';
-                db.ref('audioStream/teacher').remove();
-            }
+        } catch (err) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-microphone"></i>';
+            console.error('Mic error:', err);
+            alert('لا يمكن الوصول للميكروفون: ' + err.message);
         }
+    } else {
+        if (audioStream) {
+            audioStream.getTracks().forEach(t => t.stop());
+            audioStream = null;
+        }
+        if (window.teacherMediaRecorder) {
+            window.teacherMediaRecorder.stop();
+        }
+        if (audioContext) {
+            audioContext.close();
+        }
+        audioActive = false;
+        btn.innerHTML = '<i class="fas fa-microphone"></i>';
+        btn.classList.remove('mic-on');
+        indicator.classList.remove('active');
+        document.getElementById('statusText').innerText = '🔇 الميكروفون متوقف';
+        db.ref('audioStream/teacher').remove();
+    }
+}
 
         function toggleSpeaker() {
             speakerActive = !speakerActive;
