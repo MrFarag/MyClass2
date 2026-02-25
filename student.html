@@ -10,14 +10,12 @@
 html,body{width:100%;height:100%;overflow:hidden;touch-action:none}
 body{font-family:'Segoe UI',sans-serif;background:#111b27;color:#fff;display:flex;flex-direction:column}
 .hdr{height:50px;min-height:50px;background:#1e2d3d;padding:0 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #3498db;flex-shrink:0}
-.logo{font-size:15px;font-weight:bold;display:flex;align-items:center;gap:6px}
-.logo i{color:#3498db}
+.logo{font-size:15px;font-weight:bold;display:flex;align-items:center;gap:6px}.logo i{color:#3498db}
 .pb{background:#27ae60;padding:4px 10px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:5px;transition:background .3s}
 .boards{flex:1;display:flex;flex-direction:column;padding:6px;gap:6px;overflow:hidden;min-height:0}
 .board{flex:1;display:flex;flex-direction:column;background:#1e2d3d;border-radius:10px;overflow:hidden;border:1px solid #2c4159;min-height:0}
 .bh{padding:7px 12px;background:#243447;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.bh.t{border-bottom:3px solid #e67e22}
-.bh.s{border-bottom:3px solid #27ae60}
+.bh.t{border-bottom:3px solid #e67e22}.bh.s{border-bottom:3px solid #27ae60}
 .bh span{font-size:12px;font-weight:bold;display:flex;align-items:center;gap:5px}
 .abadge{background:#e67e22;padding:2px 8px;border-radius:20px;font-size:10px;display:flex;align-items:center;gap:3px;animation:p1 1s infinite}
 @keyframes p1{0%,100%{opacity:1}50%{opacity:.5}}
@@ -55,7 +53,6 @@ canvas{display:block;width:2000px;height:2000px;background:#fff}
 </div>
 
 <div class="boards">
-  <!-- سبورة المدرس -->
   <div class="board">
     <div class="bh t">
       <span><i class="fas fa-chalkboard-teacher" style="color:#e67e22"></i>سبورة المدرس</span>
@@ -63,7 +60,6 @@ canvas{display:block;width:2000px;height:2000px;background:#fff}
     </div>
     <div class="cw" id="tw"><canvas id="tC"></canvas></div>
   </div>
-  <!-- سبورتي -->
   <div class="board">
     <div class="bh s">
       <span><i class="fas fa-pencil-alt" style="color:#27ae60"></i>سبورتي</span>
@@ -83,7 +79,7 @@ canvas{display:block;width:2000px;height:2000px;background:#fff}
   </div>
   <div class="tg">
     <button class="btn" onclick="setSz(2,this)"><i class="fas fa-pen" style="font-size:10px"></i></button>
-    <button class="btn on" onclick="setSz(5,this)"><i class="fas fa-pen-fancy" style="font-size:11px"></i></button>
+    <button class="btn on" onclick="setSz(5,this)"><i class="fas fa-pen-fancy"></i></button>
     <button class="btn" onclick="setSz(12,this)"><i class="fas fa-paint-brush"></i></button>
   </div>
   <div class="tg">
@@ -91,9 +87,8 @@ canvas{display:block;width:2000px;height:2000px;background:#fff}
     <button class="btn" id="eraserBtn" onclick="setTool('eraser')"><i class="fas fa-eraser"></i></button>
     <button class="btn del" onclick="clearMe()"><i class="fas fa-trash-alt"></i></button>
   </div>
-  <!-- مايك الطالب -->
   <div class="tg">
-    <button class="btn" id="myMic" onclick="toggleMyMic()" title="مايكروفوني">
+    <button class="btn" id="myMic" onclick="toggleMyMic()">
       <i class="fas fa-microphone-slash" id="myMicIcon"></i>
     </button>
   </div>
@@ -110,9 +105,6 @@ canvas{display:block;width:2000px;height:2000px;background:#fff}
   </div>
 </div>
 
-<!-- عنصر الصوت الرئيسي -->
-<audio id="audioEl" autoplay playsinline style="display:none"></audio>
-
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
@@ -127,86 +119,85 @@ firebase.initializeApp({
 });
 const db=firebase.database();
 
-// ── Canvas ───────────────────────────────────────────────────
-const tC=document.getElementById('tC');
-const myC=document.getElementById('myC');
-const tx=tC.getContext('2d');
-const mx2=myC.getContext('2d');
-const tw=document.getElementById('tw');
-const mw=document.getElementById('mw');
-tC.width=2000;tC.height=2000;
-myC.width=2000;myC.height=2000;
-[tx,mx2].forEach(c=>{c.lineCap='round';c.lineJoin='round'});
+// ── Canvas ────────────────────────────────────────────────────
+const tC=document.getElementById('tC'), myC=document.getElementById('myC');
+const tx=tC.getContext('2d'),           mc=myC.getContext('2d');
+const twEl=document.getElementById('tw'), mwEl=document.getElementById('mw');
+tC.width=2000;  tC.height=2000;
+myC.width=2000; myC.height=2000;
+[tx,mc].forEach(c=>{c.lineCap='round';c.lineJoin='round'});
 
 // ── State ─────────────────────────────────────────────────────
-let tool='pen',clr='black',sz=5;
-let drawing=false,lx=0,ly=0;
+let tool='pen', clr='black', sz=5;
+let drawing=false, lx=0, ly=0;
 let canDraw=true;
 const sid='s_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
-let myMicOn=false,myMicStream=null;
-let myRecInterval=null;
+let strokeId=0, myMicOn=false, myMicStream=null, myRecInterval=null, mySlot=0;
 
-// ── موقع ─────────────────────────────────────────────────────
-function getPos(e,canvas,wrapper){
-  const wr=wrapper.getBoundingClientRect();
-  const scX=canvas.width/wrapper.clientWidth;
-  const scY=canvas.height/wrapper.clientHeight;
+// ── موقع الرسم ────────────────────────────────────────────────
+function getPos(e, canvas, wrapper){
+  const r=wrapper.getBoundingClientRect();
   const cx=e.touches?e.touches[0].clientX:e.clientX;
   const cy=e.touches?e.touches[0].clientY:e.clientY;
   return{
-    x:(cx-wr.left+wrapper.scrollLeft)*scX,
-    y:(cy-wr.top +wrapper.scrollTop )*scY
+    x:(cx-r.left+wrapper.scrollLeft)*(2000/wrapper.clientWidth),
+    y:(cy-r.top +wrapper.scrollTop )*(2000/wrapper.clientHeight)
   };
 }
 
-// ── رسم ناعم محلي ────────────────────────────────────────────
-let strokePts=[];
+// ── رسم محلي ──────────────────────────────────────────────────
+function drawSeg(x1,y1,x2,y2){
+  mc.save();
+  if(tool==='eraser'){mc.globalCompositeOperation='destination-out';mc.strokeStyle='rgba(0,0,0,1)';mc.lineWidth=30;}
+  else{mc.globalCompositeOperation='source-over';mc.strokeStyle=clr;mc.lineWidth=sz;}
+  mc.lineCap='round';mc.lineJoin='round';
+  mc.beginPath();mc.moveTo(x1,y1);
+  mc.quadraticCurveTo(x1,y1,(x1+x2)/2,(y1+y2)/2);
+  mc.stroke();mc.restore();
+}
 
-function applyLocal(x1,y1,x2,y2){
-  mx2.save();
-  if(tool==='eraser'){mx2.globalCompositeOperation='destination-out';mx2.strokeStyle='rgba(0,0,0,1)';mx2.lineWidth=30;}
-  else{mx2.globalCompositeOperation='source-over';mx2.strokeStyle=clr;mx2.lineWidth=sz;}
-  mx2.lineCap='round';mx2.lineJoin='round';
-  mx2.beginPath();mx2.moveTo(x1,y1);
-  const mmx=(x1+x2)/2,mmy=(y1+y2)/2;
-  mx2.quadraticCurveTo(x1,y1,mmx,mmy);
-  mx2.stroke();mx2.restore();
+// ── إرسال لـ Firebase: كل 30ms batch ─────────────────────────
+let batch=[], bTimer=null;
+
+function flushBatch(){
+  if(!batch.length)return;
+  db.ref('studentDraw').push({
+    id:  strokeId,
+    pts: batch.splice(0),
+    c:   tool==='eraser'?null:clr,
+    s:   tool==='eraser'?30:sz,
+    e:   tool==='eraser'?1:0,
+    sid, ts:Date.now()
+  });
 }
 
 function startDraw(e){
   e.preventDefault();
   if(!canDraw){shake();return;}
-  drawing=true;
-  const p=getPos(e,myC,mw);lx=p.x;ly=p.y;
-  strokePts=[{x:p.x,y:p.y}];
-  // نقطة أولى مرئية
-  mx2.save();
-  if(tool==='eraser'){mx2.globalCompositeOperation='destination-out';mx2.fillStyle='rgba(0,0,0,1)';}
-  else{mx2.globalCompositeOperation='source-over';mx2.fillStyle=clr;}
-  mx2.beginPath();mx2.arc(p.x,p.y,sz/2,0,Math.PI*2);mx2.fill();mx2.restore();
+  drawing=true; strokeId++;
+  const p=getPos(e,myC,mwEl); lx=p.x; ly=p.y;
+  batch=[{x:p.x,y:p.y}];
+  // نقطة مرئية أولى
+  mc.save();
+  mc.globalCompositeOperation=tool==='eraser'?'destination-out':'source-over';
+  mc.fillStyle=tool==='eraser'?'rgba(0,0,0,1)':clr;
+  mc.beginPath();mc.arc(p.x,p.y,sz/2,0,Math.PI*2);mc.fill();mc.restore();
 }
 
 function moveDraw(e){
   e.preventDefault();if(!drawing||!canDraw)return;
-  const p=getPos(e,myC,mw);
-  applyLocal(lx,ly,p.x,p.y);
-  strokePts.push({x:p.x,y:p.y});
+  const p=getPos(e,myC,mwEl);
+  drawSeg(lx,ly,p.x,p.y);
+  batch.push({x:p.x,y:p.y});
+  if(!bTimer) bTimer=setTimeout(()=>{flushBatch();bTimer=null;},30);
   lx=p.x;ly=p.y;
 }
 
 function stopDraw(){
   if(!drawing)return;drawing=false;
-  if(!strokePts.length)return;
-  // إرسال الـ stroke كاملاً مرة واحدة
-  db.ref('studentDrawings').push({
-    pts:strokePts,
-    c:tool==='eraser'?null:clr,
-    s:tool==='eraser'?30:sz,
-    e:tool==='eraser'?1:0,
-    sid,ts:Date.now()
-  });
-  strokePts=[];
-  mx2.globalCompositeOperation='source-over';
+  if(bTimer){clearTimeout(bTimer);bTimer=null;}
+  flushBatch();
+  mc.globalCompositeOperation='source-over';
 }
 
 myC.addEventListener('mousedown', startDraw);
@@ -214,38 +205,48 @@ myC.addEventListener('mousemove', moveDraw);
 myC.addEventListener('mouseup',   stopDraw);
 myC.addEventListener('mouseleave',stopDraw);
 myC.addEventListener('touchstart',startDraw,{passive:false});
-myC.addEventListener('touchmove', moveDraw,{passive:false});
+myC.addEventListener('touchmove', moveDraw, {passive:false});
 myC.addEventListener('touchend',  stopDraw);
 myC.addEventListener('touchcancel',stopDraw);
 
-// ── رسم stroke قادم ──────────────────────────────────────────
-function renderStroke(ctx,d){
+// ── استقبال رسم المدرس: نتتبع آخر نقطة لكل strokeId ─────────
+const strokes={};  // "ref_id" → {lastX, lastY}
+
+function renderBatch(ctx, d){
   if(!d||!d.pts||!d.pts.length)return;
-  const pts=d.pts;
+  const key = d.id;
+  if(!strokes[key]){
+    strokes[key]={lastX:d.pts[0].x, lastY:d.pts[0].y};
+    // نقطة أولى مرئية
+    ctx.save();
+    ctx.globalCompositeOperation=d.e?'destination-out':'source-over';
+    ctx.fillStyle=d.e?'rgba(0,0,0,1)':(d.c||'#000');
+    ctx.beginPath();ctx.arc(d.pts[0].x,d.pts[0].y,(d.s||3)/2,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+  const st=strokes[key];
   ctx.save();
   if(d.e){ctx.globalCompositeOperation='destination-out';ctx.strokeStyle='rgba(0,0,0,1)';ctx.lineWidth=30;}
   else{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=d.c||'#000';ctx.lineWidth=d.s||3;}
   ctx.lineCap='round';ctx.lineJoin='round';
-  // نقطة أولى
-  if(d.e){ctx.fillStyle='rgba(0,0,0,1)';}else{ctx.fillStyle=d.c||'#000';}
-  ctx.beginPath();ctx.arc(pts[0].x,pts[0].y,(d.s||3)/2,0,Math.PI*2);ctx.fill();
-  // خطوط ناعمة
-  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
-  for(let i=1;i<pts.length;i++){
-    const pr=pts[i-1],cu=pts[i];
-    const mmx=(pr.x+cu.x)/2,mmy=(pr.y+cu.y)/2;
-    ctx.quadraticCurveTo(pr.x,pr.y,mmx,mmy);
+  ctx.beginPath();ctx.moveTo(st.lastX,st.lastY);
+  for(const p of d.pts){
+    const mx=(st.lastX+p.x)/2, my=(st.lastY+p.y)/2;
+    ctx.quadraticCurveTo(st.lastX,st.lastY,mx,my);
+    st.lastX=p.x;st.lastY=p.y;
   }
-  ctx.lineTo(pts[pts.length-1].x,pts[pts.length-1].y);
   ctx.stroke();ctx.restore();
 }
 
-db.ref('teacherDrawings').on('child_added',          snap=>renderStroke(tx, snap.val()));
-db.ref('teacherDrawingsOnStudent').on('child_added', snap=>renderStroke(mx2,snap.val()));
-db.ref('teacherCommands').on('child_added',snap=>{
-  const d=snap.val();if(d&&d.type==='clear'){tx.clearRect(0,0,2000,2000);mx2.clearRect(0,0,2000,2000);}
+db.ref('tDraw').on('child_added', snap=>renderBatch(tx, snap.val()));
+db.ref('sDraw').on('child_added', snap=>renderBatch(mc, snap.val()));
+
+db.ref('cmd').on('child_added',snap=>{
+  const d=snap.val();
+  if(d&&d.type==='clear'){tx.clearRect(0,0,2000,2000);mc.clearRect(0,0,2000,2000);}
 });
-db.ref('teacherControls').on('value',snap=>{
+
+db.ref('ctrl').on('value',snap=>{
   const v=snap.val();if(!v)return;
   canDraw=v.studentsCanDraw!==false;
   const pb=document.getElementById('pb');
@@ -253,43 +254,41 @@ db.ref('teacherControls').on('value',snap=>{
   pb.style.background=canDraw?'#27ae60':'#e74c3c';
 });
 
-// ── AUDIO — استقبال صوت المدرس ─────────────────────────────
-// الحل: نستقبل dataURL كامل ونشغّله بـ <audio>
-// هذا يعمل على كل المتصفحات بدون decodeAudioData
+// ── AUDIO: تشغيل صوت المدرس ──────────────────────────────────
+// المدرس يكتب في audio/slot0 و audio/slot1 بالتناوب
+// نستمع بـ on('value') على كل slot → يطلق كلما تغيرت القيمة
 
-const audioEl=document.getElementById('audioEl');
-let playQueue=[];
-let isPlaying=false;
-const seenBlobs=new Set();
+const heardTs=new Set();
+let audioQueue=[];
+let audioPlaying=false;
+const audioEl=document.createElement('audio');
+audioEl.autoplay=true;
+audioEl.playsinline=true;
+document.body.appendChild(audioEl);
 
-async function playNext(){
-  if(!playQueue.length){isPlaying=false;return;}
-  isPlaying=true;
-  const src=playQueue.shift();
+function playQueue(){
+  if(audioPlaying||!audioQueue.length)return;
+  audioPlaying=true;
+  const src=audioQueue.shift();
   audioEl.src=src;
-  try{
-    await audioEl.play();
-    audioEl.onended=()=>playNext();
-  }catch(e){
-    // autoplay blocked → انتظر
-    setTimeout(()=>playNext(),500);
-  }
+  audioEl.onended=()=>{audioPlaying=false;playQueue();};
+  audioEl.onerror=()=>{audioPlaying=false;playQueue();};
+  audioEl.play().catch(()=>{audioPlaying=false;});
 }
 
-function handleAudioBlob(d){
-  if(!d||!d.d||!d.ts)return;
-  if(seenBlobs.has(d.ts))return;
-  seenBlobs.add(d.ts);
-  playQueue.push(d.d);
-  if(!isPlaying)playNext();
+function handleSlot(d){
+  if(!d||!d.d||!d.ts||heardTs.has(d.ts))return;
+  heardTs.add(d.ts);
+  audioQueue.push(d.d);
+  playQueue();
 }
 
-db.ref('audioBlob').on('child_added',  snap=>handleAudioBlob(snap.val()));
-db.ref('audioBlob').on('child_changed',snap=>handleAudioBlob(snap.val()));
+// استمع لـ slot0 و slot1 بـ on('value') — يطلق عند كل تغيير
+db.ref('audio/slot0').on('value', snap=>handleSlot(snap.val()));
+db.ref('audio/slot1').on('value', snap=>handleSlot(snap.val()));
 
 db.ref('audioMeta').on('value',snap=>{
-  const v=snap.val();
-  const active=v&&v.active;
+  const v=snap.val(), active=v&&v.active;
   document.getElementById('abadge').style.display=active?'flex':'none';
   document.getElementById('spkEl').innerHTML=active
     ?'<i class="fas fa-volume-up" style="color:#e67e22"></i>'
@@ -297,36 +296,31 @@ db.ref('audioMeta').on('value',snap=>{
   document.getElementById('wvEl').style.display=active?'flex':'none';
   document.getElementById('dotEl').className='dot '+(active?'aud':'on');
   document.getElementById('stEl').textContent=active?'🎤 المدرس يتكلم':'متصل';
-  if(!active){playQueue=[];isPlaying=false;seenBlobs.clear();}
+  if(!active){audioQueue=[];audioPlaying=false;heardTs.clear();}
 });
 
 // ── مايك الطالب ──────────────────────────────────────────────
 function getMime(){
   for(const t of['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'])
     if(MediaRecorder.isTypeSupported(t))return t;
-  return'';
+  return '';
 }
-function b64(blob){return new Promise(r=>{const fr=new FileReader();fr.onloadend=()=>r(fr.result);fr.readAsDataURL(blob);})}
+function toB64(blob){return new Promise(r=>{const f=new FileReader();f.onloadend=()=>r(f.result);f.readAsDataURL(blob);})}
 
-let mySid=Date.now();
-function startMyRec(){
-  if(!myMicStream)return;
+function myRecordOnce(){
+  if(!myMicStream||!myMicOn)return;
   const mime=getMime();
   const rec=new MediaRecorder(myMicStream,mime?{mimeType:mime}:{});
   const chunks=[];
-  rec.ondataavailable=ev=>{if(ev.data.size>0)chunks.push(ev.data);};
+  rec.ondataavailable=ev=>{if(ev.data&&ev.data.size>0)chunks.push(ev.data);};
   rec.onstop=async()=>{
     if(!myMicOn||!chunks.length)return;
-    const data=await b64(new Blob(chunks,{type:rec.mimeType||'audio/webm'}));
-    mySid++;
-    db.ref('studentAudio/'+sid+'/'+mySid).set({d:data,ts:mySid});
-    // احذف القديم
-    db.ref('studentAudio/'+sid).orderByKey().limitToFirst(1).once('value',snap2=>{
-      snap2.forEach(s=>s.ref.remove());
-    });
+    const b64=await toB64(new Blob(chunks,{type:mime||'audio/webm'}));
+    mySlot=mySlot===0?1:0;
+    db.ref('studentAudio/slot'+mySlot).set({d:b64,ts:Date.now()});
   };
   rec.start();
-  setTimeout(()=>{if(rec.state==='recording')rec.stop();},3000);
+  setTimeout(()=>{try{rec.stop();}catch(e){}},2800);
 }
 
 async function toggleMyMic(){
@@ -339,8 +333,8 @@ async function toggleMyMic(){
       myMicOn=true;
       btn.classList.add('mic-on');
       icon.className='fas fa-microphone';
-      startMyRec();
-      myRecInterval=setInterval(startMyRec,3000);
+      myRecordOnce();
+      myRecInterval=setInterval(myRecordOnce,3000);
     }catch(err){
       icon.className='fas fa-microphone-slash';
       alert('لا يمكن الوصول للمايكروفون:\n'+err.message);
@@ -349,7 +343,7 @@ async function toggleMyMic(){
     clearInterval(myRecInterval);myRecInterval=null;
     if(myMicStream)myMicStream.getTracks().forEach(t=>t.stop());
     myMicStream=null;myMicOn=false;
-    db.ref('studentAudio/'+sid).remove();
+    db.ref('studentAudio').remove();
     btn.classList.remove('mic-on');
     icon.className='fas fa-microphone-slash';
   }
@@ -359,19 +353,17 @@ async function toggleMyMic(){
 function setClr(c,el){if(!canDraw)return;clr=c;tool='pen';document.querySelectorAll('.cb').forEach(b=>b.classList.remove('on'));el.classList.add('on');setTool('pen');}
 function setSz(s,el){sz=s;document.querySelectorAll('.tg:nth-child(2) .btn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
 function setTool(t){tool=t;document.getElementById('penBtn').classList.toggle('on',t==='pen');document.getElementById('eraserBtn').classList.toggle('on',t==='eraser');}
-function clearMe(){if(!canDraw)return;mx2.clearRect(0,0,2000,2000);}
+function clearMe(){if(!canDraw)return;mc.clearRect(0,0,2000,2000);}
 function shake(){const pb=document.getElementById('pb');[0,-5,5,-5,0].forEach((v,i)=>setTimeout(()=>pb.style.transform=`translateX(${v}px)`,i*50));}
 
-// ── تفعيل الصوت عند أول تفاعل (مهم جداً على iOS) ────────────
+// ── فتح AudioContext عند أول تفاعل (iOS) ─────────────────────
 function unlockAudio(){
   audioEl.play().catch(()=>{});
-  document.body.removeEventListener('touchstart',unlockAudio);
-  document.body.removeEventListener('click',unlockAudio);
 }
 document.body.addEventListener('touchstart',unlockAudio,{once:true});
 document.body.addEventListener('click',unlockAudio,{once:true});
 
-// ── اتصال وتسجيل ─────────────────────────────────────────────
+// ── اتصال ─────────────────────────────────────────────────────
 db.ref('.info/connected').on('value',snap=>{
   document.getElementById('dotEl').className='dot '+(snap.val()?'on':'c');
   document.getElementById('stEl').textContent=snap.val()?'متصل':'جاري الاتصال...';
@@ -379,7 +371,7 @@ db.ref('.info/connected').on('value',snap=>{
 db.ref('onlineStudents/'+sid).set({online:true,canDraw:true,ts:Date.now()});
 window.addEventListener('beforeunload',()=>{
   db.ref('onlineStudents/'+sid).remove();
-  db.ref('studentAudio/'+sid).remove();
+  db.ref('studentAudio').remove();
   if(myMicStream)myMicStream.getTracks().forEach(t=>t.stop());
 });
 [tC,myC].forEach(c=>c.addEventListener('contextmenu',e=>e.preventDefault()));
