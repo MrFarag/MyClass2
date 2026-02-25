@@ -584,34 +584,34 @@
         }
     });
 
-    // ================== الصوت - استقبال بث المدرس ==================
-    let audioElement = new Audio();
-    audioElement.autoplay = true;
+   // ================== الصوت - استقبال بث المدرس ==================
+let audioElement = new Audio();
+audioElement.autoplay = true;
 
-    db.ref('audioStream/teacher').on('value', snap => {
-        const d = snap.val();
-        if (d && d.active) {
-            statusText.textContent = 'المدرس يبث صوتاً';
-            statusDot.className = 'status-dot audio';
-            speakerIcon.className = 'fas fa-volume-up';
-            audioStatus.className = 'audio-icon active';
-            audioWaves.style.display = 'flex';
-            teacherAudioBadge.style.display = 'flex';
-            if (d.streamUrl) {
-                audioElement.src = d.streamUrl;
-                audioElement.play().catch(() => {});
-            }
-        } else {
-            statusText.textContent = 'متصل';
-            statusDot.className = 'status-dot online';
-            speakerIcon.className = 'fas fa-volume-mute';
-            audioStatus.className = 'audio-icon muted';
-            audioWaves.style.display = 'none';
-            teacherAudioBadge.style.display = 'none';
-            audioElement.pause();
-            audioElement.src = '';
+db.ref('audioStream/teacher').on('value', snap => {
+    const d = snap.val();
+    if (d && d.active) {
+        statusText.textContent = 'المدرس يبث صوتاً';
+        statusDot.className = 'status-dot audio';
+        speakerIcon.className = 'fas fa-volume-up';
+        audioStatus.className = 'audio-icon active';
+        audioWaves.style.display = 'flex';
+        teacherAudioBadge.style.display = 'flex';
+        if (d.streamUrl) {
+            audioElement.src = d.streamUrl;
+            audioElement.play().catch(() => {});
         }
-    });
+    } else {
+        statusText.textContent = 'متصل';
+        statusDot.className = 'status-dot online';
+        speakerIcon.className = 'fas fa-volume-mute';
+        audioStatus.className = 'audio-icon muted';
+        audioWaves.style.display = 'none';
+        teacherAudioBadge.style.display = 'none';
+        audioElement.pause();
+        audioElement.src = '';
+    }
+});
 
     // ================== المايكروفون ==================
     async function toggleMic() {
