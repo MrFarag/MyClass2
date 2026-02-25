@@ -26,7 +26,7 @@
         /* الهيدر */
         .header {
             background: #2c3e50;
-            padding: 10px 15px;
+            padding: 12px 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -50,38 +50,31 @@
             font-size: 13px;
         }
         
-        /* السكرول الأفقي للسبورات - للطالب فقط */
-        .horizontal-scroll {
+        /* السبورات تحت بعض - vertical layout */
+        .boards-vertical {
             display: flex;
+            flex-direction: column;
             flex: 1;
-            overflow-x: auto;
-            overflow-y: hidden;
-            -webkit-overflow-scrolling: touch;
-            scroll-snap-type: x mandatory;
-            gap: 15px;
-            padding: 15px;
+            overflow: hidden;
+            padding: 10px;
+            gap: 10px;
             background: #1a2634;
-            scroll-behavior: smooth;
         }
         
-        /* كل سبورة - عرض أفقي واضح */
-        .board-card {
-            flex: 0 0 auto;
-            width: 90%;
-            max-width: 450px;
-            height: 100%;
+        /* كل سبورة */
+        .board-container {
+            flex: 1;
             display: flex;
             flex-direction: column;
             background: #2c3e50;
-            border-radius: 20px;
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            scroll-snap-align: start;
-            border: 2px solid #3d566e;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border: 1px solid #3d566e;
         }
         
         .board-header {
-            padding: 12px 15px;
+            padding: 10px 15px;
             background: #34495e;
             display: flex;
             justify-content: space-between;
@@ -89,24 +82,23 @@
         }
         
         .board-header.teacher {
-            border-bottom: 4px solid #e67e22;
+            border-bottom: 3px solid #e67e22;
         }
         
         .board-header.student {
-            border-bottom: 4px solid #27ae60;
+            border-bottom: 3px solid #27ae60;
         }
         
         .board-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
         }
         
         .board-title i {
             margin-right: 8px;
-            font-size: 18px;
         }
         
-        /* السكرول الرأسي داخل السبورة */
+        /* حاوية الكانفاس مع السكرول */
         .canvas-wrapper {
             flex: 1;
             overflow: auto;
@@ -133,10 +125,10 @@
         /* شريط الأدوات */
         .toolbar {
             background: #34495e;
-            padding: 12px 15px;
+            padding: 10px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
             justify-content: center;
             border-top: 3px solid #3498db;
@@ -144,25 +136,22 @@
         
         .tool-group {
             display: flex;
-            gap: 8px;
+            gap: 5px;
             background: #2c3e50;
-            padding: 6px 12px;
-            border-radius: 40px;
+            padding: 5px 10px;
+            border-radius: 30px;
         }
         
         .tool-btn {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             border: none;
             border-radius: 50%;
             background: #3d566e;
             color: white;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         
         .tool-btn:hover:not(:disabled) {
@@ -172,22 +161,21 @@
         
         .tool-btn.active {
             background: #3498db;
-            box-shadow: 0 0 15px #3498db;
         }
         
         .color-palette {
             display: flex;
-            gap: 8px;
+            gap: 5px;
             background: #2c3e50;
-            padding: 8px 15px;
-            border-radius: 40px;
+            padding: 5px 10px;
+            border-radius: 30px;
         }
         
         .color-btn {
-            width: 35px;
-            height: 35px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            border: 3px solid #34495e;
+            border: 2px solid #34495e;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -199,40 +187,52 @@
         
         .color-btn.active {
             border-color: white;
-            box-shadow: 0 0 15px white;
+            box-shadow: 0 0 10px white;
         }
         
         /* حالة الاتصال */
-        .connection-status {
-            padding: 8px 15px;
+        .status-bar {
             background: #1a2634;
-            font-size: 14px;
+            padding: 8px 15px;
+            font-size: 13px;
             color: #ecf0f1;
-            text-align: center;
-            border-top: 2px solid #34495e;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            justify-content: space-between;
+            border-top: 1px solid #34495e;
         }
         
-        .status-badge {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
         }
         
-        .status-badge.online {
+        .status-dot.online {
             background: #27ae60;
-            box-shadow: 0 0 15px #27ae60;
-            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 10px #27ae60;
         }
         
-        .status-badge.audio {
+        .status-dot.audio {
             background: #e67e22;
-            box-shadow: 0 0 15px #e67e22;
+            box-shadow: 0 0 10px #e67e22;
             animation: pulse 1s infinite;
+        }
+        
+        .audio-badge {
+            background: #e67e22;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
         @keyframes pulse {
@@ -241,27 +241,16 @@
             100% { opacity: 1; }
         }
         
-        /* مؤشرات */
-        .audio-indicator {
-            background: #e67e22;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 30px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
         @media (max-width: 480px) {
-            .board-card {
-                width: 95%;
+            .tool-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
             }
             
-            .tool-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
+            .color-btn {
+                width: 28px;
+                height: 28px;
             }
         }
     </style>
@@ -277,25 +266,25 @@
         </div>
     </div>
     
-    <!-- السكرول الأفقي للسبورات - واضح جداً -->
-    <div class="horizontal-scroll" id="horizontalScroll">
-        <!-- سبورة المدرس (يمين) -->
-        <div class="board-card">
+    <!-- السبورات تحت بعض - vertical -->
+    <div class="boards-vertical">
+        <!-- سبورة المدرس (فوق) -->
+        <div class="board-container">
             <div class="board-header teacher">
                 <span class="board-title">
                     <i class="fas fa-chalkboard-teacher"></i> المدرس
                 </span>
-                <div class="audio-indicator" id="teacherAudioIndicator" style="display: none;">
+                <span id="teacherAudioBadge" style="display: none;" class="audio-badge">
                     <i class="fas fa-volume-up"></i> صوت
-                </div>
+                </span>
             </div>
             <div class="canvas-wrapper" id="teacherWrapper">
                 <canvas class="board-canvas" id="teacherCanvas"></canvas>
             </div>
         </div>
         
-        <!-- سبورة الطالب (شمال) -->
-        <div class="board-card">
+        <!-- سبورة الطالب (تحت) -->
+        <div class="board-container">
             <div class="board-header student">
                 <span class="board-title">
                     <i class="fas fa-pencil-alt"></i> سبورتي
@@ -311,34 +300,36 @@
     <div class="toolbar">
         <!-- الألوان -->
         <div class="color-palette">
-            <div class="color-btn active" style="background: black;" onclick="changeColor('black')" title="أسود"></div>
-            <div class="color-btn" style="background: red;" onclick="changeColor('red')" title="أحمر"></div>
-            <div class="color-btn" style="background: blue;" onclick="changeColor('blue')" title="أزرق"></div>
-            <div class="color-btn" style="background: green;" onclick="changeColor('green')" title="أخضر"></div>
+            <div class="color-btn active" style="background: black;" onclick="changeColor('black')"></div>
+            <div class="color-btn" style="background: red;" onclick="changeColor('red')"></div>
+            <div class="color-btn" style="background: blue;" onclick="changeColor('blue')"></div>
+            <div class="color-btn" style="background: green;" onclick="changeColor('green')"></div>
         </div>
         
-        <!-- أحجام القلم -->
+        <!-- الأحجام -->
         <div class="tool-group">
-            <button class="tool-btn" onclick="changeSize(2)" title="رفيع"><i class="fas fa-pen"></i></button>
-            <button class="tool-btn" onclick="changeSize(5)" title="متوسط"><i class="fas fa-pen-fancy"></i></button>
-            <button class="tool-btn" onclick="changeSize(8)" title="سميك"><i class="fas fa-paint-brush"></i></button>
+            <button class="tool-btn" onclick="changeSize(2)"><i class="fas fa-pen"></i></button>
+            <button class="tool-btn" onclick="changeSize(5)"><i class="fas fa-pen-fancy"></i></button>
+            <button class="tool-btn" onclick="changeSize(8)"><i class="fas fa-paint-brush"></i></button>
         </div>
         
         <!-- الأدوات -->
         <div class="tool-group">
-            <button class="tool-btn active" id="penBtn" onclick="setPen()" title="قلم"><i class="fas fa-pencil-alt"></i></button>
-            <button class="tool-btn" id="eraserBtn" onclick="setEraser()" title="ممحاة"><i class="fas fa-eraser"></i></button>
-            <button class="tool-btn" onclick="clearMyBoard()" title="مسح سبورتي"><i class="fas fa-trash-alt"></i></button>
+            <button class="tool-btn active" id="penBtn" onclick="setPen()"><i class="fas fa-pencil-alt"></i></button>
+            <button class="tool-btn" id="eraserBtn" onclick="setEraser()"><i class="fas fa-eraser"></i></button>
+            <button class="tool-btn" onclick="clearMyBoard()"><i class="fas fa-trash-alt"></i></button>
         </div>
     </div>
     
     <!-- حالة الاتصال مع الصوت -->
-    <div class="connection-status">
-        <span class="status-badge" id="connectionBadge"></span>
-        <span id="statusText">جاري الاتصال...</span>
-        <span id="audioStatus" style="display: flex; align-items: center; gap: 5px;">
+    <div class="status-bar">
+        <div class="status-left">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">جاري الاتصال...</span>
+        </div>
+        <div id="audioStatus">
             <i class="fas fa-microphone-slash" style="color: #e74c3c;"></i>
-        </span>
+        </div>
     </div>
 
     <!-- Firebase -->
@@ -367,10 +358,10 @@
         const myCtx = myCanvas.getContext('2d');
         
         const statusText = document.getElementById('statusText');
-        const connectionBadge = document.getElementById('connectionBadge');
+        const statusDot = document.getElementById('statusDot');
         const permissionBadge = document.getElementById('permissionBadge');
         const audioStatus = document.getElementById('audioStatus');
-        const teacherAudioIndicator = document.getElementById('teacherAudioIndicator');
+        const teacherAudioBadge = document.getElementById('teacherAudioBadge');
         
         // ================== متغيرات الرسم ==================
         let drawing = false;
@@ -383,15 +374,15 @@
         const studentId = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
         
         // ================== الصوت ==================
-        let audioContext = null;
-        let audioStream = null;
+        let audioElement = null;
         let isAudioPlaying = false;
         
         // تهيئة الصوت
         function initAudio() {
             try {
-                // إنشاء AudioContext للتشغيل
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                // إنشاء عنصر صوت
+                audioElement = new Audio();
+                audioElement.autoplay = true;
                 
                 // مراقبة بث الصوت من المدرس
                 db.ref('audioStream/teacher').on('value', (snapshot) => {
@@ -399,53 +390,57 @@
                     
                     if (data && data.active) {
                         // المدرس يبث صوت
-                        statusText.innerText = '🎧 المدرس يبث صوت';
-                        connectionBadge.className = 'status-badge audio';
-                        audioStatus.innerHTML = '<i class="fas fa-volume-up" style="color: #e67e22;"></i> صوت';
-                        teacherAudioIndicator.style.display = 'flex';
+                        statusText.innerText = 'المدرس يبث صوت';
+                        statusDot.className = 'status-dot audio';
+                        audioStatus.innerHTML = '<i class="fas fa-volume-up" style="color: #e67e22;"></i> صوت مباشر';
+                        teacherAudioBadge.style.display = 'flex';
                         
-                        // محاولة تشغيل الصوت (إذا كان مسموح)
-                        playAudio();
+                        // تشغيل الصوت (مثال - هنا نحتاج رابط حقيقي)
+                        playAudioStream();
+                        
                     } else {
                         // لا يوجد بث
-                        statusText.innerText = '✓ متصل';
-                        connectionBadge.className = 'status-badge online';
+                        statusText.innerText = 'متصل';
+                        statusDot.className = 'status-dot online';
                         audioStatus.innerHTML = '<i class="fas fa-microphone-slash" style="color: #e74c3c;"></i>';
-                        teacherAudioIndicator.style.display = 'none';
+                        teacherAudioBadge.style.display = 'none';
                         
-                        // إيقاف الصوت إذا كان شغال
-                        stopAudio();
+                        // إيقاف الصوت
+                        stopAudioStream();
                     }
                 });
                 
             } catch (err) {
-                console.error('خطأ في إعداد الصوت:', err);
-                statusText.innerText = '⚠️ خطأ في الصوت';
+                console.error('خطأ في الصوت:', err);
+                statusText.innerText = 'خطأ في الصوت';
             }
         }
         
-        // تشغيل الصوت (مثال باستخدام Web Audio API)
-        function playAudio() {
-            if (!audioContext) return;
+        // تشغيل الصوت
+        function playAudioStream() {
+            if (!audioElement) return;
             
-            // هذا مثال بسيط - في التطبيق الحقيقي نحتاج WebRTC
-            // لكن سنفترض أن هناك رابط صوت قادم من المدرس
+            // هذا مثال - في الواقع هنحتاج رابط بث حقيقي من المدرس
+            // audioElement.src = 'رابط الصوت';
+            // audioElement.play();
+            
             isAudioPlaying = true;
-            
-            // محاكاة وجود صوت (يمكن استبدالها برابط حقيقي)
             console.log('جاري تشغيل الصوت...');
         }
         
         // إيقاف الصوت
-        function stopAudio() {
+        function stopAudioStream() {
+            if (audioElement) {
+                audioElement.pause();
+                audioElement.src = '';
+            }
             isAudioPlaying = false;
-            console.log('إيقاف الصوت');
         }
         
         // تفعيل الصوت (للتغلب على قيود المتصفح)
         function enableAudio() {
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume();
+            if (audioElement) {
+                audioElement.play().catch(e => console.log('المتصفح منع التشغيل التلقائي'));
             }
         }
         
@@ -676,12 +671,9 @@
             db.ref('onlineStudents/' + studentId).remove();
         });
         
-        // بدء تشغيل الصوت
+        // بدء التشغيل
         initAudio();
         setPen();
-        
-        // تأكيد أن السكرول الأفقي شغال
-        console.log('السبورات أفقية - يمكنك السحب يميناً ويساراً');
     </script>
 </body>
 </html>
