@@ -8,99 +8,104 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100dvh;overflow:hidden;font-family:'Segoe UI',sans-serif;background:#1a2634;color:#fff;display:flex;flex-direction:column}
-.hdr{height:48px;min-height:48px;background:#2c3e50;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:3px solid #e67e22;flex-shrink:0;gap:8px}
-.logo{font-size:15px;font-weight:bold;white-space:nowrap}.logo i{color:#e67e22;margin-left:6px}
+.hdr{height:48px;min-height:48px;background:#2c3e50;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:3px solid #e67e22;flex-shrink:0}
+.logo{font-size:15px;font-weight:bold}.logo i{color:#e67e22;margin-left:6px}
 .hdr-r{display:flex;align-items:center;gap:8px}
 .badge{padding:4px 12px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:5px;background:#27ae60}
-.mic-ind{display:none;align-items:center;gap:5px;background:#e74c3c;padding:4px 12px;border-radius:20px;font-size:12px;animation:p1 1s infinite}
-.mic-ind.on{display:flex}
-@keyframes p1{0%,100%{opacity:1}50%{opacity:.5}}
+.mic-active{display:none;align-items:center;gap:5px;background:#e74c3c;padding:4px 12px;border-radius:20px;font-size:12px;animation:blink 1s infinite}
+.mic-active.show{display:flex}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
 .boards{flex:1;display:flex;padding:6px;gap:6px;overflow:hidden;min-height:0}
 @media(max-width:768px){.boards{flex-direction:column}}
-.board{flex:1;display:flex;flex-direction:column;background:#2c3e50;border-radius:10px;overflow:hidden;min-height:0}
-.bh{padding:8px 12px;background:#34495e;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:2px solid #e67e22}
-.bh.b{border-bottom-color:#3498db}
-.bh span{font-size:13px;font-weight:bold}
-.bh button{background:rgba(255,255,255,.1);border:none;color:#fff;width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:13px;margin-right:4px}
-.bh button:hover{background:#e67e22}
-.cscroll{flex:1;overflow:auto;background:#ccc;-webkit-overflow-scrolling:touch;min-height:0}
-canvas{display:block;width:2000px;height:1500px;background:#fff;touch-action:none;cursor:crosshair}
-.tb{background:#34495e;padding:8px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;border-top:2px solid #e67e22;flex-shrink:0}
-@media(max-width:768px){.tb{flex-wrap:nowrap;overflow-x:auto;padding:6px 8px}}
-.tb::-webkit-scrollbar{height:3px}.tb::-webkit-scrollbar-thumb{background:#e67e22;border-radius:2px}
-.tg{display:flex;gap:3px;background:#2c3e50;padding:4px;border-radius:8px}
-.cb{width:30px;height:30px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:.15s;flex-shrink:0}
-.cb.on,.cb:hover{border-color:#fff;transform:scale(1.1)}
-.btn{width:36px;height:36px;border:none;border-radius:6px;background:#3d566e;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s}
-.btn:hover,.btn.on{background:#e67e22}
-.btn.del{background:#c0392b}.btn.del:hover{background:#e74c3c}
-.btn.mic-on{background:#e74c3c!important;animation:mp 1.5s infinite}
-@keyframes mp{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.5)}50%{box-shadow:0 0 0 8px transparent}}
-.szd{background:#fff;border-radius:50%}
-.students{background:#2c3e50;padding:5px 14px;border-top:1px solid #34495e;max-height:46px;overflow-y:auto;flex-shrink:0}
-.slist{display:flex;flex-wrap:wrap;gap:5px}
-.chip{background:#34495e;padding:3px 10px;border-radius:20px;font-size:11px;display:flex;align-items:center;gap:5px;border-right:3px solid #27ae60}
-.sbar{height:30px;min-height:30px;background:#111b27;border-top:1px solid #243447;display:flex;align-items:center;padding:0 12px;font-size:11px;color:#aab8c8;flex-shrink:0}
-.dot{width:8px;height:8px;border-radius:50%;margin-left:6px}
-.dot.on{background:#27ae60;box-shadow:0 0 5px #27ae60}.dot.off{background:#e74c3c}
+.board{flex:1;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;min-height:0;background:#2c3e50}
+.bhead{padding:8px 12px;background:#34495e;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:2px solid #e67e22}
+.bhead.blue{border-bottom-color:#3498db}
+.bhead span{font-size:13px;font-weight:bold}
+.bhead button{background:rgba(255,255,255,.15);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:12px;margin-right:3px}
+.bhead button:hover{background:#e67e22}
+/* ─── THE KEY FIX: canvas يملأ المنطقة بالكامل بدون scroll ─── */
+.canvas-wrap{flex:1;position:relative;min-height:0;background:#fff}
+.canvas-wrap canvas{
+  position:absolute;top:0;left:0;
+  /* CSS size = element size */
+  display:block;
+  touch-action:none;
+  cursor:crosshair;
+}
+.tb{background:#34495e;padding:7px 8px;display:flex;flex-wrap:nowrap;gap:5px;align-items:center;border-top:2px solid #e67e22;flex-shrink:0;overflow-x:auto}
+.tb::-webkit-scrollbar{height:2px}.tb::-webkit-scrollbar-thumb{background:#e67e22}
+.tg{display:flex;gap:3px;background:#2c3e50;padding:4px;border-radius:8px;flex-shrink:0}
+.clr{width:28px;height:28px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:.1s;flex-shrink:0}
+.clr.sel{border-color:#fff;transform:scale(1.15)}
+.tbtn{width:36px;height:36px;border:none;border-radius:7px;background:#3d566e;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s}
+.tbtn.sel,.tbtn:hover{background:#e67e22}
+.tbtn.danger{background:#c0392b}.tbtn.danger:hover{background:#e74c3c}
+.tbtn.recording{background:#e74c3c!important;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.6)}50%{box-shadow:0 0 0 8px rgba(231,76,60,0)}}
+.dot-size{background:white;border-radius:50%}
+.students-bar{background:#243447;padding:4px 12px;border-top:1px solid #1a2634;max-height:40px;overflow:hidden;flex-shrink:0}
+.students-bar div{display:flex;flex-wrap:wrap;gap:4px}
+.chip{background:#34495e;padding:2px 9px;border-radius:20px;font-size:11px;border-right:3px solid #27ae60}
+.status{height:28px;background:#0e1820;border-top:1px solid #1a2634;display:flex;align-items:center;padding:0 12px;font-size:11px;color:#8a9bb0;flex-shrink:0}
+.sdot{width:7px;height:7px;border-radius:50%;margin-left:6px}
+.sdot.on{background:#27ae60;box-shadow:0 0 4px #27ae60}.sdot.off{background:#e74c3c}
 </style>
 </head>
 <body>
+
 <div class="hdr">
   <div class="logo"><i class="fas fa-chalkboard-teacher"></i>MyClass2 — المدرس</div>
   <div class="hdr-r">
-    <div class="mic-ind" id="micInd"><i class="fas fa-microphone"></i> مايك شغّال</div>
+    <div class="mic-active" id="micActive"><i class="fas fa-microphone"></i>مايك شغّال</div>
     <div class="badge"><i class="fas fa-users"></i><span id="cnt">0</span></div>
   </div>
 </div>
 
 <div class="boards">
   <div class="board">
-    <div class="bh">
+    <div class="bhead">
       <span><i class="fas fa-pen-fancy" style="color:#e67e22"></i> سبورتي</span>
-      <div><button onclick="clearT()"><i class="fas fa-eraser"></i></button></div>
+      <div><button onclick="clearTeacher()"><i class="fas fa-eraser"></i></button></div>
     </div>
-    <div class="cscroll" id="ts"><canvas id="tc"></canvas></div>
+    <div class="canvas-wrap" id="tw"><canvas id="tc"></canvas></div>
   </div>
   <div class="board">
-    <div class="bh b">
+    <div class="bhead blue">
       <span><i class="fas fa-users" style="color:#3498db"></i> سبورة الطلاب</span>
-      <div><button onclick="clearS()"><i class="fas fa-eraser"></i></button></div>
+      <div><button onclick="clearStudent()"><i class="fas fa-eraser"></i></button></div>
     </div>
-    <div class="cscroll" id="ss"><canvas id="sc"></canvas></div>
+    <div class="canvas-wrap" id="sw"><canvas id="sc"></canvas></div>
   </div>
 </div>
 
 <div class="tb">
   <div class="tg">
-    <div class="cb on" style="background:#111" onclick="setClr('#111',this)"></div>
-    <div class="cb" style="background:#e74c3c" onclick="setClr('#e74c3c',this)"></div>
-    <div class="cb" style="background:#2980b9" onclick="setClr('#2980b9',this)"></div>
-    <div class="cb" style="background:#27ae60" onclick="setClr('#27ae60',this)"></div>
-    <div class="cb" style="background:#8e44ad" onclick="setClr('#8e44ad',this)"></div>
-    <div class="cb" style="background:#e67e22" onclick="setClr('#e67e22',this)"></div>
-    <div class="cb" style="background:#fff;border:2px solid #999" onclick="setClr('#fff',this)"></div>
+    <div class="clr sel" style="background:#111" onclick="pickColor('#111',this)"></div>
+    <div class="clr" style="background:#e74c3c" onclick="pickColor('#e74c3c',this)"></div>
+    <div class="clr" style="background:#2980b9" onclick="pickColor('#2980b9',this)"></div>
+    <div class="clr" style="background:#27ae60" onclick="pickColor('#27ae60',this)"></div>
+    <div class="clr" style="background:#8e44ad" onclick="pickColor('#8e44ad',this)"></div>
+    <div class="clr" style="background:#e67e22" onclick="pickColor('#e67e22',this)"></div>
+    <div class="clr" style="background:#fff;border:2px solid #666" onclick="pickColor('#fff',this)"></div>
   </div>
   <div class="tg">
-    <button class="btn on" id="sz1" onclick="setSz(2,'sz1')"><div class="szd" style="width:4px;height:4px"></div></button>
-    <button class="btn" id="sz2" onclick="setSz(5,'sz2')"><div class="szd" style="width:8px;height:8px"></div></button>
-    <button class="btn" id="sz3" onclick="setSz(12,'sz3')"><div class="szd" style="width:14px;height:14px"></div></button>
+    <button class="tbtn sel" id="sz1" onclick="pickSize(3,'sz1')"><div class="dot-size" style="width:5px;height:5px"></div></button>
+    <button class="tbtn" id="sz2" onclick="pickSize(7,'sz2')"><div class="dot-size" style="width:9px;height:9px"></div></button>
+    <button class="tbtn" id="sz3" onclick="pickSize(15,'sz3')"><div class="dot-size" style="width:15px;height:15px"></div></button>
   </div>
   <div class="tg">
-    <button class="btn on" id="penBtn" onclick="setTool('pen')"><i class="fas fa-pencil-alt"></i></button>
-    <button class="btn" id="eraserBtn" onclick="setTool('eraser')"><i class="fas fa-eraser"></i></button>
-    <button class="btn del" onclick="clearAll()"><i class="fas fa-trash-alt"></i></button>
+    <button class="tbtn sel" id="penBtn" onclick="pickTool('pen')"><i class="fas fa-pencil-alt"></i></button>
+    <button class="tbtn" id="eraserBtn" onclick="pickTool('eraser')"><i class="fas fa-eraser"></i></button>
+    <button class="tbtn danger" onclick="clearAll()"><i class="fas fa-trash-alt"></i></button>
   </div>
   <div class="tg">
-    <button class="btn" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone" id="micIcon"></i></button>
-    <button class="btn" id="lockBtn" onclick="toggleLock()" style="background:#27ae60"><i class="fas fa-lock-open" id="lockIcon"></i></button>
+    <button class="tbtn" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone" id="micIcon"></i></button>
+    <button class="tbtn" id="lockBtn" onclick="toggleLock()" style="background:#27ae60"><i class="fas fa-lock-open" id="lockIcon"></i></button>
   </div>
 </div>
 
-<div class="students"><div class="slist" id="slist"></div></div>
-<div class="sbar">
-  <span class="dot on" id="dotEl"></span><span id="stEl">متصل</span>
-</div>
+<div class="students-bar"><div id="slist"></div></div>
+<div class="status"><span class="sdot on" id="sdot"></span><span id="stxt">متصل</span></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -116,255 +121,337 @@ firebase.initializeApp({
 });
 const db = firebase.database();
 
-// ── Canvas ──────────────────────────────────────────────────
-const tc = document.getElementById('tc'), sc = document.getElementById('sc');
-const tx = tc.getContext('2d'),           sx = sc.getContext('2d');
-const tsEl = document.getElementById('ts'), ssEl = document.getElementById('ss');
-tc.width=2000; tc.height=1500;
-sc.width=2000; sc.height=1500;
-[tx,sx].forEach(c=>{c.lineCap='round';c.lineJoin='round'});
+// ══════════════════════════════════════════════════════════════
+// CANVAS SETUP
+// الحجم الداخلي للكانفاس = حجمه الفعلي على الشاشة
+// هذا يضمن تطابق الإحداثيات 100%
+// ══════════════════════════════════════════════════════════════
+const tc = document.getElementById('tc');
+const sc = document.getElementById('sc');
+const tx = tc.getContext('2d');
+const sx = sc.getContext('2d');
+const tw = document.getElementById('tw');
+const sw = document.getElementById('sw');
 
-// ── State ────────────────────────────────────────────────────
-let tool='pen', clr='#111', sz=2;
-let drawing=false, lx=0, ly=0;
-let studentsCanDraw=true;
-let micOn=false, micStream=null;
-let recInterval=null;
+function fitCanvas(canvas, wrap) {
+  canvas.width  = wrap.clientWidth;
+  canvas.height = wrap.clientHeight;
+  canvas.style.width  = wrap.clientWidth  + 'px';
+  canvas.style.height = wrap.clientHeight + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.lineCap  = 'round';
+  ctx.lineJoin = 'round';
+}
 
-// كل stroke له strokeId فريد — الطالب يجمع النقاط تحت نفس الـ id
-let strokeId = 0;
-let activeCtx=null, activeTarget=null;
+function initCanvases() {
+  fitCanvas(tc, tw);
+  fitCanvas(sc, sw);
+}
 
-// ── موقع ─────────────────────────────────────────────────────
-function getPos(e, canvas, scroll) {
+// انتظر حتى يتشكّل الـ layout
+requestAnimationFrame(() => requestAnimationFrame(initCanvases));
+
+window.addEventListener('resize', () => {
+  // احفظ الرسم
+  const tmpT = tc.toDataURL();
+  const tmpS = sc.toDataURL();
+  fitCanvas(tc, tw);
+  fitCanvas(sc, sw);
+  // أعد رسم بعد resize
+  const iT = new Image(); iT.onload = () => tx.drawImage(iT,0,0); iT.src = tmpT;
+  const iS = new Image(); iS.onload = () => sx.drawImage(iS,0,0); iS.src = tmpS;
+});
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let color = '#111', size = 3, tool = 'pen';
+let drawing = false, lx = 0, ly = 0;
+let studentsCanDraw = true;
+let micOn = false, micStream = null, recInterval = null;
+const SESSION = 'T' + Date.now(); // فريد لكل جلسة
+let strokeN = 0;
+let activeCtx, activeWrap, activeRef;
+
+// ══════════════════════════════════════════════════════════════
+// DRAWING
+// ══════════════════════════════════════════════════════════════
+function xy(e, wrap) {
+  const r  = wrap.getBoundingClientRect();
   const cx = e.touches ? e.touches[0].clientX : e.clientX;
   const cy = e.touches ? e.touches[0].clientY : e.clientY;
-  const r  = canvas.getBoundingClientRect();
-  return {
-    x: (cx - r.left + scroll.scrollLeft) * (2000 / r.width),
-    y: (cy - r.top  + scroll.scrollTop)  * (1500 / r.height)
-  };
+  // الإحداثيات مباشرة بدون أي تحويل — الكانفاس = حجم الـ wrap
+  return { x: cx - r.left, y: cy - r.top };
 }
 
-// ── رسم محلي ناعم ────────────────────────────────────────────
-function drawSegment(ctx, x1, y1, x2, y2) {
-  ctx.save();
-  if (tool==='eraser') { ctx.globalCompositeOperation='destination-out'; ctx.strokeStyle='rgba(0,0,0,1)'; ctx.lineWidth=30; }
-  else                 { ctx.globalCompositeOperation='source-over';     ctx.strokeStyle=clr;              ctx.lineWidth=sz; }
-  ctx.lineCap='round'; ctx.lineJoin='round';
-  ctx.beginPath(); ctx.moveTo(x1,y1);
-  ctx.quadraticCurveTo(x1,y1, (x1+x2)/2, (y1+y2)/2);
-  ctx.stroke(); ctx.restore();
+// الإرسال: نقاط نسبية (0-1) حتى تعمل على أي حجم شاشة
+function toNorm(pts, w, h) {
+  return pts.map(p => [+(p.x/w).toFixed(4), +(p.y/h).toFixed(4)]);
 }
 
-// ── الرسم: نرسل كل نقطة فور حدوثها ─────────────────────────
-// لكن نضغطها في مصفوفة ونرسلها كل 30ms لتقليل عدد الطلبات
-let batch=[], bTimer=null;
+let buf = [], bufTimer = null, curKey = '';
 
-function flushBatch() {
-  if (!batch.length || !activeTarget) return;
-  // أرسل كـ segment واحد بمصفوفة نقاط
-  activeTarget.push({
-    id: strokeId,
-    pts: batch.splice(0),
-    c:  tool==='eraser' ? null : clr,
-    s:  tool==='eraser' ? 30   : sz,
-    e:  tool==='eraser' ? 1    : 0,
-    ts: Date.now()
+function sendBuf() {
+  if (!buf.length || !activeRef || !activeWrap) return;
+  const w = activeWrap.clientWidth, h = activeWrap.clientHeight;
+  activeRef.push({
+    k:   curKey,
+    c:   tool === 'eraser' ? null : color,
+    s:   tool === 'eraser' ? -1   : size,
+    pts: toNorm(buf.splice(0), w, h),
+    ts:  Date.now()
   });
 }
 
-function startD(cvs, scroll, ref, e) {
-  e.preventDefault(); drawing=true;
-  activeCtx    = cvs===tc ? tx : sx;
-  activeTarget = ref;
-  strokeId++;
-  const p=getPos(e,cvs,scroll); lx=p.x; ly=p.y;
-  batch=[{x:p.x,y:p.y}];
-  // نقطة مرئية فورية
+function onDown(cvs, wrap, ref, e) {
+  e.preventDefault();
+  drawing    = true;
+  activeCtx  = cvs === tc ? tx : sx;
+  activeWrap = wrap;
+  activeRef  = ref;
+  strokeN++;
+  curKey = SESSION + '_' + strokeN;
+  const p = xy(e, wrap);
+  lx = p.x; ly = p.y;
+  buf = [{x:p.x, y:p.y}];
+  // نقطة البداية
   activeCtx.save();
-  activeCtx.globalCompositeOperation = tool==='eraser'?'destination-out':'source-over';
-  activeCtx.fillStyle = tool==='eraser'?'rgba(0,0,0,1)':clr;
-  activeCtx.beginPath(); activeCtx.arc(p.x,p.y,sz/2,0,Math.PI*2); activeCtx.fill();
+  activeCtx.globalCompositeOperation = tool==='eraser' ? 'destination-out' : 'source-over';
+  activeCtx.fillStyle = tool==='eraser' ? 'rgba(0,0,0,1)' : color;
+  activeCtx.beginPath();
+  activeCtx.arc(p.x, p.y, (tool==='eraser' ? size*4 : size) / 2, 0, Math.PI*2);
+  activeCtx.fill();
   activeCtx.restore();
 }
 
-function moveD(e) {
-  e.preventDefault(); if (!drawing) return;
-  const cvs    = activeCtx===tx ? tc : sc;
-  const scroll = activeCtx===tx ? tsEl : ssEl;
-  const p=getPos(e,cvs,scroll);
-  drawSegment(activeCtx,lx,ly,p.x,p.y);
-  batch.push({x:p.x,y:p.y});
-  if (!bTimer) bTimer = setTimeout(()=>{ flushBatch(); bTimer=null; }, 30);
-  lx=p.x; ly=p.y;
+function onMove(e) {
+  e.preventDefault();
+  if (!drawing) return;
+  const p = xy(e, activeWrap);
+  // رسم محلي — lineTo بسيط ومضمون
+  activeCtx.save();
+  activeCtx.globalCompositeOperation = tool==='eraser' ? 'destination-out' : 'source-over';
+  activeCtx.strokeStyle = tool==='eraser' ? 'rgba(0,0,0,1)' : color;
+  activeCtx.lineWidth   = tool==='eraser' ? size * 4 : size;
+  activeCtx.lineCap     = 'round';
+  activeCtx.lineJoin    = 'round';
+  activeCtx.beginPath();
+  activeCtx.moveTo(lx, ly);
+  activeCtx.lineTo(p.x, p.y);
+  activeCtx.stroke();
+  activeCtx.restore();
+  buf.push({x:p.x, y:p.y});
+  if (!bufTimer) bufTimer = setTimeout(() => { sendBuf(); bufTimer = null; }, 30);
+  lx = p.x; ly = p.y;
 }
 
-function stopD() {
-  if (!drawing) return; drawing=false;
-  if (bTimer) { clearTimeout(bTimer); bTimer=null; }
-  flushBatch();
-  batch=[];
+function onUp() {
+  if (!drawing) return;
+  drawing = false;
+  clearTimeout(bufTimer); bufTimer = null;
+  sendBuf();
 }
 
-tc.addEventListener('mousedown',  e=>startD(tc,tsEl,db.ref('tDraw'),e));
-tc.addEventListener('mousemove',  moveD);
-tc.addEventListener('mouseup',    stopD);
-tc.addEventListener('mouseleave', stopD);
-tc.addEventListener('touchstart', e=>startD(tc,tsEl,db.ref('tDraw'),e),{passive:false});
-tc.addEventListener('touchmove',  moveD,{passive:false});
-tc.addEventListener('touchend',   stopD);
+// Teacher board
+tc.addEventListener('mousedown',  e => onDown(tc,tw,db.ref('draw_t'),e));
+tc.addEventListener('mousemove',  onMove);
+tc.addEventListener('mouseup',    onUp);
+tc.addEventListener('mouseleave', onUp);
+tc.addEventListener('touchstart', e => onDown(tc,tw,db.ref('draw_t'),e), {passive:false});
+tc.addEventListener('touchmove',  onMove, {passive:false});
+tc.addEventListener('touchend',   onUp);
 
-sc.addEventListener('mousedown',  e=>startD(sc,ssEl,db.ref('sDraw'),e));
-sc.addEventListener('mousemove',  moveD);
-sc.addEventListener('mouseup',    stopD);
-sc.addEventListener('mouseleave', stopD);
-sc.addEventListener('touchstart', e=>startD(sc,ssEl,db.ref('sDraw'),e),{passive:false});
-sc.addEventListener('touchmove',  moveD,{passive:false});
-sc.addEventListener('touchend',   stopD);
+// Student board (teacher draws on it)
+sc.addEventListener('mousedown',  e => onDown(sc,sw,db.ref('draw_s'),e));
+sc.addEventListener('mousemove',  onMove);
+sc.addEventListener('mouseup',    onUp);
+sc.addEventListener('mouseleave', onUp);
+sc.addEventListener('touchstart', e => onDown(sc,sw,db.ref('draw_s'),e), {passive:false});
+sc.addEventListener('touchmove',  onMove, {passive:false});
+sc.addEventListener('touchend',   onUp);
 
-// ── استقبال رسم الطلاب ───────────────────────────────────────
-// نجمع الـ segments حسب strokeId لرسمها متصلة
-const studentStrokes = {}; // strokeId → {ctx, pts, c, s, e, lastX, lastY}
+// ══════════════════════════════════════════════════════════════
+// RECEIVE — رسم الطلاب على سبورة الطلاب
+// ══════════════════════════════════════════════════════════════
+const remStrokes = {};
 
-db.ref('studentDraw').on('child_added', snap => {
-  const d = snap.val(); if (!d||!d.pts||!d.pts.length) return;
+function renderRemote(ctx, areaWrap, d) {
+  if (!d || !d.pts || !d.pts.length) return;
+  const W = areaWrap.clientWidth, H = areaWrap.clientHeight;
+  const key = d.k || d.ts;
+  const isEraser = d.s === -1;
+  const lw = isEraser ? 40 : (d.s || 3);
 
-  const key = (d.sid||'x')+'_'+d.id;
-  if (!studentStrokes[key]) {
-    studentStrokes[key] = { lastX:d.pts[0].x, lastY:d.pts[0].y };
-    // نقطة أولى
-    sx.save();
-    sx.globalCompositeOperation = d.e?'destination-out':'source-over';
-    sx.fillStyle = d.e?'rgba(0,0,0,1)':(d.c||'#000');
-    sx.beginPath(); sx.arc(d.pts[0].x,d.pts[0].y,(d.s||3)/2,0,Math.PI*2); sx.fill();
-    sx.restore();
+  if (!remStrokes[key]) {
+    // أول batch من هذا الـ stroke
+    const fx = d.pts[0][0] * W, fy = d.pts[0][1] * H;
+    remStrokes[key] = { lx: fx, ly: fy };
+    ctx.save();
+    ctx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
+    ctx.fillStyle = isEraser ? 'rgba(0,0,0,1)' : (d.c || '#000');
+    ctx.beginPath(); ctx.arc(fx, fy, lw/2, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
   }
-  const st = studentStrokes[key];
-  sx.save();
-  if (d.e) { sx.globalCompositeOperation='destination-out'; sx.strokeStyle='rgba(0,0,0,1)'; sx.lineWidth=30; }
-  else     { sx.globalCompositeOperation='source-over';     sx.strokeStyle=d.c||'#000';     sx.lineWidth=d.s||3; }
-  sx.lineCap='round'; sx.lineJoin='round';
-  sx.beginPath(); sx.moveTo(st.lastX, st.lastY);
-  for (const p of d.pts) {
-    const mx=(st.lastX+p.x)/2, my=(st.lastY+p.y)/2;
-    sx.quadraticCurveTo(st.lastX,st.lastY,mx,my);
-    st.lastX=p.x; st.lastY=p.y;
+
+  const st = remStrokes[key];
+  ctx.save();
+  ctx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
+  ctx.strokeStyle = isEraser ? 'rgba(0,0,0,1)' : (d.c || '#000');
+  ctx.lineWidth   = lw;
+  ctx.lineCap     = 'round';
+  ctx.lineJoin    = 'round';
+  ctx.beginPath();
+  ctx.moveTo(st.lx, st.ly);
+  for (const pt of d.pts) {
+    const px = pt[0] * W, py = pt[1] * H;
+    ctx.lineTo(px, py);
+    st.lx = px; st.ly = py;
   }
-  sx.stroke(); sx.restore();
+  ctx.stroke();
+  ctx.restore();
+}
+
+db.ref('draw_st').on('child_added', snap => renderRemote(sx, sw, snap.val()));
+
+// أوامر المسح
+db.ref('cmd').on('child_added', snap => {
+  const d = snap.val(); if (!d) return;
+  if (d.t === 'clrAll' || d.t === 'clrT') { tx.clearRect(0,0,tc.width,tc.height); }
+  if (d.t === 'clrAll' || d.t === 'clrS') { sx.clearRect(0,0,sc.width,sc.height); }
 });
 
-// ── أدوات ────────────────────────────────────────────────────
-function setClr(c,el){clr=c;tool='pen';document.querySelectorAll('.cb').forEach(b=>b.classList.remove('on'));el.classList.add('on');setTool('pen');}
-function setSz(s,id){sz=s;document.querySelectorAll('#sz1,#sz2,#sz3').forEach(b=>b.classList.remove('on'));document.getElementById(id).classList.add('on');}
-function setTool(t){tool=t;document.getElementById('penBtn').classList.toggle('on',t==='pen');document.getElementById('eraserBtn').classList.toggle('on',t==='eraser');}
-function clearT(){tx.clearRect(0,0,2000,1500);}
-function clearS(){sx.clearRect(0,0,2000,1500);}
-function clearAll(){
-  if(!confirm('مسح الكل؟'))return;
-  tx.clearRect(0,0,2000,1500); sx.clearRect(0,0,2000,1500);
-  db.ref('cmd').push({type:'clear',ts:Date.now()});
+// ══════════════════════════════════════════════════════════════
+// TOOLS
+// ══════════════════════════════════════════════════════════════
+function pickColor(c, el) {
+  color = c;
+  document.querySelectorAll('.clr').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+  pickTool('pen');
 }
-function toggleLock(){
-  studentsCanDraw=!studentsCanDraw;
+function pickSize(s, id) {
+  size = s;
+  document.querySelectorAll('#sz1,#sz2,#sz3').forEach(b => b.classList.remove('sel'));
+  document.getElementById(id).classList.add('sel');
+}
+function pickTool(t) {
+  tool = t;
+  document.getElementById('penBtn').classList.toggle('sel', t==='pen');
+  document.getElementById('eraserBtn').classList.toggle('sel', t==='eraser');
+}
+function clearTeacher() {
+  tx.clearRect(0, 0, tc.width, tc.height);
+  db.ref('cmd').push({t:'clrT', ts:Date.now()});
+}
+function clearStudent() {
+  sx.clearRect(0, 0, sc.width, sc.height);
+  db.ref('cmd').push({t:'clrS', ts:Date.now()});
+}
+function clearAll() {
+  if (!confirm('مسح الكل؟')) return;
+  tx.clearRect(0, 0, tc.width, tc.height);
+  sx.clearRect(0, 0, sc.width, sc.height);
+  db.ref('cmd').push({t:'clrAll', ts:Date.now()});
+  db.ref('draw_t').remove();
+  db.ref('draw_s').remove();
+  db.ref('draw_st').remove();
+}
+function toggleLock() {
+  studentsCanDraw = !studentsCanDraw;
   db.ref('ctrl').set({studentsCanDraw});
-  document.getElementById('lockBtn').style.background=studentsCanDraw?'#27ae60':'#e74c3c';
-  document.getElementById('lockIcon').className='fas fa-lock'+(studentsCanDraw?'-open':'');
+  document.getElementById('lockBtn').style.background = studentsCanDraw ? '#27ae60' : '#e74c3c';
+  document.getElementById('lockIcon').className = 'fas fa-lock' + (studentsCanDraw ? '-open' : '');
 }
 
-// ── AUDIO: المدرس يبث → الطلاب يسمعون ──────────────────────
-// طريقة موثوقة: نكتب blob واحد كل 3 ثواني في path ثابت
-// الطالب يراقب نفس الـ path ويشغل مباشرة بـ <audio>
-
-function getMime(){
-  for(const t of['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'])
-    if(MediaRecorder.isTypeSupported(t))return t;
+// ══════════════════════════════════════════════════════════════
+// AUDIO — صوت المدرس للطلاب
+// ══════════════════════════════════════════════════════════════
+function getMime() {
+  for (const t of ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'])
+    if (MediaRecorder.isTypeSupported(t)) return t;
   return '';
 }
-function toB64(blob){return new Promise(r=>{const f=new FileReader();f.onloadend=()=>r(f.result);f.readAsDataURL(blob);})}
-
-let audioSlot=0;
-
-function recordOnce(){
-  if(!micStream)return;
-  const mime=getMime();
-  const rec=new MediaRecorder(micStream, mime?{mimeType:mime}:{});
-  const chunks=[];
-  rec.ondataavailable=ev=>{if(ev.data&&ev.data.size>0)chunks.push(ev.data);};
-  rec.onstop=async()=>{
-    if(!chunks.length||!micOn)return;
-    const blob=new Blob(chunks,{type:mime||'audio/webm'});
-    if(blob.size<200)return;
-    const b64=await toB64(blob);
-    audioSlot = audioSlot===0 ? 1 : 0; // يتناوب بين 0 و 1
-    // set (لا push) حتى يطلق child_changed عند الطالب
-    db.ref('audio/slot'+audioSlot).set({d:b64,ts:Date.now()});
-  };
-  rec.start();
-  setTimeout(()=>{try{rec.stop();}catch(e){}}, 2800);
+function toB64(blob) {
+  return new Promise(r => { const f=new FileReader(); f.onloadend=()=>r(f.result); f.readAsDataURL(blob); });
 }
 
-async function toggleMic(){
-  const btn=document.getElementById('micBtn');
-  const icon=document.getElementById('micIcon');
-  const ind=document.getElementById('micInd');
-  if(!micOn){
-    icon.className='fas fa-spinner fa-spin'; btn.disabled=true;
-    try{
-      micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
-      micOn=true; btn.disabled=false;
-      btn.classList.add('mic-on'); icon.className='fas fa-microphone-slash';
-      ind.classList.add('on');
-      document.getElementById('stEl').textContent='🎤 مايك شغّال';
-      db.ref('audioMeta').set({active:true,ts:Date.now()});
+let audioSlot = 0;
+function recordOnce() {
+  if (!micStream || !micOn) return;
+  const mime = getMime();
+  const rec  = new MediaRecorder(micStream, mime ? {mimeType:mime} : {});
+  const chunks = [];
+  rec.ondataavailable = ev => { if (ev.data && ev.data.size > 0) chunks.push(ev.data); };
+  rec.onstop = async () => {
+    if (!micOn || !chunks.length) return;
+    const b64 = await toB64(new Blob(chunks, {type: mime || 'audio/webm'}));
+    audioSlot = audioSlot === 0 ? 1 : 0;
+    db.ref('audio/s' + audioSlot).set({d: b64, ts: Date.now()});
+  };
+  rec.start();
+  setTimeout(() => { try { rec.stop(); } catch(e) {} }, 2800);
+}
+
+async function toggleMic() {
+  const btn  = document.getElementById('micBtn');
+  const icon = document.getElementById('micIcon');
+  const ind  = document.getElementById('micActive');
+  if (!micOn) {
+    icon.className = 'fas fa-spinner fa-spin'; btn.disabled = true;
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+      micOn = true; btn.disabled = false;
+      btn.classList.add('recording'); icon.className = 'fas fa-microphone-slash';
+      ind.classList.add('show');
+      db.ref('audioMeta').set({active:true, ts:Date.now()});
       recordOnce();
-      recInterval=setInterval(recordOnce, 3000);
-    }catch(err){
-      btn.disabled=false; icon.className='fas fa-microphone';
-      alert('لا يمكن الوصول للمايكروفون:\n'+err.message);
+      recInterval = setInterval(recordOnce, 3000);
+    } catch(err) {
+      btn.disabled = false; icon.className = 'fas fa-microphone';
+      alert('لا يمكن الوصول للمايكروفون:\n' + err.message);
     }
-  }else{
-    clearInterval(recInterval); recInterval=null;
-    if(micStream)micStream.getTracks().forEach(t=>t.stop());
-    micStream=null; micOn=false;
-    btn.classList.remove('mic-on'); icon.className='fas fa-microphone';
-    ind.classList.remove('on');
-    document.getElementById('stEl').textContent='متصل';
+  } else {
+    clearInterval(recInterval); recInterval = null;
+    if (micStream) micStream.getTracks().forEach(t => t.stop());
+    micStream = null; micOn = false;
+    btn.classList.remove('recording'); icon.className = 'fas fa-microphone';
+    ind.classList.remove('show');
     db.ref('audioMeta').set({active:false});
     db.ref('audio').remove();
   }
 }
 
-// ── استقبال صوت الطلاب (للمدرس) ─────────────────────────────
-const heardTs=new Set();
-async function playStudentBlob(d){
-  if(!d||!d.d||heardTs.has(d.ts))return;
-  heardTs.add(d.ts);
-  try{const a=new Audio(d.d); await a.play();}catch(e){}
+// استقبال صوت الطلاب
+const heardSt = new Set();
+async function playStudent(d) {
+  if (!d || !d.d || heardSt.has(d.ts)) return;
+  heardSt.add(d.ts);
+  try { const a = new Audio(d.d); await a.play(); } catch(e) {}
 }
-['slot0','slot1'].forEach(slot=>{
-  db.ref('studentAudio/'+slot).on('value',snap=>playStudentBlob(snap.val()));
-});
+db.ref('stuAudio/s0').on('value', snap => playStudent(snap.val()));
+db.ref('stuAudio/s1').on('value', snap => playStudent(snap.val()));
 
-// ── الطلاب ───────────────────────────────────────────────────
-db.ref('onlineStudents').on('value',snap=>{
-  const v=snap.val()||{};
-  document.getElementById('cnt').textContent=Object.keys(v).length;
-  const list=document.getElementById('slist'); list.innerHTML='';
-  Object.keys(v).forEach(()=>{
-    const c=document.createElement('div'); c.className='chip';
-    c.innerHTML='<i class="fas fa-user-graduate"></i> طالب'; list.appendChild(c);
+// ══════════════════════════════════════════════════════════════
+// FIREBASE LISTENERS
+// ══════════════════════════════════════════════════════════════
+db.ref('onlineStudents').on('value', snap => {
+  const v = snap.val() || {};
+  document.getElementById('cnt').textContent = Object.keys(v).length;
+  const list = document.getElementById('slist'); list.innerHTML = '';
+  Object.keys(v).forEach(() => {
+    const c = document.createElement('span'); c.className = 'chip';
+    c.innerHTML = '<i class="fas fa-user-graduate"></i> طالب'; list.appendChild(c);
   });
 });
 
-db.ref('.info/connected').on('value',snap=>{
-  document.getElementById('dotEl').className='dot '+(snap.val()?'on':'off');
-  document.getElementById('stEl').textContent=snap.val()?'متصل':'غير متصل';
+db.ref('.info/connected').on('value', snap => {
+  document.getElementById('sdot').className = 'sdot ' + (snap.val() ? 'on' : 'off');
+  document.getElementById('stxt').textContent = snap.val() ? 'متصل' : 'غير متصل';
 });
 
-db.ref('teacher/online').set({online:true,ts:Date.now()});
+db.ref('teacher/online').set({online:true, ts:Date.now()});
 db.ref('ctrl').set({studentsCanDraw:true});
-[tc,sc].forEach(c=>c.addEventListener('contextmenu',e=>e.preventDefault()));
+[tc,sc].forEach(c => c.addEventListener('contextmenu', e => e.preventDefault()));
 </script>
 </body>
 </html>
