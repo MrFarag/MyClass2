@@ -7,38 +7,38 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%;overflow:hidden;touch-action:none}
-body{font-family:'Segoe UI',sans-serif;background:#111b27;color:#fff;display:flex;flex-direction:column}
-.hdr{height:50px;min-height:50px;background:#1e2d3d;padding:0 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #3498db;flex-shrink:0}
+html,body{width:100%;height:100dvh;overflow:hidden;touch-action:none;font-family:'Segoe UI',sans-serif;background:#111b27;color:#fff;display:flex;flex-direction:column}
+.hdr{height:48px;min-height:48px;background:#1e2d3d;padding:0 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #3498db;flex-shrink:0}
 .logo{font-size:15px;font-weight:bold;display:flex;align-items:center;gap:6px}.logo i{color:#3498db}
-.pb{background:#27ae60;padding:4px 10px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:5px;transition:background .3s}
+.perm{background:#27ae60;padding:4px 10px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:5px;transition:background .3s}
 .boards{flex:1;display:flex;flex-direction:column;padding:6px;gap:6px;overflow:hidden;min-height:0}
 .board{flex:1;display:flex;flex-direction:column;background:#1e2d3d;border-radius:10px;overflow:hidden;border:1px solid #2c4159;min-height:0}
-.bh{padding:7px 12px;background:#243447;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.bh.t{border-bottom:3px solid #e67e22}.bh.s{border-bottom:3px solid #27ae60}
-.bh span{font-size:12px;font-weight:bold;display:flex;align-items:center;gap:5px}
-.abadge{background:#e67e22;padding:2px 8px;border-radius:20px;font-size:10px;display:flex;align-items:center;gap:3px;animation:p1 1s infinite}
-@keyframes p1{0%,100%{opacity:1}50%{opacity:.5}}
-.cw{flex:1;overflow:auto;background:#eee;-webkit-overflow-scrolling:touch;min-height:0}
-canvas{display:block;width:2000px;height:2000px;background:#fff}
-#myC{cursor:crosshair;touch-action:none}
-#tC{cursor:default;touch-action:pan-x pan-y}
-.tb{height:60px;min-height:60px;background:#1e2d3d;border-top:2px solid #3498db;display:flex;align-items:center;justify-content:center;gap:7px;padding:0 10px;flex-shrink:0;overflow-x:auto;flex-wrap:nowrap}
+.bhead{padding:7px 12px;background:#243447;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.bhead.t{border-bottom:3px solid #e67e22}.bhead.s{border-bottom:3px solid #27ae60}
+.bhead span{font-size:12px;font-weight:bold;display:flex;align-items:center;gap:5px}
+.audge{background:#e67e22;padding:2px 8px;border-radius:20px;font-size:10px;display:flex;align-items:center;gap:3px;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+/* ─── SAME KEY FIX: canvas fills wrap ─── */
+.canvas-wrap{flex:1;position:relative;min-height:0;background:#fff}
+.canvas-wrap canvas{
+  position:absolute;top:0;left:0;
+  display:block;
+}
+#myC{touch-action:none;cursor:crosshair}
+#tC{touch-action:pan-x pan-y;cursor:default}
+.tb{height:58px;min-height:58px;background:#1e2d3d;border-top:2px solid #3498db;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 8px;flex-shrink:0;overflow-x:auto;flex-wrap:nowrap}
 .tb::-webkit-scrollbar{display:none}
-.tg{display:flex;gap:4px;background:#111b27;padding:4px 7px;border-radius:20px;align-items:center;flex-shrink:0}
-.cb{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;flex-shrink:0;transition:.15s}
-.cb.on{border-color:#fff;box-shadow:0 0 6px rgba(255,255,255,.5);transform:scale(1.15)}
-.btn{width:34px;height:34px;border:none;border-radius:50%;background:#2c4159;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s}
-.btn.on,.btn:hover{background:#3498db}
-.btn.del{color:#e74c3c}.btn.del:hover{background:#e74c3c;color:#fff}
-.btn.mic-on{background:#e74c3c!important;animation:mp 1.5s infinite}
-@keyframes mp{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.5)}50%{box-shadow:0 0 0 8px transparent}}
-.sbar{height:38px;min-height:38px;background:#0e1820;border-top:1px solid #1e2d3d;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:12px;color:#aab8c8;flex-shrink:0}
-.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.dot.on{background:#27ae60;box-shadow:0 0 6px #27ae60}
-.dot.c{background:#f39c12;animation:blink .8s infinite}
-.dot.aud{background:#e67e22;animation:blink 1s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.tg{display:flex;gap:3px;background:#111b27;padding:4px 6px;border-radius:20px;align-items:center;flex-shrink:0}
+.clr{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;flex-shrink:0;transition:.12s}
+.clr.sel{border-color:#fff;box-shadow:0 0 5px rgba(255,255,255,.5);transform:scale(1.15)}
+.tbtn{width:34px;height:34px;border:none;border-radius:50%;background:#2c4159;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.12s}
+.tbtn.sel,.tbtn:hover{background:#3498db}
+.tbtn.del{color:#e74c3c}.tbtn.del:hover{background:#e74c3c;color:#fff}
+.tbtn.recording{background:#e74c3c!important;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.6)}50%{box-shadow:0 0 0 8px rgba(231,76,60,0)}}
+.status{height:36px;min-height:36px;background:#0e1820;border-top:1px solid #1e2d3d;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:12px;color:#8a9bb0;flex-shrink:0}
+.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sdot.on{background:#27ae60;box-shadow:0 0 5px #27ae60}.sdot.off{background:#e74c3c}.sdot.aud{background:#e67e22;animation:blink 1s infinite}
 .waves{display:flex;gap:2px;align-items:center}
 .waves span{display:block;width:3px;background:#e67e22;border-radius:2px;animation:wv .8s infinite}
 .waves span:nth-child(1){height:6px}.waves span:nth-child(2){height:12px;animation-delay:.15s}.waves span:nth-child(3){height:6px;animation-delay:.3s}
@@ -49,61 +49,64 @@ canvas{display:block;width:2000px;height:2000px;background:#fff}
 
 <div class="hdr">
   <div class="logo"><i class="fas fa-user-graduate"></i>MyClass2</div>
-  <div class="pb" id="pb"><i class="fas fa-lock-open"></i> يمكنك الكتابة</div>
+  <div class="perm" id="perm"><i class="fas fa-lock-open"></i> يمكنك الكتابة</div>
 </div>
 
 <div class="boards">
   <div class="board">
-    <div class="bh t">
+    <div class="bhead t">
       <span><i class="fas fa-chalkboard-teacher" style="color:#e67e22"></i>سبورة المدرس</span>
-      <span id="abadge" style="display:none" class="abadge"><i class="fas fa-volume-up"></i>صوت مباشر</span>
+      <span id="audBadge" style="display:none" class="audge"><i class="fas fa-volume-up"></i>صوت مباشر</span>
     </div>
-    <div class="cw" id="tw"><canvas id="tC"></canvas></div>
+    <div class="canvas-wrap" id="tw"><canvas id="tC"></canvas></div>
   </div>
   <div class="board">
-    <div class="bh s">
+    <div class="bhead s">
       <span><i class="fas fa-pencil-alt" style="color:#27ae60"></i>سبورتي</span>
     </div>
-    <div class="cw" id="mw"><canvas id="myC"></canvas></div>
+    <div class="canvas-wrap" id="mw"><canvas id="myC"></canvas></div>
   </div>
 </div>
 
 <div class="tb">
   <div class="tg">
-    <div class="cb on" style="background:#111" onclick="setClr('black',this)"></div>
-    <div class="cb" style="background:#e74c3c" onclick="setClr('#e74c3c',this)"></div>
-    <div class="cb" style="background:#3498db" onclick="setClr('#3498db',this)"></div>
-    <div class="cb" style="background:#27ae60" onclick="setClr('#27ae60',this)"></div>
-    <div class="cb" style="background:#f39c12" onclick="setClr('#f39c12',this)"></div>
-    <div class="cb" style="background:#fff;border:2px solid #888" onclick="setClr('#fff',this)"></div>
+    <div class="clr sel" style="background:#111" onclick="pickColor('black',this)"></div>
+    <div class="clr" style="background:#e74c3c" onclick="pickColor('#e74c3c',this)"></div>
+    <div class="clr" style="background:#3498db" onclick="pickColor('#3498db',this)"></div>
+    <div class="clr" style="background:#27ae60" onclick="pickColor('#27ae60',this)"></div>
+    <div class="clr" style="background:#f39c12" onclick="pickColor('#f39c12',this)"></div>
+    <div class="clr" style="background:#fff;border:2px solid #666" onclick="pickColor('#fff',this)"></div>
   </div>
   <div class="tg">
-    <button class="btn" onclick="setSz(2,this)"><i class="fas fa-pen" style="font-size:10px"></i></button>
-    <button class="btn on" onclick="setSz(5,this)"><i class="fas fa-pen-fancy"></i></button>
-    <button class="btn" onclick="setSz(12,this)"><i class="fas fa-paint-brush"></i></button>
+    <button class="tbtn" onclick="pickSize(3,this)"><i class="fas fa-pen" style="font-size:10px"></i></button>
+    <button class="tbtn sel" onclick="pickSize(6,this)"><i class="fas fa-pen-fancy" style="font-size:11px"></i></button>
+    <button class="tbtn" onclick="pickSize(14,this)"><i class="fas fa-paint-brush"></i></button>
   </div>
   <div class="tg">
-    <button class="btn on" id="penBtn" onclick="setTool('pen')"><i class="fas fa-pencil-alt"></i></button>
-    <button class="btn" id="eraserBtn" onclick="setTool('eraser')"><i class="fas fa-eraser"></i></button>
-    <button class="btn del" onclick="clearMe()"><i class="fas fa-trash-alt"></i></button>
+    <button class="tbtn sel" id="penBtn" onclick="pickTool('pen')"><i class="fas fa-pencil-alt"></i></button>
+    <button class="tbtn" id="eraserBtn" onclick="pickTool('eraser')"><i class="fas fa-eraser"></i></button>
+    <button class="tbtn del" onclick="clearMine()"><i class="fas fa-trash-alt"></i></button>
   </div>
   <div class="tg">
-    <button class="btn" id="myMic" onclick="toggleMyMic()">
+    <button class="tbtn" id="myMicBtn" onclick="toggleMyMic()">
       <i class="fas fa-microphone-slash" id="myMicIcon"></i>
     </button>
   </div>
 </div>
 
-<div class="sbar">
+<div class="status">
   <div style="display:flex;align-items:center;gap:6px">
-    <span class="dot c" id="dotEl"></span>
-    <span id="stEl">جاري الاتصال...</span>
+    <span class="sdot off" id="sdot"></span>
+    <span id="stxt">جاري الاتصال...</span>
   </div>
   <div style="display:flex;align-items:center;gap:6px">
-    <span id="spkEl"><i class="fas fa-volume-mute" style="color:#e74c3c"></i></span>
-    <div class="waves" id="wvEl" style="display:none"><span></span><span></span><span></span></div>
+    <i class="fas fa-volume-mute" id="spkIcon" style="color:#e74c3c"></i>
+    <div class="waves" id="waves" style="display:none"><span></span><span></span><span></span></div>
   </div>
 </div>
+
+<!-- عنصر تشغيل الصوت -->
+<audio id="audioEl" autoplay playsinline style="display:none"></audio>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -117,261 +120,287 @@ firebase.initializeApp({
   messagingSenderId:"507299311714",
   appId:"1:507299311714:web:c90440ee4353cfac17613b"
 });
-const db=firebase.database();
+const db = firebase.database();
 
-// ── Canvas ────────────────────────────────────────────────────
-const tC=document.getElementById('tC'), myC=document.getElementById('myC');
-const tx=tC.getContext('2d'),           mc=myC.getContext('2d');
-const twEl=document.getElementById('tw'), mwEl=document.getElementById('mw');
-tC.width=2000;  tC.height=2000;
-myC.width=2000; myC.height=2000;
-[tx,mc].forEach(c=>{c.lineCap='round';c.lineJoin='round'});
+// ══════════════════════════════════════════════════════════════
+// CANVAS — نفس طريقة المدرس تماماً
+// ══════════════════════════════════════════════════════════════
+const tC  = document.getElementById('tC');
+const myC = document.getElementById('myC');
+const tx  = tC.getContext('2d');
+const mc  = myC.getContext('2d');
+const tw  = document.getElementById('tw');
+const mw  = document.getElementById('mw');
 
-// ── State ─────────────────────────────────────────────────────
-let tool='pen', clr='black', sz=5;
+function fitCanvas(canvas, wrap) {
+  canvas.width  = wrap.clientWidth;
+  canvas.height = wrap.clientHeight;
+  canvas.style.width  = wrap.clientWidth  + 'px';
+  canvas.style.height = wrap.clientHeight + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.lineCap  = 'round';
+  ctx.lineJoin = 'round';
+}
+
+function initCanvases() { fitCanvas(tC, tw); fitCanvas(myC, mw); }
+requestAnimationFrame(() => requestAnimationFrame(initCanvases));
+
+window.addEventListener('resize', () => {
+  const tmpT = tC.toDataURL(), tmpM = myC.toDataURL();
+  fitCanvas(tC, tw); fitCanvas(myC, mw);
+  const iT=new Image(); iT.onload=()=>tx.drawImage(iT,0,0); iT.src=tmpT;
+  const iM=new Image(); iM.onload=()=>mc.drawImage(iM,0,0); iM.src=tmpM;
+});
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let color='black', size=6, tool='pen';
 let drawing=false, lx=0, ly=0;
 let canDraw=true;
-const sid='s_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
-let strokeId=0, myMicOn=false, myMicStream=null, myRecInterval=null, mySlot=0;
+const SESSION = 'S' + Date.now() + '_' + Math.random().toString(36).substr(2,4);
+let strokeN=0;
+let myMicOn=false, myMicStream=null, myRecInterval=null, mySlot=0;
 
-// ── موقع الرسم ────────────────────────────────────────────────
-function getPos(e, canvas, wrapper){
-  const r=wrapper.getBoundingClientRect();
-  const cx=e.touches?e.touches[0].clientX:e.clientX;
-  const cy=e.touches?e.touches[0].clientY:e.clientY;
-  return{
-    x:(cx-r.left+wrapper.scrollLeft)*(2000/wrapper.clientWidth),
-    y:(cy-r.top +wrapper.scrollTop )*(2000/wrapper.clientHeight)
-  };
+// ══════════════════════════════════════════════════════════════
+// DRAWING — رسم الطالب على سبورته
+// ══════════════════════════════════════════════════════════════
+function xy(e) {
+  const r  = mw.getBoundingClientRect();
+  const cx = e.touches ? e.touches[0].clientX : e.clientX;
+  const cy = e.touches ? e.touches[0].clientY : e.clientY;
+  return { x: cx - r.left, y: cy - r.top };
 }
 
-// ── رسم محلي ──────────────────────────────────────────────────
-function drawSeg(x1,y1,x2,y2){
-  mc.save();
-  if(tool==='eraser'){mc.globalCompositeOperation='destination-out';mc.strokeStyle='rgba(0,0,0,1)';mc.lineWidth=30;}
-  else{mc.globalCompositeOperation='source-over';mc.strokeStyle=clr;mc.lineWidth=sz;}
-  mc.lineCap='round';mc.lineJoin='round';
-  mc.beginPath();mc.moveTo(x1,y1);
-  mc.quadraticCurveTo(x1,y1,(x1+x2)/2,(y1+y2)/2);
-  mc.stroke();mc.restore();
-}
+let buf=[], bufTimer=null, curKey='';
 
-// ── إرسال لـ Firebase: كل 30ms batch ─────────────────────────
-let batch=[], bTimer=null;
-
-function flushBatch(){
-  if(!batch.length)return;
-  db.ref('studentDraw').push({
-    id:  strokeId,
-    pts: batch.splice(0),
-    c:   tool==='eraser'?null:clr,
-    s:   tool==='eraser'?30:sz,
-    e:   tool==='eraser'?1:0,
-    sid, ts:Date.now()
+function sendBuf() {
+  if (!buf.length) return;
+  const W=mw.clientWidth, H=mw.clientHeight;
+  db.ref('draw_st').push({
+    k:   curKey,
+    c:   tool==='eraser' ? null : color,
+    s:   tool==='eraser' ? -1   : size,
+    pts: buf.splice(0).map(p => [+(p.x/W).toFixed(4), +(p.y/H).toFixed(4)]),
+    ts:  Date.now()
   });
 }
 
-function startDraw(e){
+function onDown(e) {
   e.preventDefault();
-  if(!canDraw){shake();return;}
-  drawing=true; strokeId++;
-  const p=getPos(e,myC,mwEl); lx=p.x; ly=p.y;
-  batch=[{x:p.x,y:p.y}];
-  // نقطة مرئية أولى
+  if (!canDraw) { shakePerm(); return; }
+  drawing=true; strokeN++;
+  curKey = SESSION+'_'+strokeN;
+  const p=xy(e); lx=p.x; ly=p.y;
+  buf=[{x:p.x,y:p.y}];
   mc.save();
-  mc.globalCompositeOperation=tool==='eraser'?'destination-out':'source-over';
-  mc.fillStyle=tool==='eraser'?'rgba(0,0,0,1)':clr;
-  mc.beginPath();mc.arc(p.x,p.y,sz/2,0,Math.PI*2);mc.fill();mc.restore();
+  mc.globalCompositeOperation = tool==='eraser' ? 'destination-out' : 'source-over';
+  mc.fillStyle = tool==='eraser' ? 'rgba(0,0,0,1)' : color;
+  mc.beginPath(); mc.arc(p.x,p.y,(tool==='eraser'?size*4:size)/2,0,Math.PI*2); mc.fill();
+  mc.restore();
 }
 
-function moveDraw(e){
-  e.preventDefault();if(!drawing||!canDraw)return;
-  const p=getPos(e,myC,mwEl);
-  drawSeg(lx,ly,p.x,p.y);
-  batch.push({x:p.x,y:p.y});
-  if(!bTimer) bTimer=setTimeout(()=>{flushBatch();bTimer=null;},30);
-  lx=p.x;ly=p.y;
+function onMove(e) {
+  e.preventDefault(); if (!drawing || !canDraw) return;
+  const p=xy(e);
+  mc.save();
+  mc.globalCompositeOperation = tool==='eraser' ? 'destination-out' : 'source-over';
+  mc.strokeStyle = tool==='eraser' ? 'rgba(0,0,0,1)' : color;
+  mc.lineWidth   = tool==='eraser' ? size*4 : size;
+  mc.lineCap='round'; mc.lineJoin='round';
+  mc.beginPath(); mc.moveTo(lx,ly); mc.lineTo(p.x,p.y); mc.stroke();
+  mc.restore();
+  buf.push({x:p.x,y:p.y});
+  if (!bufTimer) bufTimer=setTimeout(()=>{sendBuf();bufTimer=null;},30);
+  lx=p.x; ly=p.y;
 }
 
-function stopDraw(){
-  if(!drawing)return;drawing=false;
-  if(bTimer){clearTimeout(bTimer);bTimer=null;}
-  flushBatch();
-  mc.globalCompositeOperation='source-over';
+function onUp() {
+  if (!drawing) return; drawing=false;
+  clearTimeout(bufTimer); bufTimer=null;
+  sendBuf();
 }
 
-myC.addEventListener('mousedown', startDraw);
-myC.addEventListener('mousemove', moveDraw);
-myC.addEventListener('mouseup',   stopDraw);
-myC.addEventListener('mouseleave',stopDraw);
-myC.addEventListener('touchstart',startDraw,{passive:false});
-myC.addEventListener('touchmove', moveDraw, {passive:false});
-myC.addEventListener('touchend',  stopDraw);
-myC.addEventListener('touchcancel',stopDraw);
+myC.addEventListener('mousedown',  onDown);
+myC.addEventListener('mousemove',  onMove);
+myC.addEventListener('mouseup',    onUp);
+myC.addEventListener('mouseleave', onUp);
+myC.addEventListener('touchstart', onDown, {passive:false});
+myC.addEventListener('touchmove',  onMove, {passive:false});
+myC.addEventListener('touchend',   onUp);
+myC.addEventListener('touchcancel',onUp);
 
-// ── استقبال رسم المدرس: نتتبع آخر نقطة لكل strokeId ─────────
-const strokes={};  // "ref_id" → {lastX, lastY}
+// ══════════════════════════════════════════════════════════════
+// RECEIVE — رسم المدرس
+// ══════════════════════════════════════════════════════════════
+const remStrokes = {};
 
-function renderBatch(ctx, d){
-  if(!d||!d.pts||!d.pts.length)return;
-  const key = d.id;
-  if(!strokes[key]){
-    strokes[key]={lastX:d.pts[0].x, lastY:d.pts[0].y};
-    // نقطة أولى مرئية
+function renderRemote(ctx, wrap, d) {
+  if (!d || !d.pts || !d.pts.length) return;
+  const W=wrap.clientWidth, H=wrap.clientHeight;
+  const key = d.k || d.ts;
+  const isE = d.s===-1;
+  const lw  = isE ? 40 : (d.s||3);
+
+  if (!remStrokes[key]) {
+    const fx=d.pts[0][0]*W, fy=d.pts[0][1]*H;
+    remStrokes[key]={lx:fx,ly:fy};
     ctx.save();
-    ctx.globalCompositeOperation=d.e?'destination-out':'source-over';
-    ctx.fillStyle=d.e?'rgba(0,0,0,1)':(d.c||'#000');
-    ctx.beginPath();ctx.arc(d.pts[0].x,d.pts[0].y,(d.s||3)/2,0,Math.PI*2);ctx.fill();
-    ctx.restore();
+    ctx.globalCompositeOperation = isE?'destination-out':'source-over';
+    ctx.fillStyle = isE?'rgba(0,0,0,1)':(d.c||'#000');
+    ctx.beginPath(); ctx.arc(fx,fy,lw/2,0,Math.PI*2); ctx.fill(); ctx.restore();
   }
-  const st=strokes[key];
+
+  const st=remStrokes[key];
   ctx.save();
-  if(d.e){ctx.globalCompositeOperation='destination-out';ctx.strokeStyle='rgba(0,0,0,1)';ctx.lineWidth=30;}
-  else{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=d.c||'#000';ctx.lineWidth=d.s||3;}
-  ctx.lineCap='round';ctx.lineJoin='round';
-  ctx.beginPath();ctx.moveTo(st.lastX,st.lastY);
-  for(const p of d.pts){
-    const mx=(st.lastX+p.x)/2, my=(st.lastY+p.y)/2;
-    ctx.quadraticCurveTo(st.lastX,st.lastY,mx,my);
-    st.lastX=p.x;st.lastY=p.y;
+  ctx.globalCompositeOperation = isE?'destination-out':'source-over';
+  ctx.strokeStyle = isE?'rgba(0,0,0,1)':(d.c||'#000');
+  ctx.lineWidth   = lw; ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.beginPath(); ctx.moveTo(st.lx,st.ly);
+  for (const pt of d.pts) {
+    const px=pt[0]*W, py=pt[1]*H;
+    ctx.lineTo(px,py);
+    st.lx=px; st.ly=py;
   }
-  ctx.stroke();ctx.restore();
+  ctx.stroke(); ctx.restore();
 }
 
-db.ref('tDraw').on('child_added', snap=>renderBatch(tx, snap.val()));
-db.ref('sDraw').on('child_added', snap=>renderBatch(mc, snap.val()));
+// استقبل رسم المدرس على السبورتين
+db.ref('draw_t').on('child_added', snap => renderRemote(tx, tw, snap.val()));
+db.ref('draw_s').on('child_added', snap => renderRemote(mc, mw, snap.val()));
 
-db.ref('cmd').on('child_added',snap=>{
-  const d=snap.val();
-  if(d&&d.type==='clear'){tx.clearRect(0,0,2000,2000);mc.clearRect(0,0,2000,2000);}
+// أوامر
+db.ref('cmd').on('child_added', snap => {
+  const d=snap.val(); if(!d) return;
+  if (d.t==='clrAll'||d.t==='clrT') tx.clearRect(0,0,tC.width,tC.height);
+  if (d.t==='clrAll'||d.t==='clrS') mc.clearRect(0,0,myC.width,myC.height);
 });
 
-db.ref('ctrl').on('value',snap=>{
-  const v=snap.val();if(!v)return;
-  canDraw=v.studentsCanDraw!==false;
-  const pb=document.getElementById('pb');
-  pb.innerHTML=canDraw?'<i class="fas fa-lock-open"></i> يمكنك الكتابة':'<i class="fas fa-lock"></i> الكتابة ممنوعة';
-  pb.style.background=canDraw?'#27ae60':'#e74c3c';
+// صلاحية الكتابة
+db.ref('ctrl').on('value', snap => {
+  const v=snap.val(); if(!v) return;
+  canDraw = v.studentsCanDraw !== false;
+  const el=document.getElementById('perm');
+  el.innerHTML=canDraw?'<i class="fas fa-lock-open"></i> يمكنك الكتابة':'<i class="fas fa-lock"></i> الكتابة ممنوعة';
+  el.style.background=canDraw?'#27ae60':'#e74c3c';
 });
 
-// ── AUDIO: تشغيل صوت المدرس ──────────────────────────────────
-// المدرس يكتب في audio/slot0 و audio/slot1 بالتناوب
-// نستمع بـ on('value') على كل slot → يطلق كلما تغيرت القيمة
-
-const heardTs=new Set();
-let audioQueue=[];
-let audioPlaying=false;
-const audioEl=document.createElement('audio');
-audioEl.autoplay=true;
-audioEl.playsinline=true;
-document.body.appendChild(audioEl);
-
-function playQueue(){
-  if(audioPlaying||!audioQueue.length)return;
-  audioPlaying=true;
-  const src=audioQueue.shift();
-  audioEl.src=src;
-  audioEl.onended=()=>{audioPlaying=false;playQueue();};
-  audioEl.onerror=()=>{audioPlaying=false;playQueue();};
-  audioEl.play().catch(()=>{audioPlaying=false;});
+function shakePerm() {
+  const el=document.getElementById('perm');
+  [0,-6,6,-6,6,0].forEach((v,i)=>setTimeout(()=>el.style.transform=`translateX(${v}px)`,i*50));
 }
 
-function handleSlot(d){
-  if(!d||!d.d||!d.ts||heardTs.has(d.ts))return;
+// ══════════════════════════════════════════════════════════════
+// AUDIO — استقبال صوت المدرس
+// ══════════════════════════════════════════════════════════════
+const audioEl = document.getElementById('audioEl');
+let audioQueue = [], audioPlaying = false;
+const heardTs = new Set();
+
+function playNext() {
+  if (audioPlaying || !audioQueue.length) return;
+  audioPlaying = true;
+  audioEl.src = audioQueue.shift();
+  audioEl.onended = () => { audioPlaying=false; playNext(); };
+  audioEl.onerror = () => { audioPlaying=false; playNext(); };
+  audioEl.play().catch(() => { audioPlaying=false; playNext(); });
+}
+
+function gotAudio(d) {
+  if (!d||!d.d||heardTs.has(d.ts)) return;
   heardTs.add(d.ts);
   audioQueue.push(d.d);
-  playQueue();
+  playNext();
 }
 
-// استمع لـ slot0 و slot1 بـ on('value') — يطلق عند كل تغيير
-db.ref('audio/slot0').on('value', snap=>handleSlot(snap.val()));
-db.ref('audio/slot1').on('value', snap=>handleSlot(snap.val()));
+db.ref('audio/s0').on('value', snap => gotAudio(snap.val()));
+db.ref('audio/s1').on('value', snap => gotAudio(snap.val()));
 
-db.ref('audioMeta').on('value',snap=>{
+db.ref('audioMeta').on('value', snap => {
   const v=snap.val(), active=v&&v.active;
-  document.getElementById('abadge').style.display=active?'flex':'none';
-  document.getElementById('spkEl').innerHTML=active
-    ?'<i class="fas fa-volume-up" style="color:#e67e22"></i>'
-    :'<i class="fas fa-volume-mute" style="color:#e74c3c"></i>';
-  document.getElementById('wvEl').style.display=active?'flex':'none';
-  document.getElementById('dotEl').className='dot '+(active?'aud':'on');
-  document.getElementById('stEl').textContent=active?'🎤 المدرس يتكلم':'متصل';
-  if(!active){audioQueue=[];audioPlaying=false;heardTs.clear();}
+  document.getElementById('audBadge').style.display = active?'flex':'none';
+  document.getElementById('spkIcon').className = active?'fas fa-volume-up':'fas fa-volume-mute';
+  document.getElementById('spkIcon').style.color = active?'#e67e22':'#e74c3c';
+  document.getElementById('waves').style.display = active?'flex':'none';
+  document.getElementById('sdot').className = 'sdot '+(active?'aud':'on');
+  document.getElementById('stxt').textContent = active?'🎤 المدرس يتكلم':'متصل';
+  if (!active) { audioQueue=[]; audioPlaying=false; audioEl.src=''; heardTs.clear(); }
 });
 
-// ── مايك الطالب ──────────────────────────────────────────────
-function getMime(){
-  for(const t of['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'])
-    if(MediaRecorder.isTypeSupported(t))return t;
+// فتح AudioContext عند أول تفاعل (iOS)
+function unlockAudio() { try { audioEl.play().catch(()=>{}); } catch(e){} }
+document.body.addEventListener('touchstart', unlockAudio, {once:true});
+document.body.addEventListener('click',      unlockAudio, {once:true});
+
+// ══════════════════════════════════════════════════════════════
+// STUDENT MIC — مايك الطالب
+// ══════════════════════════════════════════════════════════════
+function getMime() {
+  for (const t of ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'])
+    if (MediaRecorder.isTypeSupported(t)) return t;
   return '';
 }
 function toB64(blob){return new Promise(r=>{const f=new FileReader();f.onloadend=()=>r(f.result);f.readAsDataURL(blob);})}
 
-function myRecordOnce(){
-  if(!myMicStream||!myMicOn)return;
+function myRecordOnce() {
+  if (!myMicStream || !myMicOn) return;
   const mime=getMime();
-  const rec=new MediaRecorder(myMicStream,mime?{mimeType:mime}:{});
+  const rec=new MediaRecorder(myMicStream, mime?{mimeType:mime}:{});
   const chunks=[];
   rec.ondataavailable=ev=>{if(ev.data&&ev.data.size>0)chunks.push(ev.data);};
   rec.onstop=async()=>{
     if(!myMicOn||!chunks.length)return;
     const b64=await toB64(new Blob(chunks,{type:mime||'audio/webm'}));
     mySlot=mySlot===0?1:0;
-    db.ref('studentAudio/slot'+mySlot).set({d:b64,ts:Date.now()});
+    db.ref('stuAudio/s'+mySlot).set({d:b64,ts:Date.now()});
   };
   rec.start();
   setTimeout(()=>{try{rec.stop();}catch(e){}},2800);
 }
 
-async function toggleMyMic(){
-  const btn=document.getElementById('myMic');
+async function toggleMyMic() {
+  const btn=document.getElementById('myMicBtn');
   const icon=document.getElementById('myMicIcon');
-  if(!myMicOn){
+  if (!myMicOn) {
     icon.className='fas fa-spinner fa-spin';
-    try{
+    try {
       myMicStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
-      myMicOn=true;
-      btn.classList.add('mic-on');
-      icon.className='fas fa-microphone';
+      myMicOn=true; btn.classList.add('recording'); icon.className='fas fa-microphone';
       myRecordOnce();
       myRecInterval=setInterval(myRecordOnce,3000);
-    }catch(err){
+    } catch(err) {
       icon.className='fas fa-microphone-slash';
       alert('لا يمكن الوصول للمايكروفون:\n'+err.message);
     }
-  }else{
-    clearInterval(myRecInterval);myRecInterval=null;
-    if(myMicStream)myMicStream.getTracks().forEach(t=>t.stop());
-    myMicStream=null;myMicOn=false;
-    db.ref('studentAudio').remove();
-    btn.classList.remove('mic-on');
-    icon.className='fas fa-microphone-slash';
+  } else {
+    clearInterval(myRecInterval); myRecInterval=null;
+    if (myMicStream) myMicStream.getTracks().forEach(t=>t.stop());
+    myMicStream=null; myMicOn=false;
+    db.ref('stuAudio').remove();
+    btn.classList.remove('recording'); icon.className='fas fa-microphone-slash';
   }
 }
 
-// ── أدوات ─────────────────────────────────────────────────────
-function setClr(c,el){if(!canDraw)return;clr=c;tool='pen';document.querySelectorAll('.cb').forEach(b=>b.classList.remove('on'));el.classList.add('on');setTool('pen');}
-function setSz(s,el){sz=s;document.querySelectorAll('.tg:nth-child(2) .btn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
-function setTool(t){tool=t;document.getElementById('penBtn').classList.toggle('on',t==='pen');document.getElementById('eraserBtn').classList.toggle('on',t==='eraser');}
-function clearMe(){if(!canDraw)return;mc.clearRect(0,0,2000,2000);}
-function shake(){const pb=document.getElementById('pb');[0,-5,5,-5,0].forEach((v,i)=>setTimeout(()=>pb.style.transform=`translateX(${v}px)`,i*50));}
+// ══════════════════════════════════════════════════════════════
+// TOOLS
+// ══════════════════════════════════════════════════════════════
+function pickColor(c,el){color=c;document.querySelectorAll('.clr').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');pickTool('pen');}
+function pickSize(s,el){size=s;document.querySelectorAll('.tg:nth-child(2) .tbtn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');}
+function pickTool(t){tool=t;document.getElementById('penBtn').classList.toggle('sel',t==='pen');document.getElementById('eraserBtn').classList.toggle('sel',t==='eraser');}
+function clearMine(){mc.clearRect(0,0,myC.width,myC.height);}
 
-// ── فتح AudioContext عند أول تفاعل (iOS) ─────────────────────
-function unlockAudio(){
-  audioEl.play().catch(()=>{});
-}
-document.body.addEventListener('touchstart',unlockAudio,{once:true});
-document.body.addEventListener('click',unlockAudio,{once:true});
-
-// ── اتصال ─────────────────────────────────────────────────────
-db.ref('.info/connected').on('value',snap=>{
-  document.getElementById('dotEl').className='dot '+(snap.val()?'on':'c');
-  document.getElementById('stEl').textContent=snap.val()?'متصل':'جاري الاتصال...';
+// ══════════════════════════════════════════════════════════════
+// CONNECTION
+// ══════════════════════════════════════════════════════════════
+const SID='stu_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
+db.ref('.info/connected').on('value', snap=>{
+  document.getElementById('sdot').className='sdot '+(snap.val()?'on':'off');
+  document.getElementById('stxt').textContent=snap.val()?'متصل':'جاري الاتصال...';
 });
-db.ref('onlineStudents/'+sid).set({online:true,canDraw:true,ts:Date.now()});
+db.ref('onlineStudents/'+SID).set({online:true,ts:Date.now()});
 window.addEventListener('beforeunload',()=>{
-  db.ref('onlineStudents/'+sid).remove();
-  db.ref('studentAudio').remove();
+  db.ref('onlineStudents/'+SID).remove();
+  db.ref('stuAudio').remove();
   if(myMicStream)myMicStream.getTracks().forEach(t=>t.stop());
 });
 [tC,myC].forEach(c=>c.addEventListener('contextmenu',e=>e.preventDefault()));
