@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
     <title>MyClass2 - الطالب</title>
     <style>
         * {
@@ -23,41 +23,64 @@
         .header {
             background: #2980b9;
             color: white;
-            padding: 8px;
+            padding: 10px;
             text-align: center;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
         }
         
+        .permission-indicator {
+            background: #27ae60;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* السكرول الأفقي */
         .boards-container {
             display: flex;
             flex: 1;
-            gap: 5px;
-            padding: 5px;
-            min-height: 0;
+            gap: 10px;
+            padding: 10px;
             overflow-x: auto;
             overflow-y: hidden;
             -webkit-overflow-scrolling: touch;
-            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            white-space: nowrap;
         }
         
         .board-wrapper {
             flex: 0 0 auto;
-            width: 90%;
+            width: calc(50% - 5px);
+            min-width: 300px;
+            height: 100%;
             display: flex;
             flex-direction: column;
             background: white;
-            border-radius: 6px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             overflow: hidden;
-            scroll-snap-align: start;
         }
         
         .board-label {
-            padding: 4px;
+            padding: 8px 12px;
             text-align: center;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .board-label.teacher {
@@ -70,46 +93,68 @@
             color: white;
         }
         
+        .zoom-controls {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .zoom-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        /* السكرول الرأسي داخل السبورة */
         .canvas-container {
             flex: 1;
             position: relative;
-            background: white;
+            background: #f9f9f9;
             overflow: auto;
             -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
         
         #teacherBoard, #myBoard {
-            width: 200%;
-            height: 200%;
+            width: 2000px;
+            height: 2000px;
             display: block;
             background: white;
             touch-action: pan-x pan-y;
+            box-shadow: inset 0 0 0 1px #ddd;
         }
         
         #myBoard {
             cursor: crosshair;
         }
         
+        #teacherBoard {
+            cursor: default;
+        }
+        
+        /* شريط الأدوات */
         .tools {
             background: #34495e;
-            padding: 8px 5px;
+            padding: 10px;
             display: flex;
-            gap: 5px;
+            gap: 8px;
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
         }
         
         button {
-            padding: 6px 10px;
+            padding: 8px 12px;
             border: none;
-            border-radius: 4px;
-            font-size: 12px;
+            border-radius: 5px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
-            min-width: 50px;
-            flex: 0 1 auto;
+            min-width: 60px;
         }
         
         button:hover {
@@ -131,20 +176,9 @@
         .status {
             background: #2c3e50;
             color: #ecf0f1;
-            padding: 4px 8px;
+            padding: 5px 12px;
             text-align: center;
-            font-size: 11px;
-            border-top: 1px solid #34495e;
-        }
-        
-        .permission-badge {
-            background: #f39c12;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            display: inline-block;
-            margin-right: 5px;
+            font-size: 12px;
         }
         
         .status span {
@@ -152,63 +186,78 @@
             font-weight: bold;
         }
         
+        /* للموبايل */
         @media (max-width: 768px) {
             .board-wrapper {
                 width: 90%;
+                min-width: 280px;
             }
             
-            button { 
-                padding: 5px 8px; 
-                font-size: 11px; 
-                min-width: 40px;
-            }
-            
-            .board-label {
-                font-size: 10px;
-                padding: 3px;
+            button {
+                padding: 6px 10px;
+                font-size: 12px;
+                min-width: 50px;
             }
             
             .header {
-                font-size: 14px;
-                padding: 5px;
+                font-size: 16px;
+                padding: 8px;
+            }
+            
+            .board-label {
+                font-size: 12px;
+                padding: 6px 10px;
             }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        👨‍🎓 MyClass2 - الطالب
-        <span id="permissionBadge" class="permission-badge" style="display: none;">🟢 يمكنك الكتابة</span>
+        <span>👨‍🎓 MyClass2 - الطالب</span>
+        <span class="permission-indicator" id="permissionBadge">🟢 يمكنك الكتابة</span>
     </div>
     
-    <div class="boards-container" id="boardsContainer">
-        <!-- سبورة المدرس -->
-        <div class="board-wrapper">
-            <div class="board-label teacher">👨‍🏫 المدرس (اسحب للتنقل)</div>
-            <div class="canvas-container" id="teacherContainer">
-                <canvas id="teacherBoard"></canvas>
+    <div class="main-container">
+        <div class="boards-container" id="boardsContainer">
+            <!-- سبورة المدرس -->
+            <div class="board-wrapper">
+                <div class="board-label teacher">
+                    <span>👨‍🏫 المدرس</span>
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" onclick="resetTeacherView()">🔄 تصغير</button>
+                    </div>
+                </div>
+                <div class="canvas-container" id="teacherContainer">
+                    <canvas id="teacherBoard"></canvas>
+                </div>
             </div>
-        </div>
-        
-        <!-- سبورة الطالب -->
-        <div class="board-wrapper">
-            <div class="board-label student">✏️ سبورتي (اسحب للتنقل)</div>
-            <div class="canvas-container" id="myContainer">
-                <canvas id="myBoard"></canvas>
+            
+            <!-- سبورة الطالب -->
+            <div class="board-wrapper">
+                <div class="board-label student">
+                    <span>✏️ سبورتي</span>
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" onclick="resetMyView()">🔄 تصغير</button>
+                    </div>
+                </div>
+                <div class="canvas-container" id="myContainer">
+                    <canvas id="myBoard"></canvas>
+                </div>
             </div>
         </div>
     </div>
     
+    <!-- أدوات الطالب -->
     <div class="tools">
-        <button class="btn-warning" onclick="changeMyColor('red')">🔴</button>
-        <button class="btn-primary" onclick="changeMyColor('blue')">🔵</button>
-        <button class="btn-success" onclick="changeMyColor('green')">🟢</button>
-        <button class="btn" onclick="changeMyColor('black')">⚫</button>
-        <button class="btn" onclick="changeMySize(2)">✏️1</button>
-        <button class="btn" onclick="changeMySize(5)">✏️2</button>
-        <button class="btn" onclick="changeMySize(8)">✏️3</button>
+        <button class="btn-warning" onclick="changeMyColor('red')">🔴 أحمر</button>
+        <button class="btn-primary" onclick="changeMyColor('blue')">🔵 أزرق</button>
+        <button class="btn-success" onclick="changeMyColor('green')">🟢 أخضر</button>
+        <button class="btn" onclick="changeMyColor('black')">⚫ أسود</button>
+        <button class="btn" onclick="changeMySize(2)">✏️ رفيع</button>
+        <button class="btn" onclick="changeMySize(5)">✏️ متوسط</button>
+        <button class="btn" onclick="changeMySize(8)">✏️ سميك</button>
         <button class="btn-danger" onclick="clearMyBoard()">🧽 مسح سبورتي</button>
-        <button class="btn-info" onclick="resetView()">🔄 تصغير</button>
+        <button class="btn-info" onclick="toggleEraser()" id="eraserBtn">🧽 ممحاة</button>
     </div>
     
     <div class="status" id="status">
@@ -218,8 +267,6 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <!-- PeerJS for WebRTC -->
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
     <script>
         // 🔥 تهيئة Firebase
@@ -249,32 +296,32 @@
         let drawing = false;
         let myColor = 'black';
         let mySize = 3;
+        let isEraser = false;
         let lastX = 0;
         let lastY = 0;
         let studentId = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-        let canDraw = true; // يأخذها من المدرس
-        
-        // WebRTC للصوت
-        let peer;
-        let call;
+        let canDraw = true;
         
         // ضبط حجم السبورات
-        function resizeCanvases() {
+        function initCanvases() {
             teacherCanvas.width = 2000;
             teacherCanvas.height = 2000;
             myCanvas.width = 2000;
             myCanvas.height = 2000;
             
+            [teacherCtx, myCtx].forEach(ctx => {
+                ctx.lineWidth = mySize;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+            });
+            
             myCtx.strokeStyle = myColor;
-            myCtx.lineWidth = mySize;
-            myCtx.lineCap = 'round';
-            myCtx.lineJoin = 'round';
         }
         
-        window.addEventListener('load', resizeCanvases);
+        initCanvases();
         
-        // الحصول على موقع الماوس
-        function getMousePos(e, canvas, container) {
+        // الحصول على موقع الرسم مع السكرول
+        function getDrawingPosition(e, canvas, container) {
             const rect = canvas.getBoundingClientRect();
             const containerRect = container.getBoundingClientRect();
             
@@ -292,12 +339,12 @@
             }
             
             return {
-                x: (clientX - containerRect.left + scrollLeft),
-                y: (clientY - containerRect.top + scrollTop)
+                x: clientX - containerRect.left + scrollLeft,
+                y: clientY - containerRect.top + scrollTop
             };
         }
         
-        // استقبال رسم المدرس
+        // استقبال رسم المدرس على سبورته
         database.ref('teacherDrawings').on('child_added', (snapshot) => {
             const data = snapshot.val();
             
@@ -311,28 +358,51 @@
             teacherCtx.stroke();
         });
         
+        // استقبال رسم المدرس على سبورة الطلاب
+        database.ref('teacherDrawingsOnStudent').on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            
+            myCtx.strokeStyle = data.color;
+            myCtx.lineWidth = data.size || 3;
+            myCtx.lineCap = 'round';
+            
+            myCtx.beginPath();
+            myCtx.moveTo(data.lastX, data.lastY);
+            myCtx.lineTo(data.x, data.y);
+            myCtx.stroke();
+        });
+        
         // استقبال أمر مسح من المدرس
         database.ref('teacherCommands').on('child_added', (snapshot) => {
             const data = snapshot.val();
             if (data.type === 'clear') {
                 teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
+                myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
+            } else if (data.type === 'clearStudent' && data.studentId === studentId) {
+                myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
             }
         });
         
-        // مراقبة صلاحية الرسم
+        // مراقبة تحكمات المدرس
+        database.ref('teacherControls').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                canDraw = data.studentsCanDraw;
+                if (canDraw) {
+                    permissionBadge.innerHTML = '🟢 يمكنك الكتابة';
+                    permissionBadge.style.backgroundColor = '#27ae60';
+                } else {
+                    permissionBadge.innerHTML = '🔴 الكتابة ممنوعة';
+                    permissionBadge.style.backgroundColor = '#e74c3c';
+                }
+            }
+        });
+        
+        // مراقبة صلاحية هذا الطالب
         database.ref('onlineStudents/' + studentId).on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 canDraw = data.canDraw !== false;
-                if (canDraw) {
-                    permissionBadge.style.display = 'inline-block';
-                    permissionBadge.innerHTML = '🟢 يمكنك الكتابة';
-                    permissionBadge.style.backgroundColor = '#27ae60';
-                } else {
-                    permissionBadge.style.display = 'inline-block';
-                    permissionBadge.innerHTML = '🔴 الكتابة ممنوعة';
-                    permissionBadge.style.backgroundColor = '#e74c3c';
-                }
             }
         });
         
@@ -340,13 +410,14 @@
         function startDrawing(e) {
             e.preventDefault();
             if (!canDraw) {
-                alert('المدرس منع الكتابة حالياً');
+                alert('الكتابة ممنوعة من المدرس');
                 return;
             }
             drawing = true;
             
             const container = document.getElementById('myContainer');
-            const pos = getMousePos(e, myCanvas, container);
+            const pos = getDrawingPosition(e, myCanvas, container);
+            
             lastX = pos.x;
             lastY = pos.y;
             
@@ -359,11 +430,18 @@
             if (!drawing || !canDraw) return;
             
             const container = document.getElementById('myContainer');
-            const pos = getMousePos(e, myCanvas, container);
+            const pos = getDrawingPosition(e, myCanvas, container);
             
-            // رسم في سبورة الطالب
-            myCtx.strokeStyle = myColor;
-            myCtx.lineWidth = mySize;
+            // تطبيق الممحاة أو الرسم
+            if (isEraser) {
+                myCtx.globalCompositeOperation = 'destination-out';
+                myCtx.strokeStyle = 'rgba(0,0,0,1)';
+            } else {
+                myCtx.globalCompositeOperation = 'source-over';
+                myCtx.strokeStyle = myColor;
+            }
+            
+            myCtx.lineWidth = isEraser ? 20 : mySize;
             myCtx.lineTo(pos.x, pos.y);
             myCtx.stroke();
             myCtx.beginPath();
@@ -375,8 +453,9 @@
                 y: pos.y,
                 lastX: lastX,
                 lastY: lastY,
-                color: myColor,
-                size: mySize,
+                color: isEraser ? 'white' : myColor,
+                size: isEraser ? 20 : mySize,
+                isEraser: isEraser,
                 studentId: studentId,
                 timestamp: Date.now()
             };
@@ -390,6 +469,7 @@
         function stopDrawing() {
             drawing = false;
             myCtx.beginPath();
+            myCtx.globalCompositeOperation = 'source-over';
         }
         
         // أحداث الماوس للطالب
@@ -405,62 +485,45 @@
         
         // وظائف الطالب
         function changeMyColor(color) {
-            if (!canDraw) {
-                alert('المدرس منع الكتابة');
-                return;
-            }
+            if (!canDraw) return;
             myColor = color;
-            myCtx.strokeStyle = color;
+            isEraser = false;
+            document.getElementById('eraserBtn').innerHTML = '🧽 ممحاة';
         }
         
         function changeMySize(size) {
-            if (!canDraw) {
-                alert('المدرس منع الكتابة');
-                return;
-            }
+            if (!canDraw) return;
             mySize = size;
-            myCtx.lineWidth = size;
+        }
+        
+        function toggleEraser() {
+            if (!canDraw) return;
+            isEraser = !isEraser;
+            const btn = document.getElementById('eraserBtn');
+            btn.innerHTML = isEraser ? '✏️ قلم' : '🧽 ممحاة';
         }
         
         function clearMyBoard() {
-            if (!canDraw) {
-                alert('المدرس منع الكتابة');
-                return;
-            }
+            if (!canDraw) return;
             myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
         }
         
-        function resetView() {
+        // التحكم في السكرول
+        function resetTeacherView() {
             document.getElementById('teacherContainer').scrollTo(0, 0);
+        }
+        
+        function resetMyView() {
             document.getElementById('myContainer').scrollTo(0, 0);
         }
         
-        // استقبال بث الصوت من المدرس
-        database.ref('audioStream/teacher').on('value', async (snapshot) => {
+        // مراقبة بث الصوت
+        database.ref('audioStream/teacher').on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data && data.active && data.peerId) {
-                statusText.innerText = '🎧 جاري الاتصال بالصوت...';
-                
-                // إنشاء PeerJS للطالب
-                peer = new Peer();
-                
-                peer.on('open', (id) => {
-                    // الاتصال بالمدرس
-                    call = peer.call(data.peerId, localStream);
-                    
-                    call.on('stream', (remoteStream) => {
-                        // تشغيل الصوت
-                        const audio = new Audio();
-                        audio.srcObject = remoteStream;
-                        audio.play();
-                        statusText.innerText = '🎧 صوت المدرس شغال';
-                    });
-                });
+            if (data && data.active) {
+                statusText.innerText = '🎧 المدرس يبث صوت';
             } else {
-                if (call) {
-                    call.close();
-                }
-                statusText.innerText = 'لا يوجد بث صوتي';
+                statusText.innerText = '✓ متصل';
             }
         });
         
@@ -468,14 +531,14 @@
         teacherCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
         myCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
         
-        // تسجيل الطالب كمتصل
+        // تسجيل الطالب
         database.ref('onlineStudents/' + studentId).set({
             online: true,
             canDraw: true,
             timestamp: Date.now()
         });
         
-        // إزالة الطالب عند الخروج
+        // عند الخروج
         window.addEventListener('beforeunload', () => {
             database.ref('onlineStudents/' + studentId).remove();
         });
