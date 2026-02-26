@@ -34,9 +34,10 @@ html,body{width:100%;height:100dvh;overflow:hidden;touch-action:none;font-family
 .tbtn{width:34px;height:34px;border:none;border-radius:50%;background:#2c4159;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.12s}
 .tbtn.sel,.tbtn:hover{background:#3498db}
 .tbtn.del{color:#e74c3c}.tbtn.del:hover{background:#e74c3c;color:#fff}
-.tbtn.recording{background:#e74c3c!important;animation:pulse 1.5s infinite}
-.tbtn.mic-allowed{background:#27ae60!important}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.6)}50%{box-shadow:0 0 0 8px rgba(231,76,60,0)}}
+.tbtn.recording{background:#27ae60!important;animation:pulse-green 1.5s infinite}
+.tbtn.speaking{background:#f39c12!important;animation:pulse-orange 1.5s infinite}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(39,174,96,.6)}50%{box-shadow:0 0 0 8px rgba(39,174,96,0)}}
+@keyframes pulse-orange{0%,100%{box-shadow:0 0 0 0 rgba(243,156,18,.6)}50%{box-shadow:0 0 0 8px rgba(243,156,18,0)}}
 .status{height:36px;min-height:36px;background:#0e1820;border-top:1px solid #1e2d3d;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:12px;color:#8a9bb0;flex-shrink:0}
 .sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
 .sdot.on{background:#27ae60;box-shadow:0 0 5px #27ae60}.sdot.off{background:#e74c3c}.sdot.aud{background:#e67e22;animation:blink 1s infinite}
@@ -101,7 +102,7 @@ html,body{width:100%;height:100dvh;overflow:hidden;touch-action:none;font-family
     <span id="stxt">جاري الاتصال...</span>
   </div>
   <div style="display:flex;align-items:center;gap:6px">
-    <i class="fas fa-volume-mute" id="spkIcon" style="color:#e74c3c"></i>
+    <i class="fas fa-volume-up" id="spkIcon" style="color:#e67e22; display:none"></i>
     <div class="waves" id="waves" style="display:none"><span></span><span></span><span></span></div>
   </div>
 </div>
@@ -165,6 +166,7 @@ var myMicOn=false, myMicStream=null, myRecInterval=null, myAudioSlot=0;
 var micPermission=false;
 const studentId = 'stu_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
 const studentName = 'طالب_' + Math.floor(Math.random()*1000);
+var currentSpeaker = null;
 
 // ── رسم الطالب ────────────────────────────────────────────────
 function getXY(e){
@@ -276,7 +278,7 @@ function shakePerm(){
   [0,-6,6,-6,6,0].forEach((v,i)=>setTimeout(()=>el.style.transform=`translateX(${v}px)`,i*50));
 }
 
-// ── صوت المدرس ───────────────────────────────────────────────
+// ── الصوت (استقبال من المدرس أو الطلاب المسموح لهم) ──────────
 const audioEl=document.getElementById('audioEl');
 var audioQueue=[], audioPlaying=false;
 const heardTs=new Set();
@@ -301,12 +303,25 @@ db.ref('audio/s1').on('value',snap=>gotAudio(snap.val()));
 db.ref('audioMeta').on('value',snap=>{
   const v=snap.val(), active=v&&v.active;
   document.getElementById('audBadge').style.display=active?'flex':'none';
-  document.getElementById('spkIcon').className=active?'fas fa-volume-up':'fas fa-volume-mute';
-  document.getElementById('spkIcon').style.color=active?'#e67e22':'#e74c3c';
+  document.getElementById('spkIcon').style.display=active?'inline':'none';
   document.getElementById('waves').style.display=active?'flex':'none';
-  document.getElementById('sdot').className='sdot '+(active?'aud':'on');
-  document.getElementById('stxt').textContent=active?'🎤 المدرس يتكلم':'متصل';
-  if(!active){audioQueue=[];audioPlaying=false;audioEl.src='';heardTs.clear();}
+  
+  if(active){
+    if(v.speaker === 'teacher'){
+      document.getElementById('stxt').textContent = '🎤 المدرس يتكلم';
+      document.getElementById('sdot').className = 'sdot aud';
+    } else if(v.speaker === 'student' && v.studentId === studentId){
+      document.getElementById('stxt').textContent = '🎤 أنت تتحدث';
+      document.getElementById('sdot').className = 'sdot aud';
+    } else if(v.speaker === 'student'){
+      document.getElementById('stxt').textContent = '🎤 طالب يتحدث';
+      document.getElementById('sdot').className = 'sdot aud';
+    }
+  } else {
+    document.getElementById('stxt').textContent = 'متصل';
+    document.getElementById('sdot').className = 'sdot on';
+    audioQueue=[]; audioPlaying=false; audioEl.src=''; heardTs.clear();
+  }
 });
 
 function unlockAudio(){try{audioEl.play().catch(()=>{});}catch(e){}}
@@ -337,7 +352,8 @@ async function startMyMic(){
   try{
     myMicStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
     myMicOn=true; 
-    btn.classList.add('recording');
+    btn.classList.remove('recording', 'speaking');
+    btn.classList.add('speaking');
     icon.className='fas fa-microphone';
     myRecordOnce(); 
     myRecInterval=setInterval(myRecordOnce,3000);
@@ -353,7 +369,7 @@ function stopMyMic(){
   myMicStream=null;myMicOn=false;
   db.ref('stuAudio').remove();
   const btn=document.getElementById('myMicBtn');
-  btn.classList.remove('recording', 'mic-allowed');
+  btn.classList.remove('recording', 'speaking');
   document.getElementById('myMicIcon').className='fas fa-microphone-slash';
 }
 
@@ -370,33 +386,28 @@ db.ref('micPermissions/'+studentId).on('value', snap=>{
   } else if(perm && perm.allowed===false){
     micPermission=false;
     alert('لم يسمح المدرس باستخدام المايك');
+    document.getElementById('myMicIcon').className='fas fa-microphone-slash';
   }
 });
 
 function requestMic(){
-  if(micPermission){
-    // إذا كان عنده إذن، يقدر يوقف المايك
-    if(myMicOn){
-      stopMyMic();
-      micPermission=false;
-    }
+  if(myMicOn){
+    // إذا كان يتحدث، يوقف نفسه
+    stopMyMic();
+    micPermission=false;
   } else {
     // طلب إذن من المدرس
-    if(myMicOn){
-      stopMyMic();
-    } else {
-      db.ref('micRequests').push({
-        studentId: studentId,
-        studentName: studentName,
-        ts: Date.now()
-      });
-      document.getElementById('myMicIcon').className='fas fa-hourglass-half';
-      setTimeout(()=>{
-        if(!micPermission){
-          document.getElementById('myMicIcon').className='fas fa-microphone-slash';
-        }
-      }, 5000);
-    }
+    db.ref('micRequests').push({
+      studentId: studentId,
+      studentName: studentName,
+      ts: Date.now()
+    });
+    document.getElementById('myMicIcon').className='fas fa-hourglass-half';
+    setTimeout(()=>{
+      if(!myMicOn){
+        document.getElementById('myMicIcon').className='fas fa-microphone-slash';
+      }
+    }, 5000);
   }
 }
 
