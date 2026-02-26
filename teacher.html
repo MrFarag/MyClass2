@@ -11,7 +11,6 @@ html,body{width:100%;height:100dvh;overflow:hidden;font-family:'Segoe UI',sans-s
 .hdr{height:48px;min-height:48px;background:#2c3e50;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:3px solid #e67e22;flex-shrink:0}
 .logo{font-size:15px;font-weight:bold}.logo i{color:#e67e22;margin-left:6px}
 .hdr-r{display:flex;align-items:center;gap:8px}
-.badge{padding:4px 12px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:5px;background:#27ae60}
 .mic-active{display:none;align-items:center;gap:5px;background:#e74c3c;padding:4px 12px;border-radius:20px;font-size:12px;animation:blink 1s infinite}
 .mic-active.show{display:flex}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
@@ -40,16 +39,13 @@ html,body{width:100%;height:100dvh;overflow:hidden;font-family:'Segoe UI',sans-s
 .tbtn{width:36px;height:36px;border:none;border-radius:7px;background:#3d566e;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s}
 .tbtn.sel,.tbtn:hover{background:#e67e22}
 .tbtn.danger{background:#c0392b}.tbtn.danger:hover{background:#e74c3c}
-.tbtn.recording{background:#e74c3c!important;animation:pulse 1.5s infinite}
-.tbtn.speaker-active{background:#27ae60!important}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.6)}50%{box-shadow:0 0 0 8px rgba(231,76,60,0)}}
+.tbtn.recording{background:#27ae60!important;animation:pulse-green 1.5s infinite}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(39,174,96,.6)}50%{box-shadow:0 0 0 8px rgba(39,174,96,0)}}
+.tbtn.mic-off{background:#e74c3c!important}
+.tbtn.mic-off i{color:#fff}
 .dot-sz{background:white;border-radius:50%}
 .students-bar{background:#243447;padding:4px 12px;border-top:1px solid #1a2634;height:38px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.chip{background:#34495e;padding:2px 9px;border-radius:20px;font-size:11px;border-right:3px solid #27ae60;cursor:pointer;transition:.1s}
-.chip.speaking{border-right-color:#f39c12;background:#e67e22;animation:pulse-orange 1s infinite}
-.chip.asking{border-right-color:#3498db;background:#2980b9}
-.chip:hover{background:#e67e22}
-@keyframes pulse-orange{0%,100%{opacity:1}50%{opacity:.5}}
+.chip{background:#34495e;padding:2px 9px;border-radius:20px;font-size:11px;border-right:3px solid #27ae60}
 .status{height:26px;background:#0e1820;border-top:1px solid #1a2634;display:flex;align-items:center;padding:0 12px;font-size:11px;color:#8a9bb0;flex-shrink:0}
 .sdot{width:7px;height:7px;border-radius:50%;margin-left:6px;display:inline-block}
 .sdot.on{background:#27ae60;box-shadow:0 0 4px #27ae60}.sdot.off{background:#e74c3c}
@@ -93,9 +89,9 @@ html,body{width:100%;height:100dvh;overflow:hidden;font-family:'Segoe UI',sans-s
     <div class="clr" style="background:#fff;border:2px solid #666" onclick="pClr('#fff',this)"></div>
   </div>
   <div class="tg">
-    <button class="tbtn sel" id="sz1" onclick="pSz(3,'sz1')"><div class="dot-sz" style="width:5px;height:5px"></div></button>
-    <button class="tbtn" id="sz2" onclick="pSz(7,'sz2')"><div class="dot-sz" style="width:9px;height:9px"></div></button>
-    <button class="tbtn" id="sz3" onclick="pSz(15,'sz3')"><div class="dot-sz" style="width:15px;height:15px"></div></button>
+    <button class="tbtn sel" id="sz1" onclick="pSz(2,'sz1')"><div class="dot-sz" style="width:3px;height:3px"></div></button>
+    <button class="tbtn" id="sz2" onclick="pSz(4,'sz2')"><div class="dot-sz" style="width:5px;height:5px"></div></button>
+    <button class="tbtn" id="sz3" onclick="pSz(8,'sz3')"><div class="dot-sz" style="width:8px;height:8px"></div></button>
   </div>
   <div class="tg">
     <button class="tbtn sel" id="penBtn" onclick="pTool('pen')"><i class="fas fa-pencil-alt"></i></button>
@@ -103,7 +99,7 @@ html,body{width:100%;height:100dvh;overflow:hidden;font-family:'Segoe UI',sans-s
     <button class="tbtn danger" onclick="clearAll()"><i class="fas fa-trash-alt"></i></button>
   </div>
   <div class="tg">
-    <button class="tbtn" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone" id="micIcon"></i></button>
+    <button class="tbtn mic-off" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone-slash" id="micIcon"></i></button>
     <button class="tbtn" id="lockBtn" onclick="toggleLock()" style="background:#27ae60"><i class="fas fa-lock-open" id="lockIcon"></i></button>
   </div>
 </div>
@@ -162,11 +158,10 @@ setTimeout(fitBoxes, 100);
 window.addEventListener('resize', fitBoxes);
 
 // ── State ─────────────────────────────────────────────────────
-let penColor = '#111', penSize = 3, penTool = 'pen';
+let penColor = '#111', penSize = 2, penTool = 'pen'; // تغيير الحجم الافتراضي إلى 2 (أنحف)
 let drawing=false, lx=0, ly=0;
 let studentsCanDraw=true;
 let micOn=false, micStream=null, recInterval=null;
-let currentStudentSpeaker = null; // الطالب الذي يتحدث حالياً
 const SESSION = 'T' + Date.now();
 let strokeN = 0;
 let activeCtx, activeBox, activeRef, activeSx, activeSy;
@@ -182,7 +177,7 @@ function drawLine(ctx, x1, y1, x2, y2, col, sz, eraser) {
   ctx.save();
   ctx.globalCompositeOperation = eraser ? 'destination-out' : 'source-over';
   ctx.strokeStyle = eraser ? 'rgba(0,0,0,1)' : col;
-  ctx.lineWidth   = eraser ? sz * 5 : sz;
+  ctx.lineWidth   = eraser ? sz * 5 : sz; // الممحاة تكون 5 أضعاف
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
   ctx.restore();
@@ -252,7 +247,7 @@ const remSt = {};
 function applyRemote(ctx, d) {
   if (!d||!d.pts||!d.pts.length) return;
   const key=d.k||String(d.ts);
-  const isE=d.s===-1, lw=isE?50:(d.s||3);
+  const isE=d.s===-1, lw=isE?50:(d.s||2);
   if (!remSt[key]) {
     const p=d.pts[0];
     remSt[key]={lx:p.x,ly:p.y};
@@ -312,7 +307,7 @@ function recordOnce(){
     if(!micOn||!chunks.length)return;
     const b64=await toB64(new Blob(chunks,{type:mime||'audio/webm'}));
     audioSlot=audioSlot===0?1:0;
-    db.ref('audio/s'+audioSlot).set({d:b64,ts:Date.now(), speaker:'teacher'});
+    db.ref('audio/s'+audioSlot).set({d:b64,ts:Date.now()});
   };
   rec.start();
   setTimeout(()=>{try{rec.stop();}catch(e){}},2800);
@@ -325,19 +320,19 @@ async function toggleMic(){
     try{
       micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
       micOn=true; btn.disabled=false;
-      btn.classList.add('recording'); 
-      btn.classList.remove('speaker-active');
-      icon.className='fas fa-microphone-slash';
+      btn.classList.remove('mic-off');
+      btn.classList.add('recording');
+      icon.className='fas fa-microphone'; // ✅ أيقونة مايك عادي (بدون خط)
       ind.classList.add('show');
       
-      // إعلام الجميع أن المدرس يتحدث
-      db.ref('audioMeta').set({active:true, speaker:'teacher', ts:Date.now()});
+      // إعلام جميع الطلاب أن المدرس بدأ التحدث
+      db.ref('audioMeta').set({active:true, ts:Date.now()});
       
       recordOnce(); 
       recInterval=setInterval(recordOnce,3000);
     }catch(err){
       btn.disabled=false;
-      icon.className='fas fa-microphone';
+      icon.className='fas fa-microphone-slash';
       alert('لا يمكن الوصول للمايكروفون:\n'+err.message);
     }
   }else{
@@ -345,42 +340,17 @@ async function toggleMic(){
     if(micStream)micStream.getTracks().forEach(t=>t.stop());
     micStream=null;micOn=false;
     btn.classList.remove('recording');
-    btn.classList.remove('speaker-active');
-    icon.className='fas fa-microphone';
+    btn.classList.add('mic-off');
+    icon.className='fas fa-microphone-slash'; // 🔴 يعود بالخط الأحمر
     ind.classList.remove('show');
     
-    // إعلام الجميع أن البث توقف
+    // إعلام الطلاب بأن البث توقف
     db.ref('audioMeta').set({active:false});
     db.ref('audio').remove();
   }
 }
 
-// ── طلبات الطلاب للتحدث ─────────────────────────────────────
-db.ref('micRequests').on('child_added', snap=>{
-  const req = snap.val();
-  if(req && req.studentId){
-    if(confirm(`الطالب ${req.studentName || 'أحد الطلاب'} يريد التحدث. هل تسمح له؟`)){
-      // إيقاف أي متحدث حالي (المدرس أو طالب آخر)
-      if(micOn){
-        // إيقاف مايك المدرس
-        toggleMic();
-      }
-      if(currentStudentSpeaker){
-        db.ref('micPermissions/'+currentStudentSpeaker).remove();
-      }
-      
-      // السماح للطالب الجديد
-      currentStudentSpeaker = req.studentId;
-      db.ref('micPermissions/'+req.studentId).set({allowed:true, ts:Date.now()});
-      db.ref('audioMeta').set({active:true, speaker:'student', studentId:req.studentId, ts:Date.now()});
-    } else {
-      db.ref('micPermissions/'+req.studentId).set({allowed:false, ts:Date.now()});
-    }
-    snap.ref.remove();
-  }
-});
-
-// استقبال صوت الطلاب
+// استقبال صوت الطلاب عند المدرس
 const heardSt=new Set();
 async function playStudentAudio(d){
   if(!d||!d.d||heardSt.has(d.ts))return;
@@ -394,25 +364,9 @@ db.ref('stuAudio/s1').on('value',snap=>playStudentAudio(snap.val()));
 db.ref('onlineStudents').on('value',snap=>{
   const v=snap.val()||{};
   document.getElementById('cnt').textContent=Object.keys(v).length;
-  const list=document.getElementById('slist');list.innerHTML='';
-  Object.keys(v).forEach(id=>{
-    const student = v[id];
-    const c=document.createElement('span');
-    c.className='chip';
-    if(id === currentStudentSpeaker) c.classList.add('speaking');
-    c.setAttribute('data-student-id', id);
-    c.innerHTML=`<i class="fas fa-user-graduate"></i> ${student.name || 'طالب'}`;
-    c.onclick = () => {
-      if(confirm(`هل تريد إيقاف ${student.name || 'الطالب'} عن التحدث؟`)){
-        if(currentStudentSpeaker === id){
-          db.ref('micPermissions/'+id).remove();
-          db.ref('audioMeta').set({active:false});
-          currentStudentSpeaker = null;
-        }
-      }
-    };
-    list.appendChild(c);
-  });
+  // إزالة عرض أسماء الطلاب - فقط العدد
+  const list=document.getElementById('slist');
+  list.innerHTML = `<span class="chip"><i class="fas fa-users"></i> عدد الطلاب: ${Object.keys(v).length}</span>`;
 });
 
 db.ref('.info/connected').on('value',snap=>{
