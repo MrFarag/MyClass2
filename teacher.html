@@ -1084,4 +1084,20 @@
             
             const isEraser = data.s === -1;
             studentsCtx.save();
-            studentsCtx.global
+            studentsCtx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
+            studentsCtx.strokeStyle = isEraser ? '#ffffff' : (data.c || '#000000');
+            studentsCtx.lineWidth = isEraser ? 30 : (data.s || 4);
+            studentsCtx.beginPath();
+            studentsCtx.moveTo(data.pts[0].x, data.pts[0].y);
+            for (let i = 1; i < data.pts.length; i++) {
+                studentsCtx.lineTo(data.pts[i].x, data.pts[i].y);
+            }
+            studentsCtx.stroke();
+            studentsCtx.restore();
+        });
+
+        // منع القائمة اليمنى
+        [mainBoard, studentsBoard].forEach(c => c.addEventListener('contextmenu', e => e.preventDefault()));
+    </script>
+</body>
+</html>
