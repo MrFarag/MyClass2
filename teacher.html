@@ -17,20 +17,22 @@ html,body{width:100%;height:100dvh;overflow:hidden;font-family:'Segoe UI',sans-s
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
 .boards{flex:1;display:flex;padding:6px;gap:6px;overflow:hidden;min-height:0}
 @media(max-width:768px){.boards{flex-direction:column}}
-.board{flex:1;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;min-height:0;background:#2c3e50}
+.board{flex:1;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;min-height:0;background:#2c3e50;border:1px solid #34495e}
 .bhead{padding:8px 12px;background:#34495e;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:2px solid #e67e22}
 .bhead.blue{border-bottom-color:#3498db}
 .bhead span{font-size:13px;font-weight:bold}
 .bhead button{background:rgba(255,255,255,.15);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:12px;margin-right:3px}
 .bhead button:hover{background:#e67e22}
-/* ─── THE KEY FIX: canvas يملأ المنطقة بالكامل بدون scroll ─── */
-.canvas-wrap{flex:1;position:relative;min-height:0;background:#fff}
-.canvas-wrap canvas{
-  position:absolute;top:0;left:0;
-  /* CSS size = element size */
-  display:block;
+/* ── الكانفاس: حجم ثابت + transform scale ── */
+.cbox{flex:1;overflow:hidden;background:#fff;position:relative;min-height:0}
+.cbox canvas{
+  position:absolute;
+  top:0;left:0;
+  background:#fff;
   touch-action:none;
   cursor:crosshair;
+  /* transform-origin يُضبط بالكود */
+  transform-origin:top left;
 }
 .tb{background:#34495e;padding:7px 8px;display:flex;flex-wrap:nowrap;gap:5px;align-items:center;border-top:2px solid #e67e22;flex-shrink:0;overflow-x:auto}
 .tb::-webkit-scrollbar{height:2px}.tb::-webkit-scrollbar-thumb{background:#e67e22}
@@ -42,12 +44,11 @@ html,body{width:100%;height:100dvh;overflow:hidden;font-family:'Segoe UI',sans-s
 .tbtn.danger{background:#c0392b}.tbtn.danger:hover{background:#e74c3c}
 .tbtn.recording{background:#e74c3c!important;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.6)}50%{box-shadow:0 0 0 8px rgba(231,76,60,0)}}
-.dot-size{background:white;border-radius:50%}
-.students-bar{background:#243447;padding:4px 12px;border-top:1px solid #1a2634;max-height:40px;overflow:hidden;flex-shrink:0}
-.students-bar div{display:flex;flex-wrap:wrap;gap:4px}
+.dot-sz{background:white;border-radius:50%}
+.students-bar{background:#243447;padding:4px 12px;border-top:1px solid #1a2634;height:38px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .chip{background:#34495e;padding:2px 9px;border-radius:20px;font-size:11px;border-right:3px solid #27ae60}
-.status{height:28px;background:#0e1820;border-top:1px solid #1a2634;display:flex;align-items:center;padding:0 12px;font-size:11px;color:#8a9bb0;flex-shrink:0}
-.sdot{width:7px;height:7px;border-radius:50%;margin-left:6px}
+.status{height:26px;background:#0e1820;border-top:1px solid #1a2634;display:flex;align-items:center;padding:0 12px;font-size:11px;color:#8a9bb0;flex-shrink:0}
+.sdot{width:7px;height:7px;border-radius:50%;margin-left:6px;display:inline-block}
 .sdot.on{background:#27ae60;box-shadow:0 0 4px #27ae60}.sdot.off{background:#e74c3c}
 </style>
 </head>
@@ -65,37 +66,37 @@ html,body{width:100%;height:100dvh;overflow:hidden;font-family:'Segoe UI',sans-s
   <div class="board">
     <div class="bhead">
       <span><i class="fas fa-pen-fancy" style="color:#e67e22"></i> سبورتي</span>
-      <div><button onclick="clearTeacher()"><i class="fas fa-eraser"></i></button></div>
+      <div><button onclick="clearT()"><i class="fas fa-eraser"></i></button></div>
     </div>
-    <div class="canvas-wrap" id="tw"><canvas id="tc"></canvas></div>
+    <div class="cbox" id="tBox"><canvas id="tC"></canvas></div>
   </div>
   <div class="board">
     <div class="bhead blue">
       <span><i class="fas fa-users" style="color:#3498db"></i> سبورة الطلاب</span>
-      <div><button onclick="clearStudent()"><i class="fas fa-eraser"></i></button></div>
+      <div><button onclick="clearS()"><i class="fas fa-eraser"></i></button></div>
     </div>
-    <div class="canvas-wrap" id="sw"><canvas id="sc"></canvas></div>
+    <div class="cbox" id="sBox"><canvas id="sC"></canvas></div>
   </div>
 </div>
 
 <div class="tb">
   <div class="tg">
-    <div class="clr sel" style="background:#111" onclick="pickColor('#111',this)"></div>
-    <div class="clr" style="background:#e74c3c" onclick="pickColor('#e74c3c',this)"></div>
-    <div class="clr" style="background:#2980b9" onclick="pickColor('#2980b9',this)"></div>
-    <div class="clr" style="background:#27ae60" onclick="pickColor('#27ae60',this)"></div>
-    <div class="clr" style="background:#8e44ad" onclick="pickColor('#8e44ad',this)"></div>
-    <div class="clr" style="background:#e67e22" onclick="pickColor('#e67e22',this)"></div>
-    <div class="clr" style="background:#fff;border:2px solid #666" onclick="pickColor('#fff',this)"></div>
+    <div class="clr sel" style="background:#111" onclick="pClr('#111',this)"></div>
+    <div class="clr" style="background:#e74c3c" onclick="pClr('#e74c3c',this)"></div>
+    <div class="clr" style="background:#2980b9" onclick="pClr('#2980b9',this)"></div>
+    <div class="clr" style="background:#27ae60" onclick="pClr('#27ae60',this)"></div>
+    <div class="clr" style="background:#8e44ad" onclick="pClr('#8e44ad',this)"></div>
+    <div class="clr" style="background:#e67e22" onclick="pClr('#e67e22',this)"></div>
+    <div class="clr" style="background:#fff;border:2px solid #666" onclick="pClr('#fff',this)"></div>
   </div>
   <div class="tg">
-    <button class="tbtn sel" id="sz1" onclick="pickSize(3,'sz1')"><div class="dot-size" style="width:5px;height:5px"></div></button>
-    <button class="tbtn" id="sz2" onclick="pickSize(7,'sz2')"><div class="dot-size" style="width:9px;height:9px"></div></button>
-    <button class="tbtn" id="sz3" onclick="pickSize(15,'sz3')"><div class="dot-size" style="width:15px;height:15px"></div></button>
+    <button class="tbtn sel" id="sz1" onclick="pSz(3,'sz1')"><div class="dot-sz" style="width:5px;height:5px"></div></button>
+    <button class="tbtn" id="sz2" onclick="pSz(7,'sz2')"><div class="dot-sz" style="width:9px;height:9px"></div></button>
+    <button class="tbtn" id="sz3" onclick="pSz(15,'sz3')"><div class="dot-sz" style="width:15px;height:15px"></div></button>
   </div>
   <div class="tg">
-    <button class="tbtn sel" id="penBtn" onclick="pickTool('pen')"><i class="fas fa-pencil-alt"></i></button>
-    <button class="tbtn" id="eraserBtn" onclick="pickTool('eraser')"><i class="fas fa-eraser"></i></button>
+    <button class="tbtn sel" id="penBtn" onclick="pTool('pen')"><i class="fas fa-pencil-alt"></i></button>
+    <button class="tbtn" id="eraserBtn" onclick="pTool('eraser')"><i class="fas fa-eraser"></i></button>
     <button class="tbtn danger" onclick="clearAll()"><i class="fas fa-trash-alt"></i></button>
   </div>
   <div class="tg">
@@ -104,12 +105,13 @@ html,body{width:100%;height:100dvh;overflow:hidden;font-family:'Segoe UI',sans-s
   </div>
 </div>
 
-<div class="students-bar"><div id="slist"></div></div>
+<div class="students-bar" id="slist"></div>
 <div class="status"><span class="sdot on" id="sdot"></span><span id="stxt">متصل</span></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
+// ── Firebase ──────────────────────────────────────────────────
 firebase.initializeApp({
   apiKey:"AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
   authDomain:"myclaive.firebaseapp.com",
@@ -121,337 +123,258 @@ firebase.initializeApp({
 });
 const db = firebase.database();
 
-// ══════════════════════════════════════════════════════════════
-// CANVAS SETUP
-// الحجم الداخلي للكانفاس = حجمه الفعلي على الشاشة
-// هذا يضمن تطابق الإحداثيات 100%
-// ══════════════════════════════════════════════════════════════
-const tc = document.getElementById('tc');
-const sc = document.getElementById('sc');
-const tx = tc.getContext('2d');
-const sx = sc.getContext('2d');
-const tw = document.getElementById('tw');
-const sw = document.getElementById('sw');
+// ── Canvas ────────────────────────────────────────────────────
+// حجم ثابت للكانفاس الداخلي
+// CSS transform يضبط الحجم المرئي
+const CW = 1600, CH = 1200;
 
-function fitCanvas(canvas, wrap) {
-  canvas.width  = wrap.clientWidth;
-  canvas.height = wrap.clientHeight;
-  canvas.style.width  = wrap.clientWidth  + 'px';
-  canvas.style.height = wrap.clientHeight + 'px';
-  const ctx = canvas.getContext('2d');
-  ctx.lineCap  = 'round';
-  ctx.lineJoin = 'round';
+const tC   = document.getElementById('tC');
+const sC   = document.getElementById('sC');
+const tCtx = tC.getContext('2d');
+const sCtx = sC.getContext('2d');
+const tBox = document.getElementById('tBox');
+const sBox = document.getElementById('sBox');
+
+tC.width = CW; tC.height = CH;
+sC.width = CW; sC.height = CH;
+[tCtx, sCtx].forEach(c => { c.lineCap='round'; c.lineJoin='round'; });
+
+// scaleX/Y: نسبة تحويل من إحداثيات الشاشة إلى إحداثيات الكانفاس
+let tSx=1, tSy=1, sSx=1, sSy=1;
+
+function fitBoxes() {
+  function fit(canvas, box, setSx, setSy) {
+    const bw = box.clientWidth, bh = box.clientHeight;
+    if (!bw || !bh) return;
+    const sx = bw / CW, sy = bh / CH;
+    canvas.style.width  = CW + 'px';
+    canvas.style.height = CH + 'px';
+    canvas.style.transform = `scale(${sx},${sy})`;
+    canvas.style.transformOrigin = 'top left';
+    setSx(sx); setSy(sy);
+  }
+  fit(tC, tBox, v=>tSx=v, v=>tSy=v);
+  fit(sC, sBox, v=>sSx=v, v=>sSy=v);
 }
 
-function initCanvases() {
-  fitCanvas(tc, tw);
-  fitCanvas(sc, sw);
-}
+// شغّل مرتين: مباشرة + بعد 100ms للتأكد من اكتمال layout
+fitBoxes();
+setTimeout(fitBoxes, 100);
+window.addEventListener('resize', fitBoxes);
 
-// انتظر حتى يتشكّل الـ layout
-requestAnimationFrame(() => requestAnimationFrame(initCanvases));
-
-window.addEventListener('resize', () => {
-  // احفظ الرسم
-  const tmpT = tc.toDataURL();
-  const tmpS = sc.toDataURL();
-  fitCanvas(tc, tw);
-  fitCanvas(sc, sw);
-  // أعد رسم بعد resize
-  const iT = new Image(); iT.onload = () => tx.drawImage(iT,0,0); iT.src = tmpT;
-  const iS = new Image(); iS.onload = () => sx.drawImage(iS,0,0); iS.src = tmpS;
-});
-
-// ══════════════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════════════
-let color = '#111', size = 3, tool = 'pen';
-let drawing = false, lx = 0, ly = 0;
-let studentsCanDraw = true;
-let micOn = false, micStream = null, recInterval = null;
-const SESSION = 'T' + Date.now(); // فريد لكل جلسة
+// ── State ─────────────────────────────────────────────────────
+let penColor = '#111', penSize = 3, penTool = 'pen';
+let drawing=false, lx=0, ly=0;
+let studentsCanDraw=true;
+let micOn=false, micStream=null, recInterval=null;
+const SESSION = 'T' + Date.now();
 let strokeN = 0;
-let activeCtx, activeWrap, activeRef;
+let activeCtx, activeBox, activeRef, activeSx, activeSy;
 
-// ══════════════════════════════════════════════════════════════
-// DRAWING
-// ══════════════════════════════════════════════════════════════
-function xy(e, wrap) {
-  const r  = wrap.getBoundingClientRect();
+// ── موقع الرسم ────────────────────────────────────────────────
+function getXY(e, box, sx, sy) {
+  const r = box.getBoundingClientRect();
   const cx = e.touches ? e.touches[0].clientX : e.clientX;
   const cy = e.touches ? e.touches[0].clientY : e.clientY;
-  // الإحداثيات مباشرة بدون أي تحويل — الكانفاس = حجم الـ wrap
-  return { x: cx - r.left, y: cy - r.top };
+  // قسّم على scale للحصول على الإحداثيات الداخلية للكانفاس
+  return {
+    x: (cx - r.left) / sx,
+    y: (cy - r.top)  / sy
+  };
 }
 
-// الإرسال: نقاط نسبية (0-1) حتى تعمل على أي حجم شاشة
-function toNorm(pts, w, h) {
-  return pts.map(p => [+(p.x/w).toFixed(4), +(p.y/h).toFixed(4)]);
+// ── رسم محلي ─────────────────────────────────────────────────
+function drawLine(ctx, x1, y1, x2, y2, col, sz, eraser) {
+  ctx.save();
+  ctx.globalCompositeOperation = eraser ? 'destination-out' : 'source-over';
+  ctx.strokeStyle = eraser ? 'rgba(0,0,0,1)' : col;
+  ctx.lineWidth   = eraser ? sz * 5 : sz;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.restore();
 }
 
-let buf = [], bufTimer = null, curKey = '';
+// ── إرسال batch ───────────────────────────────────────────────
+let buf=[], bufTimer=null, curKey='';
 
-function sendBuf() {
-  if (!buf.length || !activeRef || !activeWrap) return;
-  const w = activeWrap.clientWidth, h = activeWrap.clientHeight;
+function flushBuf() {
+  if (!buf.length || !activeRef) return;
   activeRef.push({
     k:   curKey,
-    c:   tool === 'eraser' ? null : color,
-    s:   tool === 'eraser' ? -1   : size,
-    pts: toNorm(buf.splice(0), w, h),
+    c:   penTool==='eraser' ? null : penColor,
+    s:   penTool==='eraser' ? -1   : penSize,
+    pts: buf.splice(0),  // إحداثيات داخلية بالفعل (0..CW, 0..CH)
     ts:  Date.now()
   });
 }
 
-function onDown(cvs, wrap, ref, e) {
+function onDown(cvs, box, ref, getSx, getSy, e) {
   e.preventDefault();
-  drawing    = true;
-  activeCtx  = cvs === tc ? tx : sx;
-  activeWrap = wrap;
-  activeRef  = ref;
-  strokeN++;
-  curKey = SESSION + '_' + strokeN;
-  const p = xy(e, wrap);
-  lx = p.x; ly = p.y;
-  buf = [{x:p.x, y:p.y}];
-  // نقطة البداية
+  drawing=true;
+  activeCtx=cvs===tC?tCtx:sCtx; activeBox=box; activeRef=ref;
+  activeSx=getSx(); activeSy=getSy();
+  strokeN++; curKey=SESSION+'_'+strokeN;
+  const p=getXY(e,box,activeSx,activeSy);
+  lx=p.x; ly=p.y; buf=[{x:p.x,y:p.y}];
+  // نقطة مرئية أولى
   activeCtx.save();
-  activeCtx.globalCompositeOperation = tool==='eraser' ? 'destination-out' : 'source-over';
-  activeCtx.fillStyle = tool==='eraser' ? 'rgba(0,0,0,1)' : color;
+  activeCtx.globalCompositeOperation=penTool==='eraser'?'destination-out':'source-over';
+  activeCtx.fillStyle=penTool==='eraser'?'rgba(0,0,0,1)':penColor;
   activeCtx.beginPath();
-  activeCtx.arc(p.x, p.y, (tool==='eraser' ? size*4 : size) / 2, 0, Math.PI*2);
-  activeCtx.fill();
-  activeCtx.restore();
+  activeCtx.arc(p.x,p.y,(penTool==='eraser'?penSize*5:penSize)/2,0,Math.PI*2);
+  activeCtx.fill(); activeCtx.restore();
 }
 
 function onMove(e) {
-  e.preventDefault();
-  if (!drawing) return;
-  const p = xy(e, activeWrap);
-  // رسم محلي — lineTo بسيط ومضمون
-  activeCtx.save();
-  activeCtx.globalCompositeOperation = tool==='eraser' ? 'destination-out' : 'source-over';
-  activeCtx.strokeStyle = tool==='eraser' ? 'rgba(0,0,0,1)' : color;
-  activeCtx.lineWidth   = tool==='eraser' ? size * 4 : size;
-  activeCtx.lineCap     = 'round';
-  activeCtx.lineJoin    = 'round';
-  activeCtx.beginPath();
-  activeCtx.moveTo(lx, ly);
-  activeCtx.lineTo(p.x, p.y);
-  activeCtx.stroke();
-  activeCtx.restore();
-  buf.push({x:p.x, y:p.y});
-  if (!bufTimer) bufTimer = setTimeout(() => { sendBuf(); bufTimer = null; }, 30);
-  lx = p.x; ly = p.y;
+  e.preventDefault(); if (!drawing) return;
+  const p=getXY(e,activeBox,activeSx,activeSy);
+  drawLine(activeCtx,lx,ly,p.x,p.y,penColor,penSize,penTool==='eraser');
+  buf.push({x:p.x,y:p.y});
+  if (!bufTimer) bufTimer=setTimeout(()=>{flushBuf();bufTimer=null;},25);
+  lx=p.x; ly=p.y;
 }
 
 function onUp() {
-  if (!drawing) return;
-  drawing = false;
-  clearTimeout(bufTimer); bufTimer = null;
-  sendBuf();
+  if (!drawing) return; drawing=false;
+  clearTimeout(bufTimer); bufTimer=null; flushBuf();
 }
 
-// Teacher board
-tc.addEventListener('mousedown',  e => onDown(tc,tw,db.ref('draw_t'),e));
-tc.addEventListener('mousemove',  onMove);
-tc.addEventListener('mouseup',    onUp);
-tc.addEventListener('mouseleave', onUp);
-tc.addEventListener('touchstart', e => onDown(tc,tw,db.ref('draw_t'),e), {passive:false});
-tc.addEventListener('touchmove',  onMove, {passive:false});
-tc.addEventListener('touchend',   onUp);
+// أحداث اللوحتين
+tC.addEventListener('mousedown',  e=>onDown(tC,tBox,db.ref('draw_t'),()=>tSx,()=>tSy,e));
+tC.addEventListener('mousemove',  onMove);
+tC.addEventListener('mouseup',    onUp);
+tC.addEventListener('mouseleave', onUp);
+tC.addEventListener('touchstart', e=>onDown(tC,tBox,db.ref('draw_t'),()=>tSx,()=>tSy,e),{passive:false});
+tC.addEventListener('touchmove',  onMove,{passive:false});
+tC.addEventListener('touchend',   onUp);
 
-// Student board (teacher draws on it)
-sc.addEventListener('mousedown',  e => onDown(sc,sw,db.ref('draw_s'),e));
-sc.addEventListener('mousemove',  onMove);
-sc.addEventListener('mouseup',    onUp);
-sc.addEventListener('mouseleave', onUp);
-sc.addEventListener('touchstart', e => onDown(sc,sw,db.ref('draw_s'),e), {passive:false});
-sc.addEventListener('touchmove',  onMove, {passive:false});
-sc.addEventListener('touchend',   onUp);
+sC.addEventListener('mousedown',  e=>onDown(sC,sBox,db.ref('draw_s'),()=>sSx,()=>sSy,e));
+sC.addEventListener('mousemove',  onMove);
+sC.addEventListener('mouseup',    onUp);
+sC.addEventListener('mouseleave', onUp);
+sC.addEventListener('touchstart', e=>onDown(sC,sBox,db.ref('draw_s'),()=>sSx,()=>sSy,e),{passive:false});
+sC.addEventListener('touchmove',  onMove,{passive:false});
+sC.addEventListener('touchend',   onUp);
 
-// ══════════════════════════════════════════════════════════════
-// RECEIVE — رسم الطلاب على سبورة الطلاب
-// ══════════════════════════════════════════════════════════════
-const remStrokes = {};
-
-function renderRemote(ctx, areaWrap, d) {
-  if (!d || !d.pts || !d.pts.length) return;
-  const W = areaWrap.clientWidth, H = areaWrap.clientHeight;
-  const key = d.k || d.ts;
-  const isEraser = d.s === -1;
-  const lw = isEraser ? 40 : (d.s || 3);
-
-  if (!remStrokes[key]) {
-    // أول batch من هذا الـ stroke
-    const fx = d.pts[0][0] * W, fy = d.pts[0][1] * H;
-    remStrokes[key] = { lx: fx, ly: fy };
+// ── استقبال رسم الطلاب ───────────────────────────────────────
+const remSt = {};
+function applyRemote(ctx, d) {
+  if (!d||!d.pts||!d.pts.length) return;
+  const key=d.k||String(d.ts);
+  const isE=d.s===-1, lw=isE?50:(d.s||3);
+  if (!remSt[key]) {
+    const p=d.pts[0];
+    remSt[key]={lx:p.x,ly:p.y};
     ctx.save();
-    ctx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
-    ctx.fillStyle = isEraser ? 'rgba(0,0,0,1)' : (d.c || '#000');
-    ctx.beginPath(); ctx.arc(fx, fy, lw/2, 0, Math.PI*2); ctx.fill();
-    ctx.restore();
+    ctx.globalCompositeOperation=isE?'destination-out':'source-over';
+    ctx.fillStyle=isE?'rgba(0,0,0,1)':(d.c||'#000');
+    ctx.beginPath();ctx.arc(p.x,p.y,lw/2,0,Math.PI*2);ctx.fill();ctx.restore();
   }
-
-  const st = remStrokes[key];
+  const st=remSt[key];
   ctx.save();
-  ctx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
-  ctx.strokeStyle = isEraser ? 'rgba(0,0,0,1)' : (d.c || '#000');
-  ctx.lineWidth   = lw;
-  ctx.lineCap     = 'round';
-  ctx.lineJoin    = 'round';
-  ctx.beginPath();
-  ctx.moveTo(st.lx, st.ly);
-  for (const pt of d.pts) {
-    const px = pt[0] * W, py = pt[1] * H;
-    ctx.lineTo(px, py);
-    st.lx = px; st.ly = py;
-  }
-  ctx.stroke();
-  ctx.restore();
+  ctx.globalCompositeOperation=isE?'destination-out':'source-over';
+  ctx.strokeStyle=isE?'rgba(0,0,0,1)':(d.c||'#000');
+  ctx.lineWidth=lw; ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.beginPath(); ctx.moveTo(st.lx,st.ly);
+  for (const p of d.pts) { ctx.lineTo(p.x,p.y); st.lx=p.x; st.ly=p.y; }
+  ctx.stroke(); ctx.restore();
 }
 
-db.ref('draw_st').on('child_added', snap => renderRemote(sx, sw, snap.val()));
+db.ref('draw_st').on('child_added', snap=>applyRemote(sCtx,snap.val()));
 
-// أوامر المسح
-db.ref('cmd').on('child_added', snap => {
-  const d = snap.val(); if (!d) return;
-  if (d.t === 'clrAll' || d.t === 'clrT') { tx.clearRect(0,0,tc.width,tc.height); }
-  if (d.t === 'clrAll' || d.t === 'clrS') { sx.clearRect(0,0,sc.width,sc.height); }
+// أوامر
+db.ref('cmd').on('child_added', snap=>{
+  const d=snap.val(); if(!d) return;
+  if(d.t==='clrAll'||d.t==='clrT') tCtx.clearRect(0,0,CW,CH);
+  if(d.t==='clrAll'||d.t==='clrS') sCtx.clearRect(0,0,CW,CH);
 });
 
-// ══════════════════════════════════════════════════════════════
-// TOOLS
-// ══════════════════════════════════════════════════════════════
-function pickColor(c, el) {
-  color = c;
-  document.querySelectorAll('.clr').forEach(b => b.classList.remove('sel'));
-  el.classList.add('sel');
-  pickTool('pen');
+// ── أدوات ────────────────────────────────────────────────────
+function pClr(c,el){penColor=c;document.querySelectorAll('.clr').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');pTool('pen');}
+function pSz(s,id){penSize=s;document.querySelectorAll('#sz1,#sz2,#sz3').forEach(b=>b.classList.remove('sel'));document.getElementById(id).classList.add('sel');}
+function pTool(t){penTool=t;document.getElementById('penBtn').classList.toggle('sel',t==='pen');document.getElementById('eraserBtn').classList.toggle('sel',t==='eraser');}
+function clearT(){tCtx.clearRect(0,0,CW,CH);db.ref('cmd').push({t:'clrT',ts:Date.now()});}
+function clearS(){sCtx.clearRect(0,0,CW,CH);db.ref('cmd').push({t:'clrS',ts:Date.now()});}
+function clearAll(){
+  if(!confirm('مسح الكل؟'))return;
+  tCtx.clearRect(0,0,CW,CH); sCtx.clearRect(0,0,CW,CH);
+  db.ref('cmd').push({t:'clrAll',ts:Date.now()});
+  db.ref('draw_t').remove(); db.ref('draw_s').remove(); db.ref('draw_st').remove();
 }
-function pickSize(s, id) {
-  size = s;
-  document.querySelectorAll('#sz1,#sz2,#sz3').forEach(b => b.classList.remove('sel'));
-  document.getElementById(id).classList.add('sel');
-}
-function pickTool(t) {
-  tool = t;
-  document.getElementById('penBtn').classList.toggle('sel', t==='pen');
-  document.getElementById('eraserBtn').classList.toggle('sel', t==='eraser');
-}
-function clearTeacher() {
-  tx.clearRect(0, 0, tc.width, tc.height);
-  db.ref('cmd').push({t:'clrT', ts:Date.now()});
-}
-function clearStudent() {
-  sx.clearRect(0, 0, sc.width, sc.height);
-  db.ref('cmd').push({t:'clrS', ts:Date.now()});
-}
-function clearAll() {
-  if (!confirm('مسح الكل؟')) return;
-  tx.clearRect(0, 0, tc.width, tc.height);
-  sx.clearRect(0, 0, sc.width, sc.height);
-  db.ref('cmd').push({t:'clrAll', ts:Date.now()});
-  db.ref('draw_t').remove();
-  db.ref('draw_s').remove();
-  db.ref('draw_st').remove();
-}
-function toggleLock() {
-  studentsCanDraw = !studentsCanDraw;
+function toggleLock(){
+  studentsCanDraw=!studentsCanDraw;
   db.ref('ctrl').set({studentsCanDraw});
-  document.getElementById('lockBtn').style.background = studentsCanDraw ? '#27ae60' : '#e74c3c';
-  document.getElementById('lockIcon').className = 'fas fa-lock' + (studentsCanDraw ? '-open' : '');
+  document.getElementById('lockBtn').style.background=studentsCanDraw?'#27ae60':'#e74c3c';
+  document.getElementById('lockIcon').className='fas fa-lock'+(studentsCanDraw?'-open':'');
 }
 
-// ══════════════════════════════════════════════════════════════
-// AUDIO — صوت المدرس للطلاب
-// ══════════════════════════════════════════════════════════════
-function getMime() {
-  for (const t of ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'])
-    if (MediaRecorder.isTypeSupported(t)) return t;
-  return '';
-}
-function toB64(blob) {
-  return new Promise(r => { const f=new FileReader(); f.onloadend=()=>r(f.result); f.readAsDataURL(blob); });
-}
+// ── الصوت ────────────────────────────────────────────────────
+function getMime(){for(const t of['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'])if(MediaRecorder.isTypeSupported(t))return t;return'';}
+function toB64(blob){return new Promise(r=>{const f=new FileReader();f.onloadend=()=>r(f.result);f.readAsDataURL(blob);});}
 
-let audioSlot = 0;
-function recordOnce() {
-  if (!micStream || !micOn) return;
-  const mime = getMime();
-  const rec  = new MediaRecorder(micStream, mime ? {mimeType:mime} : {});
-  const chunks = [];
-  rec.ondataavailable = ev => { if (ev.data && ev.data.size > 0) chunks.push(ev.data); };
-  rec.onstop = async () => {
-    if (!micOn || !chunks.length) return;
-    const b64 = await toB64(new Blob(chunks, {type: mime || 'audio/webm'}));
-    audioSlot = audioSlot === 0 ? 1 : 0;
-    db.ref('audio/s' + audioSlot).set({d: b64, ts: Date.now()});
+let audioSlot=0;
+function recordOnce(){
+  if(!micStream||!micOn)return;
+  const mime=getMime(), rec=new MediaRecorder(micStream,mime?{mimeType:mime}:{});
+  const chunks=[];
+  rec.ondataavailable=ev=>{if(ev.data&&ev.data.size>0)chunks.push(ev.data);};
+  rec.onstop=async()=>{
+    if(!micOn||!chunks.length)return;
+    const b64=await toB64(new Blob(chunks,{type:mime||'audio/webm'}));
+    audioSlot=audioSlot===0?1:0;
+    db.ref('audio/s'+audioSlot).set({d:b64,ts:Date.now()});
   };
   rec.start();
-  setTimeout(() => { try { rec.stop(); } catch(e) {} }, 2800);
+  setTimeout(()=>{try{rec.stop();}catch(e){}},2800);
 }
 
-async function toggleMic() {
-  const btn  = document.getElementById('micBtn');
-  const icon = document.getElementById('micIcon');
-  const ind  = document.getElementById('micActive');
-  if (!micOn) {
-    icon.className = 'fas fa-spinner fa-spin'; btn.disabled = true;
-    try {
-      micStream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
-      micOn = true; btn.disabled = false;
-      btn.classList.add('recording'); icon.className = 'fas fa-microphone-slash';
+async function toggleMic(){
+  const btn=document.getElementById('micBtn'),icon=document.getElementById('micIcon'),ind=document.getElementById('micActive');
+  if(!micOn){
+    icon.className='fas fa-spinner fa-spin'; btn.disabled=true;
+    try{
+      micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+      micOn=true; btn.disabled=false;
+      btn.classList.add('recording'); icon.className='fas fa-microphone-slash';
       ind.classList.add('show');
-      db.ref('audioMeta').set({active:true, ts:Date.now()});
-      recordOnce();
-      recInterval = setInterval(recordOnce, 3000);
-    } catch(err) {
-      btn.disabled = false; icon.className = 'fas fa-microphone';
-      alert('لا يمكن الوصول للمايكروفون:\n' + err.message);
-    }
-  } else {
-    clearInterval(recInterval); recInterval = null;
-    if (micStream) micStream.getTracks().forEach(t => t.stop());
-    micStream = null; micOn = false;
-    btn.classList.remove('recording'); icon.className = 'fas fa-microphone';
+      db.ref('audioMeta').set({active:true,ts:Date.now()});
+      recordOnce(); recInterval=setInterval(recordOnce,3000);
+    }catch(err){btn.disabled=false;icon.className='fas fa-microphone';alert('لا يمكن الوصول للمايكروفون:\n'+err.message);}
+  }else{
+    clearInterval(recInterval);recInterval=null;
+    if(micStream)micStream.getTracks().forEach(t=>t.stop());
+    micStream=null;micOn=false;
+    btn.classList.remove('recording');icon.className='fas fa-microphone';
     ind.classList.remove('show');
     db.ref('audioMeta').set({active:false});
     db.ref('audio').remove();
   }
 }
 
-// استقبال صوت الطلاب
-const heardSt = new Set();
-async function playStudent(d) {
-  if (!d || !d.d || heardSt.has(d.ts)) return;
+// استقبال صوت الطلاب عند المدرس
+const heardSt=new Set();
+async function playStudentAudio(d){
+  if(!d||!d.d||heardSt.has(d.ts))return;
   heardSt.add(d.ts);
-  try { const a = new Audio(d.d); await a.play(); } catch(e) {}
+  try{const a=new Audio(d.d);await a.play();}catch(e){}
 }
-db.ref('stuAudio/s0').on('value', snap => playStudent(snap.val()));
-db.ref('stuAudio/s1').on('value', snap => playStudent(snap.val()));
+db.ref('stuAudio/s0').on('value',snap=>playStudentAudio(snap.val()));
+db.ref('stuAudio/s1').on('value',snap=>playStudentAudio(snap.val()));
 
-// ══════════════════════════════════════════════════════════════
-// FIREBASE LISTENERS
-// ══════════════════════════════════════════════════════════════
-db.ref('onlineStudents').on('value', snap => {
-  const v = snap.val() || {};
-  document.getElementById('cnt').textContent = Object.keys(v).length;
-  const list = document.getElementById('slist'); list.innerHTML = '';
-  Object.keys(v).forEach(() => {
-    const c = document.createElement('span'); c.className = 'chip';
-    c.innerHTML = '<i class="fas fa-user-graduate"></i> طالب'; list.appendChild(c);
-  });
+// ── Firebase listeners ────────────────────────────────────────
+db.ref('onlineStudents').on('value',snap=>{
+  const v=snap.val()||{};
+  document.getElementById('cnt').textContent=Object.keys(v).length;
+  const list=document.getElementById('slist');list.innerHTML='';
+  Object.keys(v).forEach(()=>{const c=document.createElement('span');c.className='chip';c.innerHTML='<i class="fas fa-user-graduate"></i> طالب';list.appendChild(c);});
 });
-
-db.ref('.info/connected').on('value', snap => {
-  document.getElementById('sdot').className = 'sdot ' + (snap.val() ? 'on' : 'off');
-  document.getElementById('stxt').textContent = snap.val() ? 'متصل' : 'غير متصل';
+db.ref('.info/connected').on('value',snap=>{
+  document.getElementById('sdot').className='sdot '+(snap.val()?'on':'off');
+  document.getElementById('stxt').textContent=snap.val()?'متصل':'غير متصل';
 });
-
-db.ref('teacher/online').set({online:true, ts:Date.now()});
+db.ref('teacher/online').set({online:true,ts:Date.now()});
 db.ref('ctrl').set({studentsCanDraw:true});
-[tc,sc].forEach(c => c.addEventListener('contextmenu', e => e.preventDefault()));
+[tC,sC].forEach(c=>c.addEventListener('contextmenu',e=>e.preventDefault()));
 </script>
 </body>
 </html>
