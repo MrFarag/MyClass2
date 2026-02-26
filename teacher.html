@@ -37,9 +37,14 @@ html,body{width:100%;height:100dvh;overflow:hidden;font-family:'Segoe UI',sans-s
 @keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(39,174,96,.6)}50%{box-shadow:0 0 0 8px rgba(39,174,96,0)}}
 .tbtn.mic-off{background:#e74c3c!important}
 .tbtn.mic-off i{color:#fff}
+.tbtn.student-speaking{background:#f39c12!important;animation:pulse-orange 1.5s infinite}
+@keyframes pulse-orange{0%,100%{box-shadow:0 0 0 0 rgba(243,156,18,.6)}50%{box-shadow:0 0 0 8px rgba(243,156,18,0)}}
 .dot-sz{background:white;border-radius:50%}
 .students-bar{background:#243447;padding:4px 12px;border-top:1px solid #1a2634;height:38px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.chip{background:#34495e;padding:2px 9px;border-radius:20px;font-size:11px;border-right:3px solid #27ae60}
+.chip{background:#34495e;padding:2px 9px;border-radius:20px;font-size:11px;border-right:3px solid #27ae60;cursor:pointer;transition:.1s}
+.chip.speaking{border-right-color:#f39c12;background:#e67e22;animation:pulse-orange 1s infinite}
+.chip.asking{border-right-color:#3498db;background:#2980b9}
+.chip:hover{background:#e67e22}
 .status{height:26px;background:#0e1820;border-top:1px solid #1a2634;display:flex;align-items:center;padding:0 12px;font-size:11px;color:#8a9bb0;flex-shrink:0}
 .sdot{width:7px;height:7px;border-radius:50%;margin-left:6px;display:inline-block}
 .sdot.on{background:#27ae60;box-shadow:0 0 4px #27ae60}.sdot.off{background:#e74c3c}
@@ -156,6 +161,7 @@ let penColor = '#111', penSize = 3, penTool = 'pen';
 let drawing=false, lx=0, ly=0;
 let studentsCanDraw=true;
 let micOn=false, micStream=null, recInterval=null;
+let currentSpeaker = null; // الطالب الذي يتحدث حالياً
 const SESSION = 'T' + Date.now();
 let strokeN = 0;
 let activeCtx, activeBox, activeRef, activeSx, activeSy;
@@ -287,7 +293,7 @@ function toggleLock(){
   document.getElementById('lockIcon').className='fas fa-lock'+(studentsCanDraw?'-open':'');
 }
 
-// ── الصوت ────────────────────────────────────────────────────
+// ── الصوت (المدرس هو المتحدث الرئيسي) ───────────────────────
 function getMime(){for(const t of['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'])if(MediaRecorder.isTypeSupported(t))return t;return'';}
 function toB64(blob){return new Promise(r=>{const f=new FileReader();f.onloadend=()=>r(f.result);f.readAsDataURL(blob);});}
 
@@ -301,7 +307,7 @@ function recordOnce(){
     if(!micOn||!chunks.length)return;
     const b64=await toB64(new Blob(chunks,{type:mime||'audio/webm'}));
     audioSlot=audioSlot===0?1:0;
-    db.ref('audio/s'+audioSlot).set({d:b64,ts:Date.now()});
+    db.ref('audio/s'+audioSlot).set({d:b64,ts:Date.now(), speaker:'teacher'});
   };
   rec.start();
   setTimeout(()=>{try{rec.stop();}catch(e){}},2800);
@@ -318,7 +324,7 @@ async function toggleMic(){
       btn.classList.add('recording');
       icon.className='fas fa-microphone';
       ind.classList.add('show');
-      db.ref('audioMeta').set({active:true,ts:Date.now()});
+      db.ref('audioMeta').set({active:true, speaker:'teacher', ts:Date.now()});
       recordOnce(); recInterval=setInterval(recordOnce,3000);
     }catch(err){icon.className='fas fa-microphone-slash';alert('لا يمكن الوصول للمايكروفون:\n'+err.message);}
   }else{
@@ -331,23 +337,36 @@ async function toggleMic(){
     ind.classList.remove('show');
     db.ref('audioMeta').set({active:false});
     db.ref('audio').remove();
+    // إذا كان هناك طالب يتحدث، نوقفه
+    if(currentSpeaker){
+      db.ref('audioMeta').set({active:false});
+      currentSpeaker = null;
+    }
   }
 }
 
-// طلب الطالب للمايك
+// ── طلبات الطلاب للتحدث ─────────────────────────────────────
 db.ref('micRequests').on('child_added', snap=>{
   const req = snap.val();
   if(req && req.studentId){
-    if(confirm(`الطالب ${req.studentName || 'أحد الطلاب'} يريد التحدث. هل تسمح؟`)){
+    const studentChip = document.querySelector(`[data-student-id="${req.studentId}"]`);
+    if(confirm(`الطالب ${req.studentName || 'أحد الطلاب'} يريد التحدث. هل تسمح له؟`)){
+      // إيقاف أي متحدث حالي
+      if(currentSpeaker){
+        db.ref('micPermissions/'+currentSpeaker).remove();
+      }
+      // السماح للطالب الجديد
+      currentSpeaker = req.studentId;
       db.ref('micPermissions/'+req.studentId).set({allowed:true, ts:Date.now()});
+      db.ref('audioMeta').set({active:true, speaker:'student', studentId:req.studentId, ts:Date.now()});
     } else {
       db.ref('micPermissions/'+req.studentId).set({allowed:false, ts:Date.now()});
     }
-    snap.ref.remove(); // حذف الطلب بعد المعالجة
+    snap.ref.remove();
   }
 });
 
-// استقبال صوت الطلاب عند المدرس
+// استقبال صوت الطلاب
 const heardSt=new Set();
 async function playStudentAudio(d){
   if(!d||!d.d||heardSt.has(d.ts))return;
@@ -357,21 +376,36 @@ async function playStudentAudio(d){
 db.ref('stuAudio/s0').on('value',snap=>playStudentAudio(snap.val()));
 db.ref('stuAudio/s1').on('value',snap=>playStudentAudio(snap.val()));
 
-// ── Firebase listeners ────────────────────────────────────────
+// ── الطلاب المتصلون ──────────────────────────────────────────
 db.ref('onlineStudents').on('value',snap=>{
   const v=snap.val()||{};
   document.getElementById('cnt').textContent=Object.keys(v).length;
   const list=document.getElementById('slist');list.innerHTML='';
   Object.keys(v).forEach(id=>{
-    const c=document.createElement('span');c.className='chip';
-    c.innerHTML='<i class="fas fa-user-graduate"></i> طالب';
+    const student = v[id];
+    const c=document.createElement('span');
+    c.className='chip';
+    if(id === currentSpeaker) c.classList.add('speaking');
+    c.setAttribute('data-student-id', id);
+    c.innerHTML=`<i class="fas fa-user-graduate"></i> ${student.name || 'طالب'}`;
+    c.onclick = () => {
+      if(confirm(`هل تريد إيقاف ${student.name || 'الطالب'} عن التحدث؟`)){
+        if(currentSpeaker === id){
+          db.ref('micPermissions/'+id).remove();
+          db.ref('audioMeta').set({active:false});
+          currentSpeaker = null;
+        }
+      }
+    };
     list.appendChild(c);
   });
 });
+
 db.ref('.info/connected').on('value',snap=>{
   document.getElementById('sdot').className='sdot '+(snap.val()?'on':'off');
   document.getElementById('stxt').textContent=snap.val()?'متصل':'غير متصل';
 });
+
 db.ref('teacher/online').set({online:true,ts:Date.now()});
 db.ref('ctrl').set({studentsCanDraw:true});
 [tC,sC].forEach(c=>c.addEventListener('contextmenu',e=>e.preventDefault()));
