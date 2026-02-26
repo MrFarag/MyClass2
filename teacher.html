@@ -294,54 +294,135 @@ function toggleLock(){
 }
 
 // ── الصوت (المدرس هو المتحدث الرئيسي) ───────────────────────
-function getMime(){for(const t of['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'])if(MediaRecorder.isTypeSupported(t))return t;return'';}
-function toB64(blob){return new Promise(r=>{const f=new FileReader();f.onloadend=()=>r(f.result);f.readAsDataURL(blob);});}
-
-let audioSlot=0;
-function recordOnce(){
-  if(!micStream||!micOn)return;
-  const mime=getMime(), rec=new MediaRecorder(micStream,mime?{mimeType:mime}:{});
-  const chunks=[];
-  rec.ondataavailable=ev=>{if(ev.data&&ev.data.size>0)chunks.push(ev.data);};
-  rec.onstop=async()=>{
-    if(!micOn||!chunks.length)return;
-    const b64=await toB64(new Blob(chunks,{type:mime||'audio/webm'}));
-    audioSlot=audioSlot===0?1:0;
-    db.ref('audio/s'+audioSlot).set({d:b64,ts:Date.now(), speaker:'teacher'});
-  };
-  rec.start();
-  setTimeout(()=>{try{rec.stop();}catch(e){}},2800);
+function getMime() {
+  for (const t of ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus']) {
+    if (MediaRecorder.isTypeSupported(t)) return t;
+  }
+  return '';
 }
 
-async function toggleMic(){
-  const btn=document.getElementById('micBtn'),icon=document.getElementById('micIcon'),ind=document.getElementById('micActive');
-  if(!micOn){
-    icon.className='fas fa-spinner fa-spin';
-    try{
-      micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
-      micOn=true;
+function toB64(blob) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+}
+
+let audioSlot = 0;
+function recordOnce() {
+  if (!micStream || !micOn) return;
+  
+  console.log('تسجيل مقطع صوتي جديد...');
+  const mime = getMime();
+  const rec = new MediaRecorder(micStream, mime ? { mimeType: mime } : {});
+  const chunks = [];
+  
+  rec.ondataavailable = ev => {
+    if (ev.data && ev.data.size > 0) {
+      chunks.push(ev.data);
+    }
+  };
+  
+  rec.onstop = async () => {
+    if (!micOn || !chunks.length) return;
+    
+    try {
+      const blob = new Blob(chunks, { type: mime || 'audio/webm' });
+      const b64 = await toB64(blob);
+      
+      audioSlot = audioSlot === 0 ? 1 : 0;
+      
+      // إرسال الصوت مع معلومات إضافية
+      await db.ref('audio/s' + audioSlot).set({
+        d: b64,
+        ts: Date.now(),
+        speaker: 'teacher'
+      });
+      
+      // تحديث meta data
+      db.ref('audioMeta').update({
+        lastChunk: Date.now(),
+        active: true,
+        speaker: 'teacher'
+      });
+      
+    } catch (err) {
+      console.error('خطأ في إرسال الصوت:', err);
+    }
+  };
+  
+  rec.start();
+  
+  setTimeout(() => {
+    try {
+      rec.stop();
+    } catch (e) {}
+  }, 2800);
+}
+
+async function toggleMic() {
+  const btn = document.getElementById('micBtn');
+  const icon = document.getElementById('micIcon');
+  const ind = document.getElementById('micActive');
+  
+  if (!micOn) {
+    icon.className = 'fas fa-spinner fa-spin';
+    btn.disabled = true;
+    
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        } 
+      });
+      
+      micOn = true;
+      btn.disabled = false;
       btn.classList.remove('mic-off');
       btn.classList.add('recording');
-      icon.className='fas fa-microphone';
+      icon.className = 'fas fa-microphone';
       ind.classList.add('show');
-      db.ref('audioMeta').set({active:true, speaker:'teacher', ts:Date.now()});
-      recordOnce(); recInterval=setInterval(recordOnce,3000);
-    }catch(err){icon.className='fas fa-microphone-slash';alert('لا يمكن الوصول للمايكروفون:\n'+err.message);}
-  }else{
-    clearInterval(recInterval);recInterval=null;
-    if(micStream)micStream.getTracks().forEach(t=>t.stop());
-    micStream=null;micOn=false;
+      
+      // إعلام جميع الطلاب أن المدرس بدأ التحدث
+      await db.ref('audioMeta').set({
+        active: true,
+        speaker: 'teacher',
+        ts: Date.now()
+      });
+      
+      // بدء البث الفوري
+      recordOnce();
+      
+      // بث مستمر كل 3 ثوان
+      if (recInterval) clearInterval(recInterval);
+      recInterval = setInterval(recordOnce, 3000);
+      
+    } catch (err) {
+      btn.disabled = false;
+      icon.className = 'fas fa-microphone-slash';
+      alert('لا يمكن الوصول للمايكروفون:\n' + err.message);
+    }
+  } else {
+    clearInterval(recInterval);
+    recInterval = null;
+    
+    if (micStream) {
+      micStream.getTracks().forEach(t => t.stop());
+      micStream = null;
+    }
+    
+    micOn = false;
     btn.classList.remove('recording');
     btn.classList.add('mic-off');
-    icon.className='fas fa-microphone-slash';
+    icon.className = 'fas fa-microphone-slash';
     ind.classList.remove('show');
-    db.ref('audioMeta').set({active:false});
-    db.ref('audio').remove();
-    // إذا كان هناك طالب يتحدث، نوقفه
-    if(currentSpeaker){
-      db.ref('audioMeta').set({active:false});
-      currentSpeaker = null;
-    }
+    
+    // إعلام الطلاب بأن البث توقف
+    await db.ref('audioMeta').set({ active: false });
+    await db.ref('audio').remove();
   }
 }
 
@@ -349,7 +430,6 @@ async function toggleMic(){
 db.ref('micRequests').on('child_added', snap=>{
   const req = snap.val();
   if(req && req.studentId){
-    const studentChip = document.querySelector(`[data-student-id="${req.studentId}"]`);
     if(confirm(`الطالب ${req.studentName || 'أحد الطلاب'} يريد التحدث. هل تسمح له؟`)){
       // إيقاف أي متحدث حالي
       if(currentSpeaker){
