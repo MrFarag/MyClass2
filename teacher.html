@@ -1,560 +1,169 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MyClass2 - المدرس</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100dvh;overflow:hidden;font-family:'Segoe UI',sans-serif;background:#1a2634;color:#fff;display:flex;flex-direction:column}
-.hdr{height:48px;min-height:48px;background:#2c3e50;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:3px solid #e67e22;flex-shrink:0}
-.logo{font-size:15px;font-weight:bold}.logo i{color:#e67e22;margin-left:6px}
-.hdr-r{display:flex;align-items:center;gap:8px}
-.mic-active{display:none;align-items:center;gap:5px;background:#e74c3c;padding:4px 12px;border-radius:20px;font-size:12px;animation:blink 1s infinite}
-.mic-active.show{display:flex}
-.mute-btn{background:#34495e;color:#fff;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.mute-btn.muted{background:#e74c3c}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
-.boards{flex:1;display:flex;padding:6px;gap:6px;overflow:hidden;min-height:0}
-@media(max-width:768px){.boards{flex-direction:column}}
-.board{flex:1;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;min-height:0;background:#2c3e50;border:1px solid #34495e}
-.bhead{padding:8px 12px;background:#34495e;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:2px solid #e67e22}
-.bhead.blue{border-bottom-color:#3498db}
-.bhead span{font-size:13px;font-weight:bold}
-.bhead button{background:rgba(255,255,255,.15);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:12px;margin-right:3px}
-.bhead button:hover{background:#e67e22}
-.cbox{flex:1;overflow:hidden;background:#fff;position:relative;min-height:0}
-.cbox canvas{
-  position:absolute;top:0;left:0;
-  background:#fff;
-  touch-action:none;
-  cursor:crosshair;
-  transform-origin:top left;
-}
-.tb{background:#34495e;padding:7px 8px;display:flex;flex-wrap:nowrap;gap:5px;align-items:center;border-top:2px solid #e67e22;flex-shrink:0;overflow-x:auto}
-.tb::-webkit-scrollbar{height:2px}.tb::-webkit-scrollbar-thumb{background:#e67e22}
-.tg{display:flex;gap:3px;background:#2c3e50;padding:4px;border-radius:8px;flex-shrink:0}
-.clr{width:28px;height:28px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:.1s;flex-shrink:0}
-.clr.sel{border-color:#fff;transform:scale(1.15)}
-.tbtn{width:36px;height:36px;border:none;border-radius:7px;background:#3d566e;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s}
-.tbtn.sel,.tbtn:hover{background:#e67e22}
-.tbtn.danger{background:#c0392b}.tbtn.danger:hover{background:#e74c3c}
-.tbtn.recording{background:#27ae60!important;animation:pulse-green 1.5s infinite}
-@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(39,174,96,.6)}50%{box-shadow:0 0 0 8px rgba(39,174,96,0)}}
-.tbtn.mic-off{background:#e74c3c!important}
-.tbtn.mic-off i{color:#fff}
-.dot-sz{background:white;border-radius:50%}
-
-/* قائمة الطلاب */
-.students-panel{height:140px;background:#1e2d3d;border-top:2px solid #e67e22;display:flex;flex-direction:column;flex-shrink:0;padding:4px}
-.panel-tabs{display:flex;gap:4px;margin-bottom:4px}
-.panel-tab{flex:1;padding:4px;background:#2c3e50;border:none;color:#fff;border-radius:4px;cursor:pointer;font-size:11px}
-.panel-tab.active{background:#e67e22}
-.panel-tab span{background:#e74c3c;padding:2px 6px;border-radius:10px;margin-right:5px;font-size:10px}
-.students-lists{flex:1;display:flex;gap:4px;overflow:hidden}
-.students-col{flex:1;background:#243447;border-radius:4px;display:flex;flex-direction:column;overflow:hidden}
-.col-header{padding:3px 6px;background:#2c3e50;font-size:11px;display:flex;justify-content:space-between}
-.col-header i{color:#e67e22}
-.students-list{flex:1;overflow-y:auto;padding:2px}
-.student-item{padding:4px 6px;background:#1e2d3d;margin-bottom:2px;border-radius:4px;font-size:11px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:.1s}
-.student-item.waiting:hover{background:#e67e22}
-.student-item.approved{background:#27ae60}
-.student-item.approved:hover{background:#e74c3c}
-.student-item i{margin-left:4px;font-size:10px}
-.student-item .mute-indicator{margin-right:4px;color:#f39c12}
-
-.status{height:26px;background:#0e1820;border-top:1px solid #1a2634;display:flex;align-items:center;padding:0 12px;font-size:11px;color:#8a9bb0;flex-shrink:0;gap:10px}
-.sdot{width:7px;height:7px;border-radius:50%;margin-left:6px;display:inline-block}
-.sdot.on{background:#27ae60;box-shadow:0 0 4px #27ae60}.sdot.off{background:#e74c3c}
-.volume-slider{width:60px;height:4px;background:#34495e;border-radius:2px;direction:ltr}
-.volume-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;background:#e67e22;border-radius:50%;cursor:pointer}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyClass2 - بوابة الدخول</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+        
+        h1 span {
+            color: #667eea;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 20px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            min-width: 200px;
+        }
+        
+        .btn-teacher {
+            background: #c0392b;
+            color: white;
+            box-shadow: 0 5px 15px rgba(192, 57, 43, 0.4);
+        }
+        
+        .btn-teacher:hover {
+            background: #e74c3c;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(192, 57, 43, 0.6);
+        }
+        
+        .btn-student {
+            background: #2980b9;
+            color: white;
+            box-shadow: 0 5px 15px rgba(41, 128, 185, 0.4);
+        }
+        
+        .btn-student:hover {
+            background: #3498db;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(41, 128, 185, 0.6);
+        }
+        
+        .features {
+            margin-top: 40px;
+            text-align: right;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .features h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .features ul {
+            list-style: none;
+        }
+        
+        .features li {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .features li:before {
+            content: "✅";
+            margin-left: 5px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
-
-<div class="hdr">
-  <div class="logo"><i class="fas fa-chalkboard-teacher"></i>MyClass2 — المدرس</div>
-  <div class="hdr-r">
-    <button class="mute-btn" id="muteAllBtn" onclick="toggleMuteAll()" title="كتم صوت الجميع">
-      <i class="fas fa-volume-up" id="muteAllIcon"></i>
-    </button>
-    <div class="mic-active" id="micActive"><i class="fas fa-microphone"></i>مايك شغّال</div>
-  </div>
-</div>
-
-<div class="boards">
-  <div class="board">
-    <div class="bhead">
-      <span><i class="fas fa-pen-fancy" style="color:#e67e22"></i> سبورتي</span>
-      <div><button onclick="clearT()"><i class="fas fa-eraser"></i></button></div>
+    <div class="container">
+        <h1>مرحباً بك في <span>MyClass2</span></h1>
+        
+        <div class="subtitle">
+            منصة السبورة التفاعلية للبث المباشر<br>
+            (كتابة + صوت)
+        </div>
+        
+        <div class="buttons">
+            <a href="teacher.html" class="btn btn-teacher">
+                👨‍🏫 دخول المدرس
+            </a>
+            <a href="student.html" class="btn btn-student">
+                👨‍🎓 دخول الطالب
+            </a>
+        </div>
+        
+        <div class="features">
+            <h3>📌 مميزات المنصة:</h3>
+            <ul>
+                <li>سبورة المدرس يظهر كتابته لجميع الطلاب فوراً</li>
+                <li>الطالب يكتب في سبورته الخاصة وتظهر عند المدرس</li>
+                <li>بث صوتي مباشر من المدرس للطلاب (بأقل تأخير)</li>
+                <li>الطلاب يدخلون بأسمائهم ويحتاجون موافقة المدرس</li>
+                <li>الموافقة على الطلاب بنقرة واحدة</li>
+                <li>إمكانية كتم الصوت للطالب أو للمدرس</li>
+                <li>تعمل على الكمبيوتر والموبايل</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            © 2024 MyClass2 - جميع الحقوق محفوظة
+        </div>
     </div>
-    <div class="cbox" id="tBox"><canvas id="tC"></canvas></div>
-  </div>
-  <div class="board">
-    <div class="bhead blue">
-      <span><i class="fas fa-users" style="color:#3498db"></i> سبورة الطلاب</span>
-      <div><button onclick="clearS()"><i class="fas fa-eraser"></i></button></div>
-    </div>
-    <div class="cbox" id="sBox"><canvas id="sC"></canvas></div>
-  </div>
-</div>
-
-<div class="tb">
-  <div class="tg">
-    <div class="clr sel" style="background:#111" onclick="pClr('#111',this)"></div>
-    <div class="clr" style="background:#e74c3c" onclick="pClr('#e74c3c',this)"></div>
-    <div class="clr" style="background:#2980b9" onclick="pClr('#2980b9',this)"></div>
-    <div class="clr" style="background:#27ae60" onclick="pClr('#27ae60',this)"></div>
-    <div class="clr" style="background:#8e44ad" onclick="pClr('#8e44ad',this)"></div>
-    <div class="clr" style="background:#e67e22" onclick="pClr('#e67e22',this)"></div>
-    <div class="clr" style="background:#fff;border:2px solid #666" onclick="pClr('#fff',this)"></div>
-  </div>
-  <div class="tg">
-    <button class="tbtn sel" id="sz1" onclick="pSz(2,'sz1')"><div class="dot-sz" style="width:3px;height:3px"></div></button>
-    <button class="tbtn" id="sz2" onclick="pSz(4,'sz2')"><div class="dot-sz" style="width:5px;height:5px"></div></button>
-    <button class="tbtn" id="sz3" onclick="pSz(8,'sz3')"><div class="dot-sz" style="width:8px;height:8px"></div></button>
-  </div>
-  <div class="tg">
-    <button class="tbtn sel" id="penBtn" onclick="pTool('pen')"><i class="fas fa-pencil-alt"></i></button>
-    <button class="tbtn" id="eraserBtn" onclick="pTool('eraser')"><i class="fas fa-eraser"></i></button>
-    <button class="tbtn danger" onclick="clearAll()"><i class="fas fa-trash-alt"></i></button>
-  </div>
-  <div class="tg">
-    <button class="tbtn mic-off" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone-slash" id="micIcon"></i></button>
-    <button class="tbtn" id="lockBtn" onclick="toggleLock()" style="background:#27ae60"><i class="fas fa-lock-open" id="lockIcon"></i></button>
-  </div>
-</div>
-
-<!-- لوحة الطلاب -->
-<div class="students-panel">
-  <div class="panel-tabs">
-    <button class="panel-tab active" id="tabWaiting" onclick="switchTab('waiting')">
-      <i class="fas fa-clock"></i> في الانتظار <span id="waitingCount">0</span>
-    </button>
-    <button class="panel-tab" id="tabApproved" onclick="switchTab('approved')">
-      <i class="fas fa-check-circle"></i> مشاركون <span id="approvedCount">0</span>
-    </button>
-  </div>
-  <div class="students-lists">
-    <div class="students-col" id="waitingList">
-      <div class="col-header"><span><i class="fas fa-clock"></i> ينتظرون الموافقة</span></div>
-      <div class="students-list" id="waitingStudents"></div>
-    </div>
-    <div class="students-col" id="approvedList">
-      <div class="col-header"><span><i class="fas fa-users"></i> مشاركون الآن</span></div>
-      <div class="students-list" id="approvedStudents"></div>
-    </div>
-  </div>
-</div>
-
-<div class="status">
-  <div><span class="sdot on" id="sdot"></span><span id="stxt">متصل</span></div>
-  <div style="display:flex;align-items:center;gap:5px">
-    <i class="fas fa-volume-down" style="color:#8a9bb0"></i>
-    <input type="range" min="0" max="100" value="80" class="volume-slider" id="volumeSlider" oninput="setVolume(this.value)">
-    <i class="fas fa-volume-up" style="color:#8a9bb0"></i>
-  </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<script>
-// ── Firebase ──────────────────────────────────────────────────
-firebase.initializeApp({
-  apiKey:"AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
-  authDomain:"myclaive.firebaseapp.com",
-  databaseURL:"https://myclaive-default-rtdb.firebaseio.com",
-  projectId:"myclaive",
-  storageBucket:"myclaive.firebasestorage.app",
-  messagingSenderId:"507299311714",
-  appId:"1:507299311714:web:c90440ee4353cfac17613b"
-});
-const db = firebase.database();
-
-// ── Canvas ────────────────────────────────────────────────────
-const CW = 1600, CH = 1200;
-const tC = document.getElementById('tC');
-const sC = document.getElementById('sC');
-const tCtx = tC.getContext('2d');
-const sCtx = sC.getContext('2d');
-const tBox = document.getElementById('tBox');
-const sBox = document.getElementById('sBox');
-
-tC.width = CW; tC.height = CH;
-sC.width = CW; sC.height = CH;
-[tCtx, sCtx].forEach(c => { c.lineCap='round'; c.lineJoin='round'; });
-
-let tSx=1, tSy=1, sSx=1, sSy=1;
-
-function fitBoxes() {
-  function fit(canvas, box, setSx, setSy) {
-    const bw = box.clientWidth, bh = box.clientHeight;
-    if (!bw || !bh) return;
-    const sx = bw / CW, sy = bh / CH;
-    canvas.style.width = CW + 'px';
-    canvas.style.height = CH + 'px';
-    canvas.style.transform = `scale(${sx},${sy})`;
-    canvas.style.transformOrigin = 'top left';
-    setSx(sx); setSy(sy);
-  }
-  fit(tC, tBox, v=>tSx=v, v=>tSy=v);
-  fit(sC, sBox, v=>sSx=v, v=>sSy=v);
-}
-fitBoxes(); setTimeout(fitBoxes, 100);
-window.addEventListener('resize', fitBoxes);
-
-// ── State ─────────────────────────────────────────────────────
-let penColor = '#111', penSize = 2, penTool = 'pen';
-let drawing = false, lx = 0, ly = 0;
-let studentsCanDraw = true;
-let micOn = false, micStream = null, recInterval = null;
-let muteAll = false;
-let masterVolume = 80;
-const SESSION = 'T' + Date.now();
-let strokeN = 0;
-let activeCtx, activeBox, activeRef, activeSx, activeSy;
-
-// ── دوال الرسم ────────────────────────────────────────────────
-function getXY(e, box, sx, sy) {
-  const r = box.getBoundingClientRect();
-  const cx = e.touches ? e.touches[0].clientX : e.clientX;
-  const cy = e.touches ? e.touches[0].clientY : e.clientY;
-  return { x: (cx - r.left) / sx, y: (cy - r.top) / sy };
-}
-
-function drawLine(ctx, x1, y1, x2, y2, col, sz, eraser) {
-  ctx.save();
-  ctx.globalCompositeOperation = eraser ? 'destination-out' : 'source-over';
-  ctx.strokeStyle = eraser ? 'rgba(0,0,0,1)' : col;
-  ctx.lineWidth = eraser ? sz * 5 : sz;
-  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-  ctx.restore();
-}
-
-let buf = [], bufTimer = null, curKey = '';
-
-function flushBuf() {
-  if (!buf.length || !activeRef) return;
-  activeRef.push({
-    k: curKey,
-    c: penTool === 'eraser' ? null : penColor,
-    s: penTool === 'eraser' ? -1 : penSize,
-    pts: buf.splice(0),
-    ts: Date.now()
-  });
-}
-
-function onDown(cvs, box, ref, getSx, getSy, e) {
-  e.preventDefault();
-  drawing = true;
-  activeCtx = cvs === tC ? tCtx : sCtx;
-  activeBox = box;
-  activeRef = ref;
-  activeSx = getSx(); activeSy = getSy();
-  strokeN++; curKey = SESSION + '_' + strokeN;
-  const p = getXY(e, box, activeSx, activeSy);
-  lx = p.x; ly = p.y; buf = [{ x: p.x, y: p.y }];
-  activeCtx.save();
-  activeCtx.globalCompositeOperation = penTool === 'eraser' ? 'destination-out' : 'source-over';
-  activeCtx.fillStyle = penTool === 'eraser' ? 'rgba(0,0,0,1)' : penColor;
-  activeCtx.beginPath();
-  activeCtx.arc(p.x, p.y, (penTool === 'eraser' ? penSize * 5 : penSize) / 2, 0, Math.PI * 2);
-  activeCtx.fill(); activeCtx.restore();
-}
-
-function onMove(e) {
-  e.preventDefault(); if (!drawing) return;
-  const p = getXY(e, activeBox, activeSx, activeSy);
-  drawLine(activeCtx, lx, ly, p.x, p.y, penColor, penSize, penTool === 'eraser');
-  buf.push({ x: p.x, y: p.y });
-  if (!bufTimer) bufTimer = setTimeout(() => { flushBuf(); bufTimer = null; }, 25);
-  lx = p.x; ly = p.y;
-}
-
-function onUp() {
-  if (!drawing) return; drawing = false;
-  clearTimeout(bufTimer); bufTimer = null; flushBuf();
-}
-
-tC.addEventListener('mousedown', e => onDown(tC, tBox, db.ref('draw_t'), () => tSx, () => tSy, e));
-tC.addEventListener('mousemove', onMove);
-tC.addEventListener('mouseup', onUp);
-tC.addEventListener('mouseleave', onUp);
-tC.addEventListener('touchstart', e => onDown(tC, tBox, db.ref('draw_t'), () => tSx, () => tSy, e), { passive: false });
-tC.addEventListener('touchmove', onMove, { passive: false });
-tC.addEventListener('touchend', onUp);
-
-sC.addEventListener('mousedown', e => onDown(sC, sBox, db.ref('draw_s'), () => sSx, () => sSy, e));
-sC.addEventListener('mousemove', onMove);
-sC.addEventListener('mouseup', onUp);
-sC.addEventListener('mouseleave', onUp);
-sC.addEventListener('touchstart', e => onDown(sC, sBox, db.ref('draw_s'), () => sSx, () => sSy, e), { passive: false });
-sC.addEventListener('touchmove', onMove, { passive: false });
-sC.addEventListener('touchend', onUp);
-
-// ── استقبال رسم الطلاب ───────────────────────────────────────
-const remSt = {};
-function applyRemote(ctx, d) {
-  if (!d || !d.pts || !d.pts.length) return;
-  const key = d.k || String(d.ts);
-  const isE = d.s === -1, lw = isE ? 50 : (d.s || 2);
-  if (!remSt[key]) {
-    const p = d.pts[0];
-    remSt[key] = { lx: p.x, ly: p.y };
-    ctx.save();
-    ctx.globalCompositeOperation = isE ? 'destination-out' : 'source-over';
-    ctx.fillStyle = isE ? 'rgba(0,0,0,1)' : (d.c || '#000');
-    ctx.beginPath(); ctx.arc(p.x, p.y, lw / 2, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-  }
-  const st = remSt[key];
-  ctx.save();
-  ctx.globalCompositeOperation = isE ? 'destination-out' : 'source-over';
-  ctx.strokeStyle = isE ? 'rgba(0,0,0,1)' : (d.c || '#000');
-  ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  ctx.beginPath(); ctx.moveTo(st.lx, st.ly);
-  for (const p of d.pts) { ctx.lineTo(p.x, p.y); st.lx = p.x; st.ly = p.y; }
-  ctx.stroke(); ctx.restore();
-}
-
-db.ref('draw_st').on('child_added', snap => applyRemote(sCtx, snap.val()));
-
-db.ref('cmd').on('child_added', snap => {
-  const d = snap.val(); if (!d) return;
-  if (d.t === 'clrAll' || d.t === 'clrT') tCtx.clearRect(0, 0, CW, CH);
-  if (d.t === 'clrAll' || d.t === 'clrS') sCtx.clearRect(0, 0, CW, CH);
-});
-
-// ── أدوات الرسم ───────────────────────────────────────────────
-function pClr(c, el) { penColor = c; document.querySelectorAll('.clr').forEach(b => b.classList.remove('sel')); el.classList.add('sel'); pTool('pen'); }
-function pSz(s, id) { penSize = s; document.querySelectorAll('#sz1,#sz2,#sz3').forEach(b => b.classList.remove('sel')); document.getElementById(id).classList.add('sel'); }
-function pTool(t) { penTool = t; document.getElementById('penBtn').classList.toggle('sel', t === 'pen'); document.getElementById('eraserBtn').classList.toggle('sel', t === 'eraser'); }
-function clearT() { tCtx.clearRect(0, 0, CW, CH); db.ref('cmd').push({ t: 'clrT', ts: Date.now() }); }
-function clearS() { sCtx.clearRect(0, 0, CW, CH); db.ref('cmd').push({ t: 'clrS', ts: Date.now() }); }
-function clearAll() {
-  if (!confirm('مسح الكل؟')) return;
-  tCtx.clearRect(0, 0, CW, CH); sCtx.clearRect(0, 0, CW, CH);
-  db.ref('cmd').push({ t: 'clrAll', ts: Date.now() });
-  db.ref('draw_t').remove(); db.ref('draw_s').remove(); db.ref('draw_st').remove();
-}
-function toggleLock() {
-  studentsCanDraw = !studentsCanDraw;
-  db.ref('ctrl').set({ studentsCanDraw });
-  document.getElementById('lockBtn').style.background = studentsCanDraw ? '#27ae60' : '#e74c3c';
-  document.getElementById('lockIcon').className = 'fas fa-lock' + (studentsCanDraw ? '-open' : '');
-}
-
-// ── الصوت (المدرس) ────────────────────────────────────────────
-function getMime() { for (const t of ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus']) if (MediaRecorder.isTypeSupported(t)) return t; return ''; }
-function toB64(blob) { return new Promise(r => { const f = new FileReader(); f.onloadend = () => r(f.result); f.readAsDataURL(blob); }); }
-
-let audioSlot = 0;
-function recordOnce() {
-  if (!micStream || !micOn) return;
-  const mime = getMime(), rec = new MediaRecorder(micStream, mime ? { mimeType: mime } : {});
-  const chunks = [];
-  rec.ondataavailable = ev => { if (ev.data && ev.data.size > 0) chunks.push(ev.data); };
-  rec.onstop = async () => {
-    if (!micOn || !chunks.length) return;
-    const b64 = await toB64(new Blob(chunks, { type: mime || 'audio/webm' }));
-    audioSlot = audioSlot === 0 ? 1 : 0;
-    db.ref('audio/s' + audioSlot).set({ d: b64, ts: Date.now() });
-  };
-  rec.start();
-  setTimeout(() => { try { rec.stop(); } catch (e) { } }, 2800);
-}
-
-async function toggleMic() {
-  const btn = document.getElementById('micBtn'), icon = document.getElementById('micIcon'), ind = document.getElementById('micActive');
-  if (!micOn) {
-    icon.className = 'fas fa-spinner fa-spin'; btn.disabled = true;
-    try {
-      micStream = await navigator.mediaDevices.getUserMedia({ 
-        audio: { 
-          echoCancellation: true, 
-          noiseSuppression: true, 
-          autoGainControl: true,
-          // منع الصفير (Feedback)
-          echoCancellation: true,
-          noiseSuppression: true
-        } 
-      });
-      micOn = true; btn.disabled = false;
-      btn.classList.remove('mic-off');
-      btn.classList.add('recording');
-      icon.className = 'fas fa-microphone';
-      ind.classList.add('show');
-      db.ref('audioMeta').set({ active: true, ts: Date.now() });
-      recordOnce(); recInterval = setInterval(recordOnce, 3000);
-    } catch (err) {
-      btn.disabled = false;
-      icon.className = 'fas fa-microphone-slash';
-      alert('لا يمكن الوصول للمايكروفون:\n' + err.message);
-    }
-  } else {
-    clearInterval(recInterval); recInterval = null;
-    if (micStream) micStream.getTracks().forEach(t => t.stop());
-    micStream = null; micOn = false;
-    btn.classList.remove('recording');
-    btn.classList.add('mic-off');
-    icon.className = 'fas fa-microphone-slash';
-    ind.classList.remove('show');
-    db.ref('audioMeta').set({ active: false });
-    db.ref('audio').remove();
-  }
-}
-
-// ── التحكم في الصوت ───────────────────────────────────────────
-function setVolume(value) {
-  masterVolume = value;
-  // تحديث حجم الصوت لجميع العناصر الصوتية
-  const audioEls = document.querySelectorAll('audio');
-  audioEls.forEach(audio => audio.volume = value / 100);
-}
-
-function toggleMuteAll() {
-  muteAll = !muteAll;
-  const btn = document.getElementById('muteAllBtn');
-  const icon = document.getElementById('muteAllIcon');
-  
-  if (muteAll) {
-    btn.classList.add('muted');
-    icon.className = 'fas fa-volume-mute';
-    // كتم جميع الأصوات
-    setVolume(0);
-    document.getElementById('volumeSlider').value = 0;
-  } else {
-    btn.classList.remove('muted');
-    icon.className = 'fas fa-volume-up';
-    // إعادة الصوت
-    setVolume(masterVolume);
-    document.getElementById('volumeSlider').value = masterVolume;
-  }
-}
-
-// ── نظام إدارة الطلاب ─────────────────────────────────────────
-let waitingStudents = {};
-let approvedStudents = {};
-let currentTab = 'waiting';
-
-window.switchTab = function(tab) {
-  currentTab = tab;
-  document.getElementById('tabWaiting').classList.toggle('active', tab === 'waiting');
-  document.getElementById('tabApproved').classList.toggle('active', tab === 'approved');
-}
-
-// مراقبة طلبات الانضمام
-db.ref('joinRequests').on('child_added', snap => {
-  const student = snap.val();
-  if (student && student.id && student.name) {
-    waitingStudents[student.id] = student;
-    updateStudentsLists();
-  }
-});
-
-db.ref('joinRequests').on('child_removed', snap => {
-  const student = snap.val();
-  if (student && student.id) {
-    delete waitingStudents[student.id];
-    updateStudentsLists();
-  }
-});
-
-// مراقبة الطلاب المعتمدين
-db.ref('approvedStudents').on('child_added', snap => {
-  const student = snap.val();
-  if (student && student.id) {
-    approvedStudents[student.id] = student;
-    updateStudentsLists();
-  }
-});
-
-db.ref('approvedStudents').on('child_removed', snap => {
-  const student = snap.val();
-  if (student && student.id) {
-    delete approvedStudents[student.id];
-    updateStudentsLists();
-  }
-});
-
-// تحديث عرض القوائم
-function updateStudentsLists() {
-  document.getElementById('waitingCount').textContent = Object.keys(waitingStudents).length;
-  document.getElementById('approvedCount').textContent = Object.keys(approvedStudents).length;
-
-  const waitingDiv = document.getElementById('waitingStudents');
-  waitingDiv.innerHTML = '';
-  Object.values(waitingStudents).forEach(student => {
-    const item = document.createElement('div');
-    item.className = 'student-item waiting';
-    item.innerHTML = `
-      <span><i class="fas fa-user-graduate"></i> ${student.name}</span>
-      <i class="fas fa-check-circle" style="color:#27ae60"></i>
-    `;
-    item.onclick = () => approveStudent(student.id, student.name);
-    waitingDiv.appendChild(item);
-  });
-
-  const approvedDiv = document.getElementById('approvedStudents');
-  approvedDiv.innerHTML = '';
-  Object.values(approvedStudents).forEach(student => {
-    const item = document.createElement('div');
-    item.className = 'student-item approved';
-    item.innerHTML = `
-      <span><i class="fas fa-user-check"></i> ${student.name}</span>
-      <i class="fas fa-times-circle" style="color:#fff"></i>
-    `;
-    item.onclick = () => removeStudent(student.id);
-    approvedDiv.appendChild(item);
-  });
-}
-
-function approveStudent(studentId, studentName) {
-  // الموافقة على الطالب
-  db.ref('joinRequests/' + studentId).remove();
-  db.ref('approvedStudents/' + studentId).set({
-    id: studentId,
-    name: studentName,
-    approvedAt: Date.now()
-  });
-  db.ref('studentPermissions/' + studentId).set({
-    canDraw: true,
-    canSpeak: false
-  });
-}
-
-function removeStudent(studentId) {
-  if (confirm('هل تريد إزالة هذا الطالب؟')) {
-    db.ref('approvedStudents/' + studentId).remove();
-    db.ref('studentPermissions/' + studentId).remove();
-    db.ref('onlineStudents/' + studentId).remove();
-  }
-}
-
-// استقبال صوت الطلاب
-const heardSt = new Set();
-async function playStudentAudio(d) {
-  if (!d || !d.d || heardSt.has(d.ts) || muteAll) return;
-  heardSt.add(d.ts);
-  try { 
-    const a = new Audio(d.d); 
-    a.volume = masterVolume / 100;
-    await a.play(); 
-  } catch (e) { }
-}
-db.ref('stuAudio/s0').on('value', snap => playStudentAudio(snap.val()));
-db.ref('stuAudio/s1').on('value', snap => playStudentAudio(snap.val()));
-
-// حالة الاتصال
-db.ref('.info/connected').on('value', snap => {
-  document.getElementById('sdot').className = 'sdot ' + (snap.val() ? 'on' : 'off');
-  document.getElementById('stxt').textContent = snap.val() ? 'متصل' : 'غير متصل';
-});
-
-db.ref('teacher/online').set({ online: true, ts: Date.now() });
-db.ref('ctrl').set({ studentsCanDraw: true });
-[tC, sC].forEach(c => c.addEventListener('contextmenu', e => e.preventDefault()));
-</script>
 </body>
 </html>
