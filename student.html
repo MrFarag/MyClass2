@@ -135,7 +135,7 @@ tC.width=CW;  tC.height=CH;
 myC.width=CW; myC.height=CH;
 [tCtx,mCtx].forEach(c=>{c.lineCap='round';c.lineJoin='round';});
 
-let mSx=1, mSy=1;
+let mSx=1, mSy=1;  // scale لسبورة الطالب (الوحيدة التي يرسم عليها)
 
 function fitBoxes(){
   function fit(canvas, box){
@@ -230,6 +230,7 @@ const remSt={};
 
 function applyRemote(ctx, box, d){
   if(!d||!d.pts||!d.pts.length)return;
+  // إحداثيات المدرس مباشرة بدون تحويل (نفس CW×CH)
   const key=d.k||String(d.ts);
   const isE=d.s===-1, lw=isE?50:(d.s||3);
   if(!remSt[key]){
