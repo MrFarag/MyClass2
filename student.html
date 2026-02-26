@@ -166,7 +166,6 @@ var myMicOn=false, myMicStream=null, myRecInterval=null, myAudioSlot=0;
 var micPermission=false;
 const studentId = 'stu_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
 const studentName = 'طالب_' + Math.floor(Math.random()*1000);
-var currentSpeaker = null;
 
 // ── رسم الطالب ────────────────────────────────────────────────
 function getXY(e){
@@ -278,55 +277,128 @@ function shakePerm(){
   [0,-6,6,-6,6,0].forEach((v,i)=>setTimeout(()=>el.style.transform=`translateX(${v}px)`,i*50));
 }
 
-// ── الصوت (استقبال من المدرس أو الطلاب المسموح لهم) ──────────
-const audioEl=document.getElementById('audioEl');
-var audioQueue=[], audioPlaying=false;
-const heardTs=new Set();
+// ── الصوت (استقبال من المدرس) ───────────────────────────────
+const audioEl = document.getElementById('audioEl');
+let audioQueue = [];
+let audioPlaying = false;
+const heardTs = new Set();
 
-function playNext(){
-  if(audioPlaying||!audioQueue.length)return;
-  audioPlaying=true;
-  audioEl.src=audioQueue.shift();
-  audioEl.onended=()=>{audioPlaying=false;playNext();};
-  audioEl.onerror=()=>{audioPlaying=false;playNext();};
-  audioEl.play().catch(()=>{audioPlaying=false;});
-}
+// التأكد من أن الصوت يمكن تشغيله
+audioEl.volume = 1.0;
+audioEl.muted = false;
 
-function gotAudio(d){
-  if(!d||!d.d||heardTs.has(d.ts))return;
-  heardTs.add(d.ts); audioQueue.push(d.d); playNext();
-}
-
-db.ref('audio/s0').on('value',snap=>gotAudio(snap.val()));
-db.ref('audio/s1').on('value',snap=>gotAudio(snap.val()));
-
-db.ref('audioMeta').on('value',snap=>{
-  const v=snap.val(), active=v&&v.active;
-  document.getElementById('audBadge').style.display=active?'flex':'none';
-  document.getElementById('spkIcon').style.display=active?'inline':'none';
-  document.getElementById('waves').style.display=active?'flex':'none';
+function playNext() {
+  if (audioPlaying || !audioQueue.length) return;
   
-  if(active){
-    if(v.speaker === 'teacher'){
-      document.getElementById('stxt').textContent = '🎤 المدرس يتكلم';
-      document.getElementById('sdot').className = 'sdot aud';
-    } else if(v.speaker === 'student' && v.studentId === studentId){
-      document.getElementById('stxt').textContent = '🎤 أنت تتحدث';
-      document.getElementById('sdot').className = 'sdot aud';
-    } else if(v.speaker === 'student'){
-      document.getElementById('stxt').textContent = '🎤 طالب يتحدث';
-      document.getElementById('sdot').className = 'sdot aud';
+  audioPlaying = true;
+  const audioUrl = audioQueue.shift();
+  
+  audioEl.src = audioUrl;
+  
+  audioEl.oncanplaythrough = () => {
+    audioEl.play()
+      .then(() => {})
+      .catch(err => {
+        audioPlaying = false;
+        setTimeout(playNext, 1000);
+      });
+  };
+  
+  audioEl.onended = () => {
+    audioPlaying = false;
+    playNext();
+  };
+  
+  audioEl.onerror = () => {
+    audioPlaying = false;
+    playNext();
+  };
+}
+
+function gotAudio(d) {
+  if (!d || !d.d) return;
+  
+  // تجنب التكرار
+  if (heardTs.has(d.ts)) return;
+  
+  heardTs.add(d.ts);
+  
+  // إضافة إلى قائمة الانتظار
+  audioQueue.push(d.d);
+  
+  // محاولة التشغيل إذا لم يكن يعمل
+  if (!audioPlaying) {
+    playNext();
+  }
+  
+  // تنظيف old timestamps
+  if (heardTs.size > 100) {
+    const heardArray = Array.from(heardTs);
+    heardTs.clear();
+    heardArray.slice(-50).forEach(ts => heardTs.add(ts));
+  }
+}
+
+// الاستماع إلى الصوت
+db.ref('audio/s0').on('value', snap => gotAudio(snap.val()));
+db.ref('audio/s1').on('value', snap => gotAudio(snap.val()));
+
+// مراقبة حالة البث
+db.ref('audioMeta').on('value', snap => {
+  const v = snap.val();
+  const active = v && v.active === true;
+  const audBadge = document.getElementById('audBadge');
+  const spkIcon = document.getElementById('spkIcon');
+  const waves = document.getElementById('waves');
+  const statusDot = document.getElementById('sdot');
+  const statusText = document.getElementById('stxt');
+  
+  if (active) {
+    audBadge.style.display = 'flex';
+    spkIcon.style.display = 'inline';
+    spkIcon.style.color = '#e67e22';
+    waves.style.display = 'flex';
+    
+    if (v.speaker === 'teacher') {
+      statusText.textContent = '🎤 المدرس يتكلم';
+      statusDot.className = 'sdot aud';
+    } else if (v.speaker === 'student' && v.studentId === studentId) {
+      statusText.textContent = '🎤 أنت تتحدث';
+      statusDot.className = 'sdot aud';
+    } else if (v.speaker === 'student') {
+      statusText.textContent = '🎤 طالب يتحدث';
+      statusDot.className = 'sdot aud';
     }
   } else {
-    document.getElementById('stxt').textContent = 'متصل';
-    document.getElementById('sdot').className = 'sdot on';
-    audioQueue=[]; audioPlaying=false; audioEl.src=''; heardTs.clear();
+    audBadge.style.display = 'none';
+    spkIcon.style.display = 'none';
+    waves.style.display = 'none';
+    statusText.textContent = 'متصل';
+    statusDot.className = 'sdot on';
+    
+    // تنظيف عند توقف البث
+    audioQueue = [];
+    audioPlaying = false;
+    audioEl.src = '';
+    heardTs.clear();
   }
 });
 
-function unlockAudio(){try{audioEl.play().catch(()=>{});}catch(e){}}
-document.body.addEventListener('touchstart',unlockAudio,{once:true});
-document.body.addEventListener('click',unlockAudio,{once:true});
+// محاولة فتح الصوت عند أي تفاعل
+function unlockAudio() {
+  audioEl.play()
+    .then(() => {
+      audioEl.pause();
+    })
+    .catch(() => {});
+}
+
+// محاولة فتح الصوت بعدة طرق
+document.body.addEventListener('touchstart', unlockAudio, { once: true });
+document.body.addEventListener('click', unlockAudio, { once: true });
+
+// فتح الصوت تلقائياً بعد ثانية
+setTimeout(unlockAudio, 1000);
 
 // ── مايك الطالب (طلب إذن) ───────────────────────────────────
 function getMime(){for(const t of['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'])if(MediaRecorder.isTypeSupported(t))return t;return'';}
