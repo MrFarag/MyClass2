@@ -128,6 +128,7 @@
             border-radius: 50%;
             cursor: pointer;
             font-size: 16px;
+            transition: 0.2s;
         }
 
         .hand-btn.raised {
@@ -222,7 +223,7 @@
             background: white;
         }
 
-        /* شريط الأدوات السفلي */
+        /* شريط الأدوات */
         .toolbar {
             background: #1e293b;
             border-top: 1px solid #334155;
@@ -266,7 +267,7 @@
 
         .tool-btn.disabled {
             opacity: 0.3;
-            cursor: not-allowed;
+            pointer-events: none;
         }
 
         .color-picker {
@@ -292,7 +293,7 @@
 
         .color-dot.disabled {
             opacity: 0.3;
-            cursor: not-allowed;
+            pointer-events: none;
         }
 
         .size-selector {
@@ -322,10 +323,11 @@
 
         .size-btn.disabled {
             opacity: 0.3;
-            cursor: not-allowed;
+            pointer-events: none;
         }
 
-        .mic-control {
+        /* تحكم الصوت */
+        .audio-controls {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -364,15 +366,7 @@
         .mic-status {
             font-size: 12px;
             color: #94a3b8;
-        }
-
-        .volume-control {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #334155;
-            padding: 5px 12px;
-            border-radius: 30px;
+            min-width: 100px;
         }
 
         .volume-slider {
@@ -465,7 +459,7 @@
             </div>
         </div>
 
-        <!-- منطقة السبورات (تحت بعضها) -->
+        <!-- منطقة السبورات -->
         <div class="boards-container">
             <!-- سبورة المدرس -->
             <div class="board teacher-board">
@@ -477,9 +471,6 @@
                     <div>
                         <span class="live-badge" id="liveBadge" style="display:none">
                             <i class="fas fa-circle"></i> مباشر
-                        </span>
-                        <span class="speaking-badge" id="speakingBadge" style="display:none">
-                            <i class="fas fa-microphone"></i> يتحدث
                         </span>
                     </div>
                 </div>
@@ -502,40 +493,32 @@
             </div>
         </div>
 
-        <!-- شريط الأدوات السفلي -->
+        <!-- شريط الأدوات -->
         <div class="toolbar">
-            <!-- الصف الأول: أدوات الرسم -->
+            <!-- أدوات الرسم -->
             <div class="tool-group">
-                <button class="tool-btn disabled" id="penBtn" onclick="selectTool('pen')" disabled>
-                    <i class="fas fa-pencil-alt"></i>
-                </button>
-                <button class="tool-btn disabled" id="eraserBtn" onclick="selectTool('eraser')" disabled>
-                    <i class="fas fa-eraser"></i>
-                </button>
+                <button class="tool-btn disabled" id="penBtn" disabled><i class="fas fa-pencil-alt"></i></button>
+                <button class="tool-btn disabled" id="eraserBtn" disabled><i class="fas fa-eraser"></i></button>
             </div>
 
             <div class="color-picker">
-                <div class="color-dot disabled" style="background:#000000" onclick="selectColor('#000000', this)"></div>
-                <div class="color-dot disabled" style="background:#ef4444" onclick="selectColor('#ef4444', this)"></div>
-                <div class="color-dot disabled" style="background:#3b82f6" onclick="selectColor('#3b82f6', this)"></div>
+                <div class="color-dot disabled" style="background:#000000"></div>
+                <div class="color-dot disabled" style="background:#ef4444"></div>
+                <div class="color-dot disabled" style="background:#3b82f6"></div>
             </div>
 
             <div class="size-selector">
-                <button class="size-btn disabled" onclick="setSize(2, this)" disabled><div style="width:4px; height:4px; background:white; border-radius:50%; margin:auto"></div></button>
-                <button class="size-btn disabled active" onclick="setSize(4, this)" disabled><div style="width:8px; height:8px; background:white; border-radius:50%; margin:auto"></div></button>
-                <button class="size-btn disabled" onclick="setSize(8, this)" disabled><div style="width:14px; height:14px; background:white; border-radius:50%; margin:auto"></div></button>
+                <button class="size-btn disabled" disabled><div style="width:4px; height:4px; background:white; border-radius:50%; margin:auto"></div></button>
+                <button class="size-btn disabled" disabled><div style="width:8px; height:8px; background:white; border-radius:50%; margin:auto"></div></button>
+                <button class="size-btn disabled" disabled><div style="width:14px; height:14px; background:white; border-radius:50%; margin:auto"></div></button>
             </div>
 
-            <!-- الصف الثاني: تحكم الصوت -->
-            <div class="mic-control">
+            <!-- تحكم الصوت -->
+            <div class="audio-controls">
                 <button class="mic-btn" id="micRequestBtn" onclick="requestMic()">
                     <i class="fas fa-microphone-slash" id="micIcon"></i>
                 </button>
                 <span class="mic-status" id="micStatus">الميكروفون مغلق</span>
-            </div>
-
-            <div class="volume-control">
-                <i class="fas fa-volume-up"></i>
                 <input type="range" min="0" max="100" value="80" class="volume-slider" id="volumeSlider" oninput="adjustVolume(this.value)">
             </div>
         </div>
@@ -585,7 +568,43 @@
         let mediaStream = null;
         let mediaRecorder = null;
 
-        // ===== دوال الانضمام =====
+        // ===== Canvas =====
+        const teacherCanvas = document.getElementById('teacherCanvas');
+        const studentCanvas = document.getElementById('studentCanvas');
+        const teacherCtx = teacherCanvas.getContext('2d');
+        const studentCtx = studentCanvas.getContext('2d');
+
+        function resizeCanvases() {
+            teacherCanvas.width = teacherCanvas.clientWidth;
+            teacherCanvas.height = teacherCanvas.clientHeight;
+            studentCanvas.width = studentCanvas.clientWidth;
+            studentCanvas.height = studentCanvas.clientHeight;
+            
+            teacherCtx.fillStyle = '#FFFFFF';
+            teacherCtx.fillRect(0, 0, teacherCanvas.width, teacherCanvas.height);
+            studentCtx.fillStyle = '#FFFFFF';
+            studentCtx.fillRect(0, 0, studentCanvas.width, studentCanvas.height);
+        }
+
+        window.addEventListener('resize', resizeCanvases);
+        setTimeout(resizeCanvases, 100);
+
+        // ===== استقبال رسم المدرس =====
+        db.ref('draw_t').on('child_added', snap => {
+            const data = snap.val();
+            if (!data || !data.points) return;
+            
+            teacherCtx.strokeStyle = data.color || '#000000';
+            teacherCtx.lineWidth = data.size || 4;
+            teacherCtx.beginPath();
+            teacherCtx.moveTo(data.points[0].x, data.points[0].y);
+            for (let i = 1; i < data.points.length; i++) {
+                teacherCtx.lineTo(data.points[i].x, data.points[i].y);
+            }
+            teacherCtx.stroke();
+        });
+
+        // ===== الانضمام =====
         window.joinClass = function() {
             const nameInput = document.getElementById('studentName');
             const name = nameInput.value.trim();
@@ -629,27 +648,6 @@
             });
         }
 
-        // ===== Canvas =====
-        const teacherCanvas = document.getElementById('teacherCanvas');
-        const studentCanvas = document.getElementById('studentCanvas');
-        const teacherCtx = teacherCanvas.getContext('2d');
-        const studentCtx = studentCanvas.getContext('2d');
-
-        function resizeCanvases() {
-            teacherCanvas.width = teacherCanvas.clientWidth;
-            teacherCanvas.height = teacherCanvas.clientHeight;
-            studentCanvas.width = studentCanvas.clientWidth;
-            studentCanvas.height = studentCanvas.clientHeight;
-            
-            teacherCtx.fillStyle = '#FFFFFF';
-            teacherCtx.fillRect(0, 0, teacherCanvas.width, teacherCanvas.height);
-            studentCtx.fillStyle = '#FFFFFF';
-            studentCtx.fillRect(0, 0, studentCanvas.width, studentCanvas.height);
-        }
-
-        window.addEventListener('resize', resizeCanvases);
-        setTimeout(resizeCanvases, 100);
-
         // ===== الرسم =====
         let currentColor = '#000000';
         let currentSize = 4;
@@ -657,10 +655,10 @@
         let isDrawing = false;
         let lastX = 0, lastY = 0;
 
-        function getCoordinates(e, canvas) {
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
+        function getCoordinates(e) {
+            const rect = studentCanvas.getBoundingClientRect();
+            const scaleX = studentCanvas.width / rect.width;
+            const scaleY = studentCanvas.height / rect.height;
             
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -676,7 +674,7 @@
             if (!isApproved) return;
             
             isDrawing = true;
-            const coords = getCoordinates(e, studentCanvas);
+            const coords = getCoordinates(e);
             lastX = coords.x;
             lastY = coords.y;
             
@@ -688,7 +686,7 @@
             e.preventDefault();
             if (!isDrawing || !isApproved) return;
             
-            const coords = getCoordinates(e, studentCanvas);
+            const coords = getCoordinates(e);
             
             studentCtx.strokeStyle = currentColor;
             studentCtx.lineWidth = currentSize;
@@ -706,10 +704,11 @@
             isDrawing = false;
             
             // إرسال الرسم إلى Firebase
-            db.ref('draw_st/' + studentId).push({
+            db.ref('draw_st').push({
                 color: currentColor,
                 size: currentSize,
-                points: [{x: lastX, y: lastY}], // هنا يجب إرسال النقاط
+                points: [{x: lastX, y: lastY}],
+                studentId: studentId,
                 timestamp: Date.now()
             });
         }
@@ -728,12 +727,6 @@
             currentTool = tool;
             document.querySelectorAll('#penBtn, #eraserBtn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tool + 'Btn').classList.add('active');
-            
-            if (tool === 'eraser') {
-                studentCtx.globalCompositeOperation = 'destination-out';
-            } else {
-                studentCtx.globalCompositeOperation = 'source-over';
-            }
         };
 
         window.selectColor = function(color, element) {
@@ -741,31 +734,7 @@
             currentColor = color;
             document.querySelectorAll('.color-dot').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
-            selectTool('pen');
         };
-
-        window.setSize = function(size, element) {
-            if (!isApproved) return;
-            currentSize = size;
-            document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-        };
-
-        // ===== استقبال رسم المدرس =====
-        db.ref('draw_t').on('child_added', snap => {
-            const data = snap.val();
-            if (!data || !data.points) return;
-            
-            teacherCtx.strokeStyle = data.color || '#000000';
-            teacherCtx.lineWidth = data.size || 4;
-            teacherCtx.beginPath();
-            teacherCtx.moveTo(data.points[0].x, data.points[0].y);
-            
-            for (let i = 1; i < data.points.length; i++) {
-                teacherCtx.lineTo(data.points[i].x, data.points[i].y);
-            }
-            teacherCtx.stroke();
-        });
 
         // ===== رفع اليد =====
         window.toggleHandRaise = function() {
@@ -776,10 +745,7 @@
             
             if (handRaised) {
                 btn.classList.add('raised');
-                db.ref('handRaised/' + studentId).set({
-                    raised: true,
-                    time: Date.now()
-                });
+                db.ref('handRaised/' + studentId).set({ raised: true });
             } else {
                 btn.classList.remove('raised');
                 db.ref('handRaised/' + studentId).remove();
@@ -791,14 +757,11 @@
             if (!isApproved) return;
             
             if (micPermission && isSpeaking) {
-                // إيقاف التحدث
                 stopSpeaking();
             } else if (!micPermission) {
-                // طلب الإذن
                 db.ref('micRequests/' + studentId).set({
                     studentId: studentId,
-                    studentName: studentName,
-                    time: Date.now()
+                    studentName: studentName
                 });
                 
                 document.getElementById('micIcon').className = 'fas fa-hourglass-half';
@@ -820,9 +783,7 @@
                 icon.className = 'fas fa-microphone';
                 status.textContent = 'تتحدث...';
                 
-                // بدء التسجيل والإرسال
-                const options = { mimeType: 'audio/webm' };
-                mediaRecorder = new MediaRecorder(mediaStream, options);
+                mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm' });
                 
                 mediaRecorder.ondataavailable = (event) => {
                     if (event.data.size > 0) {
@@ -839,13 +800,6 @@
                 };
                 
                 mediaRecorder.start(1000);
-                
-                setInterval(() => {
-                    if (mediaRecorder && mediaRecorder.state === 'recording') {
-                        mediaRecorder.stop();
-                        mediaRecorder.start(1000);
-                    }
-                }, 1000);
                 
             } catch (err) {
                 console.error('خطأ في المايك:', err);
@@ -885,8 +839,7 @@
 
         // ===== استقبال صوت المدرس =====
         const audioPlayer = document.getElementById('audioPlayer');
-        let isMuted = false;
-        let heardAudios = new Set();
+        const heardAudios = new Set();
 
         db.ref('audio/chunk').on('value', snap => {
             const data = snap.val();
@@ -901,14 +854,9 @@
             if (meta && meta.active) {
                 document.getElementById('liveBadge').style.display = 'inline';
                 document.getElementById('teacherSpeaking').style.display = 'flex';
-                
-                if (meta.speaker && meta.speaker !== 'teacher') {
-                    document.getElementById('speakingBadge').style.display = 'inline';
-                }
             } else {
                 document.getElementById('liveBadge').style.display = 'none';
                 document.getElementById('teacherSpeaking').style.display = 'none';
-                document.getElementById('speakingBadge').style.display = 'none';
             }
         });
 
@@ -922,19 +870,13 @@
             const dot = document.getElementById('connectionDot');
             const text = document.getElementById('connectionText');
             
-            if (snap.val()) {
-                dot.style.background = '#22c55e';
-                text.textContent = 'متصل';
-            } else {
-                dot.style.background = '#ef4444';
-                text.textContent = 'غير متصل';
-            }
+            dot.style.background = snap.val() ? '#22c55e' : '#ef4444';
+            text.textContent = snap.val() ? 'متصل' : 'غير متصل';
         });
 
         // محاكاة زمن الاستجابة
         setInterval(() => {
-            const latency = Math.floor(Math.random() * 30) + 10;
-            document.getElementById('latencyValue').textContent = latency + 'ms';
+            document.getElementById('latencyValue').textContent = Math.floor(Math.random() * 30 + 10) + 'ms';
         }, 3000);
     </script>
 </body>
