@@ -982,4 +982,236 @@
         window.rejectStudent = function(id) {
             delete waitingStudents[id];
             db.ref('joinRequests/' + id).remove();
-            updateStudentsList
+            updateStudentsList();
+        };
+
+        window.rejectAllRequests = function() {
+            if (confirm('رفض جميع طلبات الانضمام؟')) {
+                Object.keys(waitingStudents).forEach(id => {
+                    db.ref('joinRequests/' + id).remove();
+                });
+                waitingStudents = {};
+                updateStudentsList();
+            }
+        };
+
+        window.allowMic = function(id) {
+            if (currentSpeaker) {
+                db.ref('micPermissions/' + currentSpeaker).remove();
+            }
+            
+            currentSpeaker = id;
+            students[id].handRaised = false;
+            db.ref('micPermissions/' + id).set({ allowed: true, time: Date.now() });
+            db.ref('handRaised/' + id).remove();
+            
+            document.getElementById('speakingIndicator').style.display = 'flex';
+            document.getElementById('currentSpeaker').textContent = students[id].name;
+            document.getElementById('currentSpeakerName').textContent = students[id].name;
+            updateStudentsList();
+        };
+
+        window.rejectHand = function(id) {
+            students[id].handRaised = false;
+            db.ref('handRaised/' + id).remove();
+            updateStudentsList();
+        };
+
+        window.stopMic = function(id) {
+            if (currentSpeaker === id) {
+                currentSpeaker = null;
+                db.ref('micPermissions/' + id).remove();
+                document.getElementById('speakingIndicator').style.display = 'none';
+                document.getElementById('currentSpeakerName').textContent = 'لا يوجد متحدث';
+                updateStudentsList();
+            }
+        };
+
+        window.kickStudent = function(id) {
+            if (confirm(`طرد الطالب ${students[id].name}؟`)) {
+                if (currentSpeaker === id) stopMic(id);
+                db.ref('approvedStudents/' + id).remove();
+                db.ref('onlineStudents/' + id).remove();
+                db.ref('micPermissions/' + id).remove();
+                delete students[id];
+                updateStudentsList();
+            }
+        };
+
+        window.viewBoard = function(id) {
+            alert(`عرض سبورة الطالب ${students[id].name}`);
+            // هنا يتم تحميل سبورة الطالب
+        };
+
+        window.resetAll = function() {
+            if (confirm('تصفير الجلسة بالكامل؟')) {
+                // إيقاف المايك
+                if (isMicOn) toggleMicrophone();
+                
+                // إزالة جميع الطلاب
+                Object.keys(students).forEach(id => {
+                    db.ref('approvedStudents/' + id).remove();
+                    db.ref('onlineStudents/' + id).remove();
+                });
+                
+                // إزالة طلبات الانضمام
+                Object.keys(waitingStudents).forEach(id => {
+                    db.ref('joinRequests/' + id).remove();
+                });
+                
+                // إزالة الأذونات
+                db.ref('micPermissions').remove();
+                db.ref('handRaised').remove();
+                
+                // إيقاف البث
+                db.ref('audioMeta').set({ active: false });
+                db.ref('audio').remove();
+                db.ref('stuAudio').remove();
+                
+                // مسح السبورة
+                clearCurrentBoard();
+                
+                // إعادة تعيين المتغيرات
+                students = {};
+                waitingStudents = {};
+                currentSpeaker = null;
+                
+                updateStudentsList();
+            }
+        };
+
+        window.rejectAllAndReset = function() {
+            rejectAllRequests();
+            resetAll();
+        };
+
+        // ===== الصوت =====
+        window.toggleMicrophone = async function() {
+            const btn = document.getElementById('micToggle');
+            const icon = document.getElementById('micIcon');
+
+            if (!isMicOn) {
+                try {
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true
+                        } 
+                    });
+                    isMicOn = true;
+                    btn.classList.remove('mic-off');
+                    btn.classList.add('mic-on');
+                    icon.className = 'fas fa-microphone';
+                    
+                    startBroadcasting();
+                } catch (err) {
+                    alert('لا يمكن الوصول للمايك: ' + err.message);
+                }
+            } else {
+                if (mediaStream) {
+                    mediaStream.getTracks().forEach(t => t.stop());
+                }
+                if (mediaRecorder) {
+                    mediaRecorder.stop();
+                }
+                isMicOn = false;
+                btn.classList.remove('mic-on');
+                btn.classList.add('mic-off');
+                icon.className = 'fas fa-microphone-slash';
+                db.ref('audioMeta').set({ active: false });
+                db.ref('audio').remove();
+            }
+        };
+
+        function startBroadcasting() {
+            if (!mediaStream) return;
+            
+            mediaRecorder = new MediaRecorder(mediaStream);
+            
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        db.ref('audio/chunk').set({
+                            data: reader.result,
+                            time: Date.now()
+                        });
+                    };
+                    reader.readAsDataURL(e.data);
+                }
+            };
+            
+            mediaRecorder.start(1000);
+            db.ref('audioMeta').set({ active: true });
+            
+            // إعادة التسجيل كل ثانية
+            setInterval(() => {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                    mediaRecorder.start(1000);
+                }
+            }, 1000);
+        }
+
+        // ===== استقبال صوت الطلاب =====
+        const audioPlayer = document.getElementById('audioPlayer');
+        const heardAudios = new Set();
+
+        db.ref('stuAudio/chunk').on('value', snap => {
+            const data = snap.val();
+            if (!data || !data.data || heardAudios.has(data.time)) return;
+            
+            heardAudios.add(data.time);
+            audioPlayer.src = data.data;
+            audioPlayer.play().catch(e => console.log('Audio play error:', e));
+        });
+
+        // ===== استقبال البيانات من Firebase =====
+        db.ref('joinRequests').on('child_added', snap => {
+            const s = snap.val();
+            waitingStudents[s.id] = s;
+            updateStudentsList();
+        });
+
+        db.ref('joinRequests').on('child_removed', snap => {
+            const s = snap.val();
+            delete waitingStudents[s.id];
+            updateStudentsList();
+        });
+
+        db.ref('approvedStudents').on('value', snap => {
+            students = snap.val() || {};
+            updateStudentsList();
+        });
+
+        db.ref('onlineStudents').on('value', snap => {
+            const online = snap.val() || {};
+            Object.keys(students).forEach(id => {
+                if (students[id]) students[id].online = online[id] ? true : false;
+            });
+            updateStudentsList();
+        });
+
+        db.ref('handRaised').on('value', snap => {
+            const hands = snap.val() || {};
+            Object.keys(students).forEach(id => {
+                if (students[id]) students[id].handRaised = hands[id] ? true : false;
+            });
+            updateStudentsList();
+        });
+
+        // ===== حالة الاتصال =====
+        db.ref('.info/connected').on('value', snap => {
+            if (snap.val()) {
+                db.ref('teacher/online').set({ online: true, time: Date.now() });
+            }
+        });
+
+        // ===== محاكاة زمن الاستجابة =====
+        setInterval(() => {
+            document.getElementById('latency').textContent = Math.floor(Math.random() * 30 + 10) + 'ms';
+        }, 3000);
+    </script>
+</body>
+</html>
+<!-- نهاية ملف teacher.html -->
