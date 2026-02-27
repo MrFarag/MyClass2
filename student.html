@@ -22,7 +22,7 @@
             overflow: hidden;
         }
 
-        /* ===== HEADER SECTION ===== */
+        /* ===== HEADER ===== */
         .header {
             padding: 12px 24px;
             background: #0D1326;
@@ -31,6 +31,7 @@
             align-items: center;
             justify-content: space-between;
             flex-shrink: 0;
+            height: 60px;
         }
 
         .logo-area {
@@ -78,76 +79,6 @@
             gap: 8px;
         }
 
-        .student-name i {
-            color: #4B7BEC;
-        }
-
-        /* Audio Controls */
-        .audio-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #1E2230;
-            padding: 4px;
-            border-radius: 100px;
-        }
-
-        .audio-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: none;
-            background: transparent;
-            color: #9AA1B9;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 16px;
-        }
-
-        .audio-btn:hover {
-            background: #2A2E3D;
-            color: #FFFFFF;
-        }
-
-        .audio-btn.active {
-            background: #4B7BEC;
-            color: #FFFFFF;
-        }
-
-        .audio-btn.muted {
-            background: #F24E52;
-            color: #FFFFFF;
-        }
-
-        .audio-btn.speaking {
-            background: #3FE0A6;
-            color: #0A0C14;
-            animation: pulse 1.5s infinite;
-        }
-
-        .volume-slider {
-            width: 80px;
-            height: 4px;
-            background: #2A2E3D;
-            border-radius: 2px;
-            -webkit-appearance: none;
-            direction: ltr;
-        }
-
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
-            background: #4B7BEC;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
         /* ===== MAIN LAYOUT ===== */
         .main-layout {
             display: flex;
@@ -155,11 +86,12 @@
             min-height: 0;
             padding: 20px;
             gap: 20px;
+            overflow: hidden;
         }
 
         /* ===== LEFT TOOLBAR ===== */
         .left-toolbar {
-            width: 70px;
+            width: 80px;
             background: #121520;
             border-radius: 20px;
             border: 1px solid #2A2E3D;
@@ -167,13 +99,14 @@
             flex-direction: column;
             align-items: center;
             padding: 20px 0;
-            gap: 20px;
+            gap: 15px;
             flex-shrink: 0;
+            height: fit-content;
         }
 
         .tool-btn {
-            width: 46px;
-            height: 46px;
+            width: 50px;
+            height: 50px;
             border-radius: 14px;
             border: none;
             background: transparent;
@@ -200,7 +133,7 @@
             width: 40px;
             height: 1px;
             background: #2A2E3D;
-            margin: 10px 0;
+            margin: 5px 0;
         }
 
         .color-palette {
@@ -211,8 +144,8 @@
         }
 
         .color-dot {
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             cursor: pointer;
             border: 2px solid transparent;
@@ -251,11 +184,6 @@
             background: #4B7BEC;
         }
 
-        .size-dot {
-            background: #FFFFFF;
-            border-radius: 50%;
-        }
-
         /* ===== BOARDS SECTION ===== */
         .boards-section {
             flex: 1;
@@ -263,6 +191,7 @@
             flex-direction: column;
             gap: 20px;
             min-width: 0;
+            overflow: hidden;
         }
 
         .boards-container {
@@ -270,6 +199,7 @@
             gap: 20px;
             flex: 1;
             min-height: 0;
+            overflow: hidden;
         }
 
         .board {
@@ -291,6 +221,7 @@
             justify-content: space-between;
             border-bottom: 2px solid #4B7BEC;
             flex-shrink: 0;
+            height: 50px;
         }
 
         .board-header.teacher {
@@ -321,27 +252,28 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            animation: pulse 2s infinite;
         }
 
+        /* Canvas Container - مهم جداً للظهور */
         .canvas-container {
             flex: 1;
             background: #FFFFFF;
             position: relative;
             overflow: hidden;
-            min-height: 0;
+            min-height: 200px; /* Minimum height to ensure visibility */
         }
 
         .canvas-container canvas {
             position: absolute;
             top: 0;
             left: 0;
-            width: 1600px;
-            height: 1200px;
-            transform-origin: top left;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #FFFFFF;
         }
 
-        /* ===== RIGHT SIDEBAR - STUDENTS ===== */
+        /* ===== RIGHT SIDEBAR ===== */
         .right-sidebar {
             width: 280px;
             background: #121520;
@@ -357,6 +289,7 @@
             padding: 16px;
             background: #1A1E2A;
             border-bottom: 1px solid #2A2E3D;
+            flex-shrink: 0;
         }
 
         .sidebar-title {
@@ -384,11 +317,6 @@
             gap: 8px;
         }
 
-        .search-box i {
-            color: #5A6279;
-            font-size: 12px;
-        }
-
         .search-box input {
             background: none;
             border: none;
@@ -407,7 +335,6 @@
             gap: 8px;
         }
 
-        /* Scrollbar styling */
         .students-list::-webkit-scrollbar {
             width: 4px;
         }
@@ -426,22 +353,11 @@
             border-radius: 12px;
             padding: 12px;
             border: 1px solid #2A2E3D;
-            transition: all 0.2s;
         }
 
         .student-card.teacher {
             border-color: #F24E52;
             background: #2A1E2A;
-        }
-
-        .student-card.speaking {
-            border-color: #3FE0A6;
-            background: #1E2A2A;
-        }
-
-        .student-card.hand-raised {
-            border-color: #F9C74F;
-            background: #2A2620;
         }
 
         .student-info {
@@ -476,9 +392,6 @@
             font-size: 13px;
             font-weight: 600;
             margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .student-status {
@@ -495,48 +408,12 @@
             border-radius: 50%;
         }
 
-        .status-dot.speaking {
+        .status-dot.online {
             background: #3FE0A6;
-            animation: pulse 1.5s infinite;
         }
 
-        .status-dot.hand-raised {
-            background: #F9C74F;
-        }
-
-        .status-dot.idle {
-            background: #5A6279;
-        }
-
-        .student-badge {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 100px;
-            background: #2A2E3D;
-            white-space: nowrap;
-        }
-
-        .student-badge.speaking {
-            background: #3FE0A6;
-            color: #0A0C14;
-        }
-
-        .student-badge i {
-            margin-left: 4px;
-        }
-
-        .mic-indicator {
-            color: #3FE0A6;
-            font-size: 12px;
-            margin-right: 4px;
-        }
-
-        .mic-indicator.muted {
-            color: #F24E52;
-        }
-
-        /* ===== BOTTOM STATUS BAR ===== */
-        .status-bar {
+        /* ===== BOTTOM BAR ===== */
+        .bottom-bar {
             background: #0D1326;
             border-top: 1px solid #2A2E3D;
             padding: 10px 24px;
@@ -544,8 +421,8 @@
             align-items: center;
             justify-content: space-between;
             font-size: 12px;
-            color: #9AA1B9;
             flex-shrink: 0;
+            height: 50px;
         }
 
         .connection-status {
@@ -559,52 +436,55 @@
             height: 8px;
             border-radius: 50%;
             background: #3FE0A6;
-            box-shadow: 0 0 10px #3FE0A6;
         }
 
-        .teacher-status {
+        .audio-controls {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
 
-        .teacher-speaking {
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .audio-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
             background: #1E2230;
-            padding: 4px 12px;
-            border-radius: 100px;
-        }
-
-        .teacher-speaking i {
-            color: #F24E52;
-            animation: pulse 1.5s infinite;
-        }
-
-        .wave-group {
+            color: #9AA1B9;
+            cursor: pointer;
             display: flex;
-            gap: 2px;
             align-items: center;
+            justify-content: center;
         }
 
-        .wave {
-            width: 3px;
+        .audio-btn:hover {
+            background: #2A2E3D;
+            color: #FFFFFF;
+        }
+
+        .audio-btn.active {
             background: #4B7BEC;
+            color: #FFFFFF;
+        }
+
+        .volume-slider {
+            width: 80px;
+            height: 4px;
+            background: #2A2E3D;
             border-radius: 2px;
-            animation: wave 0.8s infinite;
+            -webkit-appearance: none;
         }
 
-        .wave:nth-child(1) { height: 8px; animation-delay: 0s; }
-        .wave:nth-child(2) { height: 14px; animation-delay: 0.2s; }
-        .wave:nth-child(3) { height: 8px; animation-delay: 0.4s; }
-
-        @keyframes wave {
-            0%, 100% { transform: scaleY(0.5); }
-            50% { transform: scaleY(1.2); }
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #4B7BEC;
+            border-radius: 50%;
+            cursor: pointer;
         }
 
-        /* Waiting Room Overlay */
+        /* ===== WAITING OVERLAY ===== */
         .join-overlay {
             position: fixed;
             top: 0;
@@ -612,7 +492,6 @@
             right: 0;
             bottom: 0;
             background: rgba(10, 12, 20, 0.98);
-            backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -631,7 +510,6 @@
         .join-box h2 {
             color: #FFFFFF;
             margin-bottom: 20px;
-            font-size: 24px;
         }
 
         .join-box input {
@@ -642,13 +520,8 @@
             border: 1px solid #2A2E3D;
             border-radius: 100px;
             color: #FFFFFF;
-            font-size: 16px;
             text-align: center;
             outline: none;
-        }
-
-        .join-box input:focus {
-            border-color: #4B7BEC;
         }
 
         .join-box button {
@@ -658,20 +531,8 @@
             border: none;
             border-radius: 100px;
             color: #FFFFFF;
-            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .join-box button:hover {
-            background: #5F8BEE;
-            transform: translateY(-2px);
-        }
-
-        .join-box button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         .waiting-message {
@@ -680,37 +541,19 @@
             background: #1E2230;
             border-radius: 100px;
             color: #F9C74F;
-            font-size: 14px;
-        }
-
-        .waiting-message i {
-            margin-left: 8px;
-            animation: pulse 1.5s infinite;
-        }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .main-layout {
-                padding: 10px;
-                gap: 10px;
-            }
-            
-            .right-sidebar {
-                width: 240px;
-            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Waiting Room Overlay -->
+    <!-- Waiting Room -->
     <div class="join-overlay" id="joinOverlay">
         <div class="join-box">
             <h2><i class="fas fa-user-graduate"></i> Join Class</h2>
             <input type="text" id="studentName" placeholder="Enter your name" maxlength="20" autofocus>
             <button onclick="joinClass()" id="joinBtn">Request to Join</button>
             <div class="waiting-message" id="waitingMessage" style="display:none">
-                <i class="fas fa-spinner fa-spin"></i> Waiting for teacher's approval...
+                <i class="fas fa-spinner fa-spin"></i> Waiting for teacher...
             </div>
         </div>
     </div>
@@ -721,20 +564,10 @@
             <div class="logo">Edu<span>Stream</span></div>
             <div class="class-info">
                 <i class="fas fa-circle"></i>
-                <span id="className">Interactive Mathematics</span>
+                <span id="className">Mathematics Class</span>
             </div>
         </div>
-
         <div class="student-profile">
-            <div class="audio-controls">
-                <button class="audio-btn" id="muteBtn" onclick="toggleMute()" title="كتم الصوت">
-                    <i class="fas fa-volume-up" id="muteIcon"></i>
-                </button>
-                <input type="range" min="0" max="100" value="80" class="volume-slider" id="volumeSlider" oninput="adjustVolume(this.value)">
-                <button class="audio-btn" id="micRequestBtn" onclick="requestMic()" style="display:none" title="طلب التحدث">
-                    <i class="fas fa-microphone-slash" id="micIcon"></i>
-                </button>
-            </div>
             <div class="student-name" id="studentNameDisplay">
                 <i class="fas fa-user"></i>
                 <span>Waiting...</span>
@@ -752,10 +585,7 @@
             <button class="tool-btn" id="eraserBtn" onclick="selectTool('eraser')">
                 <i class="fas fa-eraser"></i>
             </button>
-            <button class="tool-btn" id="clearBtn" onclick="clearMyBoard()">
-                <i class="fas fa-trash"></i>
-            </button>
-
+            
             <div class="tool-separator"></div>
 
             <div class="color-palette">
@@ -763,22 +593,27 @@
                 <div class="color-dot" style="background:#F24E52" onclick="selectColor('#F24E52', this)"></div>
                 <div class="color-dot" style="background:#4B7BEC" onclick="selectColor('#4B7BEC', this)"></div>
                 <div class="color-dot" style="background:#3FE0A6" onclick="selectColor('#3FE0A6', this)"></div>
-                <div class="color-dot" style="background:#F9C74F" onclick="selectColor('#F9C74F', this)"></div>
             </div>
 
             <div class="tool-separator"></div>
 
             <div class="size-selector">
                 <div class="size-option active" onclick="setSize(2)">
-                    <div class="size-dot" style="width:4px; height:4px"></div>
+                    <div style="width:4px; height:4px; background:white; border-radius:50%"></div>
                 </div>
                 <div class="size-option" onclick="setSize(4)">
-                    <div class="size-dot" style="width:8px; height:8px"></div>
+                    <div style="width:8px; height:8px; background:white; border-radius:50%"></div>
                 </div>
                 <div class="size-option" onclick="setSize(8)">
-                    <div class="size-dot" style="width:12px; height:12px"></div>
+                    <div style="width:12px; height:12px; background:white; border-radius:50%"></div>
                 </div>
             </div>
+
+            <div class="tool-separator"></div>
+
+            <button class="tool-btn" id="clearBtn" onclick="clearMyBoard()">
+                <i class="fas fa-trash"></i>
+            </button>
         </div>
 
         <!-- Boards Section -->
@@ -795,7 +630,7 @@
                             <i class="fas fa-circle"></i> LIVE
                         </div>
                     </div>
-                    <div class="canvas-container" id="teacherBoardContainer">
+                    <div class="canvas-container">
                         <canvas id="teacherBoard"></canvas>
                     </div>
                 </div>
@@ -808,14 +643,14 @@
                             <span>My Board</span>
                         </div>
                     </div>
-                    <div class="canvas-container" id="studentBoardContainer">
+                    <div class="canvas-container">
                         <canvas id="studentBoard"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Right Sidebar - Students List -->
+        <!-- Right Sidebar -->
         <div class="right-sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-title">
@@ -827,33 +662,30 @@
                     <input type="text" placeholder="Find student..." id="studentSearch">
                 </div>
             </div>
-
             <div class="students-list" id="studentsList">
                 <!-- Students will be populated here -->
             </div>
         </div>
     </div>
 
-    <!-- Status Bar -->
-    <div class="status-bar">
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
         <div class="connection-status">
             <span class="connection-dot" id="connectionDot"></span>
             <span id="connectionText">Connecting...</span>
         </div>
 
-        <div class="teacher-status">
-            <div class="teacher-speaking" id="teacherSpeakingIndicator" style="display:none">
-                <i class="fas fa-circle"></i>
-                <span>Teacher is speaking</span>
-                <div class="wave-group">
-                    <div class="wave"></div>
-                    <div class="wave"></div>
-                    <div class="wave"></div>
-                </div>
-            </div>
+        <div class="audio-controls">
+            <button class="audio-btn" id="muteBtn" onclick="toggleMute()">
+                <i class="fas fa-volume-up" id="muteIcon"></i>
+            </button>
+            <input type="range" min="0" max="100" value="80" class="volume-slider" id="volumeSlider" oninput="adjustVolume(this.value)">
+            <button class="audio-btn" id="micRequestBtn" onclick="requestMic()" style="display:none">
+                <i class="fas fa-microphone-slash" id="micIcon"></i>
+            </button>
         </div>
 
-        <div id="latencyDisplay">Latency: 24ms</div>
+        <div id="latencyDisplay">24ms</div>
     </div>
 
     <!-- Audio Element -->
@@ -876,19 +708,25 @@
         });
         const db = firebase.database();
 
-        // Canvas Setup
-        const CW = 1600, CH = 1200;
+        // Canvas Setup - التأكد من ظهور الكانفاس
         const teacherBoard = document.getElementById('teacherBoard');
         const studentBoard = document.getElementById('studentBoard');
         const teacherCtx = teacherBoard.getContext('2d');
         const studentCtx = studentBoard.getContext('2d');
-        const teacherContainer = document.getElementById('teacherBoardContainer');
-        const studentContainer = document.getElementById('studentBoardContainer');
 
-        teacherBoard.width = CW; teacherBoard.height = CH;
-        studentBoard.width = CW; studentBoard.height = CH;
+        // تعيين حجم ثابت للكانفاس
+        teacherBoard.width = 800;
+        teacherBoard.height = 600;
+        studentBoard.width = 800;
+        studentBoard.height = 600;
 
-        // Drawing Settings
+        // تعيين خلفية بيضاء
+        teacherCtx.fillStyle = '#FFFFFF';
+        teacherCtx.fillRect(0, 0, teacherBoard.width, teacherBoard.height);
+        studentCtx.fillStyle = '#FFFFFF';
+        studentCtx.fillRect(0, 0, studentBoard.width, studentBoard.height);
+
+        // إعدادات الرسم
         let currentColor = '#000000';
         let currentSize = 4;
         let currentTool = 'pen';
@@ -902,35 +740,88 @@
         let micPermission = false;
         let studentMicOn = false;
         let studentMicStream = null;
-        let recInterval = null;
-        let audioSlot = 0;
 
-        // Students Data
-        let participants = {};
-        let teacherOnline = false;
-
-        // Canvas Scaling
-        let teacherScale = { x: 1, y: 1 };
-        let studentScale = { x: 1, y: 1 };
-
-        function fitCanvases() {
-            if (teacherContainer.clientWidth && teacherContainer.clientHeight) {
-                teacherScale.x = teacherContainer.clientWidth / CW;
-                teacherScale.y = teacherContainer.clientHeight / CH;
-                teacherBoard.style.width = CW + 'px';
-                teacherBoard.style.height = CH + 'px';
-                teacherBoard.style.transform = `scale(${teacherScale.x}, ${teacherScale.y})`;
-            }
-            if (studentContainer.clientWidth && studentContainer.clientHeight) {
-                studentScale.x = studentContainer.clientWidth / CW;
-                studentScale.y = studentContainer.clientHeight / CH;
-                studentBoard.style.width = CW + 'px';
-                studentBoard.style.height = CH + 'px';
-                studentBoard.style.transform = `scale(${studentScale.x}, ${studentScale.y})`;
-            }
+        // دوال الرسم
+        function getCoordinates(e, canvas) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
         }
-        fitCanvases();
-        window.addEventListener('resize', fitCanvases);
+
+        function onDrawStart(e) {
+            e.preventDefault();
+            if (!isApproved) return;
+            
+            isDrawing = true;
+            const coords = getCoordinates(e, studentBoard);
+            lastX = coords.x;
+            lastY = coords.y;
+            
+            studentCtx.beginPath();
+            studentCtx.moveTo(lastX, lastY);
+        }
+
+        function onDrawMove(e) {
+            e.preventDefault();
+            if (!isDrawing || !isApproved) return;
+            
+            const coords = getCoordinates(e, studentBoard);
+            
+            studentCtx.strokeStyle = currentColor;
+            studentCtx.lineWidth = currentSize;
+            studentCtx.lineTo(coords.x, coords.y);
+            studentCtx.stroke();
+            studentCtx.beginPath();
+            studentCtx.moveTo(coords.x, coords.y);
+            
+            lastX = coords.x;
+            lastY = coords.y;
+        }
+
+        function onDrawEnd(e) {
+            e.preventDefault();
+            isDrawing = false;
+        }
+
+        studentBoard.addEventListener('mousedown', onDrawStart);
+        studentBoard.addEventListener('mousemove', onDrawMove);
+        studentBoard.addEventListener('mouseup', onDrawEnd);
+        studentBoard.addEventListener('mouseleave', onDrawEnd);
+        studentBoard.addEventListener('touchstart', onDrawStart, { passive: false });
+        studentBoard.addEventListener('touchmove', onDrawMove, { passive: false });
+        studentBoard.addEventListener('touchend', onDrawEnd);
+
+        // أدوات الرسم
+        window.selectTool = function(tool) {
+            currentTool = tool;
+            document.querySelectorAll('#penBtn, #eraserBtn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tool + 'Btn').classList.add('active');
+        };
+
+        window.selectColor = function(color, element) {
+            currentColor = color;
+            document.querySelectorAll('.color-dot').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        };
+
+        window.setSize = function(size) {
+            currentSize = size;
+            document.querySelectorAll('.size-option').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        };
+
+        window.clearMyBoard = function() {
+            studentCtx.fillStyle = '#FFFFFF';
+            studentCtx.fillRect(0, 0, studentBoard.width, studentBoard.height);
+        };
 
         // Join Class
         window.joinClass = function() {
@@ -950,7 +841,6 @@
                 time: Date.now()
             });
 
-            // Check approval
             db.ref('approvedStudents/' + studentId).on('value', snap => {
                 if (snap.exists()) {
                     isApproved = true;
@@ -969,122 +859,7 @@
             });
         };
 
-        // Drawing Functions
-        function getCoordinates(e, container, scale) {
-            const rect = container.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return {
-                x: (clientX - rect.left) / scale.x,
-                y: (clientY - rect.top) / scale.y
-            };
-        }
-
-        let points = [];
-        let drawTimer = null;
-
-        function sendDrawing() {
-            if (!isApproved || points.length === 0) return;
-            
-            db.ref('draw_st').push({
-                k: studentId + '_' + Date.now(),
-                c: currentTool === 'eraser' ? null : currentColor,
-                s: currentTool === 'eraser' ? -1 : currentSize,
-                pts: points,
-                ts: Date.now()
-            });
-            points = [];
-        }
-
-        function onDrawStart(e) {
-            e.preventDefault();
-            if (!isApproved) return;
-            
-            isDrawing = true;
-            const coords = getCoordinates(e, studentContainer, studentScale);
-            lastX = coords.x; lastY = coords.y;
-            points = [{ x: lastX, y: lastY }];
-            
-            studentCtx.save();
-            studentCtx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
-            studentCtx.fillStyle = currentTool === 'eraser' ? '#ffffff' : currentColor;
-            studentCtx.beginPath();
-            studentCtx.arc(lastX, lastY, currentSize / 2, 0, Math.PI * 2);
-            studentCtx.fill();
-            studentCtx.restore();
-        }
-
-        function onDrawMove(e) {
-            e.preventDefault();
-            if (!isDrawing || !isApproved) return;
-            
-            const coords = getCoordinates(e, studentContainer, studentScale);
-            
-            studentCtx.save();
-            studentCtx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
-            studentCtx.strokeStyle = currentTool === 'eraser' ? '#ffffff' : currentColor;
-            studentCtx.lineWidth = currentSize;
-            studentCtx.lineCap = 'round';
-            studentCtx.beginPath();
-            studentCtx.moveTo(lastX, lastY);
-            studentCtx.lineTo(coords.x, coords.y);
-            studentCtx.stroke();
-            studentCtx.restore();
-            
-            points.push({ x: coords.x, y: coords.y });
-            
-            if (!drawTimer) {
-                drawTimer = setTimeout(() => {
-                    sendDrawing();
-                    drawTimer = null;
-                }, 50);
-            }
-            
-            lastX = coords.x;
-            lastY = coords.y;
-        }
-
-        function onDrawEnd() {
-            if (!isDrawing) return;
-            isDrawing = false;
-            clearTimeout(drawTimer);
-            drawTimer = null;
-            sendDrawing();
-        }
-
-        studentBoard.addEventListener('mousedown', onDrawStart);
-        studentBoard.addEventListener('mousemove', onDrawMove);
-        studentBoard.addEventListener('mouseup', onDrawEnd);
-        studentBoard.addEventListener('mouseleave', onDrawEnd);
-        studentBoard.addEventListener('touchstart', onDrawStart, { passive: false });
-        studentBoard.addEventListener('touchmove', onDrawMove, { passive: false });
-        studentBoard.addEventListener('touchend', onDrawEnd);
-
-        // Tool Functions
-        window.selectTool = function(tool) {
-            currentTool = tool;
-            document.querySelectorAll('#penBtn, #eraserBtn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tool + 'Btn').classList.add('active');
-            studentCtx.globalCompositeOperation = tool === 'eraser' ? 'destination-out' : 'source-over';
-        };
-
-        window.selectColor = function(color, element) {
-            currentColor = color;
-            document.querySelectorAll('.color-dot').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
-        };
-
-        window.setSize = function(size) {
-            currentSize = size;
-            document.querySelectorAll('.size-option').forEach(el => el.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-        };
-
-        window.clearMyBoard = function() {
-            studentCtx.clearRect(0, 0, CW, CH);
-        };
-
-        // Audio Functions
+        // Audio Controls
         window.toggleMute = function() {
             isMuted = !isMuted;
             const btn = document.getElementById('muteBtn');
@@ -1092,11 +867,11 @@
             const audioPlayer = document.getElementById('audioPlayer');
             
             if (isMuted) {
-                btn.classList.add('muted');
+                btn.style.background = '#F24E52';
                 icon.className = 'fas fa-volume-mute';
                 audioPlayer.muted = true;
             } else {
-                btn.classList.remove('muted');
+                btn.style.background = '#1E2230';
                 icon.className = 'fas fa-volume-up';
                 audioPlayer.muted = false;
             }
@@ -1107,95 +882,6 @@
             document.getElementById('audioPlayer').volume = value / 100;
         };
 
-        // Microphone Request
-        window.requestMic = function() {
-            if (!isApproved) return;
-            
-            if (micPermission && studentMicOn) {
-                stopStudentMic();
-            } else if (micPermission && !studentMicOn) {
-                startStudentMic();
-            } else {
-                const btn = document.getElementById('micRequestBtn');
-                btn.classList.add('speaking');
-                document.getElementById('micIcon').className = 'fas fa-hourglass-half';
-                
-                db.ref('micRequests/' + studentId).set({
-                    studentId: studentId,
-                    studentName: studentName,
-                    ts: Date.now()
-                });
-            }
-        };
-
-        async function startStudentMic() {
-            try {
-                studentMicStream = await navigator.mediaDevices.getUserMedia({
-                    audio: {
-                        echoCancellation: true,
-                        noiseSuppression: true,
-                        autoGainControl: true
-                    }
-                });
-                
-                studentMicOn = true;
-                const btn = document.getElementById('micRequestBtn');
-                btn.classList.remove('speaking');
-                btn.classList.add('active');
-                document.getElementById('micIcon').className = 'fas fa-microphone';
-                
-                recordStudentAudio();
-                recInterval = setInterval(recordStudentAudio, 3000);
-                
-            } catch (err) {
-                console.error('Mic error:', err);
-            }
-        }
-
-        function stopStudentMic() {
-            clearInterval(recInterval);
-            if (studentMicStream) {
-                studentMicStream.getTracks().forEach(t => t.stop());
-                studentMicStream = null;
-            }
-            studentMicOn = false;
-            
-            const btn = document.getElementById('micRequestBtn');
-            btn.classList.remove('active', 'speaking');
-            document.getElementById('micIcon').className = 'fas fa-microphone-slash';
-            
-            db.ref('stuAudio').remove();
-        }
-
-        function recordStudentAudio() {
-            if (!studentMicOn || !studentMicStream) return;
-            
-            const mime = 'audio/webm;codecs=opus';
-            const recorder = new MediaRecorder(studentMicStream, { mimeType: mime });
-            const chunks = [];
-            
-            recorder.ondataavailable = e => {
-                if (e.data && e.data.size > 0) chunks.push(e.data);
-            };
-            
-            recorder.onstop = () => {
-                if (!chunks.length) return;
-                const blob = new Blob(chunks, { type: mime });
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    audioSlot = audioSlot === 0 ? 1 : 0;
-                    db.ref('stuAudio/s' + audioSlot).set({
-                        d: reader.result,
-                        ts: Date.now()
-                    });
-                };
-                reader.readAsDataURL(blob);
-            };
-            
-            recorder.start(500);
-            setTimeout(() => recorder.stop(), 2500);
-        }
-
         // Receive Teacher's Audio
         const audioPlayer = document.getElementById('audioPlayer');
         const heardAudios = new Set();
@@ -1204,9 +890,7 @@
             const data = snap.val();
             if (!data || !data.d || heardAudios.has(data.ts)) return;
             heardAudios.add(data.ts);
-            
             audioPlayer.src = data.d;
-            audioPlayer.volume = studentVolume / 100;
             audioPlayer.play().catch(() => {});
         });
 
@@ -1214,9 +898,7 @@
             const data = snap.val();
             if (!data || !data.d || heardAudios.has(data.ts)) return;
             heardAudios.add(data.ts);
-            
             audioPlayer.src = data.d;
-            audioPlayer.volume = studentVolume / 100;
             audioPlayer.play().catch(() => {});
         });
 
@@ -1224,60 +906,9 @@
             const meta = snap.val();
             if (meta && meta.active) {
                 document.getElementById('teacherLiveBadge').style.display = 'flex';
-                document.getElementById('teacherSpeakingIndicator').style.display = 'flex';
             } else {
                 document.getElementById('teacherLiveBadge').style.display = 'none';
-                document.getElementById('teacherSpeakingIndicator').style.display = 'none';
             }
-        });
-
-        // Mic Permission
-        db.ref('micPermissions/' + studentId).on('value', snap => {
-            const perm = snap.val();
-            if (perm && perm.allowed === true) {
-                micPermission = true;
-                startStudentMic();
-            } else if (perm && perm.allowed === false) {
-                micPermission = false;
-                stopStudentMic();
-            }
-        });
-
-        // Receive Teacher's Drawing
-        const teacherStrokes = {};
-        db.ref('draw_t').on('child_added', snap => {
-            const data = snap.val();
-            if (!data || !data.pts) return;
-            
-            const key = data.k || String(data.ts);
-            const isEraser = data.s === -1;
-            
-            if (!teacherStrokes[key]) {
-                teacherStrokes[key] = { x: data.pts[0].x, y: data.pts[0].y };
-                teacherCtx.save();
-                teacherCtx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
-                teacherCtx.fillStyle = isEraser ? '#ffffff' : (data.c || '#000000');
-                teacherCtx.beginPath();
-                teacherCtx.arc(data.pts[0].x, data.pts[0].y, (isEraser ? 25 : (data.s || 4)) / 2, 0, Math.PI * 2);
-                teacherCtx.fill();
-                teacherCtx.restore();
-            }
-            
-            const last = teacherStrokes[key];
-            teacherCtx.save();
-            teacherCtx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
-            teacherCtx.strokeStyle = isEraser ? '#ffffff' : (data.c || '#000000');
-            teacherCtx.lineWidth = isEraser ? 50 : (data.s || 4);
-            teacherCtx.beginPath();
-            teacherCtx.moveTo(last.x, last.y);
-            
-            for (let i = 0; i < data.pts.length; i++) {
-                teacherCtx.lineTo(data.pts[i].x, data.pts[i].y);
-                last.x = data.pts[i].x;
-                last.y = data.pts[i].y;
-            }
-            teacherCtx.stroke();
-            teacherCtx.restore();
         });
 
         // Update Students List
@@ -1285,89 +916,16 @@
             const list = document.getElementById('studentsList');
             const onlineCount = document.getElementById('onlineCount');
             
-            let html = '';
-            let online = 0;
+            let html = '<div class="student-card teacher"><div class="student-info"><div class="student-avatar teacher">👨‍🏫</div><div class="student-details"><div class="student-name">Teacher</div><div class="student-status"><span class="status-dot online"></span><span>Teaching</span></div></div></div></div>';
+            let online = 1;
             
-            // Teacher
-            if (teacherOnline) {
-                html += `
-                    <div class="student-card teacher">
-                        <div class="student-info">
-                            <div class="student-avatar teacher">👨‍🏫</div>
-                            <div class="student-details">
-                                <div class="student-name">Teacher</div>
-                                <div class="student-status">
-                                    <span class="status-dot speaking"></span>
-                                    <span>Teaching</span>
-                                </div>
-                            </div>
-                            <span class="student-badge"><i class="fas fa-star"></i></span>
-                        </div>
-                    </div>
-                `;
-                online++;
-            }
-            
-            // Students
-            Object.values(participants).forEach(student => {
-                if (!student.online) return;
-                online++;
-                
-                const hasMic = student.micAllowed || false;
-                const isSpeaking = student.speaking || false;
-                
-                html += `
-                    <div class="student-card ${isSpeaking ? 'speaking' : ''}">
-                        <div class="student-info">
-                            <div class="student-avatar">${student.name.charAt(0)}</div>
-                            <div class="student-details">
-                                <div class="student-name">${student.name}</div>
-                                <div class="student-status">
-                                    <span class="status-dot ${isSpeaking ? 'speaking' : 'idle'}"></span>
-                                    <span>${isSpeaking ? 'Speaking' : 'Listening'}</span>
-                                </div>
-                            </div>
-                            ${hasMic ? '<i class="fas fa-microphone mic-indicator"></i>' : ''}
-                        </div>
-                    </div>
-                `;
-            });
+            // Add other students here if needed
             
             list.innerHTML = html;
             onlineCount.textContent = online;
         }
 
-        // Listeners
-        db.ref('approvedStudents').on('value', snap => {
-            participants = snap.val() || {};
-            updateStudentsList();
-        });
-
-        db.ref('onlineStudents').on('value', snap => {
-            const online = snap.val() || {};
-            Object.keys(participants).forEach(id => {
-                if (participants[id]) {
-                    participants[id].online = online[id] ? true : false;
-                }
-            });
-            updateStudentsList();
-        });
-
-        db.ref('teacher/online').on('value', snap => {
-            teacherOnline = snap.val() ? true : false;
-            updateStudentsList();
-        });
-
-        db.ref('micPermissions').on('value', snap => {
-            const perms = snap.val() || {};
-            Object.keys(participants).forEach(id => {
-                if (participants[id]) {
-                    participants[id].micAllowed = perms[id]?.allowed || false;
-                    participants[id].speaking = perms[id]?.speaking || false;
-                }
-            });
-            updateStudentsList();
-        });
+        updateStudentsList();
 
         // Connection Status
         db.ref('.info/connected').on('value', snap => {
@@ -1383,13 +941,10 @@
             }
         });
 
-        // Prevent context menu
-        [teacherBoard, studentBoard].forEach(c => c.addEventListener('contextmenu', e => e.preventDefault()));
-
         // Simulate latency
         setInterval(() => {
             const latency = Math.floor(Math.random() * 30) + 10;
-            document.getElementById('latencyDisplay').textContent = `Latency: ${latency}ms`;
+            document.getElementById('latencyDisplay').textContent = latency + 'ms';
         }, 3000);
     </script>
 </body>
