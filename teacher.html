@@ -174,14 +174,19 @@ firebase.initializeApp({
 });
 const db=firebase.database();
 
+// ── 1. تنظيف الجلسة السابقة عند الدخول ──
+db.ref('approvedStudents').remove();
+db.ref('micRequests').remove();
+db.ref('handRaised').remove();
+db.ref('joinRequests').remove();
+
 // ── State ──
 let students={}, micWaiting=new Set(), curView='main', curSpeaker=null;
-let snaps={}, hist={};  // per-board ImageData snapshots and undo history
+let snaps={}, hist={}; 
 let tool='pen', shape=null, clr='#1a1a1a', sz=5;
 let down=false, sx=0, sy=0, snap0=null, txtPos=null;
 let micOn=false, mStream=null, mRec=null;
 
-// ── Canvas ──
 const canvas=document.getElementById('mc');
 const ctx=canvas.getContext('2d');
 
@@ -197,7 +202,6 @@ function fitMain(){
 window.addEventListener('resize',()=>{saveSnap();fitMain();restoreSnap();});
 setTimeout(fitMain,0);
 
-// ── Snap helpers ──
 function saveSnap(){try{snaps[curView]=ctx.getImageData(0,0,canvas.width,canvas.height);}catch(e){}}
 function restoreSnap(){
   ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -211,7 +215,6 @@ function pushHist(){
   try{h.push(ctx.getImageData(0,0,canvas.width,canvas.height));}catch(e){}
 }
 
-// ── View switch ──
 function viewMain(){
   saveSnap(); curView='main'; restoreSnap();
   document.getElementById('blabel').textContent='السبورة الرئيسية';
@@ -226,7 +229,6 @@ function viewStudent(id){
   renderList();
 }
 
-// ── Drawing ──
 const bwrap=document.getElementById('bwrap');
 function getXY(e){
   const r=canvas.getBoundingClientRect();
@@ -253,7 +255,6 @@ function startD(e){
   }
   if(tool==='shape'){snap0=ctx.getImageData(0,0,canvas.width,canvas.height);return;}
   ctx.beginPath(); ctx.moveTo(p.x,p.y);
-  // stream first point
   streamPt(p.x,p.y,true);
 }
 function moveD(e){
@@ -281,7 +282,6 @@ function endD(e){
   pushHist(); saveSnap(); endStroke();
 }
 
-// ── Real-time stroke streaming (normalized coords) ──
 let batch=[], streamTO=null;
 function streamPt(x,y,isStart){
   batch.push({x:x/canvas.width, y:y/canvas.height, s:isStart?1:0});
@@ -296,7 +296,6 @@ function flushBatch(){
 }
 function endStroke(){
   flushBatch();
-  // Snapshot image for fallback/late joiners (JPEG with white bg - no alpha issue)
   const tmp=document.createElement('canvas');
   tmp.width=canvas.width; tmp.height=canvas.height;
   const tc=tmp.getContext('2d');
@@ -310,8 +309,6 @@ function endStroke(){
   }
 }
 
-// ── Receive student strokes in real-time ──
-// Offscreen canvases for students not currently on screen
 const offscr={};
 function getOff(id){
   if(!offscr[id]){
@@ -357,19 +354,6 @@ db.ref('stroke/S').on('child_added',snap=>{
   snap.ref.remove();
 });
 
-// Also receive full board image snapshots (for initial load / reconnect)
-db.ref('boardImg/main').on('value',snap=>{
-  const d=snap.val();
-  if(!d||!d.data||curView!=='main') return;
-  const img=new Image();
-  img.onload=()=>{
-    ctx.drawImage(img,0,0,canvas.width,canvas.height);
-    saveSnap();
-  };
-  img.src=d.data;
-});
-
-// ── Shape drawing ──
 function drawShape(c,s,x1,y1,x2,y2,col,lw){
   c.save(); c.strokeStyle=col; c.fillStyle=col; c.lineWidth=lw;
   c.lineCap='round'; c.lineJoin='round'; c.globalCompositeOperation='source-over';
@@ -386,10 +370,6 @@ function drawShape(c,s,x1,y1,x2,y2,col,lw){
   else if(s==='rect'){c.strokeRect(x1,y1,w,h);}
   else if(s==='circle'){const rx=Math.abs(w)/2,ry=Math.abs(h)/2;c.ellipse(x1+w/2,y1+h/2,rx,ry,0,0,Math.PI*2);c.stroke();}
   else if(s==='triangle'){c.moveTo(x1+w/2,y1);c.lineTo(x2,y2);c.lineTo(x1,y2);c.closePath();c.stroke();}
-  else if(s==='cylinder'){const rx=Math.abs(w)/2,ry=Math.abs(h)*.12,cx2=x1+w/2;c.ellipse(cx2,y1+ry,rx,ry,0,0,Math.PI*2);c.stroke();c.beginPath();c.moveTo(x1,y1+ry);c.lineTo(x1,y2-ry);c.moveTo(x2,y1+ry);c.lineTo(x2,y2-ry);c.stroke();c.beginPath();c.ellipse(cx2,y2-ry,rx,ry,0,0,Math.PI);c.stroke();}
-  else if(s==='cube'){const dd=Math.min(Math.abs(w),Math.abs(h))*.3;c.strokeRect(x1,y1+dd,Math.abs(w)-dd,Math.abs(h)-dd);c.beginPath();c.moveTo(x1,y1+dd);c.lineTo(x1+dd,y1);c.lineTo(x2,y1);c.lineTo(x2,y2-dd);c.lineTo(x2-dd,y2);c.moveTo(x2,y1);c.lineTo(x2-dd,y1+dd);c.stroke();}
-  else if(s==='chart'){const bars=4,gap=Math.abs(w)/bars,bw=gap*.6,hs=[.7,.9,.5,.8];c.moveTo(x1,y1);c.lineTo(x1,y2);c.lineTo(x2,y2);c.stroke();hs.forEach((hh,i)=>c.fillRect(x1+i*gap+gap*.2,y2-Math.abs(h)*hh,bw,Math.abs(h)*hh));}
-  else if(s==='star'){const cx2=(x1+x2)/2,cy2=(y1+y2)/2,or=Math.min(Math.abs(w),Math.abs(h))/2,ir=or*.4;for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,r=i%2?ir:or;i?c.lineTo(cx2+r*Math.cos(a),cy2+r*Math.sin(a)):c.moveTo(cx2+r*Math.cos(a),cy2+r*Math.sin(a));}c.closePath();c.stroke();}
   c.restore();
 }
 
@@ -437,7 +417,6 @@ function clearBoard(){
   if(curView==='main') db.ref('boardCmd').push({type:'clear',ts:Date.now()});
 }
 
-// ── Student list ──
 function renderList(){
   const list=document.getElementById('slist');
   const arr=Object.values(students).filter(s=>s.online);
@@ -466,49 +445,30 @@ function renderList(){
   list.innerHTML=h;
 }
 
-// ── Firebase listeners ──
 db.ref('joinRequests').on('child_added',async snap=>{
   const s=snap.val(); if(!s) return;
   const ok=await showToast(`${s.name} يريد الانضمام`,'طالب جديد','👤',['قبول','رفض'],'var(--bl)');
   if(ok===0){
     students[s.id]={id:s.id,name:s.name,online:true,hand:false};
     db.ref('approvedStudents/'+s.id).set({id:s.id,name:s.name});
+    renderList();
   }
-  snap.ref.remove(); renderList();
+  snap.ref.remove();
 });
 
-// Auto-remove students when they disconnect
+// ── 2. تعديل مراقب حالة الاتصال ليكون هو المصدر الوحيد للطلاب ──
 db.ref('onlineStudents').on('value',snap=>{
   const data=snap.val()||{};
-  // Update online status
+  // مسح الطلاب غير الموجودين فعلياً في قائمة المتصلين
   Object.keys(students).forEach(id=>{
-    const wasOnline=students[id].online;
-    students[id].online=!!data[id];
-    if(wasOnline && !data[id]){
-      // Student just disconnected — remove after 5s
-      students[id]._removeAt=Date.now()+5000;
-    } else if(data[id]){
-      delete students[id]._removeAt;
-    }
+      if(!data[id]) delete students[id];
   });
-  // Add new students that appear online but aren't tracked yet (edge case)
+  // إضافة أو تحديث الطلاب المتصلين فقط
   Object.keys(data).forEach(id=>{
-    if(!students[id]) students[id]={id,name:data[id].name||id,online:true,hand:false};
+      if(!students[id]) students[id]={id, name:data[id].name||id, online:true, hand:false};
+      else students[id].online=true;
   });
   renderList();
-  // Schedule removal of disconnected students
-  Object.keys(students).forEach(id=>{
-    if(students[id]._removeAt){
-      setTimeout(()=>{
-        if(students[id]&&students[id]._removeAt){
-          if(curView===id) viewMain();
-          delete students[id];
-          db.ref('approvedStudents/'+id).remove();
-          renderList();
-        }
-      }, students[id]._removeAt - Date.now() + 100);
-    }
-  });
 });
 
 db.ref('handRaised').on('value',snap=>{
