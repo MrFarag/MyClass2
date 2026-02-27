@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>MyClass2 - السبورة الاحترافية</title>
+<title>MyClass2 - السبورة الذكية المتكاملة</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 :root{
     --bl:#3b82f6;--rd:#ef4444;--gn:#22c55e;--yw:#f59e0b;--dk:#0f172a;--cd:#1e293b;--br:#334155;--mt:#475569;--dm:#94a3b8;
-    --board-bg: #fdfbf7; /* لون كريمي ملكي */
-    --board-border: #d1d5db;
+    --board-bg: #fdfbf7; /* كريمي ملكي */
 }
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
 html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
 
-.hdr{background:var(--cd);height:50px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--br);flex-shrink:0;z-index:10}
+/* الهيدر */
+.hdr{background:var(--cd);height:50px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--br);flex-shrink:0}
 .logo{font-size:19px;font-weight:900;color:var(--bl)}.logo span{color:#fff}
 .hstats{display:flex;gap:8px}
 .chip{background:var(--br);padding:4px 12px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:6px}
@@ -24,45 +24,53 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.6}}
 
 #shell{display:flex;flex-direction:column;height:calc(100vh - 50px)}
-.main{display:flex;flex:1;overflow:hidden;min-height:0;background: #111827;}
+.main{display:flex;flex:1;overflow:hidden;min-height:0}
 
-/* تصميم السبورة الواقعي */
-.content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;padding:15px;background: #1e293b;}
+/* مساحة السبورة والمحيط */
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;padding:12px;background: #111827;}
 .bwrap{
     flex:1;
     background:var(--board-bg);
     position:relative;
     overflow:hidden;
     border-radius:12px;
-    border: 8px solid #475569; /* إطار السبورة */
-    box-shadow: 
-        inset 0 0 15px rgba(0,0,0,0.1), 
-        0 10px 25px rgba(0,0,0,0.3);
+    border: 10px solid #475569; /* إطار السبورة */
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.1), 0 15px 35px rgba(0,0,0,0.4);
 }
 #mc{display:block;position:absolute;top:0;left:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
 
+/* الجانب */
 .sidebar{width:220px;background:var(--cd);border-left:1px solid var(--br);display:flex;flex-direction:column;flex-shrink:0}
-.sdt{padding:12px;font-size:12px;color:var(--bl);border-bottom:1px solid var(--br);font-weight:900;text-align:center;letter-spacing:1px}
+.sdt{padding:12px;font-size:11px;color:var(--dm);border-bottom:1px solid var(--br);font-weight:700;text-align:center}
 .slist{flex:1;overflow-y:auto;padding:8px}
-.sitem{padding:10px;border-radius:12px;cursor:pointer;margin-bottom:6px;background: rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);transition:.2s}
-.sitem:hover{background:rgba(59,130,246,0.1)}
-.sitem.act{background:var(--bl);border-color:var(--bl);box-shadow: 0 4px 12px rgba(59,130,246,0.3)}
-.sitem.act .sname, .sitem.act .slbl{color:#fff}
-.sname{font-size:13px;font-weight:700;display:block;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis}
-.sbadges{display:flex;align-items:center;gap:6px;margin-top:4px}
-.sdot{width:7px;height:7px;border-radius:50%;background:var(--gn)}
+.sitem{padding:10px;border-radius:10px;cursor:pointer;margin-bottom:5px;border:1px solid transparent;transition:.15s;background: rgba(255,255,255,0.02)}
+.sitem:hover{background:var(--br)}
+.sitem.act{background:rgba(59,130,246,0.15);border-color:var(--bl)}
+.sname{font-size:13px;font-weight:700;display:block;color:#f8fafc}
+.sbadges{display:flex;align-items:center;gap:4px;margin-top:4px}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--gn)}
 .slbl{font-size:10px;color:var(--dm)}
 
-.toolbar{background:var(--cd);padding:10px;display:flex;align-items:center;gap:10px;justify-content:center;border-top:1px solid var(--br)}
-.tb{width:42px;height:42px;border-radius:10px;background:var(--br);color:var(--dm);border:none;cursor:pointer;transition:.2s}
-.tb.on{background:var(--bl);color:#fff;transform:scale(1.1)}
-.tb:hover:not(.on){background:var(--mt);color:#fff}
+/* شريط الأدوات */
+.toolbar{background:var(--cd);border-top:1px solid var(--br);padding:8px 15px;display:flex;align-items:center;gap:8px;overflow-x:auto;flex-shrink:0}
+.tb{width:38px;height:38px;border-radius:9px;border:none;background:var(--br);color:var(--dm);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px}
+.tb.on{background:var(--bl);color:#fff}
+.tb.danger{background:rgba(239,68,68,0.2);color:var(--rd)}
 
-.statusbar{background:var(--cd);height:30px;padding:0 15px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--dm);border-top:1px solid var(--br)}
+.shapepanel{position:absolute;bottom:70px;left:20px;background:var(--cd);border:1px solid var(--br);border-radius:12px;padding:10px;display:none;grid-template-columns: repeat(4, 1fr);gap:8px;z-index:100;box-shadow: 0 10px 30px rgba(0,0,0,0.5)}
+.shapepanel.on{display:grid}
+.shbtn{width:40px;height:40px;background:var(--br);border:none;border-radius:8px;color:#fff;cursor:pointer}
+.shbtn:hover{background:var(--bl)}
 
-#txtbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
-.txtin{background:var(--cd);padding:25px;border-radius:20px;width:320px;border:1px solid var(--bl)}
-.txtin input{width:100%;padding:12px;background:var(--dk);border:1px solid var(--br);border-radius:10px;color:#fff;margin:15px 0}
+/* النصوص والتنبيهات */
+#txtbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+#txtbox.on{display:flex}
+.txtin{background:var(--cd);padding:20px;border-radius:15px;width:300px;border:1px solid var(--br)}
+.txtin input{width:100%;padding:10px;margin:10px 0;background:var(--dk);border:1px solid var(--br);color:#fff;border-radius:8px}
+
+#toasts{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;width:320px}
+.toast{background:var(--cd);border-radius:12px;padding:12px;display:flex;align-items:center;gap:12px;box-shadow:0 10px 25px rgba(0,0,0,0.5);border-right:4px solid var(--bl);animation:slideIn 0.3s ease}
+@keyframes slideIn{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
 </style>
 </head>
 <body>
@@ -74,48 +82,67 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
     <div class="live"><i class="fas fa-circle"></i> مباشر</div>
   </div>
 </div>
+
 <div id="shell">
   <div class="main">
     <div class="content">
       <div class="bwrap" id="bwrap">
         <canvas id="mc"></canvas>
-        <div class="blabel" id="blabel" style="position:absolute; top:10px; left:10px; color:#64748b; font-weight:700; font-size:12px; opacity:0.5">السبورة الذكية</div>
       </div>
       <div class="toolbar">
         <button class="tb on" id="bpen" onclick="setTool('pen')"><i class="fas fa-pencil-alt"></i></button>
         <button class="tb" id="bera" onclick="setTool('eraser')"><i class="fas fa-eraser"></i></button>
-        <div style="width:2px; height:30px; background:var(--br)"></div>
-        <div id="clrs" style="display:flex; gap:6px">
-            <div onclick="setClr('#1e293b',this)" class="cl" style="width:25px;height:25px;border-radius:50%;background:#1e293b;cursor:pointer;border:2px solid #fff"></div>
-            <div onclick="setClr('#ef4444',this)" class="cl" style="width:25px;height:25px;border-radius:50%;background:#ef4444;cursor:pointer"></div>
-            <div onclick="setClr('#3b82f6',this)" class="cl" style="width:25px;height:25px;border-radius:50%;background:#3b82f6;cursor:pointer"></div>
+        <button class="tb" id="bshp" onclick="toggleShapes()"><i class="fas fa-shapes"></i></button>
+        
+        <div class="shapepanel" id="shapepanel">
+          <button class="shbtn" onclick="setShape('line')"><i class="fas fa-minus"></i></button>
+          <button class="shbtn" onclick="setShape('arrow')"><i class="fas fa-arrow-left"></i></button>
+          <button class="shbtn" onclick="setShape('rect')"><i class="far fa-square"></i></button>
+          <button class="shbtn" onclick="setShape('circle')"><i class="far fa-circle"></i></button>
+          <button class="shbtn" onclick="setShape('triangle')"><i class="fas fa-caret-up"></i></button>
+          <button class="shbtn" onclick="setShape('cylinder')"><i class="fas fa-database"></i></button>
+          <button class="shbtn" onclick="setShape('cube')"><i class="fas fa-cube"></i></button>
+          <button class="shbtn" onclick="setShape('chart')"><i class="fas fa-chart-bar"></i></button>
+          <button class="shbtn" onclick="setShape('star')"><i class="fas fa-star"></i></button>
+          <button class="shbtn" onclick="setShape('text')"><i class="fas fa-font"></i></button>
         </div>
-        <button class="tb danger" onclick="clearBoard()" style="margin-right:20px; color:var(--rd)"><i class="fas fa-trash"></i></button>
+
+        <div style="width:1px;height:30px;background:var(--br);margin:0 5px"></div>
+        
+        <div style="display:flex;gap:5px">
+          <div onclick="setClr('#1e293b',this)" class="cl" style="width:24px;height:24px;border-radius:50%;background:#1e293b;cursor:pointer;border:2px solid #fff"></div>
+          <div onclick="setClr('#ef4444',this)" class="cl" style="width:24px;height:24px;border-radius:50%;background:#ef4444;cursor:pointer"></div>
+          <div onclick="setClr('#3b82f6',this)" class="cl" style="width:24px;height:24px;border-radius:50%;background:#3b82f6;cursor:pointer"></div>
+        </div>
+
+        <div style="margin-right:auto; display:flex; gap:8px">
+            <button class="tb" onclick="doUndo()"><i class="fas fa-undo"></i></button>
+            <button class="tb danger" onclick="clearBoard()"><i class="fas fa-trash"></i></button>
+            <button class="tb" id="micbtn" onclick="toggleMic()"><i class="fas fa-microphone-slash" id="micico"></i></button>
+        </div>
       </div>
     </div>
+    
     <div class="sidebar">
-      <div class="sdt">قائمة الحضور</div>
-      <div class="slist" id="slist">
-        <div style="color:var(--dm);font-size:12px;text-align:center;padding:20px">في انتظار الطلاب...</div>
-      </div>
+      <div class="sdt"><i class="fas fa-graduation-cap"></i> الطلاب المتصلون</div>
+      <div class="slist" id="slist"></div>
     </div>
-  </div>
-  <div class="statusbar">
-    <span>نظام المدرس المتصل <i class="fas fa-check-circle" style="color:var(--gn)"></i></span>
-    <span id="lat">32ms</span>
   </div>
 </div>
 
 <div id="txtbox">
   <div class="txtin">
-    <h3 style="text-align:center">إضافة نص للسبورة</h3>
-    <input id="txtin" type="text" placeholder="اكتب النص هنا...">
-    <div style="display:flex; gap:10px">
-      <button onclick="confirmText()" style="flex:1; padding:10px; background:var(--bl); border:none; border-radius:10px; color:#fff; cursor:pointer">إضافة</button>
-      <button onclick="document.getElementById('txtbox').style.display='none'" style="flex:1; padding:10px; background:var(--br); border:none; border-radius:10px; color:#fff; cursor:pointer">إلغاء</button>
+    <p>أدخل النص المراد كتابته:</p>
+    <input id="txtin" type="text" placeholder="...">
+    <div style="display:flex; gap:8px">
+      <button onclick="confirmText()" style="flex:1;background:var(--bl);color:#fff;border:none;padding:8px;border-radius:5px">إضافة</button>
+      <button onclick="document.getElementById('txtbox').classList.remove('on')" style="flex:1;background:var(--br);color:#fff;border:none;padding:8px;border-radius:5px">إلغاء</button>
     </div>
   </div>
 </div>
+
+<div id="toasts"></div>
+<audio id="AP" style="display:none"></audio>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -131,26 +158,28 @@ firebase.initializeApp({
 });
 const db=firebase.database();
 
-// ── الحل الجذري للأسماء: تصفير القوائم عند التشغيل ──
+// ── 1. تنظيف شامل للجلسة السابقة عند التشغيل ──
 db.ref('onlineStudents').remove();
 db.ref('approvedStudents').remove();
 db.ref('joinRequests').remove();
-db.ref('handRaised').remove();
 db.ref('micRequests').remove();
+db.ref('handRaised').remove();
 
-let students={}, curView='main', tool='pen', clr='#1e293b', sz=4, down=false;
+// ── الحالة ──
+let students={}, micWaiting=new Set(), curView='main', tool='pen', shape=null, clr='#1e293b', sz=4;
+let down=false, sx=0, sy=0, snap0=null, txtPos=null, hist=[], micOn=false, mStream=null, mRec=null;
+
 const canvas=document.getElementById('mc'), ctx=canvas.getContext('2d');
 
 function fitMain(){
   const w=canvas.parentElement.offsetWidth, h=canvas.parentElement.offsetHeight;
   canvas.width=w; canvas.height=h;
-  ctx.fillStyle='#fdfbf7'; // اللون الكريمي
-  ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='#fdfbf7'; ctx.fillRect(0,0,w,h);
 }
 window.addEventListener('resize', fitMain);
 setTimeout(fitMain, 100);
 
-// ── منطق الرسم ──
+// ── الرسم ──
 function getXY(e){
   const r=canvas.getBoundingClientRect();
   const ex=e.touches?e.touches[0].clientX:e.clientX;
@@ -158,81 +187,123 @@ function getXY(e){
   return{x:(ex-r.left)*(canvas.width/r.width), y:(ey-r.top)*(canvas.height/r.height)};
 }
 
-canvas.addEventListener('mousedown', (e)=>{
-    down=true; const p=getXY(e);
-    ctx.beginPath(); ctx.moveTo(p.x, p.y);
-});
-canvas.addEventListener('mousemove', (e)=>{
-    if(!down) return;
-    const p=getXY(e);
-    ctx.lineWidth = tool==='eraser'? 30 : sz;
-    ctx.strokeStyle = tool==='eraser'? '#fdfbf7' : clr;
-    ctx.lineCap = 'round'; ctx.lineJoin='round';
-    ctx.lineTo(p.x, p.y); ctx.stroke();
-    streamPt(p.x, p.y);
-});
-canvas.addEventListener('mouseup', ()=>{down=false; endStroke();});
+canvas.addEventListener('mousedown', startD);
+canvas.addEventListener('mousemove', moveD);
+canvas.addEventListener('mouseup', endD);
+canvas.addEventListener('touchstart', startD, {passive:false});
+canvas.addEventListener('touchmove', moveD, {passive:false});
+canvas.addEventListener('touchend', endD);
 
-function streamPt(x,y){
-    const ref = curView==='main' ? db.ref('stroke/T') : db.ref('stroke/TS/'+curView);
-    ref.push({x:x/canvas.width, y:y/canvas.height, c:clr, t:tool});
+function startD(e){
+    e.preventDefault(); const p=getXY(e); sx=p.x; sy=p.y; down=true;
+    if(tool==='text'){ txtPos=p; document.getElementById('txtbox').classList.add('on'); down=false; return; }
+    if(tool==='shape'){ snap0=ctx.getImageData(0,0,canvas.width,canvas.height); return; }
+    ctx.beginPath(); ctx.moveTo(p.x, p.y);
 }
 
-function endStroke(){
-    const jpg = canvas.toDataURL('image/jpeg', 0.5);
+function moveD(e){
+    if(!down) return; const p=getXY(e);
+    if(tool==='shape'){ ctx.putImageData(snap0,0,0); drawShape(ctx,shape,sx,sy,p.x,p.y,clr,sz); return; }
+    ctx.lineWidth = tool==='eraser'? 40 : sz;
+    ctx.strokeStyle = tool==='eraser'? '#fdfbf7' : clr;
+    ctx.lineCap = 'round'; ctx.lineTo(p.x, p.y); ctx.stroke();
+}
+
+function endD(){
+    if(!down) return; down=false;
+    if(hist.length>20) hist.shift();
+    hist.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+    const jpg = canvas.toDataURL('image/jpeg', 0.6);
     db.ref('boardImg/main').set({data:jpg, ts:Date.now()});
 }
 
-function setTool(t){
-    tool=t;
-    document.getElementById('bpen').classList.toggle('on', t==='pen');
-    document.getElementById('bera').classList.toggle('on', t==='eraser');
+function drawShape(c,s,x1,y1,x2,y2,col,lw){
+  c.save(); c.strokeStyle=col; c.fillStyle=col; c.lineWidth=lw; c.beginPath();
+  const w=x2-x1, h=y2-y1;
+  if(s==='line'){c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
+  else if(s==='rect'){c.strokeRect(x1,y1,w,h);}
+  else if(s==='circle'){c.ellipse(x1+w/2,y1+h/2,Math.abs(w/2),Math.abs(h/2),0,0,Math.PI*2);c.stroke();}
+  else if(s==='arrow'){
+    const a=Math.atan2(h,w); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
+    c.translate(x2,y2); c.rotate(a); c.moveTo(0,0); c.lineTo(-15,-8); c.lineTo(-15,8); c.closePath(); c.fill();
+  }
+  else if(s==='chart'){
+    c.moveTo(x1,y2); c.lineTo(x2,y2); c.moveTo(x1,y1); c.lineTo(x1,y2); c.stroke();
+    for(let i=0;i<4;i++) c.fillRect(x1+10+i*(w/4), y2, (w/4)-10, -(Math.random()*h*0.8));
+  }
+  c.restore();
 }
 
-function setClr(c, el){
-    clr=c;
-    document.querySelectorAll('.cl').forEach(i=>i.style.border='none');
-    el.style.border='2px solid #fff';
+function confirmText(){
+    const t=document.getElementById('txtin').value;
+    if(t && txtPos){ ctx.font="bold 20px Cairo"; ctx.fillStyle=clr; ctx.fillText(t, txtPos.x, txtPos.y); endD(); }
+    document.getElementById('txtbox').classList.remove('on');
+    document.getElementById('txtin').value='';
 }
 
-function clearBoard(){
-    ctx.fillStyle='#fdfbf7'; ctx.fillRect(0,0,canvas.width,canvas.height);
-    db.ref('boardCmd').push({type:'clear'});
-    endStroke();
+// ── إدارة الأدوات ──
+function setTool(t){ tool=t; shape=null; document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on')); document.getElementById('b'+t.substring(0,3)).classList.add('on'); }
+function toggleShapes(){ document.getElementById('shapepanel').classList.toggle('on'); }
+function setShape(s){ shape=s; tool='shape'; toggleShapes(); }
+function setClr(c,el){ clr=c; document.querySelectorAll('.cl').forEach(i=>i.style.border='none'); el.style.border='2px solid #fff'; }
+function doUndo(){ if(hist.length>0){ ctx.putImageData(hist.pop(),0,0); } }
+function clearBoard(){ ctx.fillStyle='#fdfbf7'; ctx.fillRect(0,0,canvas.width,canvas.height); db.ref('boardCmd').push({type:'clear'}); endD(); }
+
+// ── الميكروفون والطلاب ──
+async function toggleMic(){
+  const btn=document.getElementById('micbtn'),ico=document.getElementById('micico');
+  if(!micOn){
+    try{
+      mStream=await navigator.mediaDevices.getUserMedia({audio:true});
+      micOn=true; btn.classList.add('on'); ico.className='fas fa-microphone';
+      mRec=new MediaRecorder(mStream);
+      mRec.ondataavailable=ev=>{
+        const r=new FileReader(); r.onload=()=>db.ref('audio/chunk').set({data:r.result, ts:Date.now()});
+        r.readAsDataURL(ev.data);
+      };
+      mRec.start(500);
+      setInterval(()=>{ if(mRec.state==='recording'){mRec.stop(); mRec.start(500);} }, 500);
+    }catch(e){alert('خطأ في الميكروفون');}
+  } else {
+    mStream.getTracks().forEach(t=>t.stop()); micOn=false; btn.classList.remove('on'); ico.className='fas fa-microphone-slash';
+  }
 }
 
-// ── تحديث قائمة الطلاب (المتصلين فعلياً فقط) ──
+// ── تحديث القائمة والتنبيهات ──
 db.ref('onlineStudents').on('value', snap=>{
-    const data = snap.val()||{};
-    students = data;
+    students=snap.val()||{};
     renderList();
 });
 
-function renderList(){
-    const list=document.getElementById('slist');
-    const keys = Object.keys(students);
-    document.getElementById('cnt').textContent = keys.length;
-    
-    if(keys.length===0){
-        list.innerHTML = '<div style="color:var(--dm);font-size:12px;text-align:center;padding:20px">لا يوجد طلاب متصلين</div>';
-        return;
-    }
-
-    let h = `<div class="sitem ${curView==='main'?'act':''}" onclick="curView='main';renderList()">
-                <span class="sname">🖥 السبورة الرئيسية</span>
-             </div>`;
-             
-    keys.forEach(id=>{
-        h += `<div class="sitem ${curView===id?'act':''}" onclick="curView='${id}';renderList()">
-                <span class="sname">${students[id].name || 'طالب مجهول'}</span>
-                <div class="sbadges"><div class="sdot"></div><span class="slbl">متصل الآن</span></div>
-              </div>`;
+db.ref('joinRequests').on('child_added', async snap=>{
+    const s=snap.val(); if(!s) return;
+    showToast(`${s.name} يطلب الانضمام`, '👤', ()=>{
+        db.ref('approvedStudents/'+s.id).set({id:s.id, name:s.name});
+        snap.ref.remove();
     });
-    list.innerHTML = h;
+});
+
+function renderList(){
+    const list=document.getElementById('slist'), keys=Object.keys(students);
+    document.getElementById('cnt').textContent=keys.length;
+    list.innerHTML = keys.map(id=>`
+        <div class="sitem">
+            <span class="sname">${students[id].name}</span>
+            <div class="sbadges"><div class="sdot"></div><span class="slbl">متصل</span></div>
+        </div>
+    `).join('') || '<div style="text-align:center;padding:20px;color:var(--dm)">لا يوجد طلاب</div>';
 }
 
-// تحديث اللاتنسي الوهمي للجمالية
-setInterval(()=>{document.getElementById('lat').textContent=Math.floor(Math.random()*20+20)+'ms';}, 3000);
+function showToast(txt, ico, onOk){
+    const box=document.getElementById('toasts'), el=document.createElement('div');
+    el.className='toast';
+    el.innerHTML=`<span>${ico}</span><div style="flex:1">${txt}</div><button onclick="this.parentElement.remove()" style="background:var(--gn);border:none;color:#fff;padding:5px 10px;border-radius:5px">قبول</button>`;
+    el.querySelector('button').onclick=()=>{ onOk(); el.remove(); };
+    box.appendChild(el);
+    setTimeout(()=>el.remove(), 10000);
+}
+
+db.ref('.info/connected').on('value',s=>{ if(s.val()) db.ref('teacher/online').set(true); });
 </script>
 </body>
 </html>
