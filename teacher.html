@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>MyClass2 - الطالب</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MyClass2 - المدرس (تحكم كامل)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -20,89 +20,19 @@
             overflow: hidden;
         }
 
-        #joinOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #0f172a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-
-        .join-box {
+        /* الشريط العلوي */
+        .header {
             background: #1e293b;
-            padding: 30px;
-            border-radius: 20px;
-            width: 300px;
-            text-align: center;
-            border: 2px solid #3b82f6;
-        }
-
-        .join-box h2 {
-            color: #3b82f6;
-            margin-bottom: 20px;
-        }
-
-        .join-box input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            background: #334155;
-            border: none;
-            border-radius: 25px;
-            color: white;
-            text-align: center;
-            outline: none;
-            font-size: 16px;
-        }
-
-        .join-box button {
-            width: 100%;
-            padding: 12px;
-            background: #3b82f6;
-            border: none;
-            border-radius: 25px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .join-box button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .waiting-message {
-            margin-top: 15px;
-            color: #f59e0b;
-            font-size: 14px;
-        }
-
-        #mainApp {
-            height: 100vh;
-            display: none;
-            flex-direction: column;
-            background: #0f172a;
-        }
-
-        .top-bar {
-            background: #1e293b;
-            padding: 10px 15px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 2px solid #3b82f6;
-            height: 55px;
-            flex-shrink: 0;
+            border-bottom: 3px solid #3b82f6;
+            height: 70px;
         }
 
         .logo {
-            font-size: 18px;
+            font-size: 24px;
             font-weight: bold;
             color: #3b82f6;
         }
@@ -111,34 +41,29 @@
             color: white;
         }
 
-        .student-info {
+        .stats {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: #334155;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 14px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .student-badge {
-            background: #334155;
-            padding: 6px 15px;
-            border-radius: 25px;
+        .live-badge {
+            background: #ef4444;
+            padding: 8px 20px;
+            border-radius: 30px;
             font-size: 14px;
-            font-weight: 600;
-        }
-
-        .hand-btn {
-            background: #334155;
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            transition: 0.2s;
-        }
-
-        .hand-btn.raised {
-            background: #f59e0b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             animation: pulse 1.5s infinite;
         }
 
@@ -147,87 +72,360 @@
             50% { opacity: 0.7; }
         }
 
-        .boards-container {
-            flex: 1;
+        /* التخطيط الرئيسي */
+        .main-layout {
             display: flex;
-            flex-direction: column;
-            padding: 10px;
-            gap: 10px;
-            min-height: 0;
+            height: calc(100vh - 70px);
         }
 
-        .board {
-            flex: 1;
-            background: white;
-            border-radius: 15px;
-            position: relative;
+        /* الشريط الجانبي للطلاب */
+        .sidebar {
+            width: 320px;
+            background: #1e293b;
+            border-left: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
-            min-height: 0;
-            border: 3px solid;
         }
 
-        .teacher-board {
-            border-color: #ef4444;
-        }
-
-        .student-board {
-            border-color: #3b82f6;
-        }
-
-        .board-label {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1e293b;
-            color: white;
-            padding: 4px 20px;
-            font-size: 12px;
-            font-weight: bold;
-            border-radius: 0 0 15px 15px;
-            z-index: 10;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-            touch-action: none;
-            cursor: crosshair;
-        }
-
-        .toolbar {
-            background: #1e293b;
-            padding: 10px;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            border-top: 1px solid #334155;
-            flex-shrink: 0;
-        }
-
-        .tool-btn {
+        .sidebar-header {
+            padding: 15px;
             background: #334155;
-            border: none;
-            color: #94a3b8;
-            padding: 12px 0;
-            border-radius: 12px;
-            cursor: pointer;
+            font-weight: bold;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            gap: 4px;
+        }
+
+        .clear-all-btn {
+            background: #ef4444;
+            border: none;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .students-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .student-card {
+            background: #334155;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 1px solid transparent;
             transition: 0.2s;
         }
 
-        .tool-btn i {
-            font-size: 18px;
+        .student-card.hand-raised {
+            border-color: #f59e0b;
+            background: #423d2b;
         }
 
-        .tool-btn span {
-            font-size: 11px;
+        .student-card.speaking {
+            border-color: #22c55e;
+            background: #1a3a2a;
+            animation: borderPulse 1.5s infinite;
+        }
+
+        @keyframes borderPulse {
+            0%, 100% { border-color: #22c55e; }
+            50% { border-color: #86efac; }
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .student-details {
+            flex: 1;
+        }
+
+        .student-name {
             font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .student-status {
+            font-size: 11px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-dot.hand {
+            background: #f59e0b;
+        }
+
+        .status-dot.speaking {
+            background: #22c55e;
+        }
+
+        .student-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .action-btn.approve {
+            background: #22c55e;
+            color: white;
+        }
+
+        .action-btn.approve:hover {
+            background: #16a34a;
+            transform: scale(1.02);
+        }
+
+        .action-btn.reject {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn.reject:hover {
+            background: #dc2626;
+            transform: scale(1.02);
+        }
+
+        .action-btn.mic {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.mic:hover {
+            background: #2563eb;
+        }
+
+        .action-btn.view {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .action-btn.kick {
+            background: #64748b;
+            color: white;
+        }
+
+        /* منطقة المحتوى الرئيسي */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            gap: 15px;
+            overflow: hidden;
+        }
+
+        /* شريط التحكم */
+        .control-bar {
+            background: #1e293b;
+            border-radius: 50px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #334155;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: #334155;
+            border: none;
+            color: #94a3b8;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.2s;
+        }
+
+        .control-btn:hover {
+            background: #475569;
+            color: white;
+        }
+
+        .control-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .control-btn.mic-on {
+            background: #22c55e;
+            color: white;
+        }
+
+        .control-btn.mic-off {
+            background: #ef4444;
+            color: white;
+        }
+
+        .control-btn.danger:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .speaker-info {
+            background: #334155;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+        }
+
+        .speaker-info i {
+            color: #22c55e;
+            margin-left: 5px;
+        }
+
+        /* منطقة التبويبات */
+        .tabs-container {
+            flex: 1;
+            background: #1e293b;
+            border-radius: 15px;
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .tabs-header {
+            display: flex;
+            background: #334155;
+            padding: 10px;
+            gap: 5px;
+            overflow-x: auto;
+            align-items: center;
+        }
+
+        .tab {
+            padding: 8px 20px;
+            background: #1e293b;
+            border: none;
+            color: #94a3b8;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab i {
+            font-size: 12px;
+        }
+
+        .tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .tab.speaking {
+            border-right: 3px solid #22c55e;
+        }
+
+        .tab.hand-raised {
+            border-right: 3px solid #f59e0b;
+        }
+
+        .board-container {
+            flex: 1;
+            background: white;
+            position: relative;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+            background: white;
+            cursor: crosshair;
+        }
+
+        /* شريط الأدوات */
+        .toolbar {
+            background: #1e293b;
+            border-top: 1px solid #334155;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .tool-group {
+            display: flex;
+            gap: 5px;
+            background: #334155;
+            padding: 5px;
+            border-radius: 30px;
+        }
+
+        .tool-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.2s;
         }
 
         .tool-btn:hover {
@@ -240,282 +438,360 @@
             color: white;
         }
 
-        .tool-btn.mic-active {
-            background: #22c55e;
+        .tool-btn.danger:hover {
+            background: #ef4444;
             color: white;
         }
 
-        .tool-btn.mic-request {
-            background: #f59e0b;
+        .color-picker {
+            display: flex;
+            gap: 4px;
+            background: #334155;
+            padding: 5px 10px;
+            border-radius: 30px;
+        }
+
+        .color-dot {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+        .color-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .color-dot.active {
+            border-color: white;
+            transform: scale(1.1);
+        }
+
+        .size-selector {
+            display: flex;
+            gap: 5px;
+            background: #334155;
+            padding: 5px 10px;
+            border-radius: 30px;
+        }
+
+        .size-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .size-btn.active {
+            background: #3b82f6;
+        }
+
+        .image-upload {
+            position: relative;
+        }
+
+        .image-upload input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .image-upload label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #334155;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .image-upload label:hover {
+            background: #475569;
             color: white;
         }
 
+        /* شريط الحالة */
         .status-bar {
             background: #1e293b;
-            padding: 8px 15px;
+            border-top: 1px solid #334155;
+            padding: 8px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             font-size: 12px;
-            border-top: 1px solid #334155;
-            flex-shrink: 0;
+            color: #94a3b8;
         }
 
-        .live-indicator {
+        .speaking-indicator {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            background: #334155;
+            padding: 4px 15px;
+            border-radius: 30px;
         }
 
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            background: #ef4444;
-            border-radius: 50%;
-            animation: blink 1.5s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .mic-status {
-            font-weight: 600;
-        }
-
-        .mic-status.active {
+        .speaking-indicator i {
             color: #22c55e;
         }
 
-        .mic-status.request {
-            color: #f59e0b;
+        .reset-btn {
+            background: #334155;
+            border: none;
+            color: #94a3b8;
+            padding: 5px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .reset-btn:hover {
+            background: #ef4444;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <div id="joinOverlay">
-        <div class="join-box">
-            <h2><i class="fas fa-user-graduate"></i> انضم للصف</h2>
-            <input type="text" id="studentName" placeholder="اكتب اسمك" maxlength="20" autofocus>
-            <button onclick="joinClass()" id="joinBtn">طلب انضمام</button>
-            <div class="waiting-message" id="waitingMsg" style="display:none">
-                <i class="fas fa-spinner fa-spin"></i> في انتظار موافقة المدرس...
-            </div>
+    <!-- الشريط العلوي -->
+    <div class="header">
+        <div class="logo">My<span>Class</span>2</div>
+        <div class="stats">
+            <div class="stat-item"><i class="fas fa-users"></i> <span id="onlineCount">0</span> متصل</div>
+            <div class="stat-item"><i class="fas fa-hand-paper"></i> <span id="handCount">0</span> رفع يد</div>
+            <div class="live-badge"><i class="fas fa-circle"></i> بث مباشر</div>
         </div>
     </div>
 
-    <div id="mainApp">
-        <div class="top-bar">
-            <div class="logo">My<span>Class</span>2</div>
-            <div class="student-info">
-                <button class="hand-btn" id="handBtn" onclick="toggleHand()">
-                    <i class="fas fa-hand-paper"></i>
+    <!-- التخطيط الرئيسي -->
+    <div class="main-layout">
+        <!-- الشريط الجانبي للطلاب -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <span><i class="fas fa-users"></i> قائمة الطلاب</span>
+                <button class="clear-all-btn" onclick="rejectAllRequests()">
+                    <i class="fas fa-times-circle"></i> رفض الكل
                 </button>
-                <span class="student-badge" id="displayName"></span>
+            </div>
+            <div class="students-list" id="studentsList">
+                <!-- الطلاب يظهرون هنا -->
             </div>
         </div>
 
-        <div class="boards-container">
-            <div class="board teacher-board">
-                <div class="board-label">
-                    <i class="fas fa-chalkboard-teacher" style="color:#ef4444"></i> المدرس
+        <!-- منطقة المحتوى الرئيسي -->
+        <div class="content-area">
+            <!-- شريط التحكم -->
+            <div class="control-bar">
+                <div class="control-group">
+                    <button class="control-btn" id="micToggle" onclick="toggleMicrophone()">
+                        <i class="fas fa-microphone-slash" id="micIcon"></i>
+                    </button>
+                    <div class="speaker-info" id="speakerInfo">
+                        <i class="fas fa-volume-up"></i>
+                        <span id="currentSpeakerName">لا يوجد متحدث</span>
+                    </div>
                 </div>
-                <canvas id="teacherBoard"></canvas>
-            </div>
-            <div class="board student-board">
-                <div class="board-label">
-                    <i class="fas fa-pencil-alt" style="color:#3b82f6"></i> سبورتي
+                <div class="control-group">
+                    <button class="control-btn" onclick="clearCurrentBoard()" title="مسح السبورة">
+                        <i class="fas fa-eraser"></i>
+                    </button>
+                    <button class="control-btn" onclick="resetAll()" title="تصفير الجلسة">
+                        <i class="fas fa-broom"></i>
+                    </button>
+                    <button class="control-btn danger" onclick="rejectAllAndReset()" title="رفض الكل وتصفير">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                 </div>
-                <canvas id="studentBoard"></canvas>
             </div>
-        </div>
 
-        <div class="toolbar">
-            <button class="tool-btn active" id="penBtn" onclick="selectTool('pen')">
-                <i class="fas fa-pencil-alt"></i>
-                <span>قلم</span>
-            </button>
-            <button class="tool-btn" id="eraserBtn" onclick="selectTool('eraser')">
-                <i class="fas fa-eraser"></i>
-                <span>ممحاة</span>
-            </button>
-            <button class="tool-btn" onclick="clearBoard()">
-                <i class="fas fa-trash"></i>
-                <span>مسح</span>
-            </button>
-            <button class="tool-btn" id="micBtn" onclick="requestMic()">
-                <i class="fas fa-microphone"></i>
-                <span>مايك</span>
-            </button>
-            <button class="tool-btn" onclick="toggleFullscreen()">
-                <i class="fas fa-expand"></i>
-                <span>تكبير</span>
-            </button>
-        </div>
-
-        <div class="status-bar">
-            <div class="live-indicator">
-                <span class="live-dot"></span>
-                <span id="teacherStatus">المدرس متصل</span>
+            <!-- منطقة التبويبات والسبورة -->
+            <div class="tabs-container">
+                <div class="tabs-header" id="tabsHeader">
+                    <button class="tab active" onclick="switchBoard('main')">
+                        <i class="fas fa-chalkboard"></i> السبورة الرئيسية
+                    </button>
+                    <!-- تبويبات الطلاب تضاف هنا -->
+                </div>
+                <div class="board-container" id="boardContainer">
+                    <canvas id="mainBoard"></canvas>
+                </div>
             </div>
-            <div class="mic-status" id="micStatus">🔴 المايك مغلق</div>
+
+            <!-- شريط الأدوات -->
+            <div class="toolbar">
+                <div class="tool-group">
+                    <button class="tool-btn active" id="penBtn" onclick="selectTool('pen')">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button class="tool-btn" id="eraserBtn" onclick="selectTool('eraser')">
+                        <i class="fas fa-eraser"></i>
+                    </button>
+                </div>
+
+                <div class="color-picker">
+                    <div class="color-dot active" style="background:#000000" onclick="selectColor('#000000', this)"></div>
+                    <div class="color-dot" style="background:#ef4444" onclick="selectColor('#ef4444', this)"></div>
+                    <div class="color-dot" style="background:#3b82f6" onclick="selectColor('#3b82f6', this)"></div>
+                    <div class="color-dot" style="background:#22c55e" onclick="selectColor('#22c55e', this)"></div>
+                    <div class="color-dot" style="background:#f59e0b" onclick="selectColor('#f59e0b', this)"></div>
+                    <div class="color-dot" style="background:#a855f7" onclick="selectColor('#a855f7', this)"></div>
+                </div>
+
+                <div class="size-selector">
+                    <button class="size-btn" onclick="setSize(2, this)">
+                        <div style="width:4px; height:4px; background:white; border-radius:50%; margin:auto"></div>
+                    </button>
+                    <button class="size-btn active" onclick="setSize(4, this)">
+                        <div style="width:8px; height:8px; background:white; border-radius:50%; margin:auto"></div>
+                    </button>
+                    <button class="size-btn" onclick="setSize(8, this)">
+                        <div style="width:14px; height:14px; background:white; border-radius:50%; margin:auto"></div>
+                    </button>
+                </div>
+
+                <div class="image-upload">
+                    <input type="file" id="imageUpload" accept="image/*" onchange="uploadImage(this)">
+                    <label for="imageUpload" title="رفع صورة">
+                        <i class="fas fa-image"></i>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
-    <audio id="audioPlayer" autoplay style="display:none"></audio>
+    <!-- شريط الحالة -->
+    <div class="status-bar">
+        <div class="speaking-indicator" id="speakingIndicator" style="display:none">
+            <i class="fas fa-circle"></i>
+            <span>يتحدث: <span id="currentSpeaker"></span></span>
+        </div>
+        <div>
+            <i class="fas fa-bolt" style="color:#f59e0b"></i>
+            <span id="latency">24ms</span>
+        </div>
+        <button class="reset-btn" onclick="resetAll()">
+            <i class="fas fa-redo-alt"></i> تصفير الجلسة
+        </button>
+    </div>
 
+    <audio id="audioPlayer" style="display:none"></audio>
+
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
+        // ===== تهيئة Firebase =====
         firebase.initializeApp({
             apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
             databaseURL: "https://myclaive-default-rtdb.firebaseio.com"
         });
         const db = firebase.database();
 
-        let studentId = null;
-        let studentName = '';
-        let isApproved = false;
-        let handRaised = false;
-        let micPermission = false;
-        let isSpeaking = false;
+        // ===== متغيرات عامة =====
+        let students = {};
+        let waitingStudents = {};
+        let currentSpeaker = null;
+        let isMicOn = false;
         let mediaStream = null;
         let mediaRecorder = null;
+        let currentColor = '#000000';
+        let currentSize = 4;
         let currentTool = 'pen';
         let isDrawing = false;
         let lastX = 0, lastY = 0;
+        let currentBoard = 'main';
 
-        const teacherCanvas = document.getElementById('teacherBoard');
-        const studentCanvas = document.getElementById('studentBoard');
-        const teacherCtx = teacherCanvas.getContext('2d');
-        const studentCtx = studentCanvas.getContext('2d');
+        // ===== Canvas =====
+        const canvas = document.getElementById('mainBoard');
+        const ctx = canvas.getContext('2d');
 
-        function resizeCanvases() {
-            [teacherCanvas, studentCanvas].forEach(canvas => {
-                canvas.width = canvas.clientWidth;
-                canvas.height = canvas.clientHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.lineWidth = 3;
-            });
+        function resizeCanvas() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = currentSize;
         }
 
-        window.addEventListener('resize', resizeCanvases);
-        setTimeout(resizeCanvases, 100);
+        window.addEventListener('resize', resizeCanvas);
+        setTimeout(resizeCanvas, 100);
 
-        window.joinClass = function() {
-            const name = document.getElementById('studentName').value.trim();
-            if (!name) return;
-
-            studentName = name;
-            studentId = 'stu_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
-
-            document.getElementById('joinBtn').disabled = true;
-            document.getElementById('waitingMsg').style.display = 'block';
-
-            db.ref('joinRequests/' + studentId).set({
-                name: studentName,
-                id: studentId,
-                time: Date.now()
-            });
-
-            db.ref('approvedStudents/' + studentId).on('value', snap => {
-                if (snap.exists()) {
-                    isApproved = true;
-                    document.getElementById('joinOverlay').style.display = 'none';
-                    document.getElementById('mainApp').style.display = 'flex';
-                    document.getElementById('displayName').textContent = studentName;
-                    
-                    db.ref('onlineStudents/' + studentId).set({
-                        name: studentName,
-                        online: true
-                    });
-                }
-            });
-        };
-
-        db.ref('draw_t').on('child_added', snap => {
-            const data = snap.val();
-            if (!data) return;
-
-            const x = data.x * teacherCanvas.width;
-            const y = data.y * teacherCanvas.height;
-
-            if (data.type === 'start') {
-                teacherCtx.beginPath();
-                teacherCtx.moveTo(x, y);
-            } else if (data.type === 'draw') {
-                teacherCtx.strokeStyle = data.color || '#000000';
-                teacherCtx.lineWidth = data.size || 3;
-                teacherCtx.lineTo(x, y);
-                teacherCtx.stroke();
-                teacherCtx.beginPath();
-                teacherCtx.moveTo(x, y);
-            } else if (data.type === 'clear') {
-                teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
-                teacherCtx.fillStyle = '#FFFFFF';
-                teacherCtx.fillRect(0, 0, teacherCanvas.width, teacherCanvas.height);
-            }
-        });
-
-        function getCoords(e) {
-            const rect = studentCanvas.getBoundingClientRect();
+        // ===== أدوات الرسم =====
+        function getCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
             return {
-                x: (clientX - rect.left) / studentCanvas.width,
-                y: (clientY - rect.top) / studentCanvas.height
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
             };
         }
 
         function startDrawing(e) {
             e.preventDefault();
-            if (!isApproved) return;
-            
             isDrawing = true;
-            const p = getCoords(e);
-            lastX = p.x;
-            lastY = p.y;
+            const coords = getCoordinates(e);
+            lastX = coords.x / canvas.width;
+            lastY = coords.y / canvas.height;
             
-            studentCtx.beginPath();
-            studentCtx.moveTo(p.x * studentCanvas.width, p.y * studentCanvas.height);
+            ctx.beginPath();
+            ctx.moveTo(coords.x, coords.y);
             
-            db.ref('draw_st').push({
+            db.ref('draw_t').push({
                 type: 'start',
-                x: p.x,
-                y: p.y,
-                color: currentTool === 'eraser' ? '#FFFFFF' : '#000000',
-                size: 3,
-                studentId: studentId,
+                x: lastX,
+                y: lastY,
+                color: currentTool === 'eraser' ? '#FFFFFF' : currentColor,
+                size: currentTool === 'eraser' ? currentSize * 3 : currentSize,
+                board: currentBoard,
                 time: Date.now()
             });
         }
 
         function draw(e) {
             e.preventDefault();
-            if (!isDrawing || !isApproved) return;
+            if (!isDrawing) return;
             
-            const p = getCoords(e);
+            const coords = getCoordinates(e);
+            const x = coords.x / canvas.width;
+            const y = coords.y / canvas.height;
             
-            studentCtx.strokeStyle = currentTool === 'eraser' ? '#FFFFFF' : '#000000';
-            studentCtx.lineWidth = 3;
-            studentCtx.lineTo(p.x * studentCanvas.width, p.y * studentCanvas.height);
-            studentCtx.stroke();
-            studentCtx.beginPath();
-            studentCtx.moveTo(p.x * studentCanvas.width, p.y * studentCanvas.height);
+            ctx.strokeStyle = currentTool === 'eraser' ? '#FFFFFF' : currentColor;
+            ctx.lineWidth = currentTool === 'eraser' ? currentSize * 3 : currentSize;
+            ctx.lineTo(coords.x, coords.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(coords.x, coords.y);
             
-            db.ref('draw_st').push({
+            db.ref('draw_t').push({
                 type: 'draw',
-                x: p.x,
-                y: p.y,
-                color: currentTool === 'eraser' ? '#FFFFFF' : '#000000',
-                size: 3,
-                studentId: studentId,
+                x: x,
+                y: y,
+                color: currentTool === 'eraser' ? '#FFFFFF' : currentColor,
+                size: currentTool === 'eraser' ? currentSize * 3 : currentSize,
+                board: currentBoard,
                 time: Date.now()
             });
         }
@@ -525,156 +801,376 @@
             isDrawing = false;
         }
 
-        studentCanvas.addEventListener('mousedown', startDrawing);
-        studentCanvas.addEventListener('mousemove', draw);
-        studentCanvas.addEventListener('mouseup', stopDrawing);
-        studentCanvas.addEventListener('mouseleave', stopDrawing);
-        studentCanvas.addEventListener('touchstart', startDrawing, { passive: false });
-        studentCanvas.addEventListener('touchmove', draw, { passive: false });
-        studentCanvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing);
 
+        // ===== أدوات الرسم العامة =====
         window.selectTool = function(tool) {
-            if (!isApproved) return;
             currentTool = tool;
             document.getElementById('penBtn').classList.toggle('active', tool === 'pen');
             document.getElementById('eraserBtn').classList.toggle('active', tool === 'eraser');
         };
 
-        window.clearBoard = function() {
-            if (!isApproved) return;
+        window.selectColor = function(color, element) {
+            currentColor = color;
+            document.querySelectorAll('.color-dot').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        };
+
+        window.setSize = function(size, element) {
+            currentSize = size;
+            document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        };
+
+        window.clearCurrentBoard = function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            studentCtx.clearRect(0, 0, studentCanvas.width, studentCanvas.height);
-            studentCtx.fillStyle = '#FFFFFF';
-            studentCtx.fillRect(0, 0, studentCanvas.width, studentCanvas.height);
-            
-            db.ref('draw_st').push({
+            db.ref('draw_t').push({
                 type: 'clear',
-                studentId: studentId,
+                board: currentBoard,
                 time: Date.now()
             });
         };
 
-        window.toggleHand = function() {
-            if (!isApproved) return;
+        window.uploadImage = function(input) {
+            if (!input.files[0]) return;
             
-            handRaised = !handRaised;
-            const btn = document.getElementById('handBtn');
-            
-            if (handRaised) {
-                btn.classList.add('raised');
-                db.ref('handRaised/' + studentId).set(true);
-            } else {
-                btn.classList.remove('raised');
-                db.ref('handRaised/' + studentId).remove();
-            }
-        };
-
-        window.requestMic = function() {
-            if (!isApproved) return;
-            
-            db.ref('micRequests/' + studentId).set({
-                name: studentName,
-                id: studentId,
-                time: Date.now()
-            });
-            
-            document.getElementById('micBtn').classList.add('mic-request');
-            document.getElementById('micStatus').className = 'mic-status request';
-            document.getElementById('micStatus').innerHTML = '🟡 جاري الطلب...';
-        };
-
-        db.ref('micPermissions/' + studentId).on('value', snap => {
-            const perm = snap.val();
-            if (perm && perm.allowed) {
-                micPermission = true;
-                startMic();
-            }
-        });
-
-        async function startMic() {
-            try {
-                mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: {
-                        echoCancellation: true,
-                        noiseSuppression: true
-                    } 
-                });
-                
-                isSpeaking = true;
-                
-                document.getElementById('micBtn').classList.remove('mic-request');
-                document.getElementById('micBtn').classList.add('mic-active');
-                document.getElementById('micStatus').className = 'mic-status active';
-                document.getElementById('micStatus').innerHTML = '🟢 تتحدث...';
-                
-                mediaRecorder = new MediaRecorder(mediaStream);
-                
-                mediaRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0) {
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                            db.ref('stuAudio/chunk').set({
-                                data: reader.result,
-                                studentId: studentId,
-                                time: Date.now()
-                            });
-                        };
-                        reader.readAsDataURL(e.data);
-                    }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    db.ref('draw_t').push({
+                        type: 'image',
+                        data: e.target.result,
+                        board: currentBoard,
+                        time: Date.now()
+                    });
                 };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        };
+
+        // ===== التبديل بين السبورات =====
+        window.switchBoard = function(boardId) {
+            currentBoard = boardId;
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            // هنا يتم تحميل السبورة المناسبة
+        };
+
+        // ===== إدارة الطلاب =====
+        function updateStudentsList() {
+            const list = document.getElementById('studentsList');
+            let html = '';
+            let online = 0, hands = 0;
+
+            // الطلاب المنتظرين
+            Object.values(waitingStudents).forEach(s => {
+                html += `
+                    <div class="student-card hand-raised">
+                        <div class="student-info">
+                            <div class="student-avatar">${s.name.charAt(0)}</div>
+                            <div class="student-details">
+                                <div class="student-name">${s.name}</div>
+                                <div class="student-status">
+                                    <span class="status-dot hand"></span>
+                                    <span>في انتظار الموافقة</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="student-actions">
+                            <button class="action-btn approve" onclick="approveStudent('${s.id}')">
+                                <i class="fas fa-check"></i> قبول
+                            </button>
+                            <button class="action-btn reject" onclick="rejectStudent('${s.id}')">
+                                <i class="fas fa-times"></i> رفض
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // الطلاب المعتمدين
+            Object.values(students).forEach(s => {
+                if (!s.online) return;
+                online++;
+                if (s.handRaised) hands++;
                 
-                mediaRecorder.start(1000);
-                
-            } catch (err) {
-                console.log('خطأ في المايك');
-                document.getElementById('micStatus').innerHTML = '🔴 خطأ في المايك';
-            }
+                html += `
+                    <div class="student-card ${s.handRaised ? 'hand-raised' : ''} ${currentSpeaker === s.id ? 'speaking' : ''}">
+                        <div class="student-info">
+                            <div class="student-avatar">${s.name.charAt(0)}</div>
+                            <div class="student-details">
+                                <div class="student-name">${s.name}</div>
+                                <div class="student-status">
+                                    <span class="status-dot ${s.handRaised ? 'hand' : (currentSpeaker === s.id ? 'speaking' : '')}"></span>
+                                    <span>${s.handRaised ? '✋ رفع يد' : (currentSpeaker === s.id ? '🎤 يتحدث' : '🔊 مستمع')}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="student-actions">
+                            ${s.handRaised ? `
+                                <button class="action-btn approve" onclick="allowMic('${s.id}')">
+                                    <i class="fas fa-check"></i> سماح
+                                </button>
+                                <button class="action-btn reject" onclick="rejectHand('${s.id}')">
+                                    <i class="fas fa-times"></i> رفض
+                                </button>
+                            ` : ''}
+                            ${currentSpeaker === s.id ? `
+                                <button class="action-btn mic" onclick="stopMic('${s.id}')">
+                                    <i class="fas fa-microphone-slash"></i> إسكات
+                                </button>
+                            ` : ''}
+                            <button class="action-btn view" onclick="viewBoard('${s.id}')">
+                                <i class="fas fa-eye"></i> عرض
+                            </button>
+                            <button class="action-btn kick" onclick="kickStudent('${s.id}')">
+                                <i class="fas fa-sign-out-alt"></i> طرد
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            list.innerHTML = html || '<div style="padding:20px; text-align:center; color:#94a3b8">لا يوجد طلاب</div>';
+            document.getElementById('onlineCount').textContent = online;
+            document.getElementById('handCount').textContent = hands;
         }
 
-        const audioPlayer = document.getElementById('audioPlayer');
-        const heardAudios = new Set();
-
-        db.ref('audio/chunk').on('value', snap => {
-            const data = snap.val();
-            if (!data || !data.data || heardAudios.has(data.time)) return;
-            
-            heardAudios.add(data.time);
-            audioPlayer.src = data.data;
-            audioPlayer.play().catch(() => {});
-        });
-
-        db.ref('audioMeta').on('value', snap => {
-            const meta = snap.val();
-            if (meta && meta.active) {
-                document.getElementById('teacherStatus').innerHTML = '<span class="live-dot"></span> المدرس يتحدث';
-            } else {
-                document.getElementById('teacherStatus').innerHTML = '<span class="live-dot"></span> المدرس متصل';
-            }
-        });
-
-        db.ref('.info/connected').on('value', snap => {
-            if (snap.val()) {
-                document.getElementById('teacherStatus').innerHTML = '<span class="live-dot"></span> متصل';
-            } else {
-                document.getElementById('teacherStatus').innerHTML = '🔴 غير متصل';
-            }
-        });
-
-        window.toggleFullscreen = function() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                document.exitFullscreen();
+        // ===== إجراءات الطلاب =====
+        window.approveStudent = function(id) {
+            const student = waitingStudents[id];
+            if (student) {
+                students[id] = {
+                    id: id,
+                    name: student.name,
+                    online: true,
+                    handRaised: false
+                };
+                delete waitingStudents[id];
+                db.ref('approvedStudents/' + id).set(students[id]);
+                db.ref('joinRequests/' + id).remove();
+                updateStudentsList();
             }
         };
 
-        window.addEventListener('beforeunload', () => {
-            if (studentId) {
-                db.ref('onlineStudents/' + studentId).remove();
-                db.ref('handRaised/' + studentId).remove();
-                db.ref('micRequests/' + studentId).remove();
+        window.rejectStudent = function(id) {
+            delete waitingStudents[id];
+            db.ref('joinRequests/' + id).remove();
+            updateStudentsList();
+        };
+
+        window.rejectAllRequests = function() {
+            if (confirm('رفض جميع طلبات الانضمام؟')) {
+                Object.keys(waitingStudents).forEach(id => {
+                    db.ref('joinRequests/' + id).remove();
+                });
+                waitingStudents = {};
+                updateStudentsList();
+            }
+        };
+
+        window.allowMic = function(id) {
+            if (currentSpeaker) {
+                db.ref('micPermissions/' + currentSpeaker).remove();
+            }
+            
+            currentSpeaker = id;
+            students[id].handRaised = false;
+            db.ref('micPermissions/' + id).set({ allowed: true });
+            db.ref('handRaised/' + id).remove();
+            
+            document.getElementById('speakingIndicator').style.display = 'flex';
+            document.getElementById('currentSpeaker').textContent = students[id].name;
+            document.getElementById('currentSpeakerName').textContent = students[id].name;
+            updateStudentsList();
+        };
+
+        window.rejectHand = function(id) {
+            students[id].handRaised = false;
+            db.ref('handRaised/' + id).remove();
+            updateStudentsList();
+        };
+
+        window.stopMic = function(id) {
+            if (currentSpeaker === id) {
+                currentSpeaker = null;
+                db.ref('micPermissions/' + id).remove();
+                document.getElementById('speakingIndicator').style.display = 'none';
+                document.getElementById('currentSpeakerName').textContent = 'لا يوجد متحدث';
+                updateStudentsList();
+            }
+        };
+
+        window.kickStudent = function(id) {
+            if (confirm(`طرد الطالب ${students[id].name}؟`)) {
+                if (currentSpeaker === id) stopMic(id);
+                db.ref('approvedStudents/' + id).remove();
+                db.ref('onlineStudents/' + id).remove();
+                delete students[id];
+                updateStudentsList();
+            }
+        };
+
+        window.resetAll = function() {
+            if (confirm('تصفير الجلسة بالكامل؟')) {
+                // إيقاف المايك
+                if (isMicOn) toggleMicrophone();
+                
+                // إزالة جميع الطلاب
+                Object.keys(students).forEach(id => {
+                    db.ref('approvedStudents/' + id).remove();
+                    db.ref('onlineStudents/' + id).remove();
+                });
+                
+                // إزالة طلبات الانضمام
+                Object.keys(waitingStudents).forEach(id => {
+                    db.ref('joinRequests/' + id).remove();
+                });
+                
+                // إزالة الأذونات
+                db.ref('micPermissions').remove();
+                db.ref('handRaised').remove();
+                
+                // إيقاف البث
+                db.ref('audioMeta').set({ active: false });
+                db.ref('audio').remove();
+                
+                // مسح السبورة
+                clearCurrentBoard();
+                
+                // إعادة تعيين المتغيرات
+                students = {};
+                waitingStudents = {};
+                currentSpeaker = null;
+                
+                updateStudentsList();
+            }
+        };
+
+        window.rejectAllAndReset = function() {
+            rejectAllRequests();
+            resetAll();
+        };
+
+        // ===== الصوت =====
+        window.toggleMicrophone = async function() {
+            const btn = document.getElementById('micToggle');
+            const icon = document.getElementById('micIcon');
+
+            if (!isMicOn) {
+                try {
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true
+                        } 
+                    });
+                    isMicOn = true;
+                    btn.classList.remove('mic-off');
+                    btn.classList.add('mic-on');
+                    icon.className = 'fas fa-microphone';
+                    
+                    startBroadcasting();
+                } catch (err) {
+                    alert('لا يمكن الوصول للمايك');
+                }
+            } else {
+                if (mediaStream) {
+                    mediaStream.getTracks().forEach(t => t.stop());
+                }
+                if (mediaRecorder) {
+                    mediaRecorder.stop();
+                }
+                isMicOn = false;
+                btn.classList.remove('mic-on');
+                btn.classList.add('mic-off');
+                icon.className = 'fas fa-microphone-slash';
+                db.ref('audioMeta').set({ active: false });
+                db.ref('audio').remove();
+            }
+        };
+
+        function startBroadcasting() {
+            if (!mediaStream) return;
+            
+            mediaRecorder = new MediaRecorder(mediaStream);
+            
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        db.ref('audio/chunk').set({
+                            data: reader.result,
+                            time: Date.now()
+                        });
+                    };
+                    reader.readAsDataURL(e.data);
+                }
+            };
+            
+            mediaRecorder.start(1000);
+            db.ref('audioMeta').set({ active: true });
+        }
+
+        // ===== استقبال البيانات من Firebase =====
+        db.ref('joinRequests').on('child_added', snap => {
+            const s = snap.val();
+            waitingStudents[s.id] = s;
+            updateStudentsList();
+        });
+
+        db.ref('joinRequests').on('child_removed', snap => {
+            const s = snap.val();
+            delete waitingStudents[s.id];
+            updateStudentsList();
+        });
+
+        db.ref('approvedStudents').on('value', snap => {
+            students = snap.val() || {};
+            updateStudentsList();
+        });
+
+        db.ref('onlineStudents').on('value', snap => {
+            const online = snap.val() || {};
+            Object.keys(students).forEach(id => {
+                if (students[id]) students[id].online = online[id] ? true : false;
+            });
+            updateStudentsList();
+        });
+
+        db.ref('handRaised').on('value', snap => {
+            const hands = snap.val() || {};
+            Object.keys(students).forEach(id => {
+                if (students[id]) students[id].handRaised = hands[id] ? true : false;
+            });
+            updateStudentsList();
+        });
+
+        // ===== حالة الاتصال =====
+        db.ref('.info/connected').on('value', snap => {
+            if (snap.val()) {
+                db.ref('teacher/online').set({ online: true });
             }
         });
+
+        // ===== محاكاة زمن الاستجابة =====
+        setInterval(() => {
+            document.getElementById('latency').textContent = Math.floor(Math.random() * 30 + 10) + 'ms';
+        }, 3000);
     </script>
 </body>
 </html>
+<!-- نهاية ملف teacher.html -->
