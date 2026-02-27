@@ -1,362 +1,398 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>MyClass2 - المدرس (الإصدار اللحظي)</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-:root{--bl:#3b82f6;--rd:#ef4444;--gn:#22c55e;--yw:#f59e0b;--dk:#0f172a;--cd:#1e293b;--br:#334155;--mt:#475569;--dm:#94a3b8}
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
-html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
-.hdr{background:var(--cd);height:50px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--br);flex-shrink:0}
-.logo{font-size:19px;font-weight:900;color:var(--bl)}.logo span{color:#fff}
-.hstats{display:flex;gap:8px}
-.chip{background:var(--br);padding:4px 12px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:6px}
-.live{background:var(--rd);padding:4px 12px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:6px;animation:blink 1.5s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.6}}
-#shell{display:flex;flex-direction:column;height:calc(100vh - 50px)}
-.main{display:flex;flex:1;overflow:hidden;min-height:0}
-.sidebar{width:200px;background:var(--cd);border-left:1px solid var(--br);display:flex;flex-direction:column;flex-shrink:0}
-.sdt{padding:10px 12px;font-size:11px;color:var(--dm);border-bottom:1px solid var(--br);font-weight:700}
-.slist{flex:1;overflow-y:auto;padding:6px}
-.slist::-webkit-scrollbar{width:3px}.slist::-webkit-scrollbar-thumb{background:var(--br)}
-.sitem{padding:8px 10px;border-radius:9px;cursor:pointer;margin-bottom:3px;border:1px solid transparent;transition:.15s}
-.sitem:hover{background:var(--br)}.sitem.act{background:rgba(59,130,246,.15);border-color:var(--bl)}
-.sitem.spk{background:rgba(34,197,94,.1);border-color:var(--gn)}.sitem.wait{background:rgba(245,158,11,.08);border-color:var(--yw)}
-.sname{font-size:13px;font-weight:700;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sbadges{display:flex;align-items:center;gap:4px;margin-top:2px}
-.sdot{width:6px;height:6px;border-radius:50%;background:var(--gn)}
-.slbl{font-size:10px;color:var(--gn)}.sspk{font-size:10px;color:var(--gn);font-weight:700}
-.swait{font-size:10px;color:var(--yw);font-weight:700;display:none;align-items:center;gap:2px}
-.swait.on{display:flex}.swait i{animation:blink .8s infinite}
-.content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
-.bwrap{flex:1;background:#fff;position:relative;overflow:hidden;min-height:0}
-#mc{display:block;position:absolute;top:0;left:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
-.blabel{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;padding:3px 10px;border-radius:14px;font-size:11px;pointer-events:none;z-index:5}
-.toolbar{background:var(--cd);border-top:1px solid var(--br);padding:7px 10px;display:flex;align-items:center;gap:7px;flex-wrap:nowrap;overflow-x:auto;flex-shrink:0}
-.tsep{width:1px;height:32px;background:var(--br);flex-shrink:0}
-.tg{display:flex;gap:3px;flex-shrink:0}
-.tb{width:38px;height:38px;border-radius:9px;border:1px solid transparent;background:var(--br);color:var(--dm);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.tb:hover{background:var(--mt);color:#fff}.tb.on{background:var(--bl);color:#fff}
-.tb.danger{background:rgba(239,68,68,.2);color:var(--rd)}.tb.danger:hover{background:var(--rd);color:#fff}
-.shapepanel{position:absolute;bottom:58px;left:50px;background:var(--cd);border:1px solid var(--br);border-radius:12px;padding:8px;display:none;flex-wrap:wrap;gap:5px;z-index:50;width:190px}
-.shapepanel.on{display:flex}
-.shbtn{width:42px;height:42px;background:var(--br);border:1px solid transparent;border-radius:7px;color:#fff;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
-.shbtn:hover,.shbtn.on{background:var(--bl);border-color:#60a5fa}
-.clrs{display:flex;gap:4px;align-items:center;flex-shrink:0}
-.cl{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;flex-shrink:0}
-.cl.on{border-color:#fff;transform:scale(1.1)}
-.szs{display:flex;gap:3px;align-items:center;background:var(--br);padding:3px 6px;border-radius:8px;flex-shrink:0}
-.sz{border:none;background:transparent;cursor:pointer;padding:3px 5px;border-radius:5px;display:flex;align-items:center;justify-content:center}
-.sz.on{background:var(--bl)}.sdot{background:#fff;border-radius:50%}
-.micarea{display:flex;align-items:center;gap:8px;margin-right:auto;flex-shrink:0}
-.miclbl{font-size:11px;color:var(--dm)}
-.micbtn{width:38px;height:38px;border-radius:9px;border:1px solid transparent;background:var(--br);color:var(--dm);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
-.micbtn.on{background:var(--gn);color:#fff}
-#txtbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center}
-#txtbox.on{display:flex}
-.txtin{background:var(--cd);border-radius:14px;padding:18px;width:280px;border:1px solid var(--br)}
-.txtin p{font-size:13px;margin-bottom:8px}
-.txtin input{width:100%;padding:9px;background:var(--br);border:none;border-radius:8px;color:#fff;font-family:'Cairo',sans-serif;font-size:14px;outline:none}
-.txtin .btns{display:flex;gap:7px;margin-top:10px}
-.txtin button{flex:1;padding:8px;border:none;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700}
-#toasts{position:fixed;top:55px;left:50%;transform:translateX(-50%);z-index:500;display:flex;flex-direction:column;gap:7px;pointer-events:none;min-width:300px}
-.toast{background:var(--cd);border:1px solid var(--br);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;pointer-events:all;animation:sld .3s ease;box-shadow:0 8px 24px rgba(0,0,0,.4)}
-@keyframes sld{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.ttico{font-size:18px;flex-shrink:0}.tttx{flex:1;font-size:12px}.tttx strong{display:block;font-size:13px;margin-bottom:2px}
-.ttbtns{display:flex;gap:5px}
-.ttbtn{padding:5px 12px;border-radius:16px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif}
-.ttok{background:var(--gn);color:#fff}.ttno{background:var(--br);color:var(--dm)}
-.statusbar{background:var(--cd);border-top:1px solid var(--br);height:28px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--dm);flex-shrink:0}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MyClass2 PRO | نظام المدرس المتطور</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bl: #2563eb; --bl-l: #3b82f6; --rd: #dc2626; --gn: #16a34a; --yw: #ca8a04; --dk: #0f172a; --cd: #1e293b; --br: #334155; --txt: #f8fafc; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--dk); color: var(--txt); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* الهيدر المطور */
+        .hdr { height: 65px; background: var(--cd); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 3px solid var(--bl); z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-area h1 { font-size: 24px; font-weight: 900; letter-spacing: -1px; }
+        .logo-area h1 span { color: var(--bl-l); }
+        
+        .conn-status { display: flex; gap: 15px; font-size: 13px; background: rgba(0,0,0,0.2); padding: 8px 15px; border-radius: 30px; border: 1px solid var(--br); }
+        .status-item { display: flex; align-items: center; gap: 6px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gn); animation: pulse 1.5s infinite; }
+
+        /* منطقة المحتوى الرئيسي */
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* القائمة الجانبية المطورة */
+        .sidebar { width: 260px; background: var(--cd); border-left: 2px solid var(--br); display: flex; flex-direction: column; transition: 0.3s; }
+        .sidebar-hdr { padding: 15px; font-weight: 700; font-size: 14px; border-bottom: 1px solid var(--br); display: flex; justify-content: space-between; }
+        .student-list { flex: 1; overflow-y: auto; padding: 10px; }
+        .student-card { background: var(--br); border-radius: 12px; padding: 12px; margin-bottom: 10px; border: 2px solid transparent; transition: 0.2s; cursor: pointer; }
+        .student-card.active { border-color: var(--bl-l); background: rgba(59, 130, 246, 0.1); }
+        .student-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .student-name { font-weight: 700; font-size: 14px; }
+        .student-actions { display: flex; gap: 5px; }
+        .act-btn { width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.2s; }
+        .btn-mic-give { background: var(--gn); color: #fff; }
+        .btn-view { background: var(--bl); color: #fff; }
+        .v-indicator { height: 4px; width: 100%; background: #444; border-radius: 2px; overflow: hidden; margin-top: 5px; }
+        .v-fill { height: 100%; width: 0%; background: var(--gn); transition: 0.1s; }
+
+        /* منطقة السبورة */
+        .board-zone { flex: 1; position: relative; display: flex; flex-direction: column; background: #f1f5f9; padding: 15px; }
+        .board-wrapper { flex: 1; background: #fff; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; overflow: hidden; border: 4px solid #fff; }
+        #mainCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; z-index: 5; }
+        .board-info { position: absolute; top: 15px; right: 20px; z-index: 10; display: flex; gap: 10px; }
+        .badge { background: rgba(15, 23, 42, 0.8); color: #fff; padding: 5px 15px; border-radius: 20px; font-size: 12px; backdrop-filter: blur(5px); }
+
+        /* شريط الأدوات العملاق */
+        .giant-toolbar { height: 80px; background: var(--cd); border-top: 2px solid var(--br); display: flex; align-items: center; gap: 15px; padding: 0 25px; z-index: 100; overflow-x: auto; }
+        .tool-group { display: flex; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 15px; gap: 5px; }
+        .t-btn { width: 48px; height: 48px; border-radius: 12px; border: none; background: transparent; color: #94a3b8; cursor: pointer; font-size: 20px; transition: 0.3s; position: relative; }
+        .t-btn:hover { background: var(--br); color: #fff; }
+        .t-btn.active { background: var(--bl); color: #fff; box-shadow: 0 0 15px rgba(37, 99, 235, 0.5); }
+        .t-btn span { position: absolute; bottom: -20px; font-size: 10px; width: 100%; text-align: center; color: #94a3b8; }
+        
+        .color-picker { display: flex; gap: 8px; margin-left: 10px; }
+        .c-drop { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .c-drop.active { border-color: #fff; transform: scale(1.2); }
+
+        /* نظام التنبيهات */
+        #notification-center { position: fixed; top: 75px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 350px; }
+        .alert-card { background: var(--cd); border-right: 5px solid var(--bl); padding: 15px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        .alert-btns { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-confirm { flex: 1; padding: 8px; border-radius: 8px; border: none; background: var(--gn); color: #fff; font-weight: 700; cursor: pointer; }
+        .btn-cancel { flex: 1; padding: 8px; border-radius: 8px; border: none; background: var(--br); color: #fff; cursor: pointer; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    </style>
 </head>
 <body>
+
 <div class="hdr">
-  <div class="logo">My<span>Class</span>2</div>
-  <div class="hstats">
-    <div class="chip"><i class="fas fa-users"></i><span id="cnt">0</span></div>
-    <div class="chip"><i class="fas fa-hand-paper" style="color:var(--yw)"></i><span id="hcnt">0</span></div>
-    <div class="live"><i class="fas fa-circle"></i> مباشر</div>
-  </div>
-</div>
-<div id="shell">
-  <div class="main">
-    <div class="content">
-      <div class="bwrap" id="bwrap">
-        <canvas id="mc"></canvas>
-        <div class="blabel" id="blabel">السبورة الرئيسية</div>
-      </div>
-      <div class="toolbar" style="position:relative">
-        <div class="tg">
-          <button class="tb on" id="bpen" onclick="setTool('pen')"><i class="fas fa-pencil-alt"></i></button>
-          <button class="tb" id="bera" onclick="setTool('eraser')"><i class="fas fa-eraser"></i></button>
-          <button class="tb" id="bshp" onclick="toggleShapes()"><i class="fas fa-shapes"></i></button>
-        </div>
-        <div class="shapepanel" id="shapepanel">
-          <button class="shbtn" onclick="setShape('line')"><i class="fas fa-minus"></i></button>
-          <button class="shbtn" onclick="setShape('arrow')"><i class="fas fa-arrow-left"></i></button>
-          <button class="shbtn" onclick="setShape('rect')"><i class="far fa-square"></i></button>
-          <button class="shbtn" onclick="setShape('circle')"><i class="far fa-circle"></i></button>
-          <button class="shbtn" onclick="setShape('triangle')"><i class="fas fa-caret-up" style="font-size:18px"></i></button>
-          <button class="shbtn" onclick="setShape('cylinder')"><i class="fas fa-database"></i></button>
-          <button class="shbtn" onclick="setShape('cube')"><i class="fas fa-cube"></i></button>
-          <button class="shbtn" onclick="setShape('chart')"><i class="fas fa-chart-bar"></i></button>
-          <button class="shbtn" onclick="setShape('star')"><i class="fas fa-star"></i></button>
-          <button class="shbtn" onclick="setShape('text')"><i class="fas fa-font"></i></button>
-        </div>
-        <div class="tsep"></div>
-        <div class="clrs">
-          <div class="cl on" style="background:#1a1a1a" data-c="#1a1a1a" onclick="setClr(this)"></div>
-          <div class="cl"    style="background:#ef4444" data-c="#ef4444" onclick="setClr(this)"></div>
-          <div class="cl"    style="background:#3b82f6" data-c="#3b82f6" onclick="setClr(this)"></div>
-          <div class="cl"    style="background:#22c55e" data-c="#22c55e" onclick="setClr(this)"></div>
-          <div class="cl"    style="background:#f59e0b" data-c="#f59e0b" onclick="setClr(this)"></div>
-          <div class="cl"    style="background:#a855f7" data-c="#a855f7" onclick="setClr(this)"></div>
-          <input type="color" id="customClr" style="width:26px;height:26px;border-radius:50%;border:2px solid #fff;cursor:pointer;padding:0;flex-shrink:0" oninput="clr=this.value">
-        </div>
-        <div class="tsep"></div>
-        <div class="szs">
-          <button class="sz"    onclick="setSz(2,this)"><div class="sdot" style="width:4px;height:4px"></div></button>
-          <button class="sz on" onclick="setSz(5,this)"><div class="sdot" style="width:8px;height:8px"></div></button>
-          <button class="sz"    onclick="setSz(12,this)"><div class="sdot" style="width:14px;height:14px"></div></button>
-        </div>
-        <div class="tsep"></div>
-        <div class="tg">
-          <button class="tb" onclick="doUndo()"><i class="fas fa-undo"></i></button>
-          <button class="tb danger" onclick="clearBoard()"><i class="fas fa-trash"></i></button>
-        </div>
-        <div class="micarea">
-          <span class="miclbl" id="spkName"></span>
-          <button class="micbtn" id="micbtn" onclick="toggleMic()">
-            <i class="fas fa-microphone-slash" id="micico"></i>
-          </button>
-        </div>
-      </div>
+    <div class="logo-area">
+        <i class="fas fa-chalkboard-teacher" style="font-size: 28px; color: var(--bl-l);"></i>
+        <h1>MyClass2 <span>PRO</span></h1>
     </div>
+    <div class="conn-status">
+        <div class="status-item"><div class="dot"></div> مباشر</div>
+        <div class="status-item"><i class="fas fa-tachometer-alt"></i> <span id="ping-val">--</span>ms</div>
+        <div class="status-item"><i class="fas fa-users"></i> <span id="user-count">0</span></div>
+    </div>
+</div>
+
+<div class="main-container">
     <div class="sidebar">
-      <div class="sdt"><i class="fas fa-users"></i> الطلاب</div>
-      <div class="slist" id="slist">
-        <div style="color:var(--dm);font-size:12px;text-align:center;padding:20px">لا يوجد طلاب بعد</div>
-      </div>
+        <div class="sidebar-hdr">قائمة الطلاب <i class="fas fa-chevron-left"></i></div>
+        <div class="student-list" id="st-list">
+            <div style="text-align: center; padding: 40px; color: #64748b;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
+                <p style="margin-top: 10px;">في انتظار انضمام الطلاب...</p>
+            </div>
+        </div>
     </div>
-  </div>
-  <div class="statusbar">
-    <span>⚡ <span id="lat">--ms</span></span>
-    <span id="viewlabel" style="color:var(--bl)"></span>
-  </div>
-</div>
-<div id="txtbox">
-  <div class="txtin">
-    <p>أدخل النص:</p>
-    <input id="txtin" type="text" placeholder="اكتب هنا...">
-    <div class="btns">
-      <button onclick="confirmText()" style="background:var(--bl);color:#fff">إضافة</button>
-      <button onclick="document.getElementById('txtbox').classList.remove('on')" style="background:var(--br);color:#fff">إلغاء</button>
+
+    <div class="board-zone">
+        <div class="board-info">
+            <div class="badge" id="view-mode">الوضع: السبورة الرئيسية</div>
+            <div class="badge" id="drawing-owner" style="background: var(--gn);">المدرس يكتب الآن</div>
+        </div>
+        <div class="board-wrapper" id="b-wrap">
+            <canvas id="mainCanvas"></canvas>
+        </div>
     </div>
-  </div>
 </div>
-<div id="toasts"></div>
-<audio id="AP" style="display:none"></audio>
+
+<div class="giant-toolbar">
+    <div class="tool-group">
+        <button class="t-btn active" id="pen-tool" onclick="changeTool('pen')"><i class="fas fa-pen-nib"></i><span>قلم</span></button>
+        <button class="t-btn" id="eraser-tool" onclick="changeTool('eraser')"><i class="fas fa-eraser"></i><span>ممحاة</span></button>
+    </div>
+    
+    <div class="color-picker" id="colors">
+        <div class="c-drop active" style="background: #1e293b;" data-color="#1e293b"></div>
+        <div class="c-drop" style="background: #ef4444;" data-color="#ef4444"></div>
+        <div class="c-drop" style="background: #22c55e;" data-color="#22c55e"></div>
+        <div class="c-drop" style="background: #3b82f6;" data-color="#3b82f6"></div>
+        <div class="c-drop" style="background: #f59e0b;" data-color="#f59e0b"></div>
+        <input type="color" id="custom-color" style="width: 30px; height: 30px; border: none; cursor: pointer; background: transparent;">
+    </div>
+
+    <div class="tool-group" style="margin-right: 20px;">
+        <button class="t-btn" onclick="clearFullBoard()"><i class="fas fa-trash-alt"></i><span>مسح</span></button>
+        <button class="t-btn" onclick="undoLast()"><i class="fas fa-undo"></i><span>تراجع</span></button>
+    </div>
+
+    <div style="flex: 1;"></div>
+
+    <div class="tool-group">
+        <button class="t-btn" id="teacher-mic" onclick="toggleTeacherMic()" style="width: 140px; border-radius: 30px; font-size: 14px; display: flex; gap: 10px; padding: 0 15px;">
+            <i class="fas fa-microphone-slash" id="mic-icon"></i>
+            <span id="mic-text" style="position: static;">ميكروفون المدرس</span>
+        </button>
+    </div>
+</div>
+
+<div id="notification-center"></div>
+<audio id="remote-audio-player" autoplay></audio>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
 <script>
-firebase.initializeApp({
-  apiKey:"AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
-  authDomain:"myclaive.firebaseapp.com",
-  databaseURL:"https://myclaive-default-rtdb.firebaseio.com",
-  projectId:"myclaive",
-  storageBucket:"myclaive.firebasestorage.app",
-  messagingSenderId:"507299311714",
-  appId:"1:507299311714:web:c90440ee4353cfac17613b"
-});
-const db=firebase.database();
+// --- تكوين الاتصال فائق السرعة ---
+const firebaseConfig = {
+    apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
+    authDomain: "myclaive.firebaseapp.com",
+    databaseURL: "https://myclaive-default-rtdb.firebaseio.com",
+    projectId: "myclaive",
+    appId: "1:507299311714:web:c90440ee4353cfac17613b"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-// -- State --
-let students={}, micWaiting=new Set(), curView='main', curSpeaker=null;
-let snaps={}, hist={};  
-let tool='pen', shape=null, clr='#1a1a1a', sz=5;
-let down=false, sx=0, sy=0, snap0=null, txtPos=null;
-let micOn=false, mStream=null, mRec=null;
+// متغيرات النظام
+let canvas = document.getElementById('mainCanvas');
+let ctx = canvas.getContext('2d');
+let isDrawing = false;
+let currentTool = 'pen';
+let currentColor = '#1e293b';
+let currentMode = 'main'; // main OR studentID
+let lastX = 0; let lastY = 0;
+let pointsBuffer = []; // لتجميع النقاط وإرسالها دفعات سريعة
 
-const canvas=document.getElementById('mc');
-const ctx=canvas.getContext('2d');
-
-function fitMain(){
-  const w=canvas.parentElement.offsetWidth, h=canvas.parentElement.offsetHeight;
-  if(!w||!h) return;
-  canvas.width=w; canvas.height=h;
-  ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
-  restoreSnap();
+// إعداد السبورة
+function resizeCanvas() {
+    const wrap = document.getElementById('b-wrap');
+    canvas.width = wrap.offsetWidth;
+    canvas.height = wrap.offsetHeight;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 }
-window.addEventListener('resize',()=>{saveSnap();fitMain();});
-setTimeout(fitMain,0);
+window.onresize = resizeCanvas;
+resizeCanvas();
 
-function saveSnap(){try{snaps[curView]=ctx.getImageData(0,0,canvas.width,canvas.height);}catch(e){}}
-function restoreSnap(){
-  ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
-  const s=snaps[curView];
-  if(s){try{ctx.putImageData(s,0,0);}catch(e){}}
-}
-function pushHist(){
-  if(!hist[curView]) hist[curView]=[];
-  const h=hist[curView];
-  if(h.length>=20) h.shift();
-  try{h.push(ctx.getImageData(0,0,canvas.width,canvas.height));}catch(e){}
-}
-
-function viewMain(){
-  saveSnap(); curView='main'; restoreSnap();
-  document.getElementById('blabel').textContent='السبورة الرئيسية';
-  renderList();
-}
-function viewStudent(id){
-  saveSnap(); curView=id; restoreSnap();
-  document.getElementById('blabel').innerHTML=`✏️ سبورة ${students[id]?.name||id}`;
-  renderList();
-}
-
-function getXY(e){
-  const r=canvas.getBoundingClientRect();
-  const ex=e.touches?e.touches[0].clientX:e.clientX;
-  const ey=e.touches?e.touches[0].clientY:e.clientY;
-  return{x:(ex-r.left)*(canvas.width/r.width), y:(ey-r.top)*(canvas.height/r.height)};
-}
-
-const bwrap=document.getElementById('bwrap');
-bwrap.addEventListener('mousedown',startD);
-bwrap.addEventListener('mousemove',moveD);
-bwrap.addEventListener('mouseup',endD);
-bwrap.addEventListener('touchstart',startD,{passive:false});
-bwrap.addEventListener('touchmove',moveD,{passive:false});
-bwrap.addEventListener('touchend',endD);
-
-function startD(e){
-  e.preventDefault(); const p=getXY(e); sx=p.x; sy=p.y; down=true;
-  if(tool==='text'){txtPos={x:p.x,y:p.y}; document.getElementById('txtbox').classList.add('on'); down=false; return;}
-  if(tool==='shape'){snap0=ctx.getImageData(0,0,canvas.width,canvas.height);return;}
-  ctx.beginPath(); ctx.moveTo(p.x,p.y);
-  streamPt(p.x,p.y,true);
-}
-function moveD(e){
-  e.preventDefault(); if(!down) return; const p=getXY(e);
-  if(tool==='shape'&&snap0){ctx.putImageData(snap0,0,0);drawShape(ctx,shape,sx,sy,p.x,p.y,clr,sz);return;}
-  ctx.strokeStyle=tool==='eraser'?'#fff':clr;
-  ctx.lineWidth=tool==='eraser'?sz*5:sz;
-  ctx.lineCap='round'; ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x,p.y);
-  streamPt(p.x,p.y,false);
-}
-function endD(){ if(!down) return; down=false; pushHist(); saveSnap(); endStroke(); }
-
-// -- Real-time Streaming --
-function streamPt(x,y,s){
-  const ref=curView==='main'?db.ref('stroke/main'):db.ref('stroke/stu/'+curView);
-  ref.set({x:x/canvas.width, y:y/canvas.height, s:s, c:clr, w:sz, e:tool==='eraser', ts:Date.now()});
-}
-
-function endStroke(){
-  const jpg=canvas.toDataURL('image/jpeg',0.5);
-  if(curView==='main') db.ref('boardImg/main').set({data:jpg,ts:Date.now()});
-  else db.ref('boardImg/stu/'+curView).set({data:jpg,byT:true,ts:Date.now()});
-}
-
-// استلام رسم الطالب لحظياً
-db.ref('stroke/stu').on('child_changed', snap => {
-  if(snap.key === curView) {
-    const d = snap.val();
-    ctx.strokeStyle = d.e ? '#fff' : d.c;
-    ctx.lineWidth = d.e ? d.w*5 : d.w;
-    const x=d.x*canvas.width, y=d.y*canvas.height;
-    if(d.s){ctx.beginPath(); ctx.moveTo(x,y);} else {ctx.lineTo(x,y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,y);}
-  }
-});
-
-function drawShape(c,s,x1,y1,x2,y2,col,lw){
-  c.save(); c.strokeStyle=col; c.fillStyle=col; c.lineWidth=lw; c.beginPath();
-  const w=x2-x1,h=y2-y1;
-  if(s==='line'){c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
-  else if(s==='rect'){c.strokeRect(x1,y1,w,h);}
-  else if(s==='circle'){c.ellipse(x1+w/2,y1+h/2,Math.abs(w/2),Math.abs(h/2),0,0,Math.PI*2);c.stroke();}
-  else if(s==='arrow'){
-    c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();
-    const a=Math.atan2(h,w); c.translate(x2,y2); c.rotate(a);
-    c.moveTo(0,0);c.lineTo(-15,-8);c.lineTo(-15,8);c.closePath();c.fill();
-  }
-  c.restore();
-}
-
-function confirmText(){
-  const txt=document.getElementById('txtin').value;
-  if(txt&&txtPos){ctx.font=`${sz*5+12}px Cairo`; ctx.fillStyle=clr; ctx.fillText(txt,txtPos.x,txtPos.y); endD();}
-  document.getElementById('txtbox').classList.remove('on');
-}
-
-function setTool(t){ tool=t; document.getElementById('bpen').className=t==='pen'?'tb on':'tb'; document.getElementById('bera').className=t==='eraser'?'tb on':'tb'; }
-function toggleShapes(){document.getElementById('shapepanel').classList.toggle('on');}
-function setShape(s){shape=s; tool='shape'; toggleShapes();}
-function setClr(el){clr=el.dataset.c; document.querySelectorAll('.cl').forEach(c=>c.classList.remove('on')); el.classList.add('on');}
-function setSz(s,btn){sz=s; document.querySelectorAll('.sz').forEach(b=>b.classList.remove('on')); btn.classList.add('on');}
-function doUndo(){const h=hist[curView]; if(!h||!h.length)return; h.pop(); restoreSnap(); endStroke();}
-function clearBoard(){ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height); saveSnap(); endStroke(); if(curView==='main')db.ref('boardCmd').set({type:'clear',ts:Date.now()});}
-
-function renderList(){
-  const list=document.getElementById('slist'); const arr=Object.values(students).filter(s=>s.online);
-  document.getElementById('cnt').textContent=arr.length;
-  let h=`<div class="sitem ${curView==='main'?'act':''}" onclick="viewMain()">🖥 الرئيسية</div>`;
-  arr.forEach(s=>{ h+=`<div class="sitem ${curView===s.id?'act':''}" onclick="viewStudent('${s.id}')"><span class="sname">${s.name}</span>${s.hand?'✋':''}</div>`;});
-  list.innerHTML=h;
-}
-
-db.ref('joinRequests').on('child_added',async snap=>{
-  const s=snap.val(); if(!s)return;
-  const ok=await showToast(`${s.name} يطلب الدخول`,'انضمام','👤',['قبول','رفض'],'var(--bl)');
-  if(ok===0){ students[s.id]={id:s.id,name:s.name,online:true}; db.ref('approvedStudents/'+s.id).set({id:s.id,name:s.name});}
-  snap.ref.remove(); renderList();
-});
-
-db.ref('onlineStudents').on('value',snap=>{
-  const d=snap.val()||{}; Object.keys(students).forEach(id=>students[id].online=!!d[id]);
-  Object.keys(d).forEach(id=>{if(!students[id])students[id]={id,name:d[id].name,online:true}}); renderList();
-});
-
-db.ref('micRequests').on('child_added',async snap=>{
-  const r=snap.val(); if(!r)return;
-  const ok=await showToast(`${r.studentName} يطلب المايك`,'تحدث','🎤',['سماح','رفض'],'var(--gn)');
-  if(ok===0) db.ref('micPermissions/'+r.studentId).set({allowed:true,ts:Date.now()});
-  snap.ref.remove();
-});
-
-// استماع لصوت الطالب وتكراره فوراً
-db.ref('audio/student').on('value', snap => {
-  const d=snap.val(); if(d) { const ap=document.getElementById('AP'); ap.src=d.data; ap.play().catch(()=>{}); }
-});
-
-async function toggleMic(){
-  if(!micOn){
-    mStream=await navigator.mediaDevices.getUserMedia({audio:true});
-    mRec=new MediaRecorder(mStream);
-    mRec.ondataavailable=e=>{
-      const r=new FileReader(); r.onload=()=>db.ref('audio/teacher').set({data:r.result,ts:Date.now()});
-      r.readAsDataURL(e.data);
+// --- نظام الرسم اللحظي (الفائق) ---
+function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+        x: (clientX - rect.left) / canvas.width,
+        y: (clientY - rect.top) / canvas.height
     };
-    mRec.start(300); micOn=true; document.getElementById('micbtn').classList.add('on');
-  } else {
-    mStream.getTracks().forEach(t=>t.stop()); micOn=false; document.getElementById('micbtn').classList.remove('on');
-  }
 }
 
-function showToast(title,sub,icon,btns,borderCol){
-  return new Promise(res=>{
-    const box=document.getElementById('toasts'),el=document.createElement('div');
-    el.className='toast'; el.style.borderRight=`4px solid ${borderCol}`;
-    el.innerHTML=`<div class="ttico">${icon}</div><div class="tttx"><strong>${title}</strong>${sub}</div>
-      <div class="ttbtns">${btns.map((b,i)=>`<button class="ttbtn ${i===0?'ttok':'ttno'}" data-i="${i}">${b}</button>`).join('')}</div>`;
-    el.querySelectorAll('.ttbtn').forEach(b=>b.onclick=()=>{el.remove();res(+b.dataset.i);});
-    box.appendChild(el);
-  });
+canvas.addEventListener('mousedown', startDrawing);
+canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e); });
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+canvas.addEventListener('mouseup', stopDrawing);
+canvas.addEventListener('touchend', stopDrawing);
+
+function startDrawing(e) {
+    isDrawing = true;
+    const pos = getPos(e);
+    lastX = pos.x; lastY = pos.y;
+    broadcastStroke('start', pos);
+    renderLocal('start', pos);
 }
+
+function draw(e) {
+    if (!isDrawing) return;
+    const pos = getPos(e);
+    broadcastStroke('move', pos);
+    renderLocal('move', pos);
+}
+
+function stopDrawing() {
+    if (!isDrawing) return;
+    isDrawing = false;
+    broadcastStroke('end', null);
+}
+
+function broadcastStroke(type, pos) {
+    const path = currentMode === 'main' ? 'strokes/main' : `strokes/student_${currentMode}`;
+    db.ref(path).set({
+        type: type,
+        x: pos ? pos.x : 0,
+        y: pos ? pos.y : 0,
+        color: currentColor,
+        tool: currentTool,
+        ts: firebase.database.ServerValue.TIMESTAMP
+    });
+}
+
+function renderLocal(type, pos) {
+    const x = pos ? pos.x * canvas.width : 0;
+    const y = pos ? pos.y * canvas.height : 0;
+    
+    if (type === 'start') {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    } else if (type === 'move') {
+        ctx.strokeStyle = currentTool === 'eraser' ? '#ffffff' : currentColor;
+        ctx.lineWidth = currentTool === 'eraser' ? 30 : 4;
+        ctx.lineTo(x, y);
+        ctx.stroke();
+    }
+}
+
+// استلام رسم الطالب لحظياً (بدون تأخير)
+db.ref('strokes').on('child_changed', snap => {
+    const d = snap.val();
+    if (snap.key === `student_${currentMode}`) {
+        renderLocal(d.type, {x: d.x, y: d.y});
+    }
+});
+
+// --- نظام الصوت المزدوج المتطور ---
+let teacherStream, mediaRecorder;
+
+async function toggleTeacherMic() {
+    const btn = document.getElementById('teacher-mic');
+    const icon = document.getElementById('mic-icon');
+    
+    if (!teacherStream) {
+        try {
+            teacherStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(teacherStream);
+            mediaRecorder.ondataavailable = (e) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    db.ref('audio/teacher_stream').set({
+                        data: reader.result,
+                        ts: firebase.database.ServerValue.TIMESTAMP
+                    });
+                };
+                reader.readAsDataURL(e.data);
+            };
+            mediaRecorder.start(250); // إرسال كل ربع ثانية لضمان الاستمرارية
+            btn.classList.add('active');
+            icon.className = 'fas fa-microphone';
+            document.getElementById('mic-text').innerText = "المايك يعمل";
+        } catch (err) { alert("يرجى السماح بالوصول للمايكروفون"); }
+    } else {
+        teacherStream.getTracks().forEach(t => t.stop());
+        teacherStream = null;
+        btn.classList.remove('active');
+        icon.className = 'fas fa-microphone-slash';
+        document.getElementById('mic-text').innerText = "مايكروفون المدرس";
+    }
+}
+
+// استلام صوت الطالب (تطوير 25%: نظام الـ Audio Queue)
+db.ref('audio/student_stream').on('value', snap => {
+    const audioData = snap.val();
+    if (audioData) {
+        const player = document.getElementById('remote-audio-player');
+        player.src = audioData.data;
+        // هنا نقوم بتحديث مؤشر الصوت المرئي للطالب النشط
+        if (currentMode !== 'main') {
+            const fill = document.querySelector(`.student-card[data-id="${currentMode}"] .v-fill`);
+            if (fill) { fill.style.width = "100%"; setTimeout(() => fill.style.width = "0%", 300); }
+        }
+    }
+});
+
+// --- إدارة الطلاب وطلبات الدخول ---
+db.ref('join_requests').on('child_added', snap => {
+    const req = snap.val();
+    const center = document.getElementById('notification-center');
+    const alertBox = document.createElement('div');
+    alertBox.className = 'alert-card';
+    alertBox.id = `req-${req.id}`;
+    alertBox.innerHTML = `
+        <div style="font-weight:700">طلب انضمام جديد</div>
+        <div style="font-size:13px; color:#94a3b8">الطالب: ${req.name} يريد دخول الفصل</div>
+        <div class="alert-btns">
+            <button class="btn-confirm" onclick="approveStudent('${req.id}', '${req.name}')">قبول</button>
+            <button class="btn-cancel" onclick="rejectStudent('${req.id}')">رفض</button>
+        </div>
+    `;
+    center.appendChild(alertBox);
+});
+
+function approveStudent(id, name) {
+    db.ref(`classroom/students/${id}`).set({ id, name, micAllowed: false, lastActive: Date.now() });
+    db.ref(`join_requests/${id}`).remove();
+    document.getElementById(`req-${id}`).remove();
+}
+
+db.ref('classroom/students').on('value', snap => {
+    const list = document.getElementById('st-list');
+    list.innerHTML = '';
+    let count = 0;
+    snap.forEach(s => {
+        count++;
+        const std = s.val();
+        const card = document.createElement('div');
+        card.className = `student-card ${currentMode === std.id ? 'active' : ''}`;
+        card.dataset.id = std.id;
+        card.innerHTML = `
+            <div class="student-info">
+                <span class="student-name"><i class="fas fa-user-graduate"></i> ${std.name}</span>
+                <div class="student-actions">
+                    <button class="act-btn btn-view" onclick="switchView('${std.id}')" title="رؤية سبورته"><i class="fas fa-eye"></i></button>
+                    <button class="act-btn btn-mic-give" onclick="giveMicPermission('${std.id}')" title="منح المايك"><i class="fas fa-microphone"></i></button>
+                </div>
+            </div>
+            <div class="v-indicator"><div class="v-fill"></div></div>
+        `;
+        list.appendChild(card);
+    });
+    document.getElementById('user-count').innerText = count;
+});
+
+function giveMicPermission(id) {
+    db.ref(`mic_control`).set({ targetId: id, ts: Date.now() });
+    alert("تم تفعيل مايك الطالب بنجاح");
+}
+
+function switchView(id) {
+    currentMode = id;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    document.getElementById('view-mode').innerText = `الوضع: سبورة الطالب`;
+    document.getElementById('drawing-owner').innerText = `أنت تشاهد الطالب الآن`;
+}
+
+// --- أدوات التحكم ---
+function changeTool(t) {
+    currentTool = t;
+    document.getElementById('pen-tool').classList.toggle('active', t === 'pen');
+    document.getElementById('eraser-tool').classList.toggle('active', t === 'eraser');
+}
+
+document.querySelectorAll('.c-drop').forEach(d => {
+    d.onclick = () => {
+        currentColor = d.dataset.color;
+        document.querySelectorAll('.c-drop').forEach(x => x.classList.remove('active'));
+        d.classList.add('active');
+    };
+});
+
+function clearFullBoard() {
+    if (confirm("هل تريد مسح السبورة بالكامل؟")) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const path = currentMode === 'main' ? 'strokes/main' : `strokes/student_${currentMode}`;
+        db.ref(path).set({ type: 'clear', ts: Date.now() });
+    }
+}
+
+// قياس سرعة الاتصال (Ping)
+setInterval(() => {
+    const start = Date.now();
+    db.ref('.info/connected').once('value', () => {
+        const diff = Date.now() - start;
+        document.getElementById('ping-val').innerText = diff;
+    });
+}, 5000);
+
+// تصفير البيانات القديمة لضمان نظافة الجلسة
+db.ref('strokes').remove();
+db.ref('mic_control').remove();
 </script>
 </body>
 </html>
