@@ -781,7 +781,7 @@ function broadcastStudentBoardEdit(studentId) {
     clearTimeout(stuBroadcastTO[studentId]);
     stuBroadcastTO[studentId] = setTimeout(() => {
         const data = canvas.toDataURL('image/jpeg', 0.5);
-        db.ref('boardImage/students/' + studentId).set({ data, ts: Date.now() });
+        db.ref('boardImage/students/' + studentId).set({ data, ts: Date.now(), byTeacher: true });
     }, 400);
 }
 
