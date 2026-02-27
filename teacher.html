@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyClass2 - المدرس (تحكم كامل)</title>
+    <title>MyClass2 - المدرس (النسخة الكاملة)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -697,10 +697,11 @@
 
     <script>
         // ===== تهيئة Firebase =====
-        firebase.initializeApp({
+        const firebaseConfig = {
             apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
             databaseURL: "https://myclaive-default-rtdb.firebaseio.com"
-        });
+        };
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
         // ===== متغيرات عامة =====
@@ -716,6 +717,7 @@
         let isDrawing = false;
         let lastX = 0, lastY = 0;
         let currentBoard = 'main';
+        let points = [];
 
         // ===== Canvas =====
         const canvas = document.getElementById('mainBoard');
@@ -753,16 +755,17 @@
             e.preventDefault();
             isDrawing = true;
             const coords = getCoordinates(e);
-            lastX = coords.x / canvas.width;
-            lastY = coords.y / canvas.height;
+            lastX = coords.x;
+            lastY = coords.y;
+            points = [{x: lastX / canvas.width, y: lastY / canvas.height}];
             
             ctx.beginPath();
-            ctx.moveTo(coords.x, coords.y);
+            ctx.moveTo(lastX, lastY);
             
             db.ref('draw_t').push({
                 type: 'start',
-                x: lastX,
-                y: lastY,
+                x: lastX / canvas.width,
+                y: lastY / canvas.height,
                 color: currentTool === 'eraser' ? '#FFFFFF' : currentColor,
                 size: currentTool === 'eraser' ? currentSize * 3 : currentSize,
                 board: currentBoard,
@@ -784,6 +787,8 @@
             ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(coords.x, coords.y);
+            
+            points.push({x: x, y: y});
             
             db.ref('draw_t').push({
                 type: 'draw',
@@ -826,6 +831,7 @@
             currentSize = size;
             document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
+            ctx.lineWidth = size;
         };
 
         window.clearCurrentBoard = function() {
@@ -861,12 +867,19 @@
             reader.readAsDataURL(input.files[0]);
         };
 
+        // ===== استقبال رسم الطلاب =====
+        db.ref('draw_st').on('child_added', snap => {
+            const data = snap.val();
+            if (!data || !data.points) return;
+            
+            // سيتم تنفيذ رسم الطلاب عند عرض سبورتهم
+        });
+
         // ===== التبديل بين السبورات =====
         window.switchBoard = function(boardId) {
             currentBoard = boardId;
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             event.currentTarget.classList.add('active');
-            // هنا يتم تحميل السبورة المناسبة
         };
 
         // ===== إدارة الطلاب =====
@@ -969,208 +982,4 @@
         window.rejectStudent = function(id) {
             delete waitingStudents[id];
             db.ref('joinRequests/' + id).remove();
-            updateStudentsList();
-        };
-
-        window.rejectAllRequests = function() {
-            if (confirm('رفض جميع طلبات الانضمام؟')) {
-                Object.keys(waitingStudents).forEach(id => {
-                    db.ref('joinRequests/' + id).remove();
-                });
-                waitingStudents = {};
-                updateStudentsList();
-            }
-        };
-
-        window.allowMic = function(id) {
-            if (currentSpeaker) {
-                db.ref('micPermissions/' + currentSpeaker).remove();
-            }
-            
-            currentSpeaker = id;
-            students[id].handRaised = false;
-            db.ref('micPermissions/' + id).set({ allowed: true });
-            db.ref('handRaised/' + id).remove();
-            
-            document.getElementById('speakingIndicator').style.display = 'flex';
-            document.getElementById('currentSpeaker').textContent = students[id].name;
-            document.getElementById('currentSpeakerName').textContent = students[id].name;
-            updateStudentsList();
-        };
-
-        window.rejectHand = function(id) {
-            students[id].handRaised = false;
-            db.ref('handRaised/' + id).remove();
-            updateStudentsList();
-        };
-
-        window.stopMic = function(id) {
-            if (currentSpeaker === id) {
-                currentSpeaker = null;
-                db.ref('micPermissions/' + id).remove();
-                document.getElementById('speakingIndicator').style.display = 'none';
-                document.getElementById('currentSpeakerName').textContent = 'لا يوجد متحدث';
-                updateStudentsList();
-            }
-        };
-
-        window.kickStudent = function(id) {
-            if (confirm(`طرد الطالب ${students[id].name}؟`)) {
-                if (currentSpeaker === id) stopMic(id);
-                db.ref('approvedStudents/' + id).remove();
-                db.ref('onlineStudents/' + id).remove();
-                delete students[id];
-                updateStudentsList();
-            }
-        };
-
-        window.resetAll = function() {
-            if (confirm('تصفير الجلسة بالكامل؟')) {
-                // إيقاف المايك
-                if (isMicOn) toggleMicrophone();
-                
-                // إزالة جميع الطلاب
-                Object.keys(students).forEach(id => {
-                    db.ref('approvedStudents/' + id).remove();
-                    db.ref('onlineStudents/' + id).remove();
-                });
-                
-                // إزالة طلبات الانضمام
-                Object.keys(waitingStudents).forEach(id => {
-                    db.ref('joinRequests/' + id).remove();
-                });
-                
-                // إزالة الأذونات
-                db.ref('micPermissions').remove();
-                db.ref('handRaised').remove();
-                
-                // إيقاف البث
-                db.ref('audioMeta').set({ active: false });
-                db.ref('audio').remove();
-                
-                // مسح السبورة
-                clearCurrentBoard();
-                
-                // إعادة تعيين المتغيرات
-                students = {};
-                waitingStudents = {};
-                currentSpeaker = null;
-                
-                updateStudentsList();
-            }
-        };
-
-        window.rejectAllAndReset = function() {
-            rejectAllRequests();
-            resetAll();
-        };
-
-        // ===== الصوت =====
-        window.toggleMicrophone = async function() {
-            const btn = document.getElementById('micToggle');
-            const icon = document.getElementById('micIcon');
-
-            if (!isMicOn) {
-                try {
-                    mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                        audio: {
-                            echoCancellation: true,
-                            noiseSuppression: true
-                        } 
-                    });
-                    isMicOn = true;
-                    btn.classList.remove('mic-off');
-                    btn.classList.add('mic-on');
-                    icon.className = 'fas fa-microphone';
-                    
-                    startBroadcasting();
-                } catch (err) {
-                    alert('لا يمكن الوصول للمايك');
-                }
-            } else {
-                if (mediaStream) {
-                    mediaStream.getTracks().forEach(t => t.stop());
-                }
-                if (mediaRecorder) {
-                    mediaRecorder.stop();
-                }
-                isMicOn = false;
-                btn.classList.remove('mic-on');
-                btn.classList.add('mic-off');
-                icon.className = 'fas fa-microphone-slash';
-                db.ref('audioMeta').set({ active: false });
-                db.ref('audio').remove();
-            }
-        };
-
-        function startBroadcasting() {
-            if (!mediaStream) return;
-            
-            mediaRecorder = new MediaRecorder(mediaStream);
-            
-            mediaRecorder.ondataavailable = (e) => {
-                if (e.data.size > 0) {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        db.ref('audio/chunk').set({
-                            data: reader.result,
-                            time: Date.now()
-                        });
-                    };
-                    reader.readAsDataURL(e.data);
-                }
-            };
-            
-            mediaRecorder.start(1000);
-            db.ref('audioMeta').set({ active: true });
-        }
-
-        // ===== استقبال البيانات من Firebase =====
-        db.ref('joinRequests').on('child_added', snap => {
-            const s = snap.val();
-            waitingStudents[s.id] = s;
-            updateStudentsList();
-        });
-
-        db.ref('joinRequests').on('child_removed', snap => {
-            const s = snap.val();
-            delete waitingStudents[s.id];
-            updateStudentsList();
-        });
-
-        db.ref('approvedStudents').on('value', snap => {
-            students = snap.val() || {};
-            updateStudentsList();
-        });
-
-        db.ref('onlineStudents').on('value', snap => {
-            const online = snap.val() || {};
-            Object.keys(students).forEach(id => {
-                if (students[id]) students[id].online = online[id] ? true : false;
-            });
-            updateStudentsList();
-        });
-
-        db.ref('handRaised').on('value', snap => {
-            const hands = snap.val() || {};
-            Object.keys(students).forEach(id => {
-                if (students[id]) students[id].handRaised = hands[id] ? true : false;
-            });
-            updateStudentsList();
-        });
-
-        // ===== حالة الاتصال =====
-        db.ref('.info/connected').on('value', snap => {
-            if (snap.val()) {
-                db.ref('teacher/online').set({ online: true });
-            }
-        });
-
-        // ===== محاكاة زمن الاستجابة =====
-        setInterval(() => {
-            document.getElementById('latency').textContent = Math.floor(Math.random() * 30 + 10) + 'ms';
-        }, 3000);
-    </script>
-</body>
-</html>
-<!-- نهاية ملف teacher.html -->
+            updateStudentsList
