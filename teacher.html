@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>MyClass2 - التحكم الكامل</title>
+<title>MyClass2 PRO - السبورة الذكية المتكاملة</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -14,100 +14,105 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
 body{height:100vh;overflow:hidden;background:var(--dk);color:#fff;display:flex;flex-direction:column}
 
-/* الهيدر */
-.hdr{background:var(--cd);height:50px;padding:0 15px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--br)}
-.logo{font-size:20px;font-weight:900;color:var(--bl)}
-.hstats{display:flex;gap:10px}
-.chip{background:var(--br);padding:4px 12px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:6px}
+/* Header & Stats */
+.hdr{background:var(--cd);height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--br);z-index:100}
+.logo{font-size:22px;font-weight:900;color:var(--bl)}
+.hstats{display:flex;gap:15px}
+.chip{background:var(--br);padding:6px 15px;border-radius:25px;font-size:13px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.1)}
 
-/* التخطيط الرئيسي */
-.main-layout{display:flex;flex:1;overflow:hidden}
-.sidebar{width:240px;background:var(--cd);border-left:1px solid var(--br);display:flex;flex-direction:column}
-.sdt{padding:15px;font-size:12px;color:var(--bl);font-weight:900;text-align:center;border-bottom:1px solid var(--br)}
+/* Layout */
+.main-wrapper{display:flex;flex:1;overflow:hidden}
+.sidebar{width:260px;background:var(--cd);border-left:2px solid var(--br);display:flex;flex-direction:column;flex-shrink:0}
+.s-head{padding:15px;font-size:13px;font-weight:900;color:var(--bl);text-align:center;border-bottom:1px solid var(--br);background:rgba(0,0,0,0.2)}
 .slist{flex:1;overflow-y:auto;padding:10px}
 
-/* السبورة */
-.board-area{flex:1;display:flex;flex-direction:column;padding:15px;background:#111827}
-.bwrap{flex:1;background:var(--board-bg);border-radius:15px;border:10px solid #475569;position:relative;box-shadow:inset 0 0 20px rgba(0,0,0,0.1)}
+/* Board Area */
+.board-section{flex:1;display:flex;flex-direction:column;padding:20px;background:#111827;position:relative}
+.b-frame{flex:1;background:var(--board-bg);border-radius:15px;border:12px solid #475569;position:relative;box-shadow:inset 0 0 20px rgba(0,0,0,0.1), 0 20px 40px rgba(0,0,0,0.5)}
 #mc{position:absolute;top:0;left:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
 
-/* الأدوات */
-.toolbar{background:var(--cd);margin-top:10px;padding:10px;border-radius:12px;display:flex;align-items:center;gap:8px;overflow-x:auto}
-.tb{min-width:42px;height:42px;border-radius:10px;background:var(--br);color:var(--dm);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
-.tb.on{background:var(--bl);color:#fff;transform:scale(1.1)}
-.tb:hover{background:var(--mt)}
+/* Toolbar */
+.tools-container{background:var(--cd);margin-top:15px;padding:12px;border-radius:15px;display:flex;align-items:center;gap:10px;overflow-x:auto;border:1px solid var(--br)}
+.t-btn{min-width:45px;height:45px;border-radius:12px;background:var(--br);color:var(--dm);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:.2s}
+.t-btn.on{background:var(--bl);color:#fff;transform:scale(1.1);box-shadow:0 0 15px rgba(59,130,246,0.4)}
+.t-btn:hover:not(.on){background:var(--mt);color:#fff}
 
-/* لوحة الأشكال */
-.shape-grid{position:absolute;bottom:80px;left:20px;background:var(--cd);padding:12px;border-radius:15px;display:none;grid-template-columns:repeat(5,1fr);gap:8px;z-index:100;border:1px solid var(--bl)}
-.shape-grid.on{display:grid}
+/* Shapes Menu */
+.shapes-panel{position:absolute;bottom:90px;left:30px;background:var(--cd);padding:15px;border-radius:18px;display:none;grid-template-columns:repeat(5,1fr);gap:10px;z-index:200;border:2px solid var(--bl);box-shadow:0 15px 50px rgba(0,0,0,0.7)}
+.shapes-panel.active{display:grid}
 
-/* التنبيهات */
-#toasts{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;flex-direction:column;gap:8px}
-.toast{background:var(--cd);padding:12px 20px;border-radius:10px;display:flex;align-items:center;gap:15px;border-right:4px solid var(--bl);box-shadow:0 10px 30px rgba(0,0,0,0.5);animation:pop .3s ease}
-@keyframes pop{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+/* Dialogs & Toasts */
+#toasts{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;flex-direction:column;gap:10px;width:340px}
+.toast{background:var(--cd);padding:15px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;border-right:5px solid var(--bl);box-shadow:0 10px 30px rgba(0,0,0,0.5);animation:slideIn .3s ease}
+@keyframes slideIn{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-/* نصوص */
-#txtbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:2000;align-items:center;justify-content:center}
-.txtin{background:var(--cd);padding:25px;border-radius:20px;width:320px}
-.txtin input{width:100%;padding:12px;margin:15px 0;background:var(--dk);border:1px solid var(--br);color:#fff;border-radius:10px}
+#txt-box{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:3000;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+.txt-ui{background:var(--cd);padding:30px;border-radius:25px;width:350px;border:1px solid var(--br)}
+.txt-ui input{width:100%;padding:15px;margin:20px 0;background:var(--dk);border:1px solid var(--br);color:#fff;border-radius:12px;font-size:16px}
 </style>
 </head>
 <body>
 
 <div class="hdr">
-    <div class="logo">MyClass<span>2</span> PRO</div>
+    <div class="logo">MyClass<span>2</span> <small style="font-size:12px; opacity:0.6">PREMIUM</small></div>
     <div class="hstats">
-        <div class="chip"><i class="fas fa-users"></i> <span id="cnt">0</span></div>
-        <div class="chip"><i class="fas fa-hand-paper" style="color:var(--yw)"></i> <span id="hcnt">0</span></div>
+        <div class="chip"><i class="fas fa-users"></i> الحضور: <span id="s-count">0</span></div>
+        <div class="chip"><i class="fas fa-hand-paper" style="color:var(--yw)"></i> التنبيهات: <span id="h-count">0</span></div>
     </div>
 </div>
 
-<div class="main-layout">
-    <div class="board-area">
-        <div class="bwrap">
+<div class="main-wrapper">
+    <div class="board-section">
+        <div class="b-frame">
             <canvas id="mc"></canvas>
-            <div class="shape-grid" id="sgrid">
-                <button class="tb" onclick="setShape('line')"><i class="fas fa-minus"></i></button>
-                <button class="tb" onclick="setShape('arrow')"><i class="fas fa-arrow-left"></i></button>
-                <button class="tb" onclick="setShape('rect')"><i class="far fa-square"></i></button>
-                <button class="tb" onclick="setShape('circle')"><i class="far fa-circle"></i></button>
-                <button class="tb" onclick="setShape('triangle')"><i class="fas fa-caret-up"></i></button>
-                <button class="tb" onclick="setShape('cylinder')"><i class="fas fa-database"></i></button>
-                <button class="tb" onclick="setShape('cube')"><i class="fas fa-cube"></i></button>
-                <button class="tb" onclick="setShape('star')"><i class="fas fa-star"></i></button>
-                <button class="tb" onclick="setShape('chart')"><i class="fas fa-chart-bar"></i></button>
-                <button class="tb" onclick="setTool('text')"><i class="fas fa-font"></i></button>
+            
+            <div class="shapes-panel" id="spanel">
+                <button class="t-btn" title="خط" onclick="setShape('line')"><i class="fas fa-minus"></i></button>
+                <button class="t-btn" title="سهم" onclick="setShape('arrow')"><i class="fas fa-arrow-left"></i></button>
+                <button class="t-btn" title="مستطيل" onclick="setShape('rect')"><i class="far fa-square"></i></button>
+                <button class="t-btn" title="دائرة" onclick="setShape('circle')"><i class="far fa-circle"></i></button>
+                <button class="t-btn" title="مثلث" onclick="setShape('triangle')"><i class="fas fa-caret-up"></i></button>
+                <button class="t-btn" title="أسطوانة" onclick="setShape('cylinder')"><i class="fas fa-database"></i></button>
+                <button class="t-btn" title="مكعب" onclick="setShape('cube')"><i class="fas fa-cube"></i></button>
+                <button class="t-btn" title="نجمة" onclick="setShape('star')"><i class="fas fa-star"></i></button>
+                <button class="t-btn" title="رسم بياني" onclick="setShape('chart')"><i class="fas fa-chart-bar"></i></button>
+                <button class="t-btn" title="نص" onclick="setTool('text')"><i class="fas fa-font"></i></button>
             </div>
         </div>
-        
-        <div class="toolbar">
-            <button class="tb on" id="bpen" onclick="setTool('pen')"><i class="fas fa-pencil-alt"></i></button>
-            <button class="tb" id="bera" onclick="setTool('eraser')"><i class="fas fa-eraser"></i></button>
-            <button class="tb" onclick="document.getElementById('sgrid').classList.toggle('on')"><i class="fas fa-shapes"></i></button>
-            <div style="width:2px;height:30px;background:var(--br)"></div>
-            <div onclick="setClr('#1e293b',this)" class="cl" style="width:28px;height:28px;border-radius:50%;background:#1e293b;cursor:pointer;border:2px solid #fff"></div>
-            <div onclick="setClr('#ef4444',this)" class="cl" style="width:28px;height:28px;border-radius:50%;background:#ef4444;cursor:pointer"></div>
-            <div onclick="setClr('#3b82f6',this)" class="cl" style="width:28px;height:28px;border-radius:50%;background:#3b82f6;cursor:pointer"></div>
-            <button class="tb" onclick="doUndo()" style="margin-right:auto"><i class="fas fa-undo"></i></button>
-            <button class="tb" id="micbtn" onclick="toggleMic()"><i class="fas fa-microphone-slash"></i></button>
-            <button class="tb" onclick="clearBoard()" style="color:var(--rd)"><i class="fas fa-trash"></i></button>
+
+        <div class="tools-container">
+            <button class="t-btn on" id="b-pen" onclick="setTool('pen')"><i class="fas fa-pencil-alt"></i></button>
+            <button class="t-btn" id="b-era" onclick="setTool('eraser')"><i class="fas fa-eraser"></i></button>
+            <button class="t-btn" onclick="toggleShapes()"><i class="fas fa-shapes"></i></button>
+            
+            <div style="width:2px; height:30px; background:var(--br); margin:0 5px"></div>
+            
+            <div style="display:flex; gap:8px">
+                <div onclick="setClr('#1e293b',this)" class="cl" style="width:30px;height:30px;border-radius:50%;background:#1e293b;cursor:pointer;border:2px solid #fff"></div>
+                <div onclick="setClr('#ef4444',this)" class="cl" style="width:30px;height:30px;border-radius:50%;background:#ef4444;cursor:pointer"></div>
+                <div onclick="setClr('#3b82f6',this)" class="cl" style="width:30px;height:30px;border-radius:50%;background:#3b82f6;cursor:pointer"></div>
+            </div>
+
+            <button class="t-btn" onclick="undo()" style="margin-right:auto"><i class="fas fa-undo"></i></button>
+            <button class="t-btn" id="m-btn" onclick="toggleMic()"><i class="fas fa-microphone-slash"></i></button>
+            <button class="t-btn" onclick="clearBoard()" style="color:var(--rd)"><i class="fas fa-trash"></i></button>
         </div>
     </div>
 
     <div class="sidebar">
-        <div class="sdt">قائمة التفاعل</div>
+        <div class="s-head">الطلاب المتفاعلون</div>
         <div class="slist" id="slist"></div>
     </div>
 </div>
 
 <div id="toasts"></div>
-<div id="txtbox">
-    <div class="txtin">
-        <h3>كتابة نص على السبورة</h3>
-        <input type="text" id="tinput" placeholder="اكتب هنا...">
-        <div style="display:flex;gap:10px">
-            <button onclick="confirmText()" style="flex:1;background:var(--bl);border:none;color:#fff;padding:12px;border-radius:10px">تأكيد</button>
-            <button onclick="document.getElementById('txtbox').style.display='none'" style="flex:1;background:var(--br);border:none;color:#fff;padding:12px;border-radius:10px">إلغاء</button>
+<div id="txt-box">
+    <div class="txt-ui">
+        <h3>إضافة نص للسبورة</h3>
+        <input type="text" id="t-input" placeholder="اكتب النص هنا...">
+        <div style="display:flex; gap:10px">
+            <button onclick="confirmText()" style="flex:1; padding:12px; background:var(--bl); border:none; border-radius:12px; color:#fff; cursor:pointer">إضافة</button>
+            <button onclick="document.getElementById('txt-box').style.display='none'" style="flex:1; padding:12px; background:var(--br); border:none; border-radius:12px; color:#fff; cursor:pointer">إلغاء</button>
         </div>
     </div>
 </div>
@@ -115,7 +120,7 @@ body{height:100vh;overflow:hidden;background:var(--dk);color:#fff;display:flex;f
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
-// إعدادات Firebase
+// --- FIREBASE INIT & HARD RESET ---
 firebase.initializeApp({
   apiKey:"AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
   authDomain:"myclaive.firebaseapp.com",
@@ -125,18 +130,18 @@ firebase.initializeApp({
   messagingSenderId:"507299311714",
   appId:"1:507299311714:web:c90440ee4353cfac17613b"
 });
-const db=firebase.database();
+const db = firebase.database();
 
-// ── 1. تنظيف البيانات القديمة (تصفير شامل) ──
+// التصفير الفوري عند الدخول
 db.ref('onlineStudents').remove();
 db.ref('approvedStudents').remove();
 db.ref('joinRequests').remove();
 db.ref('handRaised').remove();
 db.ref('micRequests').remove();
 
-// ── 2. إعدادات السبورة ──
-let tool='pen', shape=null, clr='#1e293b', sz=4, down=false, sx, sy, snap, txtPos;
-let hist=[], micOn=false, mStream, mRec;
+// --- BOARD STATE ---
+let tool='pen', shape=null, clr='#1e293b', sz=4, down=false, sx, sy, snap, tPos;
+let history=[], micOn=false, mStream, mRec;
 const canvas=document.getElementById('mc'), ctx=canvas.getContext('2d');
 
 function fit(){
@@ -146,70 +151,94 @@ function fit(){
 }
 window.onresize=fit; setTimeout(fit,100);
 
-// ── 3. نظام الرسم المطور ──
+// --- DRAWING LOGIC ---
+function getXY(e){
+    const r=canvas.getBoundingClientRect();
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    return {x:(cx-r.left)*(canvas.width/r.width), y:(cy-r.top)*(canvas.height/r.height)};
+}
+
 canvas.onmousedown=(e)=>{
     const p=getXY(e); sx=p.x; sy=p.y; down=true;
-    if(tool==='text'){ txtPos=p; document.getElementById('txtbox').style.display='flex'; down=false; return; }
+    if(tool==='text'){ tPos=p; document.getElementById('txt-box').style.display='flex'; down=false; return; }
     if(tool==='shape'){ snap=ctx.getImageData(0,0,canvas.width,canvas.height); return; }
     ctx.beginPath(); ctx.moveTo(sx,sy);
 };
+
 canvas.onmousemove=(e)=>{
     if(!down)return; const p=getXY(e);
-    if(tool==='shape'){ ctx.putImageData(snap,0,0); drawShape(ctx,shape,sx,sy,p.x,p.y); return; }
-    ctx.lineWidth=tool==='eraser'?40:sz; ctx.strokeStyle=tool==='eraser'?'#fdfbf7':clr;
-    ctx.lineCap='round'; ctx.lineTo(p.x,p.y); ctx.stroke();
+    if(tool==='shape'){ ctx.putImageData(snap,0,0); drawGeo(ctx,shape,sx,sy,p.x,p.y); return; }
+    ctx.lineWidth=tool==='eraser'?45:sz; ctx.strokeStyle=tool==='eraser'?'#fdfbf7':clr;
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.lineTo(p.x,p.y); ctx.stroke();
 };
+
 canvas.onmouseup=()=>{
     if(!down)return; down=false;
-    hist.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+    history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+    if(history.length>15) history.shift();
     // إرسال صورة السبورة للطالب
     db.ref('boardImg/main').set({data:canvas.toDataURL('image/jpeg',0.5), ts:Date.now()});
 };
 
-function getXY(e){
-    const r=canvas.getBoundingClientRect();
-    return {x:(e.clientX-r.left)*(canvas.width/r.width),y:(e.clientY-r.top)*(canvas.height/r.height)};
-}
-
-function drawShape(c,s,x1,y1,x2,y2){
+// --- GEOMETRY LIBRARY ---
+function drawGeo(c,s,x1,y1,x2,y2){
     c.strokeStyle=clr; c.lineWidth=sz; c.beginPath();
     const w=x2-x1, h=y2-y1;
     if(s==='line'){c.moveTo(x1,y1);c.lineTo(x2,y2);}
     else if(s==='rect'){c.strokeRect(x1,y1,w,h);}
-    else if(s==='circle'){c.ellipse(x1+w/2,y1+h/2,Math.abs(w/2),Math.abs(h/2),0,0,7);}
+    else if(s==='circle'){c.ellipse(x1+w/2,y1+h/2,Math.abs(w/2),Math.abs(h/2),0,0,Math.PI*2);}
     else if(s==='arrow'){
         c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();
-        const a=Math.atan2(h,w); c.translate(x2,y2); c.rotate(a);
+        let a=Math.atan2(h,w); c.translate(x2,y2); c.rotate(a);
         c.moveTo(0,0);c.lineTo(-15,-8);c.lineTo(-15,8);c.closePath();c.fillStyle=clr;c.fill();
+        c.setTransform(1,0,0,1,0,0); return;
     }
     else if(s==='triangle'){c.moveTo(x1+w/2,y1);c.lineTo(x1,y2);c.lineTo(x2,y2);c.closePath();}
+    else if(s==='cylinder'){
+        c.ellipse(x1+w/2,y1+20,Math.abs(w/2),10,0,0,Math.PI*2);
+        c.moveTo(x1,y1+20);c.lineTo(x1,y2-20);
+        c.moveTo(x2,y1+20);c.lineTo(x2,y2-20);
+        c.ellipse(x1+w/2,y2-20,Math.abs(w/2),10,0,0,Math.PI*2);
+    }
     else if(s==='star'){
         for(let i=0;i<5;i++){
             c.lineTo(Math.cos((18+i*72)/180*Math.PI)*w/2+x1+w/2,-Math.sin((18+i*72)/180*Math.PI)*h/2+y1+h/2);
             c.lineTo(Math.cos((54+i*72)/180*Math.PI)*w/4+x1+w/2,-Math.sin((54+i*72)/180*Math.PI)*h/4+y1+h/2);
         } c.closePath();
     }
+    else if(s==='chart'){
+        c.moveTo(x1,y2);c.lineTo(x2,y2);c.moveTo(x1,y1);c.lineTo(x1,y2);
+        for(let i=0;i<4;i++) c.strokeRect(x1+10+i*(w/4),y2, (w/4)-10, -(Math.random()*h*0.8));
+    }
     c.stroke();
 }
 
-// ── 4. التحكم في الأدوات ──
-function setTool(t){tool=t; shape=null; document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on')); document.getElementById('b'+t.substring(0,3))?.classList.add('on'); document.getElementById('sgrid').classList.remove('on');}
-function setShape(s){shape=s; tool='shape'; document.getElementById('sgrid').classList.remove('on');}
+// --- TOOLS UI ---
+function toggleShapes(){document.getElementById('spanel').classList.toggle('active');}
+function setTool(t){
+    tool=t; shape=null; 
+    document.querySelectorAll('.t-btn').forEach(b=>b.classList.remove('on'));
+    document.getElementById('b-'+t.substring(0,3))?.classList.add('on');
+    document.getElementById('spanel').classList.remove('active');
+}
+function setShape(s){shape=s; tool='shape'; document.getElementById('spanel').classList.remove('active');}
 function setClr(c,el){clr=c; document.querySelectorAll('.cl').forEach(i=>i.style.border='none'); el.style.border='2px solid #fff';}
-function doUndo(){if(hist.length>0)ctx.putImageData(hist.pop(),0,0);}
-function clearBoard(){ctx.fillStyle='#fdfbf7';ctx.fillRect(0,0,canvas.width,canvas.height); db.ref('boardCmd').push({type:'clear'});}
+function undo(){if(history.length>1){history.pop(); ctx.putImageData(history[history.length-1],0,0);} else if(history.length===1){history.pop(); fit();}}
+function clearBoard(){ctx.fillStyle='#fdfbf7';ctx.fillRect(0,0,canvas.width,canvas.height); db.ref('boardCmd').push({type:'clear'}); history=[]; canvas.onmouseup();}
 function confirmText(){
-    const t=document.getElementById('tinput').value;
-    if(t){ ctx.font="bold 20px Cairo"; ctx.fillStyle=clr; ctx.fillText(t,txtPos.x,txtPos.y); canvas.onmouseup(); }
-    document.getElementById('txtbox').style.display='none'; document.getElementById('tinput').value='';
+    const val=document.getElementById('t-input').value;
+    if(val){ ctx.font="bold 22px Cairo"; ctx.fillStyle=clr; ctx.fillText(val,tPos.x,tPos.y); canvas.onmouseup(); }
+    document.getElementById('txt-box').style.display='none'; document.getElementById('t-input').value='';
 }
 
-// ── 5. نظام التفاعل والطلاب (التنبيهات) ──
+// --- PERMISSIONS & INTERACTION ---
 db.ref('joinRequests').on('child_added', snap=>{
     const s=snap.val();
     const t=document.createElement('div'); t.className='toast';
-    t.innerHTML=`<span><i class="fas fa-user-plus"></i> ${s.name} يطلب الانضمام</span> 
-                 <button onclick="approve('${s.id}','${s.name}',this)" style="background:var(--gn);border:none;padding:8px 15px;color:#fff;border-radius:8px;cursor:pointer">قبول</button>`;
+    t.innerHTML=`<span><i class="fas fa-user-clock"></i> <b>${s.name}</b> يطلب الانضمام</span> 
+                 <button onclick="approve('${s.id}','${s.name}',this)" style="background:var(--gn);border:none;padding:8px 15px;color:#fff;border-radius:10px;cursor:pointer">قبول</button>`;
     document.getElementById('toasts').appendChild(t);
 });
 
@@ -220,18 +249,20 @@ function approve(id,name,btn){
 
 db.ref('onlineStudents').on('value', snap=>{
     const list=document.getElementById('slist'), data=snap.val()||{};
-    document.getElementById('cnt').textContent=Object.keys(data).length;
-    list.innerHTML=Object.keys(data).map(k=>`
-        <div style="padding:12px;background:rgba(255,255,255,0.05);margin-bottom:8px;border-radius:10px;display:flex;align-items:center;gap:10px">
-            <div style="width:8px;height:8px;border-radius:50%;background:var(--gn)"></div>
-            <span style="font-size:13px">${data[k].name}</span>
+    const keys=Object.keys(data);
+    document.getElementById('s-count').textContent=keys.length;
+    list.innerHTML=keys.map(k=>`
+        <div style="padding:15px;background:rgba(255,255,255,0.05);margin-bottom:10px;border-radius:12px;display:flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,0.05)">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--gn);box-shadow:0 0 10px var(--gn)"></div>
+            <span style="font-size:14px;font-weight:600">${data[k].name}</span>
+            ${data[k].hand? '<i class="fas fa-hand-paper" style="color:var(--yw);margin-right:auto"></i>':''}
         </div>
-    `).join('') || '<div style="text-align:center;color:var(--dm);font-size:12px;margin-top:20px">في انتظار الطلاب...</div>';
+    `).join('') || '<div style="text-align:center;color:var(--dm);padding-top:30px">في انتظار دخول الطلاب...</div>';
 });
 
-// ── 6. الميكروفون ──
+// --- AUDIO BROADCAST ---
 async function toggleMic(){
-    const btn=document.getElementById('micbtn');
+    const btn=document.getElementById('m-btn');
     if(!micOn){
         try{
             mStream=await navigator.mediaDevices.getUserMedia({audio:true});
@@ -242,7 +273,7 @@ async function toggleMic(){
             };
             mRec.start(500); micOn=true; btn.innerHTML='<i class="fas fa-microphone"></i>'; btn.classList.add('on');
             setInterval(()=>{if(mRec.state==='recording'){mRec.stop();mRec.start(500);}},550);
-        }catch(e){alert('يرجى السماح بالوصول للميكروفون');}
+        }catch(e){alert('يرجى تفعيل الميكروفون من المتصفح');}
     }else{
         mStream.getTracks().forEach(t=>t.stop()); micOn=false; btn.innerHTML='<i class="fas fa-microphone-slash"></i>'; btn.classList.remove('on');
     }
