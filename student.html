@@ -20,6 +20,69 @@
             overflow: hidden;
         }
 
+        /* نافذة تسجيل الدخول */
+        #joinOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .join-box {
+            background: #141824;
+            padding: 30px;
+            border-radius: 20px;
+            width: 300px;
+            text-align: center;
+            border: 2px solid #4a7cff;
+        }
+
+        .join-box h2 {
+            color: #4a7cff;
+            margin-bottom: 20px;
+        }
+
+        .join-box input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: #1e2230;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            text-align: center;
+            outline: none;
+        }
+
+        .join-box button {
+            width: 100%;
+            padding: 12px;
+            background: #4a7cff;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .waiting-message {
+            margin-top: 15px;
+            color: #f39c12;
+        }
+
+        /* التطبيق الرئيسي */
+        #mainApp {
+            display: none;
+            height: 100vh;
+            flex-direction: column;
+        }
+
         /* الشريط العلوي */
         .top-bar {
             background: #141824;
@@ -40,6 +103,13 @@
             color: white;
         }
 
+        .student-badge {
+            background: #1e2230;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
         /* قائمة الطلاب المتصلين */
         .students-panel {
             background: #141824;
@@ -47,15 +117,16 @@
             border-radius: 15px;
             border: 1px solid #2a2e3a;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .panel-header {
-            padding: 15px;
+            padding: 12px 15px;
             background: #1e2230;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
         }
 
@@ -64,18 +135,26 @@
             margin-left: 8px;
         }
 
+        .online-count {
+            background: #2a2e3a;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
         .search-box {
-            padding: 10px 15px;
+            padding: 8px 12px;
             background: #1e2230;
-            margin: 10px;
-            border-radius: 30px;
+            margin: 8px;
+            border-radius: 25px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .search-box i {
             color: #6c757d;
+            font-size: 14px;
         }
 
         .search-box input {
@@ -84,227 +163,45 @@
             color: white;
             width: 100%;
             outline: none;
-            font-size: 14px;
-        }
-
-        .search-box input::placeholder {
-            color: #6c757d;
+            font-size: 13px;
         }
 
         .students-list {
-            padding: 10px;
+            padding: 8px;
             max-height: 200px;
             overflow-y: auto;
         }
 
         .student-item {
             background: #1e2230;
-            padding: 12px 15px;
-            border-radius: 30px;
-            margin-bottom: 8px;
+            padding: 10px 12px;
+            border-radius: 25px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
+        .student-item.teacher {
+            border-right: 3px solid #e74c3c;
+        }
+
         .student-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .student-avatar {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             background: #4a7cff;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 16px;
-        }
-
-        .student-name {
-            font-size: 16px;
-            font-weight: 500;
-        }
-
-        .student-name.small {
-            font-size: 14px;
-            color: #adb5bd;
-        }
-
-        .student-status {
-            color: #6c757d;
             font-size: 14px;
         }
 
-        /* شريط المايك */
-        .mic-bar {
-            background: #141824;
-            margin: 10px;
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid #2a2e3a;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .mic-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .mic-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #e74c3c;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: white;
-        }
-
-        .mic-text {
-            font-size: 18px;
-            font-weight: bold;
-            color: #e74c3c;
-        }
-
-        .mic-button {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* شريط الحالة */
-        .status-bar {
-            background: #141824;
-            margin: 10px;
-            padding: 10px 15px;
-            border-radius: 30px;
-            border: 1px solid #2a2e3a;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 14px;
-            color: #6c757d;
-        }
-
-        .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .live-dot {
-            width: 10px;
-            height: 10px;
-            background: #e74c3c;
-            border-radius: 50%;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-    </style>
-</head>
-<body>
-    <!-- الشريط العلوي -->
-    <div class="top-bar">
-        <div class="logo">My<span>Class</span>2</div>
-        <div>👨‍🎓 طالب</div>
-    </div>
-
-    <!-- قائمة الطلاب المتصلين -->
-    <div class="students-panel">
-        <div class="panel-header">
-            <span><i class="fas fa-users"></i> الطلاب المتصلون</span>
-        </div>
-        
-        <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="بحث عن طالب...">
-        </div>
-
-        <div class="students-list">
-            <!-- قاسم السيد -->
-            <div class="student-item">
-                <div class="student-info">
-                    <div class="student-avatar">ق</div>
-                    <span class="student-name">قاسم السيد</span>
-                </div>
-                <span class="student-status">أسد</span>
-            </div>
-
-            <!-- FARAG -->
-            <div class="student-item">
-                <div class="student-info">
-                    <div class="student-avatar">ف</div>
-                    <span class="student-name">FARAG</span>
-                </div>
-                <span class="student-status">فاقل</span>
-            </div>
-
-            <!-- انترف -->
-            <div class="student-item">
-                <div class="student-info">
-                    <div class="student-avatar">ا</div>
-                    <span class="student-name">انترف</span>
-                </div>
-                <span class="student-status">مشمش</span>
-            </div>
-
-            <!-- اسد -->
-            <div class="student-item">
-                <div class="student-info">
-                    <div class="student-avatar">ا</div>
-                    <span class="student-name">اسد</span>
-                </div>
-                <span class="student-status">هاني</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- شريط المايك -->
-    <div class="mic-bar">
-        <div class="mic-status">
-            <div class="mic-icon">
-                <i class="fas fa-microphone-slash"></i>
-            </div>
-            <span class="mic-text">المايك مغلق</span>
-        </div>
-        <button class="mic-button" onclick="requestMic()">
-            طلب فتح المايك
-        </button>
-    </div>
-
-    <!-- شريط الحالة -->
-    <div class="status-bar">
-        <div class="live-indicator">
-            <span class="live-dot"></span>
-            <span>المدرس متصل</span>
-        </div>
-        <span>⚡ 24ms</span>
-    </div>
-
-    <script>
-        function requestMic() {
-            alert('تم إرسال طلب فتح المايك إلى المدرس');
-            // هنا يتم إرسال الطلب إلى Firebase
-        }
-    </script>
-</body>
-</html>
+        .student
