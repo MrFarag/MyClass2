@@ -180,9 +180,9 @@ input.vol::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;b
     </div>
     <div class="tsep"></div>
     <div class="szs">
-      <button class="sz" onclick="setSz(2,this)"><div class="sdot" style="width:4px;height:4px"></div></button>
-      <button class="sz on" onclick="setSz(5,this)"><div class="sdot" style="width:8px;height:8px"></div></button>
-      <button class="sz" onclick="setSz(12,this)"><div class="sdot" style="width:14px;height:14px"></div></button>
+      <button class="sz" onclick="setSz(1,this)"><div class="sdot" style="width:2px;height:2px"></div></button>
+      <button class="sz on" onclick="setSz(2,this)"><div class="sdot" style="width:4px;height:4px"></div></button>
+      <button class="sz" onclick="setSz(3,this)"><div class="sdot" style="width:6px;height:6px"></div></button>
     </div>
     <div class="tsep"></div>
     <button class="tb" onclick="clearMy()"><i class="fas fa-trash"></i></button>
@@ -215,60 +215,109 @@ const tAP=document.getElementById('tAP');
 let sid='', sname='', approved=false, handUp=false;
 let micGranted=false, speaking=false, micReq=false;
 let mStream=null, mRec=null;
-let dClr='#1a1a1a', dSz=5, dTool='pen', drawing=false;
+let dClr='#1a1a1a', dSz=2, dTool='pen', drawing=false;
 
 // ── CANVASES ──────────────────────────────────────────────────────────────
 const TC=document.getElementById('tc'), SC=document.getElementById('sc');
 const Tc=TC.getContext('2d'), Sc=SC.getContext('2d');
 
-// Store canvas state to restore after resize
+// حفظ حالة الرسم
 let teacherImageData = null;
 let studentImageData = null;
 
+// تحويل الإحداثيات بشكل دقيق
+function getCanvasPoint(e, canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  
+  return {
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY
+  };
+}
+
+// حفظ حالة الرسم
 function saveCanvasState() {
-  if(TC.width > 0 && TC.height > 0) {
-    teacherImageData = Tc.getImageData(0, 0, TC.width, TC.height);
-  }
-  if(SC.width > 0 && SC.height > 0) {
-    studentImageData = Sc.getImageData(0, 0, SC.width, SC.height);
-  }
+  try {
+    if(TC.width > 0 && TC.height > 0) {
+      teacherImageData = Tc.getImageData(0, 0, TC.width, TC.height);
+    }
+    if(SC.width > 0 && SC.height > 0) {
+      studentImageData = Sc.getImageData(0, 0, SC.width, SC.height);
+    }
+  } catch(e) {}
 }
 
+// استعادة حالة الرسم
 function restoreCanvasState() {
-  if(teacherImageData && TC.width === teacherImageData.width && TC.height === teacherImageData.height) {
-    Tc.putImageData(teacherImageData, 0, 0);
-  }
-  if(studentImageData && SC.width === studentImageData.width && SC.height === studentImageData.height) {
-    Sc.putImageData(studentImageData, 0, 0);
-  }
+  try {
+    if(teacherImageData && TC.width === teacherImageData.width && TC.height === teacherImageData.height) {
+      Tc.putImageData(teacherImageData, 0, 0);
+    }
+    if(studentImageData && SC.width === studentImageData.width && SC.height === studentImageData.height) {
+      Sc.putImageData(studentImageData, 0, 0);
+    }
+  } catch(e) {}
 }
 
-function fitCV(cv,ctx){
-  const a=cv.parentElement, w=a.offsetWidth, h=a.offsetHeight;
+// ضبط حجم الكانفاس مع الحفاظ على الرسم
+function fitCV(cv, ctx){
+  const a=cv.parentElement;
+  const w = Math.max(100, a.offsetWidth);
+  const h = Math.max(100, a.offsetHeight);
   if(!w||!h) return false;
   
-  // Save current state before resize
-  saveCanvasState();
+  // حفظ الرسم الحالي
+  const oldWidth = cv.width;
+  const oldHeight = cv.height;
+  let oldImageData = null;
   
-  cv.width=w; cv.height=h;
-  ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
-  ctx.lineCap='round'; ctx.lineJoin='round';
+  if(oldWidth > 0 && oldHeight > 0) {
+    try {
+      oldImageData = ctx.getImageData(0, 0, oldWidth, oldHeight);
+    } catch(e) {}
+  }
   
-  // Restore after resize
-  restoreCanvasState();
+  // تغيير الحجم
+  cv.width = w;
+  cv.height = h;
+  
+  // إعادة تعيين الخلفية
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, w, h);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  
+  // استعادة الرسم القديم مع تغيير الحجم
+  if(oldImageData && oldWidth > 0 && oldHeight > 0) {
+    try {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = oldWidth;
+      tempCanvas.height = oldHeight;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.putImageData(oldImageData, 0, 0);
+      
+      // رسم الصورة بالحجم الجديد
+      ctx.drawImage(tempCanvas, 0, 0, oldWidth, oldHeight, 0, 0, w, h);
+    } catch(e) {}
+  }
   
   return true;
 }
 
-// Debounced resize handler
+// معالجة تغيير الحجم
 let resizeTimer;
 window.addEventListener('resize', ()=>{
   if(!approved) return;
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
-    fitCV(TC,Tc);
-    fitCV(SC,Sc);
-  }, 100);
+    fitCV(TC, Tc);
+    fitCV(SC, Sc);
+  }, 150);
 });
 
 // ── JOIN ────────────────────────────────────────────────────────────────────
@@ -290,72 +339,89 @@ function onApproved(){
   document.getElementById('overlay').style.display='none';
   document.getElementById('nameChip').textContent=sname;
 
-  // Auto-reload if kicked by teacher
   db.ref('kicked/'+sid).on('value',snap=>{ if(snap.exists()) window.location.reload(); });
 
-  // Register presence + auto-remove on disconnect
   db.ref('onlineStudents/'+sid).set({online:true,name:sname});
   db.ref('onlineStudents/'+sid).onDisconnect().remove();
   db.ref('approvedStudents/'+sid).onDisconnect().remove();
 
-  // Fit canvases (need layout to be painted first)
   function tryFit(){
     fitCV(TC,Tc); fitCV(SC,Sc);
     if(!SC.width) requestAnimationFrame(tryFit);
-    else attachDraw();
+    else {
+      saveCanvasState();
+      attachDraw();
+    }
   }
   requestAnimationFrame(()=>requestAnimationFrame(tryFit));
 
-  // Listen for mic permission
   db.ref('micPermissions/'+sid).on('value',snap=>{
     const p=snap.val();
     if(p&&p.allowed&&!speaking){micGranted=true;micReq=false;startSpeak();}
     else if(!p&&speaking) stopSpeak();
   });
 
-  // Teacher strokes on MY board
   const pendStu=[];
   db.ref('stroke/TS/'+sid).on('child_added',snap=>{
     const d=snap.val(); if(!d||!d.b) return;
     if(!SC.width) pendStu.push(d);
-    else applyStroke(Sc,d,SC.width,SC.height);
+    else {
+      applyStroke(Sc,d,SC.width,SC.height);
+      saveCanvasState();
+    }
     snap.ref.remove();
   });
 
-  // Flush pending when canvas ready
   function attachDraw(){
     if(pendStu.length){
       pendStu.forEach(d=>applyStroke(Sc,d,SC.width,SC.height));
       pendStu.length=0;
+      saveCanvasState();
     }
     bindDraw();
   }
 }
 
-// ── STROKE RENDER (shared) ──────────────────────────────────────────────────
+// ── STROKE RENDER ──────────────────────────────────────────────────────────
 function applyStroke(ctx,d,W,H){
   ctx.save();
-  if(d.t==='e'){ctx.globalCompositeOperation='destination-out';ctx.lineWidth=d.w*W*4;}
-  else{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=d.c;ctx.lineWidth=d.w*W;}
-  ctx.lineCap='round'; ctx.lineJoin='round';
+  if(d.t==='e'){
+    ctx.globalCompositeOperation='destination-out';
+    ctx.lineWidth = d.w * Math.min(W, H) * 0.05;
+  } else {
+    ctx.globalCompositeOperation='source-over';
+    ctx.strokeStyle=d.c;
+    ctx.lineWidth = d.w * Math.min(W, H) * 0.05;
+  }
+  ctx.lineCap='round'; 
+  ctx.lineJoin='round';
+  
   let first=true;
   (d.b||[]).forEach(pt=>{
-    const x=pt.x*W,y=pt.y*H;
-    if(pt.s||first){ctx.beginPath();ctx.moveTo(x,y);first=false;}
-    else{ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);}
+    const x=pt.x*W;
+    const y=pt.y*H;
+    if(pt.s||first){
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      first=false;
+    } else {
+      ctx.lineTo(x,y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+    }
   });
   ctx.restore();
-  
-  // Update stored image data after applying strokes
-  saveCanvasState();
 }
 
-// ── DRAW on SC ───────────────────────────────────────────────────────────────
+// ── DRAW on SC ─────────────────────────────────────────────────────────────
 let drawBatch=[], drawTO=null;
 let drawn=false;
+let lastPoint = null;
 
 function bindDraw(){
-  if(drawn) return; drawn=true;
+  if(drawn) return; 
+  drawn=true;
   SC.addEventListener('mousedown',startD);
   SC.addEventListener('mousemove',moveD);
   SC.addEventListener('mouseup',endD);
@@ -365,58 +431,78 @@ function bindDraw(){
   SC.addEventListener('touchend',endD);
 }
 
-function getP(e){
-  const r=SC.getBoundingClientRect();
-  const ex=e.touches?e.touches[0].clientX:e.clientX;
-  const ey=e.touches?e.touches[0].clientY:e.clientY;
-  return{x:(ex-r.left)*(SC.width/r.width),y:(ey-r.top)*(SC.height/r.height)};
+function startD(e){
+  e.preventDefault(); 
+  drawing=true;
+  const p=getCanvasPoint(e, SC);
+  lastPoint = p;
+  Sc.beginPath(); 
+  Sc.moveTo(p.x,p.y);
+  addDP(p.x, p.y, 1);
 }
 
-function startD(e){
-  e.preventDefault(); drawing=true;
-  const p=getP(e);
-  Sc.beginPath(); Sc.moveTo(p.x,p.y);
-  addDP(p.x,p.y,1);
-}
 function moveD(e){
-  e.preventDefault(); if(!drawing) return;
-  const p=getP(e);
-  if(dTool==='eraser'){Sc.globalCompositeOperation='destination-out';Sc.lineWidth=dSz*4;}
-  else{Sc.globalCompositeOperation='source-over';Sc.strokeStyle=dClr;Sc.lineWidth=dSz;}
-  Sc.lineCap='round'; Sc.lineJoin='round';
-  Sc.lineTo(p.x,p.y); Sc.stroke(); Sc.beginPath(); Sc.moveTo(p.x,p.y);
-  addDP(p.x,p.y,0);
+  e.preventDefault(); 
+  if(!drawing) return;
   
-  // Update stored image data during drawing
-  saveCanvasState();
+  const p=getCanvasPoint(e, SC);
+  
+  // تجنب النقاط المتكررة
+  if(lastPoint && Math.abs(p.x - lastPoint.x) < 0.5 && Math.abs(p.y - lastPoint.y) < 0.5) {
+    return;
+  }
+  
+  if(dTool==='eraser'){
+    Sc.globalCompositeOperation='destination-out';
+    Sc.lineWidth = dSz * 5;
+  } else {
+    Sc.globalCompositeOperation='source-over';
+    Sc.strokeStyle=dClr;
+    Sc.lineWidth = dSz * 2;
+  }
+  
+  Sc.lineTo(p.x, p.y);
+  Sc.stroke();
+  Sc.beginPath();
+  Sc.moveTo(p.x, p.y);
+  
+  addDP(p.x, p.y, 0);
+  lastPoint = p;
 }
+
 function endD(){
-  if(!drawing) return; drawing=false;
+  if(!drawing) return; 
+  drawing=false;
   Sc.globalCompositeOperation='source-over';
   flushDP(true);
   saveCanvasState();
+  lastPoint = null;
 }
 
 function addDP(x,y,s){
   if(!SC.width||!SC.height) return;
-  drawBatch.push({x:x/SC.width,y:y/SC.height,s});
-  clearTimeout(drawTO); drawTO=setTimeout(()=>flushDP(false),16);
+  drawBatch.push({x:x/SC.width, y:y/SC.height, s});
+  clearTimeout(drawTO); 
+  drawTO=setTimeout(()=>flushDP(false), 20);
 }
+
 function flushDP(final){
   clearTimeout(drawTO);
   if(drawBatch.length){
-    const nw=SC.width>0?dSz/SC.width:0.005;
-    db.ref('stroke/S').push({b:drawBatch,c:dClr,w:nw,
-      t:dTool==='eraser'?'e':'p',sid,ts:Date.now()});
+    const baseSize = Math.min(SC.width, SC.height);
+    const nw = baseSize > 0 ? dSz / baseSize * 100 : 0.02;
+    db.ref('stroke/S').push({
+      b:drawBatch,
+      c:dClr,
+      w:nw,
+      t:dTool==='eraser'?'e':'p',
+      sid,
+      ts:Date.now()
+    });
     drawBatch=[];
   }
   if(final&&SC.width&&SC.height){
-    const tmp=document.createElement('canvas');
-    tmp.width=SC.width; tmp.height=SC.height;
-    const tc=tmp.getContext('2d');
-    tc.fillStyle='#fff'; tc.fillRect(0,0,tmp.width,tmp.height);
-    tc.drawImage(SC,0,0);
-    db.ref('boardImg/stu/'+sid).set({data:tmp.toDataURL('image/jpeg',.85),byT:false,ts:Date.now()});
+    saveCanvasState();
   }
 }
 
@@ -425,16 +511,19 @@ function setTool(t){
   document.getElementById('bpen').classList.toggle('on',t==='pen');
   document.getElementById('bera').classList.toggle('on',t==='eraser');
 }
+
 function setClr(el){
   dClr=el.dataset.c;
   document.querySelectorAll('.cl').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
 }
+
 function setSz(s,btn){
   dSz=s;
   document.querySelectorAll('.sz').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
 }
+
 function clearMy(){
   Sc.fillStyle='#fff';
   Sc.fillRect(0,0,SC.width,SC.height);
@@ -442,7 +531,7 @@ function clearMy(){
   flushDP(true);
 }
 
-// ── HAND ─────────────────────────────────────────────────────────────────────
+// ── HAND ───────────────────────────────────────────────────────────────────
 function toggleHand(){
   if(!approved) return;
   handUp=!handUp;
@@ -451,13 +540,13 @@ function toggleHand(){
   else db.ref('handRaised/'+sid).remove();
 }
 
-// ── MIC ──────────────────────────────────────────────────────────────────────
+// ── MIC ────────────────────────────────────────────────────────────────────
 function doMic(){
   if(!approved) return;
   if(speaking){stopSpeak();return;}
   if(micReq) return;
   micReq=true;
-  setMicUI('req','fa-hourglass-half','جاري طلب الميكروفون...');
+  setMicUI('req','fa-hourglass-half','🟡 جاري الطلب...');
   db.ref('micRequests/'+sid).set({studentId:sid,studentName:sname,ts:Date.now()});
 }
 
@@ -465,7 +554,7 @@ async function startSpeak(){
   try{
     mStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
     speaking=true;
-    setMicUI('spk','fa-microphone','🔴 تتحدث الآن');
+    setMicUI('spk','fa-microphone','🟢 تتحدث الآن');
     mRec=new MediaRecorder(mStream,{mimeType:'audio/webm'});
     mRec.ondataavailable=ev=>{
       if(ev.data.size<1) return;
@@ -473,14 +562,14 @@ async function startSpeak(){
       fr.onload=()=>db.ref('stuAudio/chunk').set({data:fr.result,sid,ts:Date.now()});
       fr.readAsDataURL(ev.data);
     };
-    mRec.start(400);
+    mRec.start(500);
     const iv=setInterval(()=>{
       if(!speaking){clearInterval(iv);return;}
-      if(mRec&&mRec.state==='recording'){mRec.stop();mRec.start(400);}
-    },400);
+      if(mRec&&mRec.state==='recording'){mRec.stop();mRec.start(500);}
+    },500);
   }catch(err){
     micGranted=false; micReq=false; speaking=false;
-    setMicUI('','fa-microphone-slash','تعذّر الوصول للمايك');
+    setMicUI('','fa-microphone-slash','🔴 تعذّر الوصول');
   }
 }
 
@@ -500,11 +589,10 @@ function setMicUI(state,ico,lbl){
   document.getElementById('micLbl').textContent=lbl;
 }
 
-// ── RECEIVE TEACHER BOARD ────────────────────────────────────────────────────
+// ── RECEIVE TEACHER BOARD ──────────────────────────────────────────────────
 const pendT=[];
 let lastTsrc=null;
 
-// Real-time strokes from teacher
 db.ref('stroke/T').on('child_added',snap=>{
   const d=snap.val(); if(!d||!d.b) return;
   if(!TC.width) pendT.push(d);
@@ -515,12 +603,10 @@ db.ref('stroke/T').on('child_added',snap=>{
   snap.ref.remove();
 });
 
-// Full board image (initial load / after clear)
 db.ref('boardImg/main').on('value',snap=>{
   const d=snap.val(); if(!d||!d.data) return;
   lastTsrc=d.data;
-  // Flush any pending strokes first then draw image
-  pendT.length=0; // image is more current
+  pendT.length=0;
   drawTboard(d.data);
 });
 
@@ -531,13 +617,15 @@ function drawTboard(src){
     Tc.clearRect(0,0,TC.width,TC.height);
     Tc.drawImage(img,0,0,TC.width,TC.height);
     saveCanvasState();
-    // now apply any pending strokes that arrived after the image
-    if(pendT.length){pendT.forEach(d=>applyStroke(Tc,d,TC.width,TC.height));pendT.length=0;}
+    if(pendT.length){
+      pendT.forEach(d=>applyStroke(Tc,d,TC.width,TC.height));
+      pendT.length=0;
+      saveCanvasState();
+    }
   };
   img.src=src;
 }
 
-// Clear command
 db.ref('boardCmd').on('child_added',snap=>{
   const d=snap.val();
   if(d&&d.type==='clear'){
@@ -548,7 +636,7 @@ db.ref('boardCmd').on('child_added',snap=>{
   snap.ref.remove();
 });
 
-// ── TEACHER AUDIO ────────────────────────────────────────────────────────────
+// ── TEACHER AUDIO ──────────────────────────────────────────────────────────
 let tLastTs=0;
 db.ref('audio/chunk').on('value',snap=>{
   const d=snap.val();
@@ -560,18 +648,20 @@ db.ref('audio/chunk').on('value',snap=>{
   tAP.play().catch(()=>{});
   tAP.onended=()=>URL.revokeObjectURL(url);
 });
+
 function duToBlob(du){
   const arr=du.split(','),mime=arr[0].match(/:(.*?);/)[1];
   const b=atob(arr[1]);let n=b.length;const u=new Uint8Array(n);
   while(n--)u[n]=b.charCodeAt(n);return new Blob([u],{type:mime});
 }
+
 db.ref('audioMeta').on('value',snap=>{
   const on=!!snap.val()?.active;
   document.getElementById('liveBadge').classList.toggle('on',on);
   document.getElementById('tspkInd').classList.toggle('on',on);
 });
 
-// ── CONNECTION ────────────────────────────────────────────────────────────────
+// ── CONNECTION ──────────────────────────────────────────────────────────────
 db.ref('.info/connected').on('value',snap=>{
   const ok=!!snap.val();
   document.getElementById('cdot').style.background=ok?'var(--gn)':'var(--rd)';
