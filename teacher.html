@@ -375,8 +375,8 @@ bwrap.addEventListener('touchstart', startD, {passive:false});
 bwrap.addEventListener('touchmove',  moveD,  {passive:false});
 bwrap.addEventListener('touchend',   endD);
 
-function physSz()    { return penSz * DPR; }
-function diagFrac()  { const D=diag(CV); return D>0 ? physSz()/D : 0.002; }
+function physSz()   { return penSz * DPR; }  // physical px for local drawing
+function diagFrac() { return penSz / 1000; } // CSS-pt / fixed-ref = device-independent
 
 function startD(e) {
   e.preventDefault();
@@ -465,8 +465,9 @@ function getOff(id) {
 // Single shared applyStroke — uses diagonal normalization
 function applyStroke(ctx, cv, d) {
   if (!d || !d.b || !d.b.length) return;
-  const W=cv.width, H=cv.height, D=diag(cv);
-  const lw = Math.max(0.5, d.w * D);
+  const W=cv.width, H=cv.height;
+  // w = senderCSSpt/1000 → lw_physical = w*1000*DPR (same CSS pt on all screens)
+  const lw = Math.max(0.5 * DPR, d.w * 1000 * DPR);
 
   ctx.save();
   if (d.t==='e') {
