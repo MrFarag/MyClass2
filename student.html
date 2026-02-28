@@ -256,6 +256,9 @@ function onApproved(){
   document.getElementById('overlay').style.display='none';
   document.getElementById('nameChip').textContent=sname;
 
+  // Auto-reload if kicked by teacher
+  db.ref('kicked/'+sid).on('value',snap=>{ if(snap.exists()) window.location.reload(); });
+
   // Register presence + auto-remove on disconnect
   db.ref('onlineStudents/'+sid).set({online:true,name:sname});
   db.ref('onlineStudents/'+sid).onDisconnect().remove();
@@ -300,10 +303,11 @@ function applyStroke(ctx,d,W,H){
   ctx.save();
   if(d.t==='e'){ctx.globalCompositeOperation='destination-out';ctx.lineWidth=d.w*W*4;}
   else{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=d.c;ctx.lineWidth=d.w*W;}
-  ctx.lineCap='round'; ctx.lineJoin='round'; ctx.beginPath();
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  let first=true;
   (d.b||[]).forEach(pt=>{
     const x=pt.x*W,y=pt.y*H;
-    if(pt.s){ctx.moveTo(x,y);}
+    if(pt.s||first){ctx.beginPath();ctx.moveTo(x,y);first=false;}
     else{ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);}
   });
   ctx.restore();
@@ -353,13 +357,15 @@ function endD(){
 }
 
 function addDP(x,y,s){
+  if(!SC.width||!SC.height) return;
   drawBatch.push({x:x/SC.width,y:y/SC.height,s});
   clearTimeout(drawTO); drawTO=setTimeout(()=>flushDP(false),16);
 }
 function flushDP(final){
   clearTimeout(drawTO);
   if(drawBatch.length){
-    db.ref('stroke/S').push({b:drawBatch,c:dClr,w:dSz/SC.width,
+    const nw=SC.width>0?dSz/SC.width:0.005;
+    db.ref('stroke/S').push({b:drawBatch,c:dClr,w:nw,
       t:dTool==='eraser'?'e':'p',sid,ts:Date.now()});
     drawBatch=[];
   }
@@ -477,12 +483,22 @@ db.ref('boardCmd').on('child_added',snap=>{
 });
 
 // ── TEACHER AUDIO ────────────────────────────────────────────────────────────
-const tHeard=new Set();
+let tLastTs=0;
 db.ref('audio/chunk').on('value',snap=>{
-  const d=snap.val(); if(!d||tHeard.has(d.ts)) return;
-  tHeard.add(d.ts);
-  tAP.src=d.data; tAP.play().catch(()=>{});
+  const d=snap.val();
+  if(!d||!d.data||d.ts<=tLastTs) return;
+  tLastTs=d.ts;
+  const blob=duToBlob(d.data);
+  const url=URL.createObjectURL(blob);
+  tAP.src=url;
+  tAP.play().catch(()=>{});
+  tAP.onended=()=>URL.revokeObjectURL(url);
 });
+function duToBlob(du){
+  const arr=du.split(','),mime=arr[0].match(/:(.*?);/)[1];
+  const b=atob(arr[1]);let n=b.length;const u=new Uint8Array(n);
+  while(n--)u[n]=b.charCodeAt(n);return new Blob([u],{type:mime});
+}
 db.ref('audioMeta').on('value',snap=>{
   const on=!!snap.val()?.active;
   document.getElementById('liveBadge').classList.toggle('on',on);
