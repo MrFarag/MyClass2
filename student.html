@@ -36,8 +36,8 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
 .topright{display:flex;align-items:center;gap:8px}
 .nchip{background:var(--br);padding:4px 12px;border-radius:20px;font-size:12px}
 .hbtn{width:36px;height:36px;border-radius:50%;border:none;background:var(--br);
-  color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
-.hbtn.up{background:var(--yw);animation:pulse 1.5s infinite}
+  color:var(--dim);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.hbtn.up{background:var(--yw);color:#fff;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
 /* BOARDS */
@@ -52,7 +52,7 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
 .carea canvas{position:absolute;inset:0;display:block;width:100%;height:100%}
 #sc{touch-action:none;cursor:crosshair}
 .livebadge{background:var(--rd);padding:2px 7px;border-radius:8px;font-size:10px;
-  display:none;align-items:center;gap:3px}
+  display:none;align-items:center;gap:3px;color:#fff}
 .livebadge.on{display:flex}
 
 /* MIC BAR */
@@ -221,20 +221,54 @@ let dClr='#1a1a1a', dSz=5, dTool='pen', drawing=false;
 const TC=document.getElementById('tc'), SC=document.getElementById('sc');
 const Tc=TC.getContext('2d'), Sc=SC.getContext('2d');
 
+// Store canvas state to restore after resize
+let teacherImageData = null;
+let studentImageData = null;
+
+function saveCanvasState() {
+  if(TC.width > 0 && TC.height > 0) {
+    teacherImageData = Tc.getImageData(0, 0, TC.width, TC.height);
+  }
+  if(SC.width > 0 && SC.height > 0) {
+    studentImageData = Sc.getImageData(0, 0, SC.width, SC.height);
+  }
+}
+
+function restoreCanvasState() {
+  if(teacherImageData && TC.width === teacherImageData.width && TC.height === teacherImageData.height) {
+    Tc.putImageData(teacherImageData, 0, 0);
+  }
+  if(studentImageData && SC.width === studentImageData.width && SC.height === studentImageData.height) {
+    Sc.putImageData(studentImageData, 0, 0);
+  }
+}
+
 function fitCV(cv,ctx){
   const a=cv.parentElement, w=a.offsetWidth, h=a.offsetHeight;
   if(!w||!h) return false;
-  const snap=(cv.width>0&&cv.height>0)?ctx.getImageData(0,0,cv.width,cv.height):null;
+  
+  // Save current state before resize
+  saveCanvasState();
+  
   cv.width=w; cv.height=h;
   ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
-  if(snap) try{ctx.putImageData(snap,0,0);}catch(e){}
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  
+  // Restore after resize
+  restoreCanvasState();
+  
   return true;
 }
-// Re-fit and redraw on resize
-window.addEventListener('resize',()=>{
+
+// Debounced resize handler
+let resizeTimer;
+window.addEventListener('resize', ()=>{
   if(!approved) return;
-  fitCV(TC,Tc); fitCV(SC,Sc);
-  if(lastTsrc) drawTboard(lastTsrc);
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    fitCV(TC,Tc);
+    fitCV(SC,Sc);
+  }, 100);
 });
 
 // ── JOIN ────────────────────────────────────────────────────────────────────
@@ -311,6 +345,9 @@ function applyStroke(ctx,d,W,H){
     else{ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);}
   });
   ctx.restore();
+  
+  // Update stored image data after applying strokes
+  saveCanvasState();
 }
 
 // ── DRAW on SC ───────────────────────────────────────────────────────────────
@@ -349,11 +386,15 @@ function moveD(e){
   Sc.lineCap='round'; Sc.lineJoin='round';
   Sc.lineTo(p.x,p.y); Sc.stroke(); Sc.beginPath(); Sc.moveTo(p.x,p.y);
   addDP(p.x,p.y,0);
+  
+  // Update stored image data during drawing
+  saveCanvasState();
 }
 function endD(){
   if(!drawing) return; drawing=false;
   Sc.globalCompositeOperation='source-over';
   flushDP(true);
+  saveCanvasState();
 }
 
 function addDP(x,y,s){
@@ -379,10 +420,27 @@ function flushDP(final){
   }
 }
 
-function setTool(t){dTool=t;document.getElementById('bpen').classList.toggle('on',t==='pen');document.getElementById('bera').classList.toggle('on',t==='eraser');}
-function setClr(el){dClr=el.dataset.c;document.querySelectorAll('.cl').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
-function setSz(s,btn){dSz=s;document.querySelectorAll('.sz').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
-function clearMy(){Sc.fillStyle='#fff';Sc.fillRect(0,0,SC.width,SC.height);flushDP(true);}
+function setTool(t){
+  dTool=t;
+  document.getElementById('bpen').classList.toggle('on',t==='pen');
+  document.getElementById('bera').classList.toggle('on',t==='eraser');
+}
+function setClr(el){
+  dClr=el.dataset.c;
+  document.querySelectorAll('.cl').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+function setSz(s,btn){
+  dSz=s;
+  document.querySelectorAll('.sz').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function clearMy(){
+  Sc.fillStyle='#fff';
+  Sc.fillRect(0,0,SC.width,SC.height);
+  saveCanvasState();
+  flushDP(true);
+}
 
 // ── HAND ─────────────────────────────────────────────────────────────────────
 function toggleHand(){
@@ -450,7 +508,10 @@ let lastTsrc=null;
 db.ref('stroke/T').on('child_added',snap=>{
   const d=snap.val(); if(!d||!d.b) return;
   if(!TC.width) pendT.push(d);
-  else applyStroke(Tc,d,TC.width,TC.height);
+  else{
+    applyStroke(Tc,d,TC.width,TC.height);
+    saveCanvasState();
+  }
   snap.ref.remove();
 });
 
@@ -469,6 +530,7 @@ function drawTboard(src){
     if(!TC.width||!TC.height){fitCV(TC,Tc);if(!TC.width)return;}
     Tc.clearRect(0,0,TC.width,TC.height);
     Tc.drawImage(img,0,0,TC.width,TC.height);
+    saveCanvasState();
     // now apply any pending strokes that arrived after the image
     if(pendT.length){pendT.forEach(d=>applyStroke(Tc,d,TC.width,TC.height));pendT.length=0;}
   };
@@ -478,7 +540,11 @@ function drawTboard(src){
 // Clear command
 db.ref('boardCmd').on('child_added',snap=>{
   const d=snap.val();
-  if(d&&d.type==='clear'){Tc.fillStyle='#fff';Tc.fillRect(0,0,TC.width,TC.height);}
+  if(d&&d.type==='clear'){
+    Tc.fillStyle='#fff';
+    Tc.fillRect(0,0,TC.width,TC.height);
+    saveCanvasState();
+  }
   snap.ref.remove();
 });
 
