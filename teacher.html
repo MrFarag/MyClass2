@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyClass2 - المدرس (النسخة النهائية)</title>
+    <title>MyClass2 - المدرس</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -94,6 +94,19 @@
             align-items: center;
         }
 
+        .clear-all-btn {
+            background: #ef4444;
+            border: none;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
         .students-list {
             flex: 1;
             overflow-y: auto;
@@ -116,12 +129,6 @@
         .student-card.speaking {
             border-color: #22c55e;
             background: #1a3a2a;
-            animation: borderPulse 1.5s infinite;
-        }
-
-        @keyframes borderPulse {
-            0%, 100% { border-color: #22c55e; }
-            50% { border-color: #86efac; }
         }
 
         .student-info {
@@ -209,11 +216,6 @@
             color: white;
         }
 
-        .action-btn.view {
-            background: #8b5cf6;
-            color: white;
-        }
-
         .action-btn.kick {
             background: #64748b;
             color: white;
@@ -271,16 +273,16 @@
             color: white;
         }
 
+        .control-btn.danger:hover {
+            background: #ef4444;
+            color: white;
+        }
+
         .speaker-info {
             background: #334155;
             padding: 8px 20px;
             border-radius: 30px;
             font-size: 14px;
-        }
-
-        .speaker-info i {
-            color: #22c55e;
-            margin-left: 5px;
         }
 
         .tabs-container {
@@ -508,9 +510,9 @@
     <div class="header">
         <div class="logo">My<span>Class</span>2</div>
         <div class="stats">
-            <div class="stat-item"><i class="fas fa-users"></i> <span id="onlineCount">0</span> متصل</div>
-            <div class="stat-item"><i class="fas fa-hand-paper"></i> <span id="handCount">0</span> رفع يد</div>
-            <div class="live-badge"><i class="fas fa-circle"></i> بث مباشر</div>
+            <div class="stat-item"><i class="fas fa-users"></i> <span id="onlineCount">0</span></div>
+            <div class="stat-item"><i class="fas fa-hand-paper"></i> <span id="handCount">0</span></div>
+            <div class="live-badge"><i class="fas fa-circle"></i> مباشر</div>
         </div>
     </div>
 
@@ -518,6 +520,9 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <span><i class="fas fa-users"></i> قائمة الطلاب</span>
+                <button class="clear-all-btn" onclick="clearAllRequests()">
+                    <i class="fas fa-trash"></i> تصفير
+                </button>
             </div>
             <div class="students-list" id="studentsList"></div>
         </div>
@@ -534,19 +539,22 @@
                     </div>
                 </div>
                 <div class="control-group">
-                    <button class="control-btn" onclick="clearCurrentBoard()" title="مسح السبورة">
+                    <button class="control-btn" onclick="clearBoard()" title="مسح السبورة">
                         <i class="fas fa-eraser"></i>
+                    </button>
+                    <button class="control-btn danger" onclick="resetEverything()" title="تصفير الكل">
+                        <i class="fas fa-broom"></i>
                     </button>
                 </div>
             </div>
 
             <div class="tabs-container">
-                <div class="tabs-header" id="tabsHeader">
+                <div class="tabs-header">
                     <button class="tab active" onclick="switchBoard('main')">
                         <i class="fas fa-chalkboard"></i> السبورة الرئيسية
                     </button>
                 </div>
-                <div class="board-container" id="boardContainer">
+                <div class="board-container">
                     <canvas id="mainBoard"></canvas>
                 </div>
             </div>
@@ -568,17 +576,9 @@
                     <div class="color-dot" style="background:#22c55e" onclick="selectColor('#22c55e', this)"></div>
                 </div>
 
-                <div class="size-selector">
-                    <button class="size-btn active" onclick="setSize(4, this)">
-                        <div style="width:8px; height:8px; background:white; border-radius:50%; margin:auto"></div>
-                    </button>
-                </div>
-
                 <div class="image-upload">
                     <input type="file" id="imageUpload" accept="image/*" onchange="uploadImage(this)">
-                    <label for="imageUpload" title="رفع صورة">
-                        <i class="fas fa-image"></i>
-                    </label>
+                    <label for="imageUpload"><i class="fas fa-image"></i></label>
                 </div>
             </div>
         </div>
@@ -589,10 +589,7 @@
             <i class="fas fa-circle"></i>
             <span>يتحدث: <span id="currentSpeaker"></span></span>
         </div>
-        <div>
-            <i class="fas fa-bolt" style="color:#f59e0b"></i>
-            <span id="latency">24ms</span>
-        </div>
+        <div><i class="fas fa-bolt"></i> <span id="latency">24ms</span></div>
     </div>
 
     <audio id="audioPlayer" style="display:none"></audio>
@@ -608,6 +605,45 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        // ===== تصفير كل الطلبات القديمة عند فتح الصفحة =====
+        function cleanupOldRequests() {
+            // حذف كل طلبات الانضمام القديمة (أقدم من دقيقة)
+            const oneMinuteAgo = Date.now() - 60000;
+            
+            db.ref('joinRequests').once('value', snap => {
+                snap.forEach(child => {
+                    const req = child.val();
+                    if (req.time && req.time < oneMinuteAgo) {
+                        child.ref.remove();
+                        console.log('تم حذف طلب قديم:', req.name);
+                    }
+                });
+            });
+
+            // حذف كل طلبات المايك القديمة
+            db.ref('micRequests').once('value', snap => {
+                snap.forEach(child => {
+                    const req = child.val();
+                    if (req.time && req.time < oneMinuteAgo) {
+                        child.ref.remove();
+                        console.log('تم حذف طلب مايك قديم');
+                    }
+                });
+            });
+
+            // حذف الطلاب غير النشطين (أقدم من دقيقة)
+            db.ref('onlineStudents').once('value', snap => {
+                snap.forEach(child => {
+                    const student = child.val();
+                    if (student.lastSeen && student.lastSeen < oneMinuteAgo) {
+                        child.ref.remove();
+                        console.log('تم حذف طالب غير نشط');
+                    }
+                });
+            });
+        }
+
+        // ===== متغيرات =====
         let students = {};
         let waitingStudents = {};
         let currentSpeaker = null;
@@ -615,10 +651,8 @@
         let mediaStream = null;
         let mediaRecorder = null;
         let currentColor = '#000000';
-        let currentSize = 4;
         let currentTool = 'pen';
         let isDrawing = false;
-        let lastX = 0, lastY = 0;
 
         const canvas = document.getElementById('mainBoard');
         const ctx = canvas.getContext('2d');
@@ -630,39 +664,36 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.lineWidth = currentSize;
+            ctx.lineWidth = 4;
         }
 
         window.addEventListener('resize', resizeCanvas);
         setTimeout(resizeCanvas, 100);
 
-        function getCoordinates(e) {
+        // ===== الرسم =====
+        function getCoords(e) {
             const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             return {
-                x: (clientX - rect.left) * scaleX,
-                y: (clientY - rect.top) * scaleY
+                x: (clientX - rect.left) / canvas.width,
+                y: (clientY - rect.top) / canvas.height
             };
         }
 
         function startDrawing(e) {
             e.preventDefault();
             isDrawing = true;
-            const coords = getCoordinates(e);
-            lastX = coords.x;
-            lastY = coords.y;
+            const p = getCoords(e);
             ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
+            ctx.moveTo(p.x * canvas.width, p.y * canvas.height);
             
             db.ref('draw_t').push({
                 type: 'start',
-                x: lastX / canvas.width,
-                y: lastY / canvas.height,
+                x: p.x,
+                y: p.y,
                 color: currentTool === 'eraser' ? '#FFFFFF' : currentColor,
-                size: currentTool === 'eraser' ? currentSize * 3 : currentSize,
+                size: 4,
                 time: Date.now()
             });
         }
@@ -670,29 +701,26 @@
         function draw(e) {
             e.preventDefault();
             if (!isDrawing) return;
-            const coords = getCoordinates(e);
-            const x = coords.x / canvas.width;
-            const y = coords.y / canvas.height;
+            const p = getCoords(e);
             
             ctx.strokeStyle = currentTool === 'eraser' ? '#FFFFFF' : currentColor;
-            ctx.lineWidth = currentTool === 'eraser' ? currentSize * 3 : currentSize;
-            ctx.lineTo(coords.x, coords.y);
+            ctx.lineWidth = 4;
+            ctx.lineTo(p.x * canvas.width, p.y * canvas.height);
             ctx.stroke();
             ctx.beginPath();
-            ctx.moveTo(coords.x, coords.y);
+            ctx.moveTo(p.x * canvas.width, p.y * canvas.height);
             
             db.ref('draw_t').push({
                 type: 'draw',
-                x: x,
-                y: y,
+                x: p.x,
+                y: p.y,
                 color: currentTool === 'eraser' ? '#FFFFFF' : currentColor,
-                size: currentTool === 'eraser' ? currentSize * 3 : currentSize,
+                size: 4,
                 time: Date.now()
             });
         }
 
         function stopDrawing() {
-            if (!isDrawing) return;
             isDrawing = false;
         }
 
@@ -716,14 +744,7 @@
             element.classList.add('active');
         };
 
-        window.setSize = function(size, element) {
-            currentSize = size;
-            document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-            ctx.lineWidth = size;
-        };
-
-        window.clearCurrentBoard = function() {
+        window.clearBoard = function() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -749,58 +770,87 @@
             reader.readAsDataURL(input.files[0]);
         };
 
-        db.ref('joinRequests').on('child_added', snap => {
-            const s = snap.val();
-            waitingStudents[s.id] = s;
-            updateStudentsList();
-        });
-
-        db.ref('approvedStudents').on('value', snap => {
-            students = snap.val() || {};
-            updateStudentsList();
-        });
-
-        db.ref('onlineStudents').on('value', snap => {
-            const online = snap.val() || {};
-            Object.keys(students).forEach(id => {
-                if (students[id]) students[id].online = online[id] ? true : false;
-            });
-            updateStudentsList();
-        });
-
-        db.ref('handRaised').on('value', snap => {
-            const hands = snap.val() || {};
-            Object.keys(students).forEach(id => {
-                if (students[id]) students[id].handRaised = hands[id] ? true : false;
-            });
-            updateStudentsList();
-        });
-
+        // ===== إدارة الطلاب =====
         function updateStudentsList() {
             const list = document.getElementById('studentsList');
             let html = '';
             let online = 0, hands = 0;
 
+            // طلبات الانضمام
             Object.values(waitingStudents).forEach(s => {
-                html += `<div class="student-card hand-raised"><div class="student-info"><div class="student-avatar">${s.name.charAt(0)}</div><div class="student-details"><div class="student-name">${s.name}</div><div class="student-status"><span class="status-dot hand"></span>في انتظار الموافقة</div></div></div><div class="student-actions"><button class="action-btn approve" onclick="approveStudent('${s.id}')"><i class="fas fa-check"></i> قبول</button><button class="action-btn reject" onclick="rejectStudent('${s.id}')"><i class="fas fa-times"></i> رفض</button></div></div>`;
+                html += `
+                    <div class="student-card hand-raised">
+                        <div class="student-info">
+                            <div class="student-avatar">${s.name.charAt(0)}</div>
+                            <div class="student-details">
+                                <div class="student-name">${s.name}</div>
+                                <div class="student-status">
+                                    <span class="status-dot hand"></span> في انتظار الموافقة
+                                </div>
+                            </div>
+                        </div>
+                        <div class="student-actions">
+                            <button class="action-btn approve" onclick="approveStudent('${s.id}')">
+                                <i class="fas fa-check"></i> قبول
+                            </button>
+                            <button class="action-btn reject" onclick="rejectStudent('${s.id}')">
+                                <i class="fas fa-times"></i> رفض
+                            </button>
+                        </div>
+                    </div>
+                `;
             });
 
+            // الطلاب المعتمدين
             Object.values(students).forEach(s => {
                 if (!s.online) return;
                 online++;
                 if (s.handRaised) hands++;
-                html += `<div class="student-card ${s.handRaised ? 'hand-raised' : ''} ${currentSpeaker === s.id ? 'speaking' : ''}"><div class="student-info"><div class="student-avatar">${s.name.charAt(0)}</div><div class="student-details"><div class="student-name">${s.name}</div><div class="student-status"><span class="status-dot ${s.handRaised ? 'hand' : (currentSpeaker === s.id ? 'speaking' : '')}"></span>${s.handRaised ? '✋ رفع يد' : (currentSpeaker === s.id ? '🎤 يتحدث' : '🔊 مستمع')}</div></div></div><div class="student-actions">${s.handRaised ? `<button class="action-btn approve" onclick="allowMic('${s.id}')"><i class="fas fa-check"></i> سماح</button><button class="action-btn reject" onclick="rejectHand('${s.id}')"><i class="fas fa-times"></i> رفض</button>` : ''}${currentSpeaker === s.id ? `<button class="action-btn mic" onclick="stopMic('${s.id}')"><i class="fas fa-microphone-slash"></i> إسكات</button>` : ''}<button class="action-btn kick" onclick="kickStudent('${s.id}')"><i class="fas fa-sign-out-alt"></i> طرد</button></div></div>`;
+                
+                html += `
+                    <div class="student-card ${s.handRaised ? 'hand-raised' : ''} ${currentSpeaker === s.id ? 'speaking' : ''}">
+                        <div class="student-info">
+                            <div class="student-avatar">${s.name.charAt(0)}</div>
+                            <div class="student-details">
+                                <div class="student-name">${s.name}</div>
+                                <div class="student-status">
+                                    <span class="status-dot ${s.handRaised ? 'hand' : (currentSpeaker === s.id ? 'speaking' : '')}"></span>
+                                    ${s.handRaised ? '✋ رفع يد' : (currentSpeaker === s.id ? '🎤 يتحدث' : '🔊 مستمع')}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="student-actions">
+                            ${s.handRaised ? `
+                                <button class="action-btn approve" onclick="allowMic('${s.id}')">
+                                    <i class="fas fa-check"></i> سماح
+                                </button>
+                                <button class="action-btn reject" onclick="rejectHand('${s.id}')">
+                                    <i class="fas fa-times"></i> رفض
+                                </button>
+                            ` : ''}
+                            ${currentSpeaker === s.id ? `
+                                <button class="action-btn mic" onclick="stopMic('${s.id}')">
+                                    <i class="fas fa-microphone-slash"></i> إسكات
+                                </button>
+                            ` : ''}
+                            <button class="action-btn kick" onclick="kickStudent('${s.id}')">
+                                <i class="fas fa-sign-out-alt"></i> طرد
+                            </button>
+                        </div>
+                    </div>
+                `;
             });
 
-            list.innerHTML = html || '<div style="padding:20px; text-align:center; color:#94a3b8">لا يوجد طلاب</div>';
+            list.innerHTML = html || '<div style="padding:20px; text-align:center">لا يوجد طلاب</div>';
             document.getElementById('onlineCount').textContent = online;
             document.getElementById('handCount').textContent = hands;
         }
 
+        // ===== إجراءات الطلاب =====
         window.approveStudent = function(id) {
             const student = waitingStudents[id];
             if (student) {
-                students[id] = { id: id, name: student.name, online: true, handRaised: false };
+                students[id] = { id, name: student.name, online: true, handRaised: false };
                 delete waitingStudents[id];
                 db.ref('approvedStudents/' + id).set(students[id]);
                 db.ref('joinRequests/' + id).remove();
@@ -818,7 +868,7 @@
             if (currentSpeaker) db.ref('micPermissions/' + currentSpeaker).remove();
             currentSpeaker = id;
             students[id].handRaised = false;
-            db.ref('micPermissions/' + id).set({ allowed: true, time: Date.now() });
+            db.ref('micPermissions/' + id).set({ allowed: true });
             db.ref('handRaised/' + id).remove();
             document.getElementById('speakingIndicator').style.display = 'flex';
             document.getElementById('currentSpeaker').textContent = students[id].name;
@@ -851,12 +901,80 @@
             updateStudentsList();
         };
 
+        window.clearAllRequests = function() {
+            if (confirm('حذف جميع طلبات الانضمام القديمة؟')) {
+                db.ref('joinRequests').remove();
+                db.ref('micRequests').remove();
+                waitingStudents = {};
+                updateStudentsList();
+            }
+        };
+
+        window.resetEverything = function() {
+            if (confirm('تصفير الجلسة بالكامل؟')) {
+                db.ref('joinRequests').remove();
+                db.ref('micRequests').remove();
+                db.ref('approvedStudents').remove();
+                db.ref('onlineStudents').remove();
+                db.ref('handRaised').remove();
+                db.ref('micPermissions').remove();
+                db.ref('audioMeta').set({ active: false });
+                db.ref('audio').remove();
+                
+                students = {};
+                waitingStudents = {};
+                currentSpeaker = null;
+                
+                if (isMicOn) toggleMicrophone();
+                clearBoard();
+                updateStudentsList();
+            }
+        };
+
+        // ===== استقبال البيانات =====
+        db.ref('joinRequests').on('child_added', snap => {
+            const s = snap.val();
+            if (s && s.id && s.name) {
+                waitingStudents[s.id] = s;
+                updateStudentsList();
+            }
+        });
+
+        db.ref('joinRequests').on('child_removed', snap => {
+            const s = snap.val();
+            if (s && s.id) delete waitingStudents[s.id];
+            updateStudentsList();
+        });
+
+        db.ref('approvedStudents').on('value', snap => {
+            students = snap.val() || {};
+            updateStudentsList();
+        });
+
+        db.ref('onlineStudents').on('value', snap => {
+            const online = snap.val() || {};
+            Object.keys(students).forEach(id => {
+                if (students[id]) students[id].online = online[id] ? true : false;
+            });
+            updateStudentsList();
+        });
+
+        db.ref('handRaised').on('value', snap => {
+            const hands = snap.val() || {};
+            Object.keys(students).forEach(id => {
+                if (students[id]) students[id].handRaised = hands[id] ? true : false;
+            });
+            updateStudentsList();
+        });
+
+        // ===== الصوت =====
         window.toggleMicrophone = async function() {
             const btn = document.getElementById('micToggle');
             const icon = document.getElementById('micIcon');
+            
             if (!isMicOn) {
                 try {
-                    mediaStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     isMicOn = true;
                     btn.classList.remove('mic-off');
                     btn.classList.add('mic-on');
@@ -866,21 +984,20 @@
                     mediaRecorder.ondataavailable = (e) => {
                         if (e.data.size > 0) {
                             const reader = new FileReader();
-                            reader.onload = () => db.ref('audio/chunk').set({ data: reader.result, time: Date.now() });
+                            reader.onload = () => {
+                                db.ref('audio/chunk').set({ 
+                                    data: reader.result, 
+                                    time: Date.now() 
+                                });
+                            };
                             reader.readAsDataURL(e.data);
                         }
                     };
                     mediaRecorder.start(1000);
                     db.ref('audioMeta').set({ active: true });
                     
-                    setInterval(() => {
-                        if (mediaRecorder && mediaRecorder.state === 'recording') {
-                            mediaRecorder.stop();
-                            mediaRecorder.start(1000);
-                        }
-                    }, 1000);
                 } catch (err) {
-                    alert('لا يمكن الوصول للمايك: ' + err.message);
+                    alert('لا يمكن الوصول للمايك');
                 }
             } else {
                 if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
@@ -894,6 +1011,7 @@
             }
         };
 
+        // ===== استقبال صوت الطلاب =====
         const audioPlayer = document.getElementById('audioPlayer');
         const heardAudios = new Set();
 
@@ -902,13 +1020,17 @@
             if (!data || !data.data || heardAudios.has(data.time)) return;
             heardAudios.add(data.time);
             audioPlayer.src = data.data;
-            audioPlayer.play().catch(e => console.log('Audio play error:', e));
+            audioPlayer.play().catch(() => {});
         });
 
+        // ===== تشغيل التصفير التلقائي عند فتح الصفحة =====
+        cleanupOldRequests();
+        setInterval(cleanupOldRequests, 30000); // كل 30 ثانية
+
+        // ===== محاكاة زمن الاستجابة =====
         setInterval(() => {
             document.getElementById('latency').textContent = Math.floor(Math.random() * 30 + 10) + 'ms';
         }, 3000);
     </script>
 </body>
 </html>
-<!-- نهاية ملف teacher.html -->
