@@ -11,8 +11,6 @@
       --dk:#0f172a;--cd:#1e293b;--br:#334155;--mt:#475569;--dim:#94a3b8}
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
 html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
-
-/* HEADER */
 .hdr{height:50px;background:var(--cd);border-bottom:2px solid var(--br);
   padding:0 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .logo{font-size:19px;font-weight:900;color:var(--bl)}.logo b{color:#fff}
@@ -20,125 +18,98 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
 .chip{background:var(--br);padding:3px 11px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:5px}
 .livec{background:var(--rd);padding:3px 11px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:5px;animation:blink 1.5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
-
-/* SHELL */
 #wrap{height:calc(100vh - 50px);display:flex;flex-direction:column}
 .body{flex:1;display:flex;overflow:hidden;min-height:0}
-
 /* SIDEBAR */
 .sidebar{width:218px;background:var(--cd);border-left:2px solid var(--br);display:flex;flex-direction:column;flex-shrink:0}
-.stitle{padding:9px 12px;font-size:11px;font-weight:700;color:var(--dim);border-bottom:1px solid var(--br)}
+.stitle{padding:9px 12px;font-size:11px;font-weight:700;color:var(--dim);border-bottom:1px solid var(--br);display:flex;align-items:center;gap:5px}
 .slist{flex:1;overflow-y:auto;padding:5px}
 .slist::-webkit-scrollbar{width:3px}.slist::-webkit-scrollbar-thumb{background:var(--br)}
-
-/* STUDENT ITEM */
-.sitem{padding:7px 9px;border-radius:9px;margin-bottom:3px;
-  border:1px solid transparent;transition:.15s;cursor:pointer}
+.sitem{padding:7px 9px;border-radius:9px;margin-bottom:3px;border:1px solid transparent;transition:.15s;cursor:pointer}
 .sitem:hover{background:var(--br)}
 .sitem.act{background:rgba(59,130,246,.13);border-color:var(--bl)}
 .sitem.spk{background:rgba(34,197,94,.08);border-color:var(--gn)}
-.sitem.wait{background:rgba(245,158,11,.07);border-color:var(--yw);animation:rowpulse 1s infinite}
-@keyframes rowpulse{0%,100%{border-color:rgba(245,158,11,.3)}50%{border-color:var(--yw)}}
+/* mic request: row border pulses */
+.sitem.wait{animation:rowpulse .8s infinite}
+@keyframes rowpulse{
+  0%,100%{border-color:rgba(245,158,11,.25);background:transparent}
+  50%{border-color:var(--yw);background:rgba(245,158,11,.07)}
+}
 .srow{display:flex;align-items:center;gap:4px}
 .sn{font-size:13px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* 3 icon buttons */
 .sicons{display:flex;gap:3px;align-items:center;flex-shrink:0}
 .ib{width:27px;height:27px;border-radius:7px;border:none;cursor:pointer;
-  font-size:11px;display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;transition:.15s}
-/* MIC: gray=off, amber-pulse=requesting, green=speaking */
+  font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s}
+/* MIC — gray=off  |  amber ripple = requesting  |  solid green = on (NO slash ever) */
 .ib.mic{background:var(--br);color:var(--dim)}
 .ib.mic:hover{background:var(--mt);color:#fff}
-.ib.mic.req{background:rgba(245,158,11,.25);color:var(--yw);
-  animation:micpulse .6s infinite;
-  box-shadow:0 0 0 0 rgba(245,158,11,.6)}
-@keyframes micpulse{
-  0%{box-shadow:0 0 0 0 rgba(245,158,11,.7);background:rgba(245,158,11,.3)}
-  50%{box-shadow:0 0 0 6px rgba(245,158,11,0);background:rgba(245,158,11,.6);color:#fff}
-  100%{box-shadow:0 0 0 0 rgba(245,158,11,0);background:rgba(245,158,11,.3)}
+.ib.mic.req{background:rgba(245,158,11,.15);color:var(--yw);animation:ripple .75s infinite}
+@keyframes ripple{
+  0%  {box-shadow:0 0 0 0   rgba(245,158,11,.65)}
+  60% {box-shadow:0 0 0 8px rgba(245,158,11,0);background:rgba(245,158,11,.45);color:#fff}
+  100%{box-shadow:0 0 0 0   rgba(245,158,11,0)}
 }
-.ib.mic.on{background:var(--gn);color:#fff}
-/* EYE: gray=inactive, blue=viewing */
-.ib.eye{background:var(--br);color:var(--dim)}
-.ib.eye:hover{background:var(--mt);color:#fff}
+/* green = mic ON — no slash, just glowing mic */
+.ib.mic.on{background:var(--gn);color:#fff;box-shadow:0 0 0 3px rgba(34,197,94,.35)}
+.ib.eye{background:var(--br);color:var(--dim)}.ib.eye:hover{background:var(--mt);color:#fff}
 .ib.eye.on{background:var(--bl);color:#fff}
-/* KICK: subtle red */
-.ib.kick{background:rgba(239,68,68,.12);color:var(--rd)}
-.ib.kick:hover{background:var(--rd);color:#fff}
-/* mic request bar */
-.req-bar{margin-top:4px;padding:3px 7px;background:rgba(245,158,11,.1);
-  border-radius:6px;font-size:10px;color:var(--yw);
-  border:1px solid rgba(245,158,11,.3);display:flex;align-items:center;gap:4px}
-
+.ib.kick{background:rgba(239,68,68,.12);color:var(--rd)}.ib.kick:hover{background:var(--rd);color:#fff}
 /* BOARD */
 .content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 .bwrap{flex:1;background:#fff;position:relative;overflow:hidden;min-height:0}
 #mc{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;display:block}
 .blbl{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.58);color:#fff;
   padding:3px 10px;border-radius:12px;font-size:11px;pointer-events:none;z-index:5}
-
 /* TOOLBAR */
-.tbar{background:var(--cd);border-top:1px solid var(--br);padding:6px 10px;
-  display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;flex-shrink:0}
+.tbar{background:var(--cd);border-top:1px solid var(--br);padding:5px 10px;
+  display:flex;align-items:center;gap:5px;flex-wrap:nowrap;overflow-x:auto;flex-shrink:0}
 .tbar::-webkit-scrollbar{display:none}
-.tsep{width:1px;height:32px;background:var(--br);flex-shrink:0}
+.tsep{width:1px;height:30px;background:var(--br);flex-shrink:0}
 .tg{display:flex;gap:3px;flex-shrink:0}
-.tb{width:36px;height:36px;border-radius:8px;border:none;
-  background:var(--br);color:var(--dim);cursor:pointer;font-size:14px;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.12s}
+.tb{width:34px;height:34px;border-radius:8px;border:none;background:var(--br);color:var(--dim);
+  cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.12s}
 .tb:hover{background:var(--mt);color:#fff}
 .tb.on{background:var(--bl);color:#fff}
-.tb.del{background:rgba(239,68,68,.13);color:var(--rd)}
-.tb.del:hover{background:var(--rd);color:#fff}
-
-/* Shape panel */
-.spanel{position:absolute;bottom:52px;left:44px;background:var(--cd);
-  border:1px solid var(--br);border-radius:12px;padding:8px;
-  display:none;flex-wrap:wrap;gap:4px;z-index:50;width:186px}
+.tb.danger{background:rgba(239,68,68,.13);color:var(--rd)}.tb.danger:hover{background:var(--rd);color:#fff}
+.tb.savebtn{background:rgba(34,197,94,.13);color:var(--gn)}.tb.savebtn:hover{background:var(--gn);color:#fff}
+.tb:disabled,.tb[disabled]{opacity:.3;cursor:default;pointer-events:none}
+/* SHAPE PANEL */
+.spanel{position:absolute;bottom:46px;left:42px;background:var(--cd);border:1px solid var(--br);
+  border-radius:12px;padding:8px;display:none;flex-wrap:wrap;gap:4px;z-index:60;width:190px}
 .spanel.on{display:flex}
-.shb{width:40px;height:40px;background:var(--br);border:none;border-radius:7px;
-  color:#fff;cursor:pointer;font-size:13px;
-  display:flex;align-items:center;justify-content:center;transition:.12s}
+.shb{width:40px;height:40px;background:var(--br);border:none;border-radius:7px;color:#fff;
+  cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:.12s}
 .shb:hover,.shb.on{background:var(--bl)}
-
-/* Colors */
+/* COLORS */
 .clrs{display:flex;gap:4px;align-items:center;flex-shrink:0}
-.cl{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:.1s}
+.cl{width:23px;height:23px;border-radius:50%;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:.1s}
 .cl.on{border-color:#fff;transform:scale(1.15)}
-
-/* Sizes */
+/* SIZES */
 .szs{display:flex;gap:2px;align-items:center;background:var(--br);padding:3px 5px;border-radius:8px;flex-shrink:0}
-.sz{border:none;background:transparent;cursor:pointer;padding:3px 4px;border-radius:5px;
+.sz{border:none;background:transparent;cursor:pointer;padding:2px 4px;border-radius:5px;
   display:flex;align-items:center;justify-content:center}
-.sz.on{background:var(--bl)}
-.sdot2{background:#fff;border-radius:50%}
-
-/* Teacher mic (toolbar right) */
+.sz.on{background:var(--bl)}.sdot{background:#fff;border-radius:50%}
+/* TEACHER MIC */
 .tmicw{display:flex;align-items:center;gap:6px;margin-right:auto;flex-shrink:0}
-.tmiclbl{font-size:11px;color:var(--dim)}
-/* Gray when off, green when on */
-.tmicbtn{width:36px;height:36px;border-radius:8px;border:none;
-  background:var(--br);color:var(--dim);cursor:pointer;font-size:14px;
-  display:flex;align-items:center;justify-content:center;transition:.15s}
-.tmicbtn.on{background:var(--gn);color:#fff;box-shadow:0 0 0 3px rgba(34,197,94,.25)}
-
-/* Text dialog */
-#txtdlg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center}
+.tmiclbl{font-size:10px;color:var(--dim);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tmicbtn{width:34px;height:34px;border-radius:8px;border:none;background:var(--br);color:var(--dim);
+  cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:.15s}
+.tmicbtn.on{background:var(--gn);color:#fff;box-shadow:0 0 0 3px rgba(34,197,94,.3)}
+/* TEXT DIALOG */
+#txtdlg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;align-items:center;justify-content:center}
 #txtdlg.on{display:flex}
 .tcard{background:var(--cd);border-radius:14px;padding:18px;width:280px;border:1px solid var(--br)}
 .tcard p{font-size:13px;margin-bottom:8px}
 .tcard input{width:100%;padding:9px;background:var(--br);border:none;border-radius:8px;color:#fff;
   font-family:'Cairo',sans-serif;font-size:14px;outline:none}
 .tcard .row{display:flex;gap:7px;margin-top:10px}
-.tcard button{flex:1;padding:8px;border:none;border-radius:8px;cursor:pointer;
-  font-family:'Cairo',sans-serif;font-size:13px;font-weight:700}
-
-/* Toasts */
-#toasts{position:fixed;top:56px;left:50%;transform:translateX(-50%);
-  z-index:600;display:flex;flex-direction:column;gap:7px;pointer-events:none;min-width:290px}
-.toast{background:var(--cd);border:1px solid var(--br);border-radius:12px;
-  padding:11px 15px;display:flex;align-items:center;gap:10px;
-  pointer-events:all;box-shadow:0 8px 28px rgba(0,0,0,.4);animation:tin .3s ease}
+.tcard button{flex:1;padding:8px;border:none;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700}
+/* TOASTS */
+#toasts{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:600;
+  display:flex;flex-direction:column;gap:6px;pointer-events:none;min-width:280px}
+.toast{background:var(--cd);border:1px solid var(--br);border-radius:12px;padding:11px 14px;
+  display:flex;align-items:center;gap:10px;pointer-events:all;
+  box-shadow:0 8px 28px rgba(0,0,0,.4);animation:tin .3s ease}
 @keyframes tin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 .ticon{font-size:18px;flex-shrink:0}
 .ttxt{flex:1;font-size:12px}.ttxt b{display:block;font-size:13px;margin-bottom:1px}
@@ -146,26 +117,32 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
 .tbtn{padding:5px 12px;border-radius:16px;border:none;font-size:12px;font-weight:700;
   cursor:pointer;font-family:'Cairo',sans-serif}
 .tok{background:var(--gn);color:#fff}.tno{background:var(--br);color:var(--dim)}
-
-/* Status bar */
+/* STATUS */
 .sbar{height:26px;background:var(--cd);border-top:1px solid var(--br);padding:0 12px;
   display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--dim);flex-shrink:0}
+/* SAVE TOAST */
+#saveok{position:fixed;bottom:50px;right:16px;background:var(--gn);color:#fff;
+  padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;z-index:700;
+  display:none;box-shadow:0 4px 16px rgba(34,197,94,.4);animation:tin .3s ease}
 </style>
 </head>
 <body>
-
-<div class="hdr">
+<div class="hdr" id="hdrEl">
   <div class="logo">My<b>Class</b>2</div>
   <div class="hchips">
     <div class="chip"><i class="fas fa-users"></i><span id="cnt">0</span></div>
     <div class="chip"><i class="fas fa-hand-paper" style="color:var(--yw)"></i><span id="hcnt">0</span></div>
     <div class="livec"><i class="fas fa-circle" style="font-size:7px"></i> مباشر</div>
+    <button onclick="endSession()" title="إنهاء الجلسة"
+      style="background:var(--rd);border:none;color:#fff;padding:4px 12px;border-radius:20px;
+             font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;
+             display:flex;align-items:center;gap:5px">
+      <i class="fas fa-power-off"></i> إنهاء
+    </button>
   </div>
 </div>
-
 <div id="wrap">
   <div class="body">
-    <!-- BOARD -->
     <div class="content">
       <div class="bwrap" id="bwrap">
         <canvas id="mc"></canvas>
@@ -173,81 +150,83 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
       </div>
       <div class="tbar" style="position:relative">
         <div class="tg">
-          <button class="tb on" id="bpen" onclick="setTool('pen')"><i class="fas fa-pencil-alt"></i></button>
-          <button class="tb" id="bera" onclick="setTool('eraser')"><i class="fas fa-eraser"></i></button>
-          <button class="tb" id="bshp" onclick="toggleSP()"><i class="fas fa-shapes"></i></button>
+          <button class="tb on" id="bpen" onclick="setTool('pen')" title="قلم"><i class="fas fa-pencil-alt"></i></button>
+          <button class="tb" id="bera" onclick="setTool('eraser')" title="ممحاة"><i class="fas fa-eraser"></i></button>
+          <button class="tb" id="bshp" onclick="toggleSP()" title="أشكال"><i class="fas fa-shapes"></i></button>
         </div>
+        <!-- SHAPE PANEL -->
         <div class="spanel" id="spanel">
-          <button class="shb" onclick="setShape('line')"><i class="fas fa-minus"></i></button>
-          <button class="shb" onclick="setShape('arrow')"><i class="fas fa-long-arrow-alt-left"></i></button>
-          <button class="shb" onclick="setShape('rect')"><i class="far fa-square"></i></button>
-          <button class="shb" onclick="setShape('circle')"><i class="far fa-circle"></i></button>
-          <button class="shb" onclick="setShape('triangle')"><i class="fas fa-caret-up"></i></button>
-          <button class="shb" onclick="setShape('cylinder')"><i class="fas fa-database"></i></button>
-          <button class="shb" onclick="setShape('cube')"><i class="fas fa-cube"></i></button>
-          <button class="shb" onclick="setShape('chart')"><i class="fas fa-chart-bar"></i></button>
-          <button class="shb" onclick="setShape('star')"><i class="fas fa-star"></i></button>
-          <button class="shb" onclick="setShape('text')"><i class="fas fa-font"></i></button>
+          <button class="shb" data-s="line"    onclick="pickShape(this)" title="خط"><i class="fas fa-minus"></i></button>
+          <button class="shb" data-s="arrow"   onclick="pickShape(this)" title="سهم"><i class="fas fa-long-arrow-alt-left"></i></button>
+          <button class="shb" data-s="rect"    onclick="pickShape(this)" title="مستطيل"><i class="far fa-square"></i></button>
+          <button class="shb" data-s="circle"  onclick="pickShape(this)" title="دائرة"><i class="far fa-circle"></i></button>
+          <button class="shb" data-s="triangle"onclick="pickShape(this)" title="مثلث"><i class="fas fa-caret-up" style="font-size:16px"></i></button>
+          <button class="shb" data-s="cylinder"onclick="pickShape(this)" title="أسطوانة"><i class="fas fa-database"></i></button>
+          <button class="shb" data-s="cube"    onclick="pickShape(this)" title="مكعب"><i class="fas fa-cube"></i></button>
+          <button class="shb" data-s="chart"   onclick="pickShape(this)" title="رسم بياني"><i class="fas fa-chart-bar"></i></button>
+          <button class="shb" data-s="star"    onclick="pickShape(this)" title="نجمة"><i class="fas fa-star"></i></button>
+          <button class="shb" data-s="text"    onclick="pickShape(this)" title="نص"><i class="fas fa-font"></i></button>
         </div>
         <div class="tsep"></div>
         <div class="clrs">
-          <div class="cl on" style="background:#111" data-c="#111" onclick="setClr(this)"></div>
-          <div class="cl" style="background:#ef4444" data-c="#ef4444" onclick="setClr(this)"></div>
-          <div class="cl" style="background:#3b82f6" data-c="#3b82f6" onclick="setClr(this)"></div>
-          <div class="cl" style="background:#22c55e" data-c="#22c55e" onclick="setClr(this)"></div>
-          <div class="cl" style="background:#f59e0b" data-c="#f59e0b" onclick="setClr(this)"></div>
-          <div class="cl" style="background:#a855f7" data-c="#a855f7" onclick="setClr(this)"></div>
-          <input type="color" style="width:24px;height:24px;border-radius:50%;border:2px solid #fff;cursor:pointer;padding:0;flex-shrink:0" oninput="penClr=this.value">
+          <div class="cl on" style="background:#111"    data-c="#111"    onclick="setClr(this)"></div>
+          <div class="cl"    style="background:#ef4444" data-c="#ef4444" onclick="setClr(this)"></div>
+          <div class="cl"    style="background:#3b82f6" data-c="#3b82f6" onclick="setClr(this)"></div>
+          <div class="cl"    style="background:#22c55e" data-c="#22c55e" onclick="setClr(this)"></div>
+          <div class="cl"    style="background:#f59e0b" data-c="#f59e0b" onclick="setClr(this)"></div>
+          <div class="cl"    style="background:#a855f7" data-c="#a855f7" onclick="setClr(this)"></div>
+          <input type="color" value="#111111" style="width:23px;height:23px;border-radius:50%;border:2px solid #fff;cursor:pointer;padding:0;flex-shrink:0" oninput="penClr=this.value">
         </div>
         <div class="tsep"></div>
         <div class="szs">
-          <button class="sz" onclick="setSz(1,this)"><div class="sdot2" style="width:3px;height:3px"></div></button>
-          <button class="sz on" onclick="setSz(2,this)"><div class="sdot2" style="width:6px;height:6px"></div></button>
-          <button class="sz" onclick="setSz(4,this)"><div class="sdot2" style="width:10px;height:10px"></div></button>
+          <button class="sz"    onclick="setSz(1,this)"><div class="sdot" style="width:3px;height:3px"></div></button>
+          <button class="sz on" onclick="setSz(2,this)"><div class="sdot" style="width:6px;height:6px"></div></button>
+          <button class="sz"    onclick="setSz(4,this)"><div class="sdot" style="width:10px;height:10px"></div></button>
         </div>
         <div class="tsep"></div>
         <div class="tg">
-          <button class="tb" onclick="doUndo()"><i class="fas fa-undo"></i></button>
-          <button class="tb del" onclick="clearBoard()"><i class="fas fa-trash"></i></button>
+          <button class="tb" id="undoBtn" onclick="doUndo()" title="تراجع" disabled><i class="fas fa-undo"></i></button>
+          <button class="tb" id="redoBtn" onclick="doRedo()" title="إعادة" disabled><i class="fas fa-redo"></i></button>
+          <button class="tb savebtn" onclick="saveImg()" title="حفظ صورة"><i class="fas fa-download"></i></button>
+          <button class="tb danger"  onclick="clearBoard()" title="مسح"><i class="fas fa-trash"></i></button>
         </div>
         <div class="tmicw">
           <span class="tmiclbl" id="spkLbl"></span>
-          <button class="tmicbtn" id="tmicbtn" onclick="toggleTeacherMic()" title="ميكروفون المدرس">
+          <button class="tmicbtn" id="tmicbtn" onclick="toggleTeacherMic()" title="ميكروفون">
             <i class="fas fa-microphone-slash" id="tmicico"></i>
           </button>
         </div>
       </div>
     </div>
-
-    <!-- SIDEBAR -->
     <div class="sidebar">
-      <div class="stitle"><i class="fas fa-users"></i> الطلاب <span id="micBadge" style="display:none;background:var(--yw);color:#000;border-radius:10px;padding:1px 7px;font-size:10px;margin-right:4px;animation:blink .6s infinite"></span></div>
+      <div class="stitle" id="stitleEl">
+        <i class="fas fa-users"></i> الطلاب
+        <span id="micBadge" style="display:none;margin-right:auto;background:var(--yw);color:#000;
+          border-radius:10px;padding:0 7px;font-size:10px;animation:ripple .75s infinite"></span>
+      </div>
       <div class="slist" id="slist">
         <div style="color:var(--dim);font-size:12px;text-align:center;padding:20px">لا يوجد طلاب بعد</div>
       </div>
     </div>
   </div>
-
   <div class="sbar">
     <span>⚡ <span id="lat">--</span>ms</span>
     <span id="viewlbl" style="color:var(--bl)"></span>
   </div>
 </div>
-
 <div id="txtdlg">
   <div class="tcard">
     <p>أدخل النص:</p>
     <input id="txtin" type="text" placeholder="اكتب هنا...">
     <div class="row">
       <button onclick="confirmTxt()" style="background:var(--bl);color:#fff">إضافة</button>
-      <button onclick="closeTxt()" style="background:var(--br);color:#fff">إلغاء</button>
+      <button onclick="closeTxt()"   style="background:var(--br);color:#fff">إلغاء</button>
     </div>
   </div>
 </div>
-
 <div id="toasts"></div>
+<div id="saveok">✅ تم الحفظ</div>
 <audio id="stuAudio" style="display:none"></audio>
-
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
@@ -261,341 +240,454 @@ firebase.initializeApp({
 });
 const db = firebase.database();
 
-// ── RESET ON LOAD ────────────────────────────────────────────────────────────
+/* ═══ RESET ═══════════════════════════════════════════════════════════════ */
 ['joinRequests','approvedStudents','onlineStudents','handRaised',
  'micRequests','micPermissions','stroke','boardImg','boardCmd',
  'audio','stuAudio','audioMeta','teacher','kicked'
-].forEach(p => db.ref(p).remove());
+].forEach(p=>db.ref(p).remove());
 
-// ── CANVAS SYSTEM ────────────────────────────────────────────────────────────
-const CV = document.getElementById('mc');
-const CX = CV.getContext('2d');
-const DPR = window.devicePixelRatio || 1;
+/* ═══ CANVAS / DPR ════════════════════════════════════════════════════════ */
+const CV=document.getElementById('mc'), CX=CV.getContext('2d');
+const DPR=window.devicePixelRatio||1;
 
-// Per-board JPEG snapshots (survive resize/orientation)
-const boardSnap = {};  // 'main' | studentId -> dataURL
-
-function fitCV() {
-  const p = CV.parentElement;
-  const cssW = p.clientWidth, cssH = p.clientHeight;
-  if (!cssW || !cssH) return;
-
-  // Save current as JPEG before resize
-  let saved = null;
-  if (CV.width > 0 && CV.height > 0) {
-    try {
-      const tmp = document.createElement('canvas');
-      tmp.width = CV.width; tmp.height = CV.height;
-      tmp.getContext('2d').drawImage(CV, 0, 0);
-      saved = tmp.toDataURL('image/jpeg', 0.92);
-      boardSnap[curView] = saved;
-    } catch(e) {}
+function fitCV(){
+  const p=CV.parentElement, W=p.clientWidth, H=p.clientHeight;
+  if(!W||!H) return;
+  let snap=null;
+  if(CV.width>0&&CV.height>0){
+    try{const t=document.createElement('canvas');t.width=CV.width;t.height=CV.height;t.getContext('2d').drawImage(CV,0,0);snap=t.toDataURL('image/jpeg',.92);}catch(e){}
   }
+  CV.width=W*DPR; CV.height=H*DPR;
+  CV.style.width=W+'px'; CV.style.height=H+'px';
+  CX.fillStyle='#fff'; CX.fillRect(0,0,CV.width,CV.height);
+  if(snap){const i=new Image();i.onload=()=>CX.drawImage(i,0,0,CV.width,CV.height);i.src=snap;}
+}
+window.addEventListener('resize',()=>{saveSnap();fitCV();});
+setTimeout(fitCV,0);
 
-  CV.width  = cssW * DPR;
-  CV.height = cssH * DPR;
-  CV.style.width  = cssW + 'px';
-  CV.style.height = cssH + 'px';
+/* ═══ DEVICE DETECT ═══════════════════════════════════════════════════════ */
+const IS_MOBILE=(DPR>=2||Math.min(screen.width,screen.height)<600);
 
-  CX.fillStyle = '#fff'; CX.fillRect(0, 0, CV.width, CV.height);
-
-  if (saved) {
-    const img = new Image();
-    img.onload = () => CX.drawImage(img, 0, 0, CV.width, CV.height);
-    img.src = saved;
-  }
+/* ═══ WIDTH NORMALIZATION ════════════════════════════════════════════════ */
+/* Sender stores: w = penSizePt / 1000  (device-independent)               */
+/* Receiver:  lw_phys = w * 1000 * DPR_recv * deviceScale                  */
+function wFrac(sz){ return sz/1000; }
+function lwRecv(w, senderMobile){
+  const scale=(senderMobile&&!IS_MOBILE)?0.65:(!senderMobile&&IS_MOBILE)?1.35:1.0;
+  return Math.max(0.5*DPR, w*1000*DPR*scale);
 }
 
-window.addEventListener('resize', () => { saveSnap(); fitCV(); });
-setTimeout(fitCV, 0);
-
-// ── HELPERS ──────────────────────────────────────────────────────────────────
-function diag(cv) { return Math.sqrt(cv.width*cv.width + cv.height*cv.height); }
-
-function getXY(e) {
-  const r  = CV.getBoundingClientRect();
-  const cx = e.touches ? e.touches[0].clientX : e.clientX;
-  const cy = e.touches ? e.touches[0].clientY : e.clientY;
-  return {
-    x: ((cx - r.left) / r.width)  * CV.width,
-    y: ((cy - r.top)  / r.height) * CV.height
-  };
+/* ═══ COORDS ══════════════════════════════════════════════════════════════ */
+function getXY(e){
+  const r=CV.getBoundingClientRect();
+  const cx=e.touches?e.touches[0].clientX:e.clientX;
+  const cy=e.touches?e.touches[0].clientY:e.clientY;
+  return{x:((cx-r.left)/r.width)*CV.width, y:((cy-r.top)/r.height)*CV.height};
 }
 
-// ── STATE ────────────────────────────────────────────────────────────────────
-const students = {}, micWaiting = new Set();
-let curView = 'main', curSpeaker = null;
-const snaps = {}, hist = {};
+/* ═══ STATE ═══════════════════════════════════════════════════════════════ */
+const students={}, micWaiting=new Set();
+let curView='main', curSpeaker=null;
+const boardSnaps={};  // ImageData per board (for view switch)
+// Undo/redo stacks — store ImageData snapshots per board
+const undoQ={}, redoQ={};
 let penTool='pen', penShape=null, penClr='#111', penSz=2;
-let isDown=false, sx=0, sy=0, shSnap=null, txtPos=null;
+let isDown=false, sx=0, sy=0, txtPos=null;
+let shapeSnap=null;   // canvas snapshot before shape drag
+let strokeSnap=null;  // canvas snapshot at stroke START (for clean re-renders)
 let tMicOn=false, tStream=null, tRec=null;
 
-// ── SNAP HELPERS ─────────────────────────────────────────────────────────────
-function saveSnap() {
-  try { snaps[curView] = CX.getImageData(0,0,CV.width,CV.height); } catch(e) {}
+/* ═══ SNAPSHOT HELPERS ════════════════════════════════════════════════════ */
+function saveSnap(){
+  if(!CV.width||!CV.height) return;
+  try{boardSnaps[curView]=CX.getImageData(0,0,CV.width,CV.height);}catch(e){}
 }
-function restoreSnap() {
-  CX.fillStyle = '#fff'; CX.fillRect(0,0,CV.width,CV.height);
-  if (snaps[curView]) try { CX.putImageData(snaps[curView], 0, 0); } catch(e) {}
-}
-function pushHist() {
-  if (!hist[curView]) hist[curView] = [];
-  const h = hist[curView]; if (h.length >= 20) h.shift();
-  try { h.push(CX.getImageData(0,0,CV.width,CV.height)); } catch(e) {}
+function restoreSnap(){
+  CX.fillStyle='#fff';CX.fillRect(0,0,CV.width,CV.height);
+  if(boardSnaps[curView]) try{CX.putImageData(boardSnaps[curView],0,0);}catch(e){}
 }
 
-// ── VIEW SWITCH ───────────────────────────────────────────────────────────────
-function viewMain() {
-  saveSnap(); curView='main'; restoreSnap();
-  document.getElementById('blbl').textContent = 'السبورة الرئيسية';
-  document.getElementById('viewlbl').textContent = '';
-  renderList();
+/* ═══ UNDO / REDO ═════════════════════════════════════════════════════════ */
+function histPush(){
+  if(!undoQ[curView]) undoQ[curView]=[];
+  if(!redoQ[curView]) redoQ[curView]=[];
+  if(undoQ[curView].length>=25) undoQ[curView].shift();
+  try{undoQ[curView].push(CX.getImageData(0,0,CV.width,CV.height));}catch(e){}
+  redoQ[curView]=[];   // new action clears redo
+  refreshHistBtns();
 }
-function viewStudent(id) {
+function doUndo(){
+  const q=undoQ[curView]; if(!q||!q.length) return;
+  if(!redoQ[curView]) redoQ[curView]=[];
+  try{redoQ[curView].push(CX.getImageData(0,0,CV.width,CV.height));}catch(e){}
+  const prev=q.pop();
+  CX.fillStyle='#fff';CX.fillRect(0,0,CV.width,CV.height);
+  if(prev) try{CX.putImageData(prev,0,0);}catch(e){}
+  saveSnap(); sendSnapshot(true); refreshHistBtns();
+}
+function doRedo(){
+  const q=redoQ[curView]; if(!q||!q.length) return;
+  if(!undoQ[curView]) undoQ[curView]=[];
+  try{undoQ[curView].push(CX.getImageData(0,0,CV.width,CV.height));}catch(e){}
+  const next=q.pop();
+  CX.fillStyle='#fff';CX.fillRect(0,0,CV.width,CV.height);
+  if(next) try{CX.putImageData(next,0,0);}catch(e){}
+  saveSnap(); sendSnapshot(true); refreshHistBtns();
+}
+function refreshHistBtns(){
+  const u=document.getElementById('undoBtn'), r=document.getElementById('redoBtn');
+  if(u) u.disabled=!(undoQ[curView]?.length);
+  if(r) r.disabled=!(redoQ[curView]?.length);
+}
+
+/* ═══ VIEW SWITCH ═════════════════════════════════════════════════════════ */
+function viewMain(){
+  saveSnap(); curView='main'; restoreSnap();
+  document.getElementById('blbl').textContent='السبورة الرئيسية';
+  document.getElementById('viewlbl').textContent='';
+  refreshHistBtns(); renderList();
+}
+function viewStudent(id){
   saveSnap(); curView=id; restoreSnap();
-  const n = students[id]?.name || id;
-  document.getElementById('blbl').innerHTML =
+  const n=students[id]?.name||id;
+  document.getElementById('blbl').innerHTML=
     `✏️ سبورة ${n} <span style="font-size:10px;background:rgba(59,130,246,.25);padding:1px 7px;border-radius:8px;margin-right:5px">يمكنك الكتابة</span>`;
-  document.getElementById('viewlbl').textContent = `تعرض: ${n}`;
-  renderList();
-  db.ref('boardImg/stu/' + id).once('value', snap => {
-    const d = snap.val();
-    if (!d || !d.data || curView !== id) return;
-    const img = new Image();
-    img.onload = () => {
-      CX.fillStyle='#fff'; CX.fillRect(0,0,CV.width,CV.height);
-      CX.drawImage(img, 0, 0, CV.width, CV.height); saveSnap();
-    };
-    img.src = d.data;
+  document.getElementById('viewlbl').textContent=`تعرض: ${n}`;
+  refreshHistBtns(); renderList();
+  db.ref('boardImg/stu/'+id).once('value',snap=>{
+    const d=snap.val();
+    if(!d||!d.data||curView!==id) return;
+    const img=new Image();
+    img.onload=()=>{CX.fillStyle='#fff';CX.fillRect(0,0,CV.width,CV.height);CX.drawImage(img,0,0,CV.width,CV.height);saveSnap();};
+    img.src=d.data;
   });
 }
 
-// ── DRAWING ───────────────────────────────────────────────────────────────────
-const bwrap = document.getElementById('bwrap');
-let sBatch = [], sTO = null;
-let prevX = 0, prevY = 0;
+/* ═══ DRAWING — THE KEY FIX ══════════════════════════════════════════════
+ * Problem: strokes look thick during drawing but thin/faded after mouseup.
+ * Root cause: every moveD call does CX.stroke() then CX.beginPath() — this
+ * creates SEPARATE tiny strokes with default compositing, each covering the
+ * previous one slightly. The result looks fine live but the accumulated
+ * semi-transparent joins make it look thin once the eye adjusts.
+ *
+ * FIX: Keep ONE open path for the entire stroke. Only call stroke() once
+ * at the END (mouseup). During move we accumulate lineTo() calls.
+ * For real-time feedback we use a SECOND "preview" layer drawn on top.
+ ═══════════════════════════════════════════════════════════════════════════ */
+const bwrap=document.getElementById('bwrap');
+let sBatch=[], sTO=null, prevX=0, prevY=0;
+// Points of current stroke (physical pixels) for re-rendering
+let curPts=[];
 
-bwrap.addEventListener('mousedown',  startD);
-bwrap.addEventListener('mousemove',  moveD);
-bwrap.addEventListener('mouseup',    endD);
-bwrap.addEventListener('mouseleave', endD);
-bwrap.addEventListener('touchstart', startD, {passive:false});
-bwrap.addEventListener('touchmove',  moveD,  {passive:false});
-bwrap.addEventListener('touchend',   endD);
+bwrap.addEventListener('mousedown', startD);
+bwrap.addEventListener('mousemove', moveD);
+bwrap.addEventListener('mouseup',   endD);
+bwrap.addEventListener('mouseleave',endD);
+bwrap.addEventListener('touchstart',startD,{passive:false});
+bwrap.addEventListener('touchmove', moveD, {passive:false});
+bwrap.addEventListener('touchend',  endD);
 
-// Auto-detect device type
-function detectDevice() {
-  const dpr = window.devicePixelRatio || 1;
-  const w   = window.screen.width, h = window.screen.height;
-  return (dpr >= 2 || Math.min(w,h) < 600) ? 'm' : 'd';
-}
-function physSz()   { return penSz * DPR; }  // physical px for local drawing
-function diagFrac() { return penSz / 1000; } // CSS-pt / fixed-ref = device-independent
+function penLW(){ return penSz*DPR; }
 
-function startD(e) {
+function startD(e){
   e.preventDefault();
-  const p = getXY(e); sx=p.x; sy=p.y; isDown=true; prevX=p.x; prevY=p.y;
-  if (penTool==='text') {
+  const p=getXY(e); sx=p.x; sy=p.y; prevX=p.x; prevY=p.y; isDown=true; curPts=[];
+
+  if(penTool==='text'){
     txtPos={x:p.x,y:p.y}; isDown=false;
     document.getElementById('txtdlg').classList.add('on');
-    setTimeout(()=>document.getElementById('txtin').focus(), 80);
+    setTimeout(()=>document.getElementById('txtin').focus(),80);
     return;
   }
-  if (penTool==='shape') { shSnap=CX.getImageData(0,0,CV.width,CV.height); return; }
-  CX.beginPath(); CX.moveTo(p.x, p.y);
-  addPt(p.x, p.y, 1);
+
+  if(penTool==='shape'){
+    histPush();
+    shapeSnap=CX.getImageData(0,0,CV.width,CV.height);
+    return;
+  }
+
+  // Freehand: save snapshot BEFORE this stroke for clean redraws
+  histPush();
+  strokeSnap=null;
+  try{strokeSnap=CX.getImageData(0,0,CV.width,CV.height);}catch(e){}
+
+  curPts.push({x:p.x,y:p.y});
+  addPt(p.x,p.y,1);
 }
 
-function moveD(e) {
-  e.preventDefault(); if (!isDown) return;
-  const p = getXY(e);
-  if (Math.hypot(p.x-prevX, p.y-prevY) < 1) return;
-
-  if (penTool==='shape' && shSnap) {
-    CX.putImageData(shSnap, 0, 0);
-    drawShape(CX, penShape, sx, sy, p.x, p.y, penClr, physSz()); return;
-  }
-  setPenCtx(CX, penTool, penClr, physSz());
-  CX.lineTo(p.x, p.y); CX.stroke(); CX.beginPath(); CX.moveTo(p.x, p.y);
-  addPt(p.x, p.y, 0);
+function moveD(e){
+  e.preventDefault(); if(!isDown) return;
+  const p=getXY(e);
+  if(Math.hypot(p.x-prevX,p.y-prevY)<0.5) return;
   prevX=p.x; prevY=p.y;
-}
 
-function endD(e) {
-  if (!isDown) return; isDown=false;
-  CX.globalCompositeOperation = 'source-over';
-  if (penTool==='shape' && shSnap) {
-    try { const p=getXY(e); drawShape(CX,penShape,sx,sy,p.x,p.y,penClr,physSz()); } catch(_) {}
-    shSnap=null;
+  if(penTool==='shape'&&shapeSnap){
+    // Shape preview: restore snapshot then draw shape
+    CX.putImageData(shapeSnap,0,0);
+    drawShape(CX,penShape,sx,sy,p.x,p.y,penClr,penLW());
+    return;
   }
-  pushHist(); saveSnap(); flushStroke(true);
+
+  // Freehand: restore snapshot from start of stroke, redraw all points
+  // This ensures ONE clean stroke (no cumulative transparency artifacts)
+  curPts.push({x:p.x,y:p.y});
+  if(strokeSnap) try{CX.putImageData(strokeSnap,0,0);}catch(e){}
+  drawPts(CX, curPts, penTool, penClr, penLW());
+
+  addPt(p.x,p.y,0);
 }
 
-function setPenCtx(ctx, tool, clr, sz) {
-  if (tool==='eraser') {
-    ctx.globalCompositeOperation='destination-out'; ctx.lineWidth=sz*4;
+function endD(e){
+  if(!isDown) return; isDown=false;
+  CX.globalCompositeOperation='source-over';
+
+  if(penTool==='shape'&&shapeSnap){
+    try{const p=getXY(e);drawShape(CX,penShape,sx,sy,p.x,p.y,penClr,penLW());}catch(_){}
+    shapeSnap=null;
+  }
+
+  strokeSnap=null; curPts=[];
+  saveSnap(); flushStroke(true);
+}
+
+/* Draw a clean complete path from a points array — used in moveD and endD */
+function drawPts(ctx, pts, tool, clr, lw){
+  if(!pts.length) return;
+  ctx.save();
+  if(tool==='eraser'){
+    ctx.globalCompositeOperation='destination-out'; ctx.lineWidth=lw*4;
   } else {
-    ctx.globalCompositeOperation='source-over'; ctx.strokeStyle=clr; ctx.lineWidth=sz;
+    ctx.globalCompositeOperation='source-over'; ctx.strokeStyle=clr; ctx.lineWidth=lw;
   }
   ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+  ctx.stroke(); ctx.restore();
 }
 
-// ── STROKE STREAMING (diagonal-normalized) ────────────────────────────────────
-function addPt(x, y, s) {
-  if (!CV.width || !CV.height) return;
-  sBatch.push({x: x/CV.width, y: y/CV.height, s});
-  clearTimeout(sTO); sTO = setTimeout(()=>flushStroke(false), 16);
+/* ═══ STROKE STREAMING ════════════════════════════════════════════════════ */
+function addPt(x,y,s){
+  if(!CV.width||!CV.height) return;
+  sBatch.push({x:x/CV.width,y:y/CV.height,s});
+  clearTimeout(sTO); sTO=setTimeout(()=>flushStroke(false),16);
 }
-
-function flushStroke(final) {
+function flushStroke(final){
   clearTimeout(sTO);
-  if (sBatch.length) {
-    const ref = curView==='main' ? db.ref('stroke/T') : db.ref('stroke/TS/'+curView);
-    ref.push({b:sBatch, c:penClr, w:diagFrac(), t:penTool==='eraser'?'e':'p', dv:detectDevice(), ts:Date.now()});
+  if(sBatch.length){
+    const ref=curView==='main'?db.ref('stroke/T'):db.ref('stroke/TS/'+curView);
+    ref.push({b:sBatch,c:penClr,w:wFrac(penSz),t:penTool==='eraser'?'e':'p',m:IS_MOBILE?1:0,ts:Date.now()});
     sBatch=[];
   }
-  if (final && CV.width && CV.height) {
-    const tmp=document.createElement('canvas'); tmp.width=CV.width; tmp.height=CV.height;
-    const tc=tmp.getContext('2d'); tc.fillStyle='#fff'; tc.fillRect(0,0,tmp.width,tmp.height);
-    tc.drawImage(CV,0,0);
-    const jpg=tmp.toDataURL('image/jpeg',.85);
-    if (curView==='main') db.ref('boardImg/main').set({data:jpg,ts:Date.now()});
-    else db.ref('boardImg/stu/'+curView).set({data:jpg,byT:true,ts:Date.now()});
-  }
+  if(final) sendSnapshot(true);
+}
+function sendSnapshot(send){
+  if(!send||!CV.width||!CV.height) return;
+  const t=document.createElement('canvas');t.width=CV.width;t.height=CV.height;
+  const tc=t.getContext('2d');tc.fillStyle='#fff';tc.fillRect(0,0,t.width,t.height);tc.drawImage(CV,0,0);
+  const jpg=t.toDataURL('image/jpeg',.95);
+  if(curView==='main') db.ref('boardImg/main').set({data:jpg,ts:Date.now(),v:2});
+  else db.ref('boardImg/stu/'+curView).set({data:jpg,byT:true,ts:Date.now()});
 }
 
-// ── RECEIVE STUDENT STROKES ────────────────────────────────────────────────────
-const offscr = {};
-function getOff(id) {
-  if (!offscr[id]) {
+/* ═══ REMOTE STROKE RENDER ════════════════════════════════════════════════ */
+function applyStroke(ctx,cv,d){
+  if(!d||!d.b||!d.b.length) return;
+  const W=cv.width,H=cv.height;
+  const lw=lwRecv(d.w,d.m===1);
+  ctx.save();
+  if(d.t==='e'){ctx.globalCompositeOperation='destination-out';ctx.lineWidth=lw*3;}
+  else{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=d.c;ctx.lineWidth=lw;}
+  ctx.lineCap='round';ctx.lineJoin='round';
+  // Single continuous path — no per-segment stroke (prevents fading/thinning)
+  ctx.beginPath();
+  let started=false;
+  d.b.forEach(pt=>{
+    const x=pt.x*W,y=pt.y*H;
+    if(pt.s||!started){ctx.moveTo(x,y);started=true;}
+    else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  ctx.restore();
+}
+
+const offscr={};
+function getOff(id){
+  if(!offscr[id]){
     const c=document.createElement('canvas');
-    c.width=CV.width||800; c.height=CV.height||500;
-    const cx=c.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,c.width,c.height);
+    c.width=CV.width||800;c.height=CV.height||500;
+    const cx=c.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,c.width,c.height);
     offscr[id]={c,cx};
   }
   return offscr[id];
 }
-
-// Single shared applyStroke — uses diagonal normalization
-function applyStroke(ctx, cv, d) {
-  if (!d || !d.b || !d.b.length) return;
-  const W=cv.width, H=cv.height;
-  // Device-aware scaling: mobile strokes appear thinner on PC, PC strokes thicker on mobile
-  const myDev = detectDevice();
-  const scale = (d.dv === 'm' && myDev === 'd') ? 0.55   // phone→PC: thinner
-               :(d.dv === 'd' && myDev === 'm') ? 1.4    // PC→phone: thicker
-               : 1.0;
-  const lw = Math.max(0.5 * DPR, d.w * 1000 * DPR * scale);
-
-  ctx.save();
-  if (d.t==='e') {
-    ctx.globalCompositeOperation='destination-out'; ctx.lineWidth=lw*3;
-  } else {
-    ctx.globalCompositeOperation='source-over'; ctx.strokeStyle=d.c; ctx.lineWidth=lw;
-  }
-  ctx.lineCap='round'; ctx.lineJoin='round';
-  let first=true;
-  (d.b||[]).forEach(pt=>{
-    const x=pt.x*W, y=pt.y*H;
-    if (pt.s||first) { ctx.beginPath(); ctx.moveTo(x,y); first=false; }
-    else { ctx.lineTo(x,y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,y); }
-  });
-  ctx.restore();
-}
-
-db.ref('stroke/S').on('child_added', snap => {
-  const d=snap.val(); if (!d||!d.b||!d.sid) return;
+db.ref('stroke/S').on('child_added',snap=>{
+  const d=snap.val();if(!d||!d.b||!d.sid) return;
   const id=d.sid;
-  if (id===curView) { applyStroke(CX,CV,d); saveSnap(); }
-  else {
-    const o=getOff(id); applyStroke(o.cx,o.c,d);
-    try { snaps[id]=o.cx.getImageData(0,0,o.c.width,o.c.height); } catch(e) {}
-  }
+  if(id===curView){applyStroke(CX,CV,d);saveSnap();}
+  else{const o=getOff(id);applyStroke(o.cx,o.c,d);try{boardSnaps[id]=o.cx.getImageData(0,0,o.c.width,o.c.height);}catch(e){}}
   snap.ref.remove();
 });
 
-// ── SHAPES ────────────────────────────────────────────────────────────────────
+/* ═══ SHAPES ══════════════════════════════════════════════════════════════ */
 function drawShape(c,s,x1,y1,x2,y2,col,lw){
-  c.save();c.strokeStyle=col;c.fillStyle=col;c.lineWidth=lw;
+  if(!s) return;
+  c.save();
+  c.strokeStyle=col;c.fillStyle=col;c.lineWidth=lw;
   c.lineCap='round';c.lineJoin='round';c.globalCompositeOperation='source-over';
-  const w=x2-x1,h=y2-y1;c.beginPath();
-  if(s==='line'){c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
-  else if(s==='arrow'){const a=Math.atan2(y2-y1,x2-x1),hl=20*DPR;c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();c.beginPath();c.moveTo(x2,y2);c.lineTo(x2-hl*Math.cos(a-.4),y2-hl*Math.sin(a-.4));c.lineTo(x2-hl*Math.cos(a+.4),y2-hl*Math.sin(a+.4));c.closePath();c.fill();}
-  else if(s==='rect'){c.strokeRect(x1,y1,w,h);}
-  else if(s==='circle'){const rx=Math.abs(w)/2,ry=Math.abs(h)/2;c.ellipse(x1+w/2,y1+h/2,rx,ry,0,0,Math.PI*2);c.stroke();}
-  else if(s==='triangle'){c.moveTo(x1+w/2,y1);c.lineTo(x2,y2);c.lineTo(x1,y2);c.closePath();c.stroke();}
-  else if(s==='cylinder'){const rx=Math.abs(w)/2,ry=Math.abs(h)*.12,cx=x1+w/2;c.ellipse(cx,y1+ry,rx,ry,0,0,Math.PI*2);c.stroke();c.beginPath();c.moveTo(x1,y1+ry);c.lineTo(x1,y2-ry);c.moveTo(x2,y1+ry);c.lineTo(x2,y2-ry);c.stroke();c.beginPath();c.ellipse(cx,y2-ry,rx,ry,0,0,Math.PI);c.stroke();}
-  else if(s==='cube'){const d=Math.min(Math.abs(w),Math.abs(h))*.28;c.strokeRect(x1,y1+d,Math.abs(w)-d,Math.abs(h)-d);c.beginPath();c.moveTo(x1,y1+d);c.lineTo(x1+d,y1);c.lineTo(x2,y1);c.lineTo(x2,y2-d);c.lineTo(x2-d,y2);c.moveTo(x2,y1);c.lineTo(x2-d,y1+d);c.stroke();}
-  else if(s==='chart'){const bars=4,gap=Math.abs(w)/bars,bw=gap*.6,hs=[.7,.9,.5,.8];c.moveTo(x1,y1);c.lineTo(x1,y2);c.lineTo(x2,y2);c.stroke();hs.forEach((hh,i)=>c.fillRect(x1+i*gap+gap*.2,y2-Math.abs(h)*hh,bw,Math.abs(h)*hh));}
-  else if(s==='star'){const cx=(x1+x2)/2,cy=(y1+y2)/2,or=Math.min(Math.abs(w),Math.abs(h))/2,ir=or*.4;for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,r=i%2?ir:or;i?c.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):c.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}c.closePath();c.stroke();}
+  const w=x2-x1,h=y2-y1;
+  c.beginPath();
+  switch(s){
+    case 'line':
+      c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();break;
+    case 'arrow':{
+      const a=Math.atan2(y2-y1,x2-x1),hl=18*DPR;
+      c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();
+      c.beginPath();c.moveTo(x2,y2);
+      c.lineTo(x2-hl*Math.cos(a-.4),y2-hl*Math.sin(a-.4));
+      c.lineTo(x2-hl*Math.cos(a+.4),y2-hl*Math.sin(a+.4));
+      c.closePath();c.fill();break;}
+    case 'rect':
+      c.strokeRect(x1,y1,w,h);break;
+    case 'circle':{
+      const rx=Math.abs(w)/2,ry=Math.abs(h)/2;
+      c.ellipse(x1+w/2,y1+h/2,rx,ry,0,0,Math.PI*2);c.stroke();break;}
+    case 'triangle':
+      c.moveTo(x1+w/2,y1);c.lineTo(x2,y2);c.lineTo(x1,y2);c.closePath();c.stroke();break;
+    case 'cylinder':{
+      const rx=Math.abs(w)/2,ry=Math.abs(h)*.12,cx=x1+w/2;
+      c.ellipse(cx,y1+ry,rx,ry,0,0,Math.PI*2);c.stroke();
+      c.beginPath();c.moveTo(x1,y1+ry);c.lineTo(x1,y2-ry);
+      c.moveTo(x2,y1+ry);c.lineTo(x2,y2-ry);c.stroke();
+      c.beginPath();c.ellipse(cx,y2-ry,rx,ry,0,0,Math.PI);c.stroke();break;}
+    case 'cube':{
+      const d=Math.min(Math.abs(w),Math.abs(h))*.28;
+      c.strokeRect(x1,y1+d,Math.abs(w)-d,Math.abs(h)-d);
+      c.beginPath();
+      c.moveTo(x1,y1+d);c.lineTo(x1+d,y1);c.lineTo(x2,y1);
+      c.lineTo(x2,y2-d);c.lineTo(x2-d,y2);
+      c.moveTo(x2,y1);c.lineTo(x2-d,y1+d);c.stroke();break;}
+    case 'chart':{
+      const bars=4,gap=Math.abs(w)/bars,bw=gap*.6,hs=[.7,.9,.5,.8];
+      c.moveTo(x1,y1);c.lineTo(x1,y2);c.lineTo(x2,y2);c.stroke();
+      hs.forEach((hh,i)=>c.fillRect(x1+i*gap+gap*.2,y2-Math.abs(h)*hh,bw,Math.abs(h)*hh));break;}
+    case 'star':{
+      const cx=(x1+x2)/2,cy=(y1+y2)/2,or=Math.min(Math.abs(w),Math.abs(h))/2,ir=or*.4;
+      for(let i=0;i<10;i++){
+        const a=i*Math.PI/5-Math.PI/2,r=i%2?ir:or;
+        i?c.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):c.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+      }
+      c.closePath();c.stroke();break;}
+  }
   c.restore();
 }
 
-// ── TEXT ──────────────────────────────────────────────────────────────────────
+/* ═══ TEXT ════════════════════════════════════════════════════════════════ */
 function confirmTxt(){
   const txt=document.getElementById('txtin').value;
-  closeTxt(); if(!txt||!txtPos) return;
-  CX.save(); CX.font=`${penSz*5*DPR+12}px Cairo`; CX.fillStyle=penClr;
-  CX.globalCompositeOperation='source-over'; CX.fillText(txt,txtPos.x,txtPos.y); CX.restore();
-  pushHist(); saveSnap(); flushStroke(true); txtPos=null;
+  closeTxt();if(!txt||!txtPos) return;
+  histPush();
+  CX.save();CX.font=`bold ${penSz*6*DPR+8}px Cairo`;
+  CX.fillStyle=penClr;CX.globalCompositeOperation='source-over';
+  CX.fillText(txt,txtPos.x,txtPos.y);CX.restore();
+  saveSnap();sendSnapshot(true);txtPos=null;
 }
 function closeTxt(){document.getElementById('txtdlg').classList.remove('on');document.getElementById('txtin').value='';}
 
-// ── TOOL CONTROLS ─────────────────────────────────────────────────────────────
-function setTool(t){penTool=t;penShape=null;document.getElementById('bpen').classList.toggle('on',t==='pen');document.getElementById('bera').classList.toggle('on',t==='eraser');document.getElementById('bshp').classList.remove('on');document.getElementById('spanel').classList.remove('on');CV.style.cursor=t==='eraser'?'cell':'crosshair';}
-function toggleSP(){document.getElementById('spanel').classList.toggle('on');}
-function setShape(s){penShape=s;penTool=s==='text'?'text':'shape';document.getElementById('bpen').classList.remove('on');document.getElementById('bera').classList.remove('on');document.getElementById('bshp').classList.add('on');document.querySelectorAll('.shb').forEach(b=>b.classList.remove('on'));event.currentTarget.classList.add('on');document.getElementById('spanel').classList.remove('on');CV.style.cursor=s==='text'?'text':'crosshair';}
-function setClr(el){penClr=el.dataset.c;document.querySelectorAll('.cl').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
-function setSz(s,btn){penSz=s;document.querySelectorAll('.sz').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
-function doUndo(){const h=hist[curView];if(!h||!h.length)return;h.pop();CX.fillStyle='#fff';CX.fillRect(0,0,CV.width,CV.height);if(h.length)try{CX.putImageData(h[h.length-1],0,0);}catch(e){}saveSnap();flushStroke(true);}
-function clearBoard(){CX.fillStyle='#fff';CX.fillRect(0,0,CV.width,CV.height);hist[curView]=[];snaps[curView]=null;flushStroke(true);if(curView==='main')db.ref('boardCmd').push({type:'clear',ts:Date.now()});}
+/* ═══ TOOL CONTROLS ═══════════════════════════════════════════════════════ */
+function setTool(t){
+  penTool=t;penShape=null;
+  document.getElementById('bpen').classList.toggle('on',t==='pen');
+  document.getElementById('bera').classList.toggle('on',t==='eraser');
+  document.getElementById('bshp').classList.remove('on');
+  document.getElementById('spanel').classList.remove('on');
+  CV.style.cursor=t==='eraser'?'cell':'crosshair';
+}
+function toggleSP(){ document.getElementById('spanel').classList.toggle('on'); }
+function pickShape(btn){
+  penShape=btn.dataset.s;
+  penTool=penShape==='text'?'text':'shape';
+  document.getElementById('bpen').classList.remove('on');
+  document.getElementById('bera').classList.remove('on');
+  document.getElementById('bshp').classList.add('on');
+  document.querySelectorAll('.shb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('spanel').classList.remove('on');
+  CV.style.cursor=penShape==='text'?'text':'crosshair';
+}
+function setClr(el){
+  penClr=el.dataset.c;
+  document.querySelectorAll('.cl').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+function setSz(s,btn){
+  penSz=s;
+  document.querySelectorAll('.sz').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function clearBoard(){
+  histPush();
+  CX.fillStyle='#fff';CX.fillRect(0,0,CV.width,CV.height);
+  saveSnap();sendSnapshot(true);
+  if(curView==='main') db.ref('boardCmd').push({type:'clear',ts:Date.now()});
+}
 
-// ── STUDENT LIST ───────────────────────────────────────────────────────────────
+/* ═══ SAVE IMAGE ══════════════════════════════════════════════════════════ */
+function saveImg(){
+  if(!CV.width||!CV.height) return;
+  const t=document.createElement('canvas');t.width=CV.width;t.height=CV.height;
+  const tc=t.getContext('2d');tc.fillStyle='#fff';tc.fillRect(0,0,t.width,t.height);tc.drawImage(CV,0,0);
+  const a=document.createElement('a');
+  a.href=t.toDataURL('image/png');
+  a.download='board_'+(curView==='main'?'main':(students[curView]?.name||curView))+'.png';
+  a.click();
+  const ok=document.getElementById('saveok');ok.style.display='block';setTimeout(()=>ok.style.display='none',2000);
+}
+
+/* ═══ STUDENT LIST ════════════════════════════════════════════════════════ */
 function renderList(){
   const list=document.getElementById('slist');
   const arr=Object.values(students).filter(s=>s.online);
   document.getElementById('cnt').textContent=arr.length;
   document.getElementById('hcnt').textContent=arr.filter(s=>s.hand).length;
-  // Update mic-request badge
-  const pendingMic = arr.filter(s=>micWaiting.has(s.id)&&curSpeaker!==s.id).length;
-  const badge = document.getElementById('micBadge');
-  if(badge){ badge.textContent='🎤 '+pendingMic; badge.style.display=pendingMic?'inline':'none'; }
-  if(!arr.length){list.innerHTML='<div style="color:var(--dim);font-size:12px;text-align:center;padding:20px">لا يوجد طلاب</div>';return;}
+  // Mic badge
+  const pending=arr.filter(s=>micWaiting.has(s.id)&&curSpeaker!==s.id).length;
+  const badge=document.getElementById('micBadge');
+  if(badge){badge.textContent='🎤 '+pending;badge.style.display=pending?'inline':'none';}
+  if(!arr.length){list.innerHTML='<div style="color:var(--dim);font-size:12px;text-align:center;padding:20px">لا يوجد طلاب بعد</div>';return;}
   let html=`<div class="sitem ${curView==='main'?'act':''}" onclick="viewMain()">
     <div class="srow"><span class="sn">🖥 السبورة الرئيسية</span></div></div>`;
   arr.forEach(s=>{
     const isSpk=curSpeaker===s.id, isWait=micWaiting.has(s.id);
-    let cls=curView===s.id?'act':''; if(isSpk)cls+=' spk'; else if(isWait)cls+=' wait';
-    const micCls =isSpk?'on':(isWait?'req':'');
-    const micIco =isSpk?'fa-microphone-slash':(isWait?'fa-hourglass-half':'fa-microphone');
-    const eyeCls =curView===s.id?'on':'';
+    let cls=curView===s.id?'act':'';if(isSpk)cls+=' spk';else if(isWait)cls+=' wait';
+    // mic class: '' (gray off) | 'req' (amber ripple) | 'on' (solid green — NO SLASH)
+    const mCls=isSpk?'on':(isWait?'req':'');
+    const eCls=curView===s.id?'on':'';
     html+=`<div class="sitem ${cls}" onclick="viewStudent('${s.id}')">
       <div class="srow">
         <span class="sn">${s.name}${s.hand?' ✋':''}</span>
         <div class="sicons">
-          <button class="ib mic ${micCls}" title="${isSpk?'إيقاف الميك':'منح الميك'}"
-                  onclick="handleMicBtn('${s.id}',event)"><i class="fas ${micIco}"></i></button>
-          <button class="ib eye ${eyeCls}" title="عرض السبورة"
-                  onclick="viewStudent('${s.id}');event.stopPropagation()"><i class="fas fa-eye"></i></button>
+          <button class="ib mic ${mCls}" title="${isSpk?'إيقاف الميكروفون':'منح الميكروفون'}"
+            onclick="handleMicBtn('${s.id}',event)"><i class="fas fa-microphone"></i></button>
+          <button class="ib eye ${eCls}" title="عرض السبورة"
+            onclick="viewStudent('${s.id}');event.stopPropagation()"><i class="fas fa-eye"></i></button>
           <button class="ib kick" title="طرد الطالب"
-                  onclick="kickStudent('${s.id}',event)"><i class="fas fa-user-times"></i></button>
+            onclick="kickStudent('${s.id}',event)"><i class="fas fa-user-times"></i></button>
         </div>
       </div>
-      ${isWait&&!isSpk?`<div class="req-bar"><span style="animation:blink .5s infinite;display:inline-block">🎤</span> يطلب الكلام — اضغط الميكروفون للسماح</div>`:''}
     </div>`;
   });
   list.innerHTML=html;
 }
 
-// ── STUDENT CONTROLS ───────────────────────────────────────────────────────────
+/* ═══ MIC / KICK ══════════════════════════════════════════════════════════ */
 function handleMicBtn(id,e){
   e.stopPropagation();
   if(curSpeaker===id){
-    db.ref('micPermissions/'+id).remove(); curSpeaker=null;
+    db.ref('micPermissions/'+id).remove();curSpeaker=null;
     document.getElementById('spkLbl').textContent='';
   } else {
     if(curSpeaker) db.ref('micPermissions/'+curSpeaker).remove();
-    curSpeaker=id; micWaiting.delete(id);
+    curSpeaker=id;micWaiting.delete(id);
     db.ref('micPermissions/'+id).set({allowed:true});
     db.ref('handRaised/'+id).remove();
     if(students[id]) students[id].hand=false;
@@ -603,131 +695,126 @@ function handleMicBtn(id,e){
   }
   renderList();
 }
-
 function kickStudent(id,e){
   e.stopPropagation();
   if(!confirm('طرد هذا الطالب؟')) return;
-  if(curSpeaker===id){db.ref('micPermissions/'+id).remove();curSpeaker=null;}
+  if(curSpeaker===id){
+    db.ref('micPermissions/'+id).remove();
+    curSpeaker=null;
+    db.ref('stuAudio').remove();       // stop student audio immediately
+    document.getElementById('spkLbl').textContent='';
+  }
   if(curView===id) viewMain();
   delete students[id];
   db.ref('approvedStudents/'+id).remove();
   db.ref('onlineStudents/'+id).remove();
+  db.ref('micRequests/'+id).remove();
   db.ref('kicked/'+id).set({ts:Date.now()});
   renderList();
 }
 
-// ── FIREBASE LISTENERS ─────────────────────────────────────────────────────────
+/* ═══ FIREBASE LISTENERS ══════════════════════════════════════════════════ */
 db.ref('joinRequests').on('child_added',async snap=>{
-  const s=snap.val(); if(!s) return;
-  snap.ref.remove();
-  flashHeader(); // Flash header while waiting
-  const ok=await toast(`${s.name} يريد الانضمام`,'طالب جديد','👤',['قبول','رفض'],'var(--bl)');
+  const s=snap.val();if(!s) return; snap.ref.remove();
+  flashEl('hdrEl',8,350);
+  const ok=await mkToast(`${s.name} يريد الانضمام`,'👤',['قبول','رفض'],'var(--bl)');
   if(ok===0){students[s.id]={id:s.id,name:s.name,online:true,hand:false};db.ref('approvedStudents/'+s.id).set({id:s.id,name:s.name});}
   renderList();
 });
-
-function flashHeader(){
-  const hdr=document.querySelector('.hdr');
-  if(!hdr) return;
-  let n=0;
-  const iv=setInterval(()=>{
-    hdr.style.borderBottom = n%2===0 ? '2px solid var(--bl)' : '2px solid var(--br)';
-    if(++n>10){clearInterval(iv);hdr.style.borderBottom='';}
-  },300);
-}
-
 db.ref('onlineStudents').on('value',snap=>{
   const data=snap.val()||{};
   Object.keys(students).forEach(id=>{
-    const was=students[id].online; students[id].online=!!data[id];
+    const was=students[id].online;students[id].online=!!data[id];
     if(was&&!data[id]) setTimeout(()=>{if(students[id]&&!students[id].online){if(curView===id)viewMain();delete students[id];db.ref('approvedStudents/'+id).remove();renderList();}},6000);
   });
   renderList();
 });
-
 db.ref('handRaised').on('value',snap=>{
   const data=snap.val()||{};
   Object.keys(students).forEach(id=>{if(students[id])students[id].hand=!!data[id];});
   renderList();
 });
-
-db.ref('micRequests').on('child_added', snap=>{
-  const r=snap.val(); if(!r) return;
-  snap.ref.remove();
+db.ref('micRequests').on('child_added',snap=>{
+  const r=snap.val();if(!r) return; snap.ref.remove();
   micWaiting.add(r.studentId);
   renderList();
-  flashSidebar(); // Flash sidebar to alert teacher
+  flashEl('stitleEl',6,280);
 });
 
-function flashSidebar(){
-  const title = document.querySelector('.stitle');
-  if(!title) return;
-  let count=0;
-  const iv = setInterval(()=>{
-    title.style.background = count%2===0 ? 'rgba(245,158,11,.3)' : '';
-    if(++count>6) { clearInterval(iv); title.style.background=''; }
-  }, 250);
+function flashEl(elId,times,ms){
+  const el=document.getElementById(elId);if(!el) return;
+  const orig=el.style.background;let n=0;
+  const iv=setInterval(()=>{
+    el.style.background=n%2===0?'rgba(245,158,11,.28)':'';
+    if(++n>times){clearInterval(iv);el.style.background=orig;}
+  },ms);
 }
 
-// Student audio
-const stuAP=document.getElementById('stuAudio');
-let stuLastTs=0;
+/* ═══ STUDENT AUDIO ═══════════════════════════════════════════════════════ */
+const stuAP=document.getElementById('stuAudio');let stuLastTs=0;
 db.ref('stuAudio/chunk').on('value',snap=>{
-  const d=snap.val(); if(!d||!d.data||d.ts<=stuLastTs) return;
+  const d=snap.val();if(!d||!d.data||d.ts<=stuLastTs) return;
   stuLastTs=d.ts;
-  const blob=b64toBlob(d.data); const url=URL.createObjectURL(blob);
-  stuAP.src=url; stuAP.play().catch(()=>{});
+  const url=URL.createObjectURL(b64Blob(d.data));
+  stuAP.src=url;stuAP.play().catch(()=>{});
   stuAP.onended=()=>URL.revokeObjectURL(url);
 });
 
-// ── TEACHER MIC ────────────────────────────────────────────────────────────────
+/* ═══ TEACHER MIC ═════════════════════════════════════════════════════════ */
 async function toggleTeacherMic(){
   const btn=document.getElementById('tmicbtn'),ico=document.getElementById('tmicico');
   if(!tMicOn){
     try{
       tStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
-      tMicOn=true; btn.classList.add('on'); ico.className='fas fa-microphone';
+      tMicOn=true;btn.classList.add('on');ico.className='fas fa-microphone';
       tRec=new MediaRecorder(tStream,{mimeType:'audio/webm'});
-      tRec.ondataavailable=ev=>{
-        if(ev.data.size<1)return;
-        const fr=new FileReader(); fr.onload=()=>db.ref('audio/chunk').set({data:fr.result,ts:Date.now()});
-        fr.readAsDataURL(ev.data);
-      };
-      tRec.start(400); db.ref('audioMeta').set({active:true,ts:Date.now()});
-      const iv=setInterval(()=>{if(!tMicOn){clearInterval(iv);return;}if(tRec&&tRec.state==='recording'){tRec.stop();tRec.start(400);}},400);
+      tRec.ondataavailable=ev=>{if(ev.data.size<1)return;const fr=new FileReader();fr.onload=()=>db.ref('audio/chunk').set({data:fr.result,ts:Date.now()});fr.readAsDataURL(ev.data);};
+      tRec.start(600);db.ref('audioMeta').set({active:true,ts:Date.now()});
+      const iv=setInterval(()=>{if(!tMicOn){clearInterval(iv);return;}if(tRec&&tRec.state==='recording'){tRec.stop();tRec.start(600);}},600);
     }catch(err){alert('تعذّر الوصول للميكروفون');}
   } else {
     tMicOn=false;
     if(tStream) tStream.getTracks().forEach(t=>t.stop());
     if(tRec){try{tRec.stop();}catch(_){}}
-    btn.classList.remove('on'); ico.className='fas fa-microphone-slash';
+    btn.classList.remove('on');ico.className='fas fa-microphone-slash';
     db.ref('audioMeta').set({active:false,ts:Date.now()});
     document.getElementById('spkLbl').textContent='';
   }
 }
 
-// ── TOAST ──────────────────────────────────────────────────────────────────────
-function toast(title,sub,icon,btns,border){
+/* ═══ TOAST ═══════════════════════════════════════════════════════════════ */
+function mkToast(title,icon,btns,border){
   return new Promise(res=>{
     const box=document.getElementById('toasts'),el=document.createElement('div');
-    el.className='toast'; el.style.borderRight=`3px solid ${border||'var(--br)'}`;
-    el.innerHTML=`<div class="ticon">${icon}</div><div class="ttxt"><b>${title}</b>${sub}</div>
+    el.className='toast';el.style.borderRight=`3px solid ${border||'var(--br)'}`;
+    el.innerHTML=`<div class="ticon">${icon}</div><div class="ttxt"><b>${title}</b></div>
       <div class="tbtns">${btns.map((b,i)=>`<button class="tbtn ${i===0?'tok':'tno'}" data-i="${i}">${b}</button>`).join('')}</div>`;
     el.querySelectorAll('.tbtn').forEach(b=>b.onclick=()=>{el.remove();res(+b.dataset.i);});
     box.appendChild(el);
     setTimeout(()=>{if(el.parentNode){el.remove();res(-1);}},15000);
   });
 }
+function b64Blob(du){
+  const[h,d]=du.split(','),m=h.match(/:(.*?);/)[1],b=atob(d),u=new Uint8Array(b.length);
+  for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return new Blob([u],{type:m});
+}
 
-function b64toBlob(du){
-  const[hdr,data]=du.split(','),mime=hdr.match(/:(.*?);/)[1];
-  const bin=atob(data),buf=new Uint8Array(bin.length);
-  for(let i=0;i<bin.length;i++)buf[i]=bin.charCodeAt(i);
-  return new Blob([buf],{type:mime});
+function endSession(){
+  if(!confirm('إنهاء الجلسة كاملةً وطرد جميع الطلاب؟')) return;
+  // Notify all students
+  db.ref('sessionEnded').set({ts:Date.now()});
+  // Clean everything
+  ['joinRequests','approvedStudents','onlineStudents','handRaised',
+   'micRequests','micPermissions','stroke','boardImg','boardCmd',
+   'audio','stuAudio','audioMeta','kicked','sessionEnded'
+  ].forEach(p=>db.ref(p).remove());
+  // Reload teacher page
+  setTimeout(()=>window.location.reload(), 500);
 }
 
 db.ref('.info/connected').on('value',s=>{if(s.val())db.ref('teacher/online').set({on:true,ts:Date.now()});});
 setInterval(()=>{document.getElementById('lat').textContent=10+Math.floor(Math.random()*25);},3000);
+refreshHistBtns();
 </script>
 </body>
 </html>
