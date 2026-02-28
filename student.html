@@ -376,10 +376,17 @@
             teacherCanvas.height = teacherCanvas.clientHeight;
             studentCanvas.width = studentCanvas.clientWidth;
             studentCanvas.height = studentCanvas.clientHeight;
-            teacherCtx.fillStyle = '#FFFFFF'; teacherCtx.fillRect(0, 0, teacherCanvas.width, teacherCanvas.height);
-            studentCtx.fillStyle = '#FFFFFF'; studentCtx.fillRect(0, 0, studentCanvas.width, studentCanvas.height);
-            teacherCtx.lineCap = 'round'; teacherCtx.lineJoin = 'round';
-            studentCtx.lineCap = 'round'; studentCtx.lineJoin = 'round';
+            
+            teacherCtx.fillStyle = '#FFFFFF';
+            teacherCtx.fillRect(0, 0, teacherCanvas.width, teacherCanvas.height);
+            
+            studentCtx.fillStyle = '#FFFFFF';
+            studentCtx.fillRect(0, 0, studentCanvas.width, studentCanvas.height);
+            
+            teacherCtx.lineCap = 'round';
+            teacherCtx.lineJoin = 'round';
+            studentCtx.lineCap = 'round';
+            studentCtx.lineJoin = 'round';
             studentCtx.lineWidth = 3;
         }
 
@@ -389,72 +396,131 @@
         window.joinClass = function() {
             const name = document.getElementById('studentName').value.trim();
             if (!name) return;
+            
             studentName = name;
             studentId = 'stu_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+            
             document.getElementById('joinBtn').disabled = true;
             document.getElementById('waitingMsg').style.display = 'block';
-            db.ref('joinRequests/' + studentId).set({ name: studentName, id: studentId, time: Date.now() });
+            
+            db.ref('joinRequests/' + studentId).set({
+                name: studentName,
+                id: studentId,
+                time: Date.now()
+            });
+            
             db.ref('approvedStudents/' + studentId).on('value', snap => {
                 if (snap.exists()) {
                     isApproved = true;
                     document.getElementById('joinOverlay').style.display = 'none';
                     document.getElementById('mainApp').style.display = 'flex';
                     document.getElementById('displayName').textContent = studentName;
-                    db.ref('onlineStudents/' + studentId).set({ name: studentName, online: true });
+                    
+                    db.ref('onlineStudents/' + studentId).set({
+                        name: studentName,
+                        online: true
+                    });
                 }
             });
         };
 
+        // استقبال رسم المدرس
         db.ref('draw_t').on('child_added', snap => {
             const data = snap.val();
             if (!data) return;
+            
             const x = data.x * teacherCanvas.width;
             const y = data.y * teacherCanvas.height;
-            if (data.type === 'start') { teacherCtx.beginPath(); teacherCtx.moveTo(x, y); }
+            
+            if (data.type === 'start') {
+                teacherCtx.beginPath();
+                teacherCtx.moveTo(x, y);
+            }
             else if (data.type === 'draw') {
                 teacherCtx.strokeStyle = data.color || '#000000';
                 teacherCtx.lineWidth = data.size || 3;
-                teacherCtx.lineTo(x, y); teacherCtx.stroke();
-                teacherCtx.beginPath(); teacherCtx.moveTo(x, y);
-            } else if (data.type === 'clear') {
+                teacherCtx.lineTo(x, y);
+                teacherCtx.stroke();
+                teacherCtx.beginPath();
+                teacherCtx.moveTo(x, y);
+            }
+            else if (data.type === 'clear') {
                 teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
-                teacherCtx.fillStyle = '#FFFFFF'; teacherCtx.fillRect(0, 0, teacherCanvas.width, teacherCanvas.height);
-            } else if (data.type === 'image') {
+                teacherCtx.fillStyle = '#FFFFFF';
+                teacherCtx.fillRect(0, 0, teacherCanvas.width, teacherCanvas.height);
+            }
+            else if (data.type === 'image') {
                 const img = new Image();
-                img.onload = () => teacherCtx.drawImage(img, 0, 0, teacherCanvas.width, teacherCanvas.height);
+                img.onload = function() {
+                    teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
+                    teacherCtx.drawImage(img, 0, 0, teacherCanvas.width, teacherCanvas.height);
+                };
                 img.src = data.data;
             }
         });
 
+        // رسم الطالب
         function getCoords(e) {
             const rect = studentCanvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: (clientX - rect.left) / studentCanvas.width, y: (clientY - rect.top) / studentCanvas.height };
+            
+            return {
+                x: (clientX - rect.left) / studentCanvas.width,
+                y: (clientY - rect.top) / studentCanvas.height
+            };
         }
 
         function startDrawing(e) {
             e.preventDefault();
             if (!isApproved) return;
+            
             isDrawing = true;
             const p = getCoords(e);
-            lastX = p.x; lastY = p.y;
-            studentCtx.beginPath(); studentCtx.moveTo(p.x * studentCanvas.width, p.y * studentCanvas.height);
-            db.ref('draw_st').push({ type: 'start', x: p.x, y: p.y, color: currentTool === 'eraser' ? '#FFFFFF' : '#000000', size: currentTool === 'eraser' ? 10 : 3, studentId: studentId, time: Date.now() });
+            lastX = p.x;
+            lastY = p.y;
+            
+            studentCtx.beginPath();
+            studentCtx.moveTo(p.x * studentCanvas.width, p.y * studentCanvas.height);
+            
+            db.ref('draw_st').push({
+                type: 'start',
+                x: p.x,
+                y: p.y,
+                color: currentTool === 'eraser' ? '#FFFFFF' : '#000000',
+                size: currentTool === 'eraser' ? 10 : 3,
+                studentId: studentId,
+                time: Date.now()
+            });
         }
 
         function draw(e) {
             e.preventDefault();
             if (!isDrawing || !isApproved) return;
+            
             const p = getCoords(e);
+            
             studentCtx.strokeStyle = currentTool === 'eraser' ? '#FFFFFF' : '#000000';
             studentCtx.lineWidth = currentTool === 'eraser' ? 10 : 3;
-            studentCtx.lineTo(p.x * studentCanvas.width, p.y * studentCanvas.height); studentCtx.stroke();
-            studentCtx.beginPath(); studentCtx.moveTo(p.x * studentCanvas.width, p.y * studentCanvas.height);
-            db.ref('draw_st').push({ type: 'draw', x: p.x, y: p.y, color: currentTool === 'eraser' ? '#FFFFFF' : '#000000', size: currentTool === 'eraser' ? 10 : 3, studentId: studentId, time: Date.now() });
+            studentCtx.lineTo(p.x * studentCanvas.width, p.y * studentCanvas.height);
+            studentCtx.stroke();
+            studentCtx.beginPath();
+            studentCtx.moveTo(p.x * studentCanvas.width, p.y * studentCanvas.height);
+            
+            db.ref('draw_st').push({
+                type: 'draw',
+                x: p.x,
+                y: p.y,
+                color: currentTool === 'eraser' ? '#FFFFFF' : '#000000',
+                size: currentTool === 'eraser' ? 10 : 3,
+                studentId: studentId,
+                time: Date.now()
+            });
         }
 
-        function stopDrawing() { isDrawing = false; }
+        function stopDrawing() {
+            isDrawing = false;
+        }
 
         studentCanvas.addEventListener('mousedown', startDrawing);
         studentCanvas.addEventListener('mousemove', draw);
@@ -473,22 +539,42 @@
 
         window.clearBoard = function() {
             if (!isApproved) return;
+            
             studentCtx.clearRect(0, 0, studentCanvas.width, studentCanvas.height);
-            studentCtx.fillStyle = '#FFFFFF'; studentCtx.fillRect(0, 0, studentCanvas.width, studentCanvas.height);
-            db.ref('draw_st').push({ type: 'clear', studentId: studentId, time: Date.now() });
+            studentCtx.fillStyle = '#FFFFFF';
+            studentCtx.fillRect(0, 0, studentCanvas.width, studentCanvas.height);
+            
+            db.ref('draw_st').push({
+                type: 'clear',
+                studentId: studentId,
+                time: Date.now()
+            });
         };
 
         window.toggleHand = function() {
             if (!isApproved) return;
+            
             handRaised = !handRaised;
             const btn = document.getElementById('handBtn');
-            if (handRaised) { btn.classList.add('raised'); db.ref('handRaised/' + studentId).set(true); }
-            else { btn.classList.remove('raised'); db.ref('handRaised/' + studentId).remove(); }
+            
+            if (handRaised) {
+                btn.classList.add('raised');
+                db.ref('handRaised/' + studentId).set(true);
+            } else {
+                btn.classList.remove('raised');
+                db.ref('handRaised/' + studentId).remove();
+            }
         };
 
         window.requestMic = function() {
             if (!isApproved) return;
-            db.ref('micRequests/' + studentId).set({ name: studentName, id: studentId, time: Date.now() });
+            
+            db.ref('micRequests/' + studentId).set({
+                name: studentName,
+                id: studentId,
+                time: Date.now()
+            });
+            
             document.getElementById('micBtn').classList.add('mic-request');
             document.getElementById('micStatus').className = 'mic-status request';
             document.getElementById('micStatus').innerHTML = '🟡 جاري الطلب...';
@@ -504,27 +590,45 @@
 
         async function startMic() {
             try {
-                mediaStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+                mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: { 
+                        echoCancellation: true, 
+                        noiseSuppression: true 
+                    } 
+                });
+                
                 isSpeaking = true;
+                
                 document.getElementById('micBtn').classList.remove('mic-request');
                 document.getElementById('micBtn').classList.add('mic-active');
                 document.getElementById('micStatus').className = 'mic-status active';
                 document.getElementById('micStatus').innerHTML = '🟢 تتحدث...';
+                
                 mediaRecorder = new MediaRecorder(mediaStream);
+                
                 mediaRecorder.ondataavailable = (e) => {
                     if (e.data.size > 0) {
                         const reader = new FileReader();
-                        reader.onload = () => db.ref('stuAudio/chunk').set({ data: reader.result, studentId: studentId, time: Date.now() });
+                        reader.onload = () => {
+                            db.ref('stuAudio/chunk').set({ 
+                                data: reader.result, 
+                                studentId: studentId, 
+                                time: Date.now() 
+                            });
+                        };
                         reader.readAsDataURL(e.data);
                     }
                 };
+                
                 mediaRecorder.start(1000);
+                
                 setInterval(() => {
                     if (mediaRecorder && mediaRecorder.state === 'recording') {
                         mediaRecorder.stop();
                         mediaRecorder.start(1000);
                     }
                 }, 1000);
+                
             } catch (err) {
                 console.log('خطأ في المايك:', err);
                 document.getElementById('micStatus').innerHTML = '🔴 خطأ في المايك';
@@ -538,6 +642,7 @@
         db.ref('audio/chunk').on('value', snap => {
             const data = snap.val();
             if (!data || !data.data || heardAudios.has(data.time)) return;
+            
             heardAudios.add(data.time);
             audioPlayer.src = data.data;
             audioPlayer.play().catch(e => console.log('Audio play error:', e));
@@ -545,12 +650,17 @@
 
         db.ref('audioMeta').on('value', snap => {
             const meta = snap.val();
-            document.getElementById('teacherStatus').innerHTML = meta && meta.active ? '<span class="live-dot"></span> المدرس يتحدث' : '<span class="live-dot"></span> المدرس متصل';
+            document.getElementById('teacherStatus').innerHTML = meta && meta.active ? 
+                '<span class="live-dot"></span> المدرس يتحدث' : 
+                '<span class="live-dot"></span> المدرس متصل';
         });
 
         window.toggleFullscreen = function() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-            else document.exitFullscreen();
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
         };
 
         window.addEventListener('beforeunload', () => {
@@ -559,7 +669,9 @@
                 db.ref('handRaised/' + studentId).remove();
                 db.ref('micRequests/' + studentId).remove();
             }
-            if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(t => t.stop());
+            }
         });
     </script>
 </body>
