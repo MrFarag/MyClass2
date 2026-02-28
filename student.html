@@ -333,9 +333,8 @@ function getP(e, cv) {
 function applyStroke(ctx, cv, d) {
   if (!d || !d.b || !d.b.length) return;
   const W = cv.width, H = cv.height;
-  const D = diag(cv);
-  // d.w is fraction of sender diagonal → scale to receiver diagonal
-  const lw = Math.max(0.5, d.w * D);
+  // w = senderCSSpt/1000 → lw_physical = w*1000*DPR
+  const lw = Math.max(0.5 * DPR, d.w * 1000 * DPR);
 
   ctx.save();
   if (d.t === 'e') {
@@ -489,11 +488,7 @@ function bindDraw() {
 function physSz() {
   return dSz * DPR;
 }
-function diagFrac() {
-  // fraction of diagonal (fixed across all screens)
-  const D = diag(SC);
-  return D > 0 ? physSz() / D : 0.002;
-}
+function diagFrac() { return dSz / 1000; } // CSS-pt / fixed-ref = device-independent
 
 function startD(e) {
   e.preventDefault();
