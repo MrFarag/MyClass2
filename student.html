@@ -225,9 +225,12 @@ const Tc=TC.getContext('2d'), Sc=SC.getContext('2d');
 let teacherImageData = null;
 let studentImageData = null;
 
-// دالة للحصول على حجم مرجعي للخط (نسبة إلى عرض الشاشة)
-function getBaseLineWidth(canvas) {
-  return Math.min(canvas.width, canvas.height) / 300; // 300 قيمة تجريبية
+// دالة لحساب سمك الخط المناسب (نسبة إلى حجم الشاشة)
+function getOptimalLineWidth(canvas, baseSize) {
+  // نأخذ المتوسط الهندسي للعرض والارتفاع لتحديد مقياس مناسب
+  const scale = Math.sqrt(canvas.width * canvas.height) / 800; // 800 قيمة مرجعية
+  // نحصر السمك بين 0.5 و 5 بكسل
+  return Math.min(5, Math.max(0.5, baseSize * scale));
 }
 
 // تحويل الإحداثيات بدقة
@@ -391,7 +394,8 @@ function onApproved(){
 function applyStroke(ctx,d,W,H){
   ctx.save();
   const baseSize = Math.min(W, H);
-  const lineWidth = d.w * baseSize / 100; // لأننا نرسل w كنسبة مئوية
+  // نحول w من نسبة مئوية إلى قيمة مطلقة مع حد أقصى 3 بكسل
+  const lineWidth = Math.min(3, d.w * baseSize / 100);
   
   if(d.t==='e'){
     ctx.globalCompositeOperation='destination-out';
@@ -460,15 +464,16 @@ function moveD(e){
     return;
   }
   
-  const baseWidth = getBaseLineWidth(SC);
+  // حساب السمك المناسب للشاشة الحالية
+  const optimalWidth = getOptimalLineWidth(SC, dSz);
   
   if(dTool==='eraser'){
     Sc.globalCompositeOperation='destination-out';
-    Sc.lineWidth = dSz * baseWidth * 5; // الممحاة أكبر
+    Sc.lineWidth = optimalWidth * 3;
   } else {
     Sc.globalCompositeOperation='source-over';
     Sc.strokeStyle=dClr;
-    Sc.lineWidth = dSz * baseWidth;
+    Sc.lineWidth = optimalWidth;
   }
   
   Sc.lineTo(p.x, p.y);
@@ -499,12 +504,15 @@ function addDP(x,y,s){
 function flushDP(final){
   clearTimeout(drawTO);
   if(drawBatch.length){
+    // نحسب w كنسبة مئوية من متوسط البعد مع حد أقصى
     const baseSize = Math.min(SC.width, SC.height);
-    const nw = (dSz * baseSize / 300) / baseSize * 100; // نحول إلى نسبة مئوية
+    const optimalWidth = getOptimalLineWidth(SC, dSz);
+    const wPercent = (optimalWidth / baseSize) * 100;
+    
     db.ref('stroke/S').push({
       b:drawBatch,
       c:dClr,
-      w:nw,
+      w:wPercent,
       t:dTool==='eraser'?'e':'p',
       sid,
       ts:Date.now()
