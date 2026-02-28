@@ -225,7 +225,12 @@ const Tc=TC.getContext('2d'), Sc=SC.getContext('2d');
 let teacherImageData = null;
 let studentImageData = null;
 
-// تحويل الإحداثيات بشكل دقيق
+// دالة للحصول على حجم مرجعي للخط (نسبة إلى عرض الشاشة)
+function getBaseLineWidth(canvas) {
+  return Math.min(canvas.width, canvas.height) / 300; // 300 قيمة تجريبية
+}
+
+// تحويل الإحداثيات بدقة
 function getCanvasPoint(e, canvas) {
   const rect = canvas.getBoundingClientRect();
   const scaleX = canvas.width / rect.width;
@@ -385,13 +390,16 @@ function onApproved(){
 // ── STROKE RENDER ──────────────────────────────────────────────────────────
 function applyStroke(ctx,d,W,H){
   ctx.save();
+  const baseSize = Math.min(W, H);
+  const lineWidth = d.w * baseSize / 100; // لأننا نرسل w كنسبة مئوية
+  
   if(d.t==='e'){
     ctx.globalCompositeOperation='destination-out';
-    ctx.lineWidth = d.w * Math.min(W, H) * 0.05;
+    ctx.lineWidth = lineWidth * 3; // الممحاة أكبر
   } else {
     ctx.globalCompositeOperation='source-over';
     ctx.strokeStyle=d.c;
-    ctx.lineWidth = d.w * Math.min(W, H) * 0.05;
+    ctx.lineWidth = lineWidth;
   }
   ctx.lineCap='round'; 
   ctx.lineJoin='round';
@@ -448,17 +456,19 @@ function moveD(e){
   const p=getCanvasPoint(e, SC);
   
   // تجنب النقاط المتكررة
-  if(lastPoint && Math.abs(p.x - lastPoint.x) < 0.5 && Math.abs(p.y - lastPoint.y) < 0.5) {
+  if(lastPoint && Math.abs(p.x - lastPoint.x) < 1 && Math.abs(p.y - lastPoint.y) < 1) {
     return;
   }
   
+  const baseWidth = getBaseLineWidth(SC);
+  
   if(dTool==='eraser'){
     Sc.globalCompositeOperation='destination-out';
-    Sc.lineWidth = dSz * 5;
+    Sc.lineWidth = dSz * baseWidth * 5; // الممحاة أكبر
   } else {
     Sc.globalCompositeOperation='source-over';
     Sc.strokeStyle=dClr;
-    Sc.lineWidth = dSz * 2;
+    Sc.lineWidth = dSz * baseWidth;
   }
   
   Sc.lineTo(p.x, p.y);
@@ -490,7 +500,7 @@ function flushDP(final){
   clearTimeout(drawTO);
   if(drawBatch.length){
     const baseSize = Math.min(SC.width, SC.height);
-    const nw = baseSize > 0 ? dSz / baseSize * 100 : 0.02;
+    const nw = (dSz * baseSize / 300) / baseSize * 100; // نحول إلى نسبة مئوية
     db.ref('stroke/S').push({
       b:drawBatch,
       c:dClr,
