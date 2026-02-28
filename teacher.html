@@ -44,6 +44,21 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
 .eye-btn{background:var(--br);color:var(--dim)}
 .eye-btn.act{background:var(--bl);color:#fff}
 .hand-ico{font-size:13px}
+/* Redesigned student row */
+.srow{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.sicons{display:flex;gap:3px;align-items:center;flex-shrink:0}
+.ib{width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;
+    font-size:12px;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;transition:.15s}
+.mic-ib.mic-off{background:var(--br);color:var(--dim)}
+.mic-ib.mic-off:hover{background:var(--mt);color:#fff}
+.mic-ib.mic-wait{background:rgba(245,158,11,.25);color:var(--yw);animation:blink .8s infinite}
+.mic-ib.mic-on{background:var(--gn);color:#fff}
+.conn-ib{background:var(--br);cursor:default}
+.kick-ib{background:rgba(239,68,68,.15);color:var(--rd)}
+.kick-ib:hover{background:var(--rd);color:#fff}
+.req-bar{margin-top:4px;padding:3px 6px;background:rgba(245,158,11,.1);border-radius:6px;
+         font-size:10px;color:var(--yw);border:1px solid rgba(245,158,11,.3)}
 /* CONTENT */
 .content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 .bwrap{flex:1;background:#fff;position:relative;overflow:hidden;min-height:0}
@@ -337,6 +352,7 @@ function applyPen(c,x,y,tool,clr,sz){
 
 // ── STROKE STREAMING ──────────────────────────────────────────────────────────
 function addPt(x,y,s){
+  if(!CV.width||!CV.height) return; // canvas not ready yet
   sBatch.push({x:x/CV.width,y:y/CV.height,s});
   clearTimeout(sTO); sTO=setTimeout(()=>flushStroke(false),16);
 }
@@ -344,7 +360,8 @@ function flushStroke(final){
   clearTimeout(sTO);
   if(sBatch.length){
     const ref=curView==='main'?db.ref('stroke/T'):db.ref('stroke/TS/'+curView);
-    ref.push({b:sBatch,c:penClr,w:penSz/CV.width,t:penTool==='eraser'?'e':'p',ts:Date.now()});
+    const nw=CV.width>0?penSz/CV.width:0.005;
+    ref.push({b:sBatch,c:penClr,w:nw,t:penTool==='eraser'?'e':'p',ts:Date.now()});
     sBatch=[];
   }
   if(final&&CV.width&&CV.height){
@@ -374,10 +391,11 @@ function applyStroke(ctx,d,W,H){
   ctx.save();
   if(d.t==='e'){ctx.globalCompositeOperation='destination-out';ctx.lineWidth=d.w*W*4;}
   else{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=d.c;ctx.lineWidth=d.w*W;}
-  ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
+  ctx.lineCap='round';ctx.lineJoin='round';
+  let first=true;
   (d.b||[]).forEach(pt=>{
     const x=pt.x*W,y=pt.y*H;
-    if(pt.s){ctx.moveTo(x,y);}
+    if(pt.s||first){ctx.beginPath();ctx.moveTo(x,y);first=false;}
     else{ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);}
   });
   ctx.restore();
@@ -441,17 +459,36 @@ function renderList(){
     const micIco=isSpk?'fa-microphone-slash':(isWait?'fa-hourglass-half':'fa-microphone');
     const micTip=isSpk?'إلغاء الميكروفون':'منح الميكروفون';
     const eyeCls=curView===s.id?'act':'';
-    html+=`<div class="sitem ${cls}">
-      <span class="sn">${s.name}${s.hand?' ✋':''}</span>
-      <div class="sbadges">
-        <div class="sdot"></div>
-        <span style="font-size:9px;color:var(--gn);flex:1">متصل${isWait&&!isSpk?' · <span style="color:var(--yw)">ينتظر مايك</span>':''}</span>
-        <button class="icon-btn ${micCls}" title="${micTip}" onclick="handleMicBtn('${s.id}',event)"><i class="fas ${micIco}"></i></button>
-        <button class="icon-btn eye-btn ${eyeCls}" title="عرض سبورة الطالب" onclick="viewStudent('${s.id}')"><i class="fas fa-eye"></i></button>
+    html+=`<div class="sitem ${cls}" onclick="viewStudent('${s.id}')" style="cursor:pointer">
+      <div class="srow">
+        <span class="sn">${s.name}${s.hand?' ✋':''}</span>
+        <div class="sicons">
+          <button class="ib mic-ib ${micCls}" title="${micTip}" onclick="handleMicBtn('${s.id}',event)">
+            <i class="fas ${micIco}"></i>
+          </button>
+          <div class="ib conn-ib" title="متصل"><i class="fas fa-circle" style="font-size:7px;color:var(--gn)"></i></div>
+          <button class="ib kick-ib" title="طرد الطالب" onclick="kickStudent('${s.id}',event)">
+            <i class="fas fa-user-times"></i>
+          </button>
+        </div>
       </div>
+      ${isWait&&!isSpk?'<div class="req-bar"><i class="fas fa-microphone" style="font-size:9px"></i> يطلب الميكروفون — اضغط <i class="fas fa-microphone" style="font-size:9px"></i> للسماح</div>':''}
     </div>`;
   });
   list.innerHTML=html;
+}
+
+// ── KICK STUDENT ─────────────────────────────────────────────────────────────
+function kickStudent(id,e){
+  e.stopPropagation();
+  if(!confirm('هل تريد طرد هذا الطالب؟')) return;
+  if(curSpeaker===id){db.ref('micPermissions/'+id).remove();curSpeaker=null;}
+  if(curView===id) viewMain();
+  delete students[id];
+  db.ref('approvedStudents/'+id).remove();
+  db.ref('onlineStudents/'+id).remove();
+  db.ref('kicked/'+id).set({ts:Date.now()});
+  renderList();
 }
 
 // ── MIC BUTTON FOR STUDENT ────────────────────────────────────────────────────
@@ -512,13 +549,24 @@ db.ref('micRequests').on('child_added',async snap=>{
 
 // Receive student audio
 const stuAP=document.getElementById('stuAudio');
-const stuHeard=new Set();
+let stuLastTs=0;
 db.ref('stuAudio/chunk').on('value',snap=>{
   const d=snap.val();
-  if(!d||stuHeard.has(d.ts)) return;
-  stuHeard.add(d.ts);
-  stuAP.src=d.data; stuAP.play().catch(()=>{});
+  if(!d||!d.data||d.ts<=stuLastTs) return;
+  stuLastTs=d.ts;
+  const blob=dataURLtoBlob(d.data);
+  const url=URL.createObjectURL(blob);
+  stuAP.src=url;
+  stuAP.play().catch(()=>{});
+  stuAP.onended=()=>URL.revokeObjectURL(url);
 });
+function dataURLtoBlob(dataURL){
+  const arr=dataURL.split(','), mime=arr[0].match(/:(.*?);/)[1];
+  const bstr=atob(arr[1]); let n=bstr.length;
+  const u8=new Uint8Array(n);
+  while(n--) u8[n]=bstr.charCodeAt(n);
+  return new Blob([u8],{type:mime});
+}
 
 // ── TEACHER MICROPHONE ────────────────────────────────────────────────────────
 async function toggleTeacherMic(){
