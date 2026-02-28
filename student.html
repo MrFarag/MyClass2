@@ -351,21 +351,15 @@ function applyStroke(ctx, cv, d) {
   ctx.lineCap  = 'round';
   ctx.lineJoin = 'round';
 
-  let first = true;
+  // Single continuous path — prevents fading/thinning artifact
+  ctx.beginPath();
+  let started = false;
   d.b.forEach(pt => {
-    const x = pt.x * W;
-    const y = pt.y * H;
-    if (pt.s || first) {
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      first = false;
-    } else {
-      ctx.lineTo(x, y);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-    }
+    const x = pt.x * W, y = pt.y * H;
+    if (pt.s || !started) { ctx.moveTo(x, y); started = true; }
+    else ctx.lineTo(x, y);
   });
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -400,8 +394,17 @@ function onApproved() {
   document.getElementById('overlay').style.display = 'none';
   document.getElementById('nameChip').textContent = sname;
 
-  // Auto-reload if kicked
-  db.ref('kicked/' + sid).on('value', s => { if (s.exists()) window.location.reload(); });
+  // Kicked or session ended → stop audio + reload
+  function fullStop(){
+    if(mStream) mStream.getTracks().forEach(t=>t.stop());
+    if(mRec){try{mRec.stop();}catch(_){}}
+    // Stop teacher audio
+    tAP.pause(); tAP.src='';
+    // Brief delay then reload
+    setTimeout(()=>window.location.reload(),300);
+  }
+  db.ref('kicked/'+sid).on('value',snap=>{ if(snap.exists()) fullStop(); });
+  db.ref('sessionEnded').on('value',snap=>{ if(snap.exists()) fullStop(); });
 
   // Online presence
   db.ref('onlineStudents/' + sid).set({online:true, name:sname});
@@ -475,6 +478,8 @@ function drawFromUrl(cv, ctx, url, cb) {
 // ═══════════════════════════════════════════════════════════
 let batch = [], bTO = null, drawn = false;
 let prevX = 0, prevY = 0;
+let strokeSnap = null;  // snapshot at stroke start for clean redraws
+let curPts = [];        // points of current stroke
 
 function bindDraw() {
   if (drawn) return; drawn = true;
@@ -501,10 +506,13 @@ function diagFrac() { return dSz / 1000; } // CSS-pt / fixed-ref = device-indepe
 
 function startD(e) {
   e.preventDefault();
-  drawing = true;
+  drawing = true; curPts = [];
   const p = getP(e, SC);
   prevX = p.x; prevY = p.y;
-  Sc.beginPath(); Sc.moveTo(p.x, p.y);
+  // Snapshot before stroke starts — used for clean single-path redraws
+  strokeSnap = null;
+  try { strokeSnap = Sc.getImageData(0, 0, SC.width, SC.height); } catch(e){}
+  curPts.push({x:p.x, y:p.y});
   addBatch(p.x, p.y, 1);
 }
 
@@ -512,14 +520,12 @@ function moveD(e) {
   e.preventDefault();
   if (!drawing) return;
   const p = getP(e, SC);
-  if (Math.hypot(p.x - prevX, p.y - prevY) < 1) return; // skip tiny jitter
+  if (Math.hypot(p.x - prevX, p.y - prevY) < 0.5) return;
 
-  // Draw locally immediately
-  setPenCtx(Sc, dTool, dClr, physSz());
-  Sc.lineTo(p.x, p.y);
-  Sc.stroke();
-  Sc.beginPath();
-  Sc.moveTo(p.x, p.y);
+  curPts.push({x:p.x, y:p.y});
+  // Restore snapshot then redraw full stroke as one path → no segment fading
+  if (strokeSnap) try { Sc.putImageData(strokeSnap, 0, 0); } catch(e){}
+  drawFullStroke(Sc, curPts, dTool, dClr, physSz());
 
   addBatch(p.x, p.y, 0);
   prevX = p.x; prevY = p.y;
@@ -529,6 +535,7 @@ function endD() {
   if (!drawing) return;
   drawing = false;
   Sc.globalCompositeOperation = 'source-over';
+  strokeSnap = null; curPts = [];
   flushBatch(true);
   saveStudentSnap();
 }
@@ -544,6 +551,21 @@ function setPenCtx(ctx, tool, clr, sz) {
   }
   ctx.lineCap  = 'round';
   ctx.lineJoin = 'round';
+}
+// Draw all points as ONE continuous path (prevents fading/thinning)
+function drawFullStroke(ctx, pts, tool, clr, sz) {
+  if (!pts.length) return;
+  ctx.save();
+  if (tool === 'eraser') {
+    ctx.globalCompositeOperation = 'destination-out'; ctx.lineWidth = sz * 4;
+  } else {
+    ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = clr; ctx.lineWidth = sz;
+  }
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.stroke();
+  ctx.restore();
 }
 
 function addBatch(x, y, s) {
@@ -645,11 +667,11 @@ async function startSpeak() {
       fr.onload = () => db.ref('stuAudio/chunk').set({data:fr.result, sid, ts:Date.now()});
       fr.readAsDataURL(ev.data);
     };
-    mRec.start(400);
+    mRec.start(600);
     const iv = setInterval(() => {
       if (!speaking) { clearInterval(iv); return; }
-      if (mRec && mRec.state === 'recording') { mRec.stop(); mRec.start(400); }
-    }, 400);
+      if (mRec && mRec.state === 'recording') { mRec.stop(); mRec.start(600); }
+    }, 600);
   } catch(err) {
     micGranted = false; micReq = false; speaking = false;
     setMicUI('', 'fa-microphone-slash', 'تعذّر الوصول للمايك');
@@ -703,16 +725,28 @@ db.ref('boardCmd').on('child_added', snap => {
 // ═══════════════════════════════════════════════════════════
 //  TEACHER AUDIO
 // ═══════════════════════════════════════════════════════════
+// Audio queue: buffer chunks and play sequentially to prevent gaps
 let tLastTs = 0;
+const audioQ = [];
+let audioPlaying = false;
+function playNext() {
+  if (!audioQ.length) { audioPlaying = false; return; }
+  audioPlaying = true;
+  const url = audioQ.shift();
+  tAP.src = url;
+  tAP.onended = () => { URL.revokeObjectURL(url); playNext(); };
+  tAP.onerror = () => { URL.revokeObjectURL(url); playNext(); };
+  tAP.play().catch(() => { URL.revokeObjectURL(url); playNext(); });
+}
 db.ref('audio/chunk').on('value', snap => {
   const d = snap.val();
   if (!d || !d.data || d.ts <= tLastTs) return;
   tLastTs = d.ts;
-  const blob = b64toBlob(d.data);
-  const url  = URL.createObjectURL(blob);
-  tAP.src = url;
-  tAP.play().catch(() => {});
-  tAP.onended = () => URL.revokeObjectURL(url);
+  const url = URL.createObjectURL(b64toBlob(d.data));
+  audioQ.push(url);
+  // Keep queue short to avoid growing lag
+  while (audioQ.length > 3) URL.revokeObjectURL(audioQ.shift());
+  if (!audioPlaying) playNext();
 });
 db.ref('audioMeta').on('value', snap => {
   const on = !!snap.val()?.active;
