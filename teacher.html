@@ -801,15 +801,44 @@ function b64Blob(du){
 
 function endSession(){
   if(!confirm('إنهاء الجلسة كاملةً وطرد جميع الطلاب؟')) return;
-  // Notify all students
-  db.ref('sessionEnded').set({ts:Date.now()});
-  // Clean everything
-  ['joinRequests','approvedStudents','onlineStudents','handRaised',
-   'micRequests','micPermissions','stroke','boardImg','boardCmd',
-   'audio','stuAudio','audioMeta','kicked','sessionEnded'
-  ].forEach(p=>db.ref(p).remove());
-  // Reload teacher page
-  setTimeout(()=>window.location.reload(), 500);
+  // Step 1: notify students — they must receive this BEFORE data is deleted
+  db.ref('sessionEnded').set({ts:Date.now()}, ()=>{
+    // Step 2: wait 1.5s for all clients to receive the notification
+    setTimeout(()=>{
+      // Step 3: clean Firebase
+      ['joinRequests','approvedStudents','onlineStudents','handRaised',
+       'micRequests','micPermissions','stroke','boardImg','boardCmd',
+       'audio','stuAudio','audioMeta','kicked','teacher','sessionEnded'
+      ].forEach(p=>db.ref(p).remove());
+      // Step 4: reset teacher UI (no reload = no browser close)
+      resetTeacherUI();
+    }, 1500);
+  });
+}
+
+function resetTeacherUI(){
+  // Clear canvas
+  if(CV.width&&CV.height){ CX.fillStyle='#fff'; CX.fillRect(0,0,CV.width,CV.height); }
+  // Reset state
+  Object.keys(students).forEach(k=>delete students[k]);
+  micWaiting.clear(); curView='main'; curSpeaker=null;
+  Object.keys(undoQ).forEach(k=>delete undoQ[k]);
+  Object.keys(redoQ).forEach(k=>delete redoQ[k]);
+  Object.keys(boardSnaps).forEach(k=>delete boardSnaps[k]);
+  // Reset mic
+  if(tMicOn){
+    tMicOn=false;
+    if(tStream) tStream.getTracks().forEach(t=>t.stop());
+    if(tRec){try{tRec.stop();}catch(_){}}
+    document.getElementById('tmicbtn').classList.remove('on');
+    document.getElementById('tmicico').className='fas fa-microphone-slash';
+  }
+  // Reset UI
+  document.getElementById('blbl').textContent='السبورة الرئيسية';
+  document.getElementById('viewlbl').textContent='';
+  document.getElementById('spkLbl').textContent='';
+  refreshHistBtns(); renderList();
+  db.ref('teacher/online').set({on:true,ts:Date.now()});
 }
 
 db.ref('.info/connected').on('value',s=>{if(s.val())db.ref('teacher/online').set({on:true,ts:Date.now()});});
