@@ -37,7 +37,8 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
 .sitem:hover{background:var(--br)}
 .sitem.act{background:rgba(59,130,246,.13);border-color:var(--bl)}
 .sitem.spk{background:rgba(34,197,94,.08);border-color:var(--gn)}
-.sitem.wait{background:rgba(245,158,11,.07);border-color:var(--yw)}
+.sitem.wait{background:rgba(245,158,11,.07);border-color:var(--yw);animation:rowpulse 1s infinite}
+@keyframes rowpulse{0%,100%{border-color:rgba(245,158,11,.3)}50%{border-color:var(--yw)}}
 .srow{display:flex;align-items:center;gap:4px}
 .sn{font-size:13px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* 3 icon buttons */
@@ -48,7 +49,14 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
 /* MIC: gray=off, amber-pulse=requesting, green=speaking */
 .ib.mic{background:var(--br);color:var(--dim)}
 .ib.mic:hover{background:var(--mt);color:#fff}
-.ib.mic.req{background:rgba(245,158,11,.2);color:var(--yw);animation:blink .7s infinite}
+.ib.mic.req{background:rgba(245,158,11,.25);color:var(--yw);
+  animation:micpulse .6s infinite;
+  box-shadow:0 0 0 0 rgba(245,158,11,.6)}
+@keyframes micpulse{
+  0%{box-shadow:0 0 0 0 rgba(245,158,11,.7);background:rgba(245,158,11,.3)}
+  50%{box-shadow:0 0 0 6px rgba(245,158,11,0);background:rgba(245,158,11,.6);color:#fff}
+  100%{box-shadow:0 0 0 0 rgba(245,158,11,0);background:rgba(245,158,11,.3)}
+}
 .ib.mic.on{background:var(--gn);color:#fff}
 /* EYE: gray=inactive, blue=viewing */
 .ib.eye{background:var(--br);color:var(--dim)}
@@ -213,7 +221,7 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-      <div class="stitle"><i class="fas fa-users"></i> الطلاب</div>
+      <div class="stitle"><i class="fas fa-users"></i> الطلاب <span id="micBadge" style="display:none;background:var(--yw);color:#000;border-radius:10px;padding:1px 7px;font-size:10px;margin-right:4px;animation:blink .6s infinite"></span></div>
       <div class="slist" id="slist">
         <div style="color:var(--dim);font-size:12px;text-align:center;padding:20px">لا يوجد طلاب بعد</div>
       </div>
@@ -375,6 +383,12 @@ bwrap.addEventListener('touchstart', startD, {passive:false});
 bwrap.addEventListener('touchmove',  moveD,  {passive:false});
 bwrap.addEventListener('touchend',   endD);
 
+// Auto-detect device type
+function detectDevice() {
+  const dpr = window.devicePixelRatio || 1;
+  const w   = window.screen.width, h = window.screen.height;
+  return (dpr >= 2 || Math.min(w,h) < 600) ? 'm' : 'd';
+}
 function physSz()   { return penSz * DPR; }  // physical px for local drawing
 function diagFrac() { return penSz / 1000; } // CSS-pt / fixed-ref = device-independent
 
@@ -437,7 +451,7 @@ function flushStroke(final) {
   clearTimeout(sTO);
   if (sBatch.length) {
     const ref = curView==='main' ? db.ref('stroke/T') : db.ref('stroke/TS/'+curView);
-    ref.push({b:sBatch, c:penClr, w:diagFrac(), t:penTool==='eraser'?'e':'p', ts:Date.now()});
+    ref.push({b:sBatch, c:penClr, w:diagFrac(), t:penTool==='eraser'?'e':'p', dv:detectDevice(), ts:Date.now()});
     sBatch=[];
   }
   if (final && CV.width && CV.height) {
@@ -466,8 +480,12 @@ function getOff(id) {
 function applyStroke(ctx, cv, d) {
   if (!d || !d.b || !d.b.length) return;
   const W=cv.width, H=cv.height;
-  // w = senderCSSpt/1000 → lw_physical = w*1000*DPR (same CSS pt on all screens)
-  const lw = Math.max(0.5 * DPR, d.w * 1000 * DPR);
+  // Device-aware scaling: mobile strokes appear thinner on PC, PC strokes thicker on mobile
+  const myDev = detectDevice();
+  const scale = (d.dv === 'm' && myDev === 'd') ? 0.55   // phone→PC: thinner
+               :(d.dv === 'd' && myDev === 'm') ? 1.4    // PC→phone: thicker
+               : 1.0;
+  const lw = Math.max(0.5 * DPR, d.w * 1000 * DPR * scale);
 
   ctx.save();
   if (d.t==='e') {
@@ -538,6 +556,10 @@ function renderList(){
   const arr=Object.values(students).filter(s=>s.online);
   document.getElementById('cnt').textContent=arr.length;
   document.getElementById('hcnt').textContent=arr.filter(s=>s.hand).length;
+  // Update mic-request badge
+  const pendingMic = arr.filter(s=>micWaiting.has(s.id)&&curSpeaker!==s.id).length;
+  const badge = document.getElementById('micBadge');
+  if(badge){ badge.textContent='🎤 '+pendingMic; badge.style.display=pendingMic?'inline':'none'; }
   if(!arr.length){list.innerHTML='<div style="color:var(--dim);font-size:12px;text-align:center;padding:20px">لا يوجد طلاب</div>';return;}
   let html=`<div class="sitem ${curView==='main'?'act':''}" onclick="viewMain()">
     <div class="srow"><span class="sn">🖥 السبورة الرئيسية</span></div></div>`;
@@ -559,7 +581,7 @@ function renderList(){
                   onclick="kickStudent('${s.id}',event)"><i class="fas fa-user-times"></i></button>
         </div>
       </div>
-      ${isWait&&!isSpk?`<div class="req-bar"><i class="fas fa-microphone-alt"></i> يطلب الميكروفون — اضغط 🎤 للسماح</div>`:''}
+      ${isWait&&!isSpk?`<div class="req-bar"><span style="animation:blink .5s infinite;display:inline-block">🎤</span> يطلب الكلام — اضغط الميكروفون للسماح</div>`:''}
     </div>`;
   });
   list.innerHTML=html;
@@ -598,10 +620,21 @@ function kickStudent(id,e){
 db.ref('joinRequests').on('child_added',async snap=>{
   const s=snap.val(); if(!s) return;
   snap.ref.remove();
+  flashHeader(); // Flash header while waiting
   const ok=await toast(`${s.name} يريد الانضمام`,'طالب جديد','👤',['قبول','رفض'],'var(--bl)');
   if(ok===0){students[s.id]={id:s.id,name:s.name,online:true,hand:false};db.ref('approvedStudents/'+s.id).set({id:s.id,name:s.name});}
   renderList();
 });
+
+function flashHeader(){
+  const hdr=document.querySelector('.hdr');
+  if(!hdr) return;
+  let n=0;
+  const iv=setInterval(()=>{
+    hdr.style.borderBottom = n%2===0 ? '2px solid var(--bl)' : '2px solid var(--br)';
+    if(++n>10){clearInterval(iv);hdr.style.borderBottom='';}
+  },300);
+}
 
 db.ref('onlineStudents').on('value',snap=>{
   const data=snap.val()||{};
@@ -618,12 +651,23 @@ db.ref('handRaised').on('value',snap=>{
   renderList();
 });
 
-db.ref('micRequests').on('child_added',async snap=>{
+db.ref('micRequests').on('child_added', snap=>{
   const r=snap.val(); if(!r) return;
   snap.ref.remove();
-  micWaiting.add(r.studentId); renderList();
-  // No toast — icon turns amber, teacher clicks the mic button
+  micWaiting.add(r.studentId);
+  renderList();
+  flashSidebar(); // Flash sidebar to alert teacher
 });
+
+function flashSidebar(){
+  const title = document.querySelector('.stitle');
+  if(!title) return;
+  let count=0;
+  const iv = setInterval(()=>{
+    title.style.background = count%2===0 ? 'rgba(245,158,11,.3)' : '';
+    if(++count>6) { clearInterval(iv); title.style.background=''; }
+  }, 250);
+}
 
 // Student audio
 const stuAP=document.getElementById('stuAudio');
