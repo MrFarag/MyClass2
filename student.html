@@ -91,6 +91,20 @@ input.vol::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;b
 .sz.on{background:var(--bl)}
 .sdot{background:#fff;border-radius:50%}
 
+/* SHAPE PANEL */
+.spanel{position:absolute;bottom:48px;left:8px;background:var(--cd);border:1px solid var(--br);
+  border-radius:12px;padding:8px;display:none;flex-wrap:wrap;gap:4px;z-index:60;width:190px}
+.spanel.on{display:flex}
+.shb{width:38px;height:38px;background:var(--br);border:none;border-radius:7px;color:#fff;
+  cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:.12s}
+.shb:hover,.shb.on{background:var(--bl)}
+/* IMAGE PREVIEW */
+#imgPrev{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;display:none;
+  align-items:center;justify-content:center;flex-direction:column;gap:10px}
+#imgPrev.on{display:flex}
+#imgPrev img{max-width:92vw;max-height:72vh;border-radius:10px;border:2px solid var(--br)}
+#imgPrev .iclose{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;
+  background:var(--br);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 /* STATUS */
 .sbar{height:24px;background:var(--cd);border-top:1px solid var(--br);
   padding:0 10px;display:flex;align-items:center;justify-content:space-between;
@@ -200,11 +214,23 @@ input.vol::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;b
     </div>
   </div>
 
-  <div class="tbar">
+  <div class="tbar" style="position:relative">
     <div class="tg">
       <button class="tb on" id="bpen" onclick="setTool('pen')"><i class="fas fa-pencil-alt"></i></button>
       <button class="tb" id="bera" onclick="setTool('eraser')"><i class="fas fa-eraser"></i></button>
+      <button class="tb" id="bshp" onclick="toggleSP()" title="أشكال"><i class="fas fa-shapes"></i></button>
+      <button class="tb" onclick="triggerImgUpload()" title="رفع صورة للتعليق"><i class="fas fa-image"></i></button>
     </div>
+    <!-- SHAPE PANEL -->
+    <div class="spanel" id="spanel">
+      <button class="shb" data-s="line"     onclick="pickShape(this)" title="خط"><i class="fas fa-minus"></i></button>
+      <button class="shb" data-s="arrow"    onclick="pickShape(this)" title="سهم"><i class="fas fa-long-arrow-alt-left"></i></button>
+      <button class="shb" data-s="rect"     onclick="pickShape(this)" title="مستطيل"><i class="far fa-square"></i></button>
+      <button class="shb" data-s="circle"   onclick="pickShape(this)" title="دائرة"><i class="far fa-circle"></i></button>
+      <button class="shb" data-s="triangle" onclick="pickShape(this)" title="مثلث"><i class="fas fa-caret-up" style="font-size:16px"></i></button>
+      <button class="shb" data-s="star"     onclick="pickShape(this)" title="نجمة"><i class="fas fa-star"></i></button>
+    </div>
+    <input type="file" id="imgFile" accept="image/*" style="display:none" onchange="loadImg(this)">
     <div class="tsep"></div>
     <div class="clrs">
       <div class="cl on" style="background:#111" data-c="#111" onclick="setClr(this)"></div>
@@ -230,6 +256,14 @@ input.vol::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;b
   </div>
 </div>
 
+<div id="imgPrev">
+  <button class="iclose" onclick="closeImgPrev()"><i class="fas fa-times"></i></button>
+  <img id="imgPrevImg" src="" alt="">
+  <button onclick="stampImgToBoard()" style="padding:9px 22px;background:var(--bl);border:none;
+    border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif">
+    <i class="fas fa-stamp"></i> إضافة للسبورة
+  </button>
+</div>
 <div id="endOverlay">
   <div class="end-icon" id="endIcon">👋</div>
   <div class="end-title" id="endTitle">انتهت الحصة</div>
@@ -350,11 +384,10 @@ function getP(e, cv) {
 function applyStroke(ctx, cv, d) {
   if (!d || !d.b || !d.b.length) return;
   const W = cv.width, H = cv.height;
-  const myDev = detectDevice();
-  const scale = (d.dv === 'm' && myDev === 'd') ? 0.55
-               :(d.dv === 'd' && myDev === 'm') ? 1.4
-               : 1.0;
-  const lw = Math.max(0.5 * DPR, d.w * 1000 * DPR * scale);
+  // Use diagonal-based scaling: sender stored w = sz/diag(sender)
+  // We multiply by diag(receiver) to get pixel width on this device
+  const receiverDiag = Math.sqrt(W*W + H*H);
+  const lw = Math.max(0.8 * DPR, d.w * receiverDiag);
 
   ctx.save();
   if (d.t === 'e') {
@@ -495,8 +528,9 @@ function drawFromUrl(cv, ctx, url, cb) {
 // ═══════════════════════════════════════════════════════════
 let batch = [], bTO = null, drawn = false;
 let prevX = 0, prevY = 0;
-let strokeSnap = null;  // snapshot at stroke start for clean redraws
-let curPts = [];        // points of current stroke
+let strokeSnap = null;
+let curPts = [];
+let shapeSnap = null, shapeStart = {x:0,y:0};
 
 function bindDraw() {
   if (drawn) return; drawn = true;
@@ -519,14 +553,19 @@ function detectDevice() {
   const w   = window.screen.width, h = window.screen.height;
   return (dpr >= 2 || Math.min(w,h) < 600) ? 'm' : 'd';
 }
-function diagFrac() { return dSz / 1000; } // CSS-pt / fixed-ref = device-independent
+// Use fixed reference diagonal (1000px) so same visual thickness on all devices
+function diagFrac() { return dSz / diag(SC); } // normalize to actual canvas diagonal
 
 function startD(e) {
   e.preventDefault();
   drawing = true; curPts = [];
   const p = getP(e, SC);
   prevX = p.x; prevY = p.y;
-  // Snapshot before stroke starts — used for clean single-path redraws
+  if (dTool === 'shape') {
+    shapeStart = {x:p.x, y:p.y}; shapeSnap = null;
+    try { shapeSnap = Sc.getImageData(0,0,SC.width,SC.height); } catch(er){}
+    return;
+  }
   strokeSnap = null;
   try { strokeSnap = Sc.getImageData(0, 0, SC.width, SC.height); } catch(e){}
   curPts.push({x:p.x, y:p.y});
@@ -539,8 +578,13 @@ function moveD(e) {
   const p = getP(e, SC);
   if (Math.hypot(p.x - prevX, p.y - prevY) < 0.5) return;
 
+  if (dTool === 'shape' && shapeSnap) {
+    try { Sc.putImageData(shapeSnap, 0, 0); } catch(er){}
+    drawShape(Sc, dShape, shapeStart.x, shapeStart.y, p.x, p.y, dClr, physSz());
+    prevX = p.x; prevY = p.y; return;
+  }
+
   curPts.push({x:p.x, y:p.y});
-  // Restore snapshot then redraw full stroke as one path → no segment fading
   if (strokeSnap) try { Sc.putImageData(strokeSnap, 0, 0); } catch(e){}
   drawFullStroke(Sc, curPts, dTool, dClr, physSz());
 
@@ -551,7 +595,9 @@ function moveD(e) {
 function endD() {
   if (!drawing) return;
   drawing = false;
-  // Draw final stroke one last time so canvas is fully committed
+  if (dTool === 'shape') {
+    shapeSnap = null; flushBatch(true); saveStudentSnap(); return;
+  }
   if (strokeSnap && curPts.length) {
     try { Sc.putImageData(strokeSnap, 0, 0); } catch(e){}
     drawFullStroke(Sc, curPts, dTool, dClr, physSz());
@@ -627,11 +673,95 @@ function flushBatch(final) {
 // ═══════════════════════════════════════════════════════════
 //  TOOL CONTROLS
 // ═══════════════════════════════════════════════════════════
+let dShape = null;
+
 function setTool(t) {
-  dTool = t;
+  dTool = t; dShape = null;
   document.getElementById('bpen').classList.toggle('on', t === 'pen');
   document.getElementById('bera').classList.toggle('on', t === 'eraser');
+  document.getElementById('bshp').classList.remove('on');
+  document.getElementById('spanel').classList.remove('on');
 }
+function toggleSP() { document.getElementById('spanel').classList.toggle('on'); }
+function pickShape(btn) {
+  dShape = btn.dataset.s;
+  dTool = 'shape';
+  document.getElementById('bpen').classList.remove('on');
+  document.getElementById('bera').classList.remove('on');
+  document.getElementById('bshp').classList.add('on');
+  document.querySelectorAll('.shb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('spanel').classList.remove('on');
+}
+function drawShape(ctx, s, x1, y1, x2, y2, col, lw) {
+  if (!s) return;
+  ctx.save(); ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=lw;
+  ctx.lineCap='round'; ctx.lineJoin='round'; ctx.globalCompositeOperation='source-over';
+  const w=x2-x1, h=y2-y1;
+  ctx.beginPath();
+  switch(s) {
+    case 'line': ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); break;
+    case 'arrow': {
+      const a=Math.atan2(y2-y1,x2-x1), hl=16*DPR;
+      ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x2,y2);
+      ctx.lineTo(x2-hl*Math.cos(a-.4),y2-hl*Math.sin(a-.4));
+      ctx.lineTo(x2-hl*Math.cos(a+.4),y2-hl*Math.sin(a+.4));
+      ctx.closePath(); ctx.fill(); break; }
+    case 'rect': ctx.strokeRect(x1,y1,w,h); break;
+    case 'circle': {
+      const rx=Math.abs(w)/2, ry=Math.abs(h)/2;
+      ctx.ellipse(x1+w/2,y1+h/2,rx,ry,0,0,Math.PI*2); ctx.stroke(); break; }
+    case 'triangle':
+      ctx.moveTo(x1+w/2,y1); ctx.lineTo(x2,y2); ctx.lineTo(x1,y2); ctx.closePath(); ctx.stroke(); break;
+    case 'star': {
+      const cx=(x1+x2)/2, cy=(y1+y2)/2, or=Math.min(Math.abs(w),Math.abs(h))/2, ir=or*.4;
+      for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,r=i%2?ir:or;
+        i?ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}
+      ctx.closePath(); ctx.stroke(); break; }
+  }
+  ctx.restore();
+}
+
+// (shape support is built into startD/moveD/endD above)
+
+// ═══════════════════════════════════════════════════════════
+//  IMAGE UPLOAD
+// ═══════════════════════════════════════════════════════════
+let pendingImg = null;
+function triggerImgUpload() { document.getElementById('imgFile').click(); }
+function loadImg(inp) {
+  if (!inp.files.length) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingImg = e.target.result;
+    document.getElementById('imgPrevImg').src = pendingImg;
+    document.getElementById('imgPrev').classList.add('on');
+  };
+  reader.readAsDataURL(inp.files[0]);
+  inp.value = '';
+}
+function closeImgPrev() {
+  document.getElementById('imgPrev').classList.remove('on');
+  pendingImg = null;
+}
+function stampImgToBoard() {
+  if (!pendingImg || !SC.width) return;
+  const img = new Image();
+  img.onload = () => {
+    // Scale image to fit board nicely (max 80% of board)
+    const maxW = SC.width * 0.8, maxH = SC.height * 0.8;
+    let w = img.width, h = img.height;
+    const scale = Math.min(maxW/w, maxH/h, 1);
+    w *= scale; h *= scale;
+    const x = (SC.width - w) / 2, y = (SC.height - h) / 2;
+    Sc.drawImage(img, x, y, w, h);
+    saveStudentSnap(); flushBatch(true);
+  };
+  img.src = pendingImg;
+  closeImgPrev();
+}
+
 function setClr(el) {
   dClr = el.dataset.c;
   document.querySelectorAll('.cl').forEach(c => c.classList.remove('on'));
