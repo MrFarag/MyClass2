@@ -57,7 +57,7 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
 /* BOARD */
 .content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 .bwrap{flex:1;background:#fff;position:relative;overflow:hidden;min-height:0}
-#mc{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;display:block}
+#mc{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;display:block;background:#fff}
 .blbl{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.58);color:#fff;
   padding:3px 10px;border-radius:12px;font-size:11px;pointer-events:none;z-index:5}
 /* TOOLBAR */
@@ -188,6 +188,7 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
           <button class="tb" id="undoBtn" onclick="doUndo()" title="تراجع" disabled><i class="fas fa-undo"></i></button>
           <button class="tb" id="redoBtn" onclick="doRedo()" title="إعادة" disabled><i class="fas fa-redo"></i></button>
           <button class="tb savebtn" onclick="saveImg()" title="حفظ صورة"><i class="fas fa-download"></i></button>
+          <button class="tb" onclick="triggerImgUpload()" title="رفع صورة للتعليق"><i class="fas fa-image" style="color:#a855f7"></i></button>
           <button class="tb danger"  onclick="clearBoard()" title="مسح"><i class="fas fa-trash"></i></button>
         </div>
         <div class="tmicw">
@@ -213,6 +214,18 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
     <span>⚡ <span id="lat">--</span>ms</span>
     <span id="viewlbl" style="color:var(--bl)"></span>
   </div>
+</div>
+<input type="file" id="imgFile" accept="image/*" style="display:none" onchange="loadImg(this)">
+<div id="imgPrev" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;
+  align-items:center;justify-content:center;flex-direction:column;gap:10px">
+  <button onclick="closeImgPrev()" style="position:absolute;top:14px;right:14px;width:36px;height:36px;
+    border-radius:50%;background:var(--br);border:none;color:#fff;font-size:16px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center"><i class="fas fa-times"></i></button>
+  <img id="imgPrevImg" src="" alt="" style="max-width:85vw;max-height:70vh;border-radius:10px;border:2px solid var(--br)">
+  <button onclick="stampImgToBoard()" style="padding:9px 22px;background:var(--bl);border:none;
+    border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif">
+    <i class="fas fa-stamp"></i> إضافة للسبورة
+  </button>
 </div>
 <div id="txtdlg">
   <div class="tcard">
@@ -269,12 +282,12 @@ setTimeout(fitCV,0);
 const IS_MOBILE=(DPR>=2||Math.min(screen.width,screen.height)<600);
 
 /* ═══ WIDTH NORMALIZATION ════════════════════════════════════════════════ */
-/* Sender stores: w = penSizePt / 1000  (device-independent)               */
-/* Receiver:  lw_phys = w * 1000 * DPR_recv * deviceScale                  */
-function wFrac(sz){ return sz/1000; }
+/* Sender stores: w = penSizePt / diag(canvas)  (device-independent)        */
+/* Receiver:  lw_phys = w * diag(recv_canvas)                               */
+function wFrac(sz){ return sz/Math.sqrt(CV.width*CV.width+CV.height*CV.height); }
 function lwRecv(w, senderMobile){
-  const scale=(senderMobile&&!IS_MOBILE)?0.65:(!senderMobile&&IS_MOBILE)?1.35:1.0;
-  return Math.max(0.5*DPR, w*1000*DPR*scale);
+  const recvDiag=Math.sqrt(CV.width*CV.width+CV.height*CV.height);
+  return Math.max(0.8*DPR, w*recvDiag);
 }
 
 /* ═══ COORDS ══════════════════════════════════════════════════════════════ */
@@ -454,10 +467,11 @@ function endD(e){
 function drawPts(ctx, pts, tool, clr, lw){
   if(!pts.length) return;
   ctx.save();
+  ctx.globalCompositeOperation='source-over';
   if(tool==='eraser'){
-    ctx.globalCompositeOperation='destination-out'; ctx.lineWidth=lw*4;
+    ctx.strokeStyle='#ffffff'; ctx.lineWidth=lw*4;
   } else {
-    ctx.globalCompositeOperation='source-over'; ctx.strokeStyle=clr; ctx.lineWidth=lw;
+    ctx.strokeStyle=clr; ctx.lineWidth=lw;
   }
   ctx.lineCap='round'; ctx.lineJoin='round';
   ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
@@ -495,8 +509,9 @@ function applyStroke(ctx,cv,d){
   const W=cv.width,H=cv.height;
   const lw=lwRecv(d.w,d.m===1);
   ctx.save();
-  if(d.t==='e'){ctx.globalCompositeOperation='destination-out';ctx.lineWidth=lw*3;}
-  else{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=d.c;ctx.lineWidth=lw;}
+  ctx.globalCompositeOperation='source-over';
+  if(d.t==='e'){ctx.strokeStyle='#ffffff';ctx.lineWidth=lw*3;}
+  else{ctx.strokeStyle=d.c;ctx.lineWidth=lw;}
   ctx.lineCap='round';ctx.lineJoin='round';
   // Single continuous path — no per-segment stroke (prevents fading/thinning)
   ctx.beginPath();
@@ -799,6 +814,43 @@ function b64Blob(du){
   for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return new Blob([u],{type:m});
 }
 
+/* ═══ IMAGE UPLOAD ════════════════════════════════════════════════════════ */
+let pendingImg = null;
+function triggerImgUpload() { document.getElementById('imgFile').click(); }
+function loadImg(inp) {
+  if (!inp.files.length) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingImg = e.target.result;
+    document.getElementById('imgPrevImg').src = pendingImg;
+    const pv = document.getElementById('imgPrev');
+    pv.style.display = 'flex';
+  };
+  reader.readAsDataURL(inp.files[0]);
+  inp.value = '';
+}
+function closeImgPrev() {
+  document.getElementById('imgPrev').style.display = 'none';
+  pendingImg = null;
+}
+function stampImgToBoard() {
+  if (!pendingImg || !CV.width) return;
+  const img = new Image();
+  img.onload = () => {
+    histPush();
+    const maxW = CV.width * 0.8, maxH = CV.height * 0.8;
+    let w = img.width, h = img.height;
+    const scale = Math.min(maxW/w, maxH/h, 1);
+    w *= scale; h *= scale;
+    const x = (CV.width - w) / 2, y = (CV.height - h) / 2;
+    CX.drawImage(img, x, y, w, h);
+    saveSnap(); sendSnapshot(true);
+  };
+  img.src = pendingImg;
+  closeImgPrev();
+}
+
+/* ═══ SESSION END ══════════════════════════════════════════════════════════ */
 function endSession(){
   if(!confirm('إنهاء الجلسة كاملةً وطرد جميع الطلاب؟')) return;
   // Step 1: notify students — they must receive this BEFORE data is deleted
