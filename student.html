@@ -289,10 +289,6 @@ const tAP = document.getElementById('tAP');
 // ═══════════════════════════════════════════════════════════
 //  CANVAS SYSTEM — devicePixelRatio-aware, resize-safe
 // ═══════════════════════════════════════════════════════════
-// Each canvas has a "logical" display size (CSS pixels) and
-// a "physical" buffer (logical × dpr) for crispness.
-// We store snapshots as JPEG data-URLs so they survive resize.
-
 const TC = document.getElementById('tc');
 const SC = document.getElementById('sc');
 const Tc = TC.getContext('2d', {alpha: false});
@@ -369,9 +365,6 @@ window.addEventListener('resize', () => {
 // Receiver multiplies by its own diagonal to get pixel width.
 // This ensures identical visual thickness across all screen sizes.
 
-function diag(cv) {
-  return Math.sqrt(cv.width * cv.width + cv.height * cv.height);
-}
 function getP(e, cv) {
   const r  = cv.getBoundingClientRect();
   const cx = e.touches ? e.touches[0].clientX : e.clientX;
@@ -383,23 +376,32 @@ function getP(e, cv) {
   };
 }
 
+// Get canvas diagonal in CSS pixels (not physical)
+function getDiagCSS(cv) {
+  const w = cv.clientWidth || (cv.width / DPR);
+  const h = cv.clientHeight || (cv.height / DPR);
+  return Math.sqrt(w*w + h*h);
+}
+
 // ═══════════════════════════════════════════════════════════
 //  STROKE RENDERING (used for both boards)
 // ═══════════════════════════════════════════════════════════
 function applyStroke(ctx, cv, d) {
   if (!d || !d.b || !d.b.length) return;
   const W = cv.width, H = cv.height;
-  // w = penSz / sender_css_width → lw = w * recv_css_width * DPR
-  const cssW = cv.clientWidth || parseFloat(cv.style.width) || (W/DPR);
-  const lw = Math.max(0.8, d.w * cssW) * DPR;
+  // Receiver's diagonal in CSS pixels
+  const recvDiag = getDiagCSS(cv);
+  // lw = sender's d.w (fraction of sender's diagonal) * recvDiag * DPR
+  // d.w = dSz / senderDiagCSS
+  const lw = Math.max(0.8, (d.w || 0.01) * recvDiag) * DPR;
 
   ctx.save();
   ctx.globalCompositeOperation = 'source-over';
   if (d.t === 'e') {
     ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = lw * 3;
+    ctx.lineWidth = lw * 3; // eraser wider
   } else {
-    ctx.strokeStyle = d.c;
+    ctx.strokeStyle = d.c || '#111';
     ctx.lineWidth   = lw;
   }
   ctx.lineCap  = 'round';
@@ -550,19 +552,19 @@ function bindDraw() {
 
 // Physical stroke size for local drawing
 function physSz() { return Math.max(0.8, dSz) * DPR; }
+
 // Auto-detect device: mobile if DPR>=2 OR small screen
 function detectDevice() {
   const dpr = window.devicePixelRatio || 1;
   const w   = window.screen.width, h = window.screen.height;
   return (dpr >= 2 || Math.min(w,h) < 600) ? 'm' : 'd';
 }
-// Normalize pen size by canvas CSS width (matches teacher's wFrac)
+
+// Normalize pen size by canvas CSS diagonal (matches teacher's wFrac)
 function diagFrac() {
-  const cssW = SC.clientWidth || parseFloat(SC.style.width) || (SC.width/DPR);
-  return dSz / cssW;
+  const diagCSS = getDiagCSS(SC);
+  return dSz / diagCSS;
 }
-// Physical stroke size for local drawing
-function physSz() { return Math.max(0.8, dSz) * DPR; }
 
 function startD(e) {
   e.preventDefault();
@@ -570,6 +572,7 @@ function startD(e) {
   const p = getP(e, SC);
   prevX = p.x; prevY = p.y;
   if (dTool === 'shape') {
+    if (!dShape) dShape = 'line'; // default shape
     shapeStart = {x:p.x, y:p.y}; shapeSnap = null;
     try { shapeSnap = Sc.getImageData(0,0,SC.width,SC.height); } catch(er){}
     return;
@@ -732,8 +735,6 @@ function drawShape(ctx, s, x1, y1, x2, y2, col, lw) {
   ctx.restore();
 }
 
-// (shape support is built into startD/moveD/endD above)
-
 // ═══════════════════════════════════════════════════════════
 //  IMAGE UPLOAD
 // ═══════════════════════════════════════════════════════════
@@ -846,6 +847,8 @@ function stopSpeak() {
   setMicUI('', 'fa-microphone-slash', 'اضغط للتحدث');
   db.ref('stuAudio').remove();
   db.ref('micPermissions/' + sid).remove();
+  // Also remove any pending request
+  db.ref('micRequests/' + sid).remove();
 }
 
 function setMicUI(state, ico, lbl) {
