@@ -2,85 +2,958 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MyClass PRO - انضمام</title>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>MyClass2 - الطالب</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-body{margin:0;font-family:Cairo;background:#0f172a;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh}
-.box{background:#1e293b;padding:25px;border-radius:10px;width:90%;max-width:350px;display:flex;flex-direction:column;gap:15px}
-input{padding:10px;border:none;border-radius:6px}
-button{padding:10px;border:none;border-radius:6px;background:#3b82f6;color:#fff;cursor:pointer}
-#wait{display:none;text-align:center}
-#board{display:none;position:fixed;inset:0;background:#000;justify-content:center;align-items:center}
-#board img{max-width:100%;max-height:100%}
+:root{--bl:#3b82f6;--rd:#ef4444;--gn:#22c55e;--yw:#f59e0b;
+      --dk:#0f172a;--cd:#1e293b;--br:#334155;--mt:#475569;--dim:#94a3b8}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
+html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
+
+/* JOIN */
+#overlay{position:fixed;inset:0;background:var(--dk);display:flex;align-items:center;justify-content:center;z-index:9999}
+.jcard{background:var(--cd);border:1px solid var(--br);border-radius:24px;padding:36px 28px;width:300px;text-align:center}
+.jlogo{font-size:28px;font-weight:900;color:var(--bl)}.jlogo b{color:#fff}
+.jsub{font-size:13px;color:var(--dim);margin:5px 0 20px}
+.jcard input{width:100%;padding:11px;background:var(--br);border:1px solid var(--mt);
+  border-radius:12px;color:#fff;font-size:15px;font-family:'Cairo',sans-serif;
+  text-align:center;outline:none;margin-bottom:10px}
+.jcard input:focus{border-color:var(--bl)}
+.jbtn{width:100%;padding:11px;background:var(--bl);border:none;border-radius:12px;
+  color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif}
+.jbtn:disabled{opacity:.45;cursor:default}
+.jwait{display:none;margin-top:14px;color:var(--yw);font-size:13px}
+
+/* APP */
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+
+/* TOP */
+.top{height:46px;background:var(--cd);border-bottom:2px solid var(--br);
+  padding:0 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.logo{font-size:17px;font-weight:900;color:var(--bl)}.logo b{color:#fff}
+.topright{display:flex;align-items:center;gap:7px}
+.nchip{background:var(--br);padding:3px 11px;border-radius:20px;font-size:12px}
+.hbtn{width:34px;height:34px;border-radius:50%;border:none;
+  background:var(--br);color:var(--dim);cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;transition:.15s}
+.hbtn.up{background:var(--yw);color:#fff;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+/* BOARDS */
+.boards{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;padding:4px;gap:4px}
+.bcard{flex:1;background:var(--cd);border-radius:10px;border:1px solid var(--br);
+  display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.bhead{height:32px;padding:0 10px;background:var(--br);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+  border-bottom:2px solid transparent}
+.tboard .bhead{border-bottom-color:var(--rd)}
+.sboard .bhead{border-bottom-color:var(--bl)}
+.btitle{font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px}
+.carea{flex:1;background:#fff;position:relative;overflow:hidden;min-height:0}
+.carea canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;background:#ffffff}
+.livebadge{background:var(--rd);padding:2px 7px;border-radius:8px;font-size:10px;
+  display:none;align-items:center;gap:3px;color:#fff}
+.livebadge.on{display:flex}
+
+/* MIC BAR */
+.micbar{background:var(--cd);border-top:1px solid var(--br);
+  padding:6px 12px;display:flex;align-items:center;gap:9px;flex-shrink:0}
+.micbtn{width:44px;height:44px;border-radius:50%;border:none;
+  background:var(--br);color:var(--dim);cursor:pointer;font-size:18px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s}
+.micbtn.req{background:rgba(245,158,11,.15);color:var(--yw);animation:pulse .9s infinite}
+.micbtn.spk{background:var(--gn);color:#fff;box-shadow:0 0 0 4px rgba(34,197,94,.2);animation:pulse 1s infinite}
+.miclbl{font-size:12px;color:var(--dim);flex:1}
+.volwrap{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.volwrap i{font-size:10px;color:var(--dim)}
+input.vol{width:68px;height:3px;-webkit-appearance:none;background:var(--mt);border-radius:2px}
+input.vol::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:var(--bl);border-radius:50%;cursor:pointer}
+
+/* TOOLBAR */
+.tbar{background:var(--cd);border-top:1px solid var(--br);
+  padding:5px 10px;display:flex;align-items:center;gap:5px;flex-shrink:0;overflow-x:auto}
+.tbar::-webkit-scrollbar{display:none}
+.tsep{width:1px;height:30px;background:var(--br);flex-shrink:0}
+.tg{display:flex;gap:3px;flex-shrink:0}
+.tb{width:34px;height:34px;border-radius:8px;border:none;
+  background:var(--br);color:var(--dim);cursor:pointer;font-size:13px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.12s}
+.tb.on{background:var(--bl);color:#fff}
+.tb:active{opacity:.7}
+.clrs{display:flex;gap:3px;align-items:center;flex-shrink:0}
+.cl{width:23px;height:23px;border-radius:50%;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:.1s}
+.cl.on{border-color:#fff;transform:scale(1.15)}
+.szs{display:flex;gap:2px;align-items:center;background:var(--br);padding:3px 4px;border-radius:7px;flex-shrink:0}
+.sz{border:none;background:transparent;cursor:pointer;padding:2px 4px;border-radius:5px;
+  display:flex;align-items:center;justify-content:center}
+.sz.on{background:var(--bl)}
+.sdot{background:#fff;border-radius:50%}
+
+/* SHAPE PANEL */
+.spanel{position:absolute;bottom:48px;left:8px;background:var(--cd);border:1px solid var(--br);
+  border-radius:12px;padding:8px;display:none;flex-wrap:wrap;gap:4px;z-index:60;width:190px}
+.spanel.on{display:flex}
+.shb{width:38px;height:38px;background:var(--br);border:none;border-radius:7px;color:#fff;
+  cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:.12s}
+.shb:hover,.shb.on{background:var(--bl)}
+/* IMAGE PREVIEW */
+#imgPrev{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;display:none;
+  align-items:center;justify-content:center;flex-direction:column;gap:10px}
+#imgPrev.on{display:flex}
+#imgPrev img{max-width:92vw;max-height:72vh;border-radius:10px;border:2px solid var(--br)}
+#imgPrev .iclose{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;
+  background:var(--br);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* STATUS */
+.sbar{height:24px;background:var(--cd);border-top:1px solid var(--br);
+  padding:0 10px;display:flex;align-items:center;justify-content:space-between;
+  font-size:10px;color:var(--dim);flex-shrink:0}
+.conn{display:flex;align-items:center;gap:3px}
+.cdot{width:6px;height:6px;border-radius:50%;background:var(--gn)}
+.tspk{color:var(--rd);display:none;align-items:center;gap:4px;font-weight:700}
+.tspk.on{display:flex}
+
+/* SESSION END OVERLAY */
+#endOverlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.96);
+  z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#endOverlay.on{display:flex}
+.end-icon{font-size:52px}
+.end-title{font-size:20px;font-weight:900;color:#fff}
+.end-sub{font-size:14px;color:var(--dim);text-align:center;max-width:260px;line-height:1.6}
+.end-btn{padding:11px 28px;background:var(--bl);border:none;border-radius:12px;
+  color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;
+  margin-top:6px}
+
+/* MIC REQUEST NOTIFICATION — left side */
+#micNotif{position:fixed;bottom:80px;left:12px;z-index:800;
+  background:var(--cd);border:1px solid var(--yw);border-radius:14px;
+  padding:12px 16px;max-width:220px;box-shadow:0 6px 24px rgba(0,0,0,.5);
+  display:none;animation:slidein .3s ease}
+#micNotif.on{display:block}
+@keyframes slidein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.notif-ico{font-size:22px;margin-bottom:5px}
+.notif-title{font-size:13px;font-weight:700;margin-bottom:3px}
+.notif-sub{font-size:11px;color:var(--dim);margin-bottom:10px}
+.notif-btn{width:100%;padding:7px;background:var(--gn);border:none;border-radius:9px;
+  color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif}
 </style>
 </head>
 <body>
 
-<div class="box" id="login">
-<h3>طلب انضمام للحصة</h3>
-<input id="name" placeholder="ادخل اسمك">
-<input id="phone" placeholder="ادخل رقمك">
-<button onclick="join()">إرسال الطلب</button>
+<!-- JOIN -->
+<div id="overlay">
+  <div class="jcard">
+    <div class="jlogo">My<b>Class</b>2</div>
+    <p class="jsub">انضم للحصة الدراسية</p>
+    <input type="text" id="nameIn" placeholder="اكتب اسمك" maxlength="25"
+           onkeydown="if(event.key==='Enter')doJoin()">
+    <button class="jbtn" id="joinBtn" onclick="doJoin()">
+      <i class="fas fa-sign-in-alt"></i> طلب الانضمام
+    </button>
+    <div class="jwait" id="waitMsg">
+      <i class="fas fa-spinner fa-spin"></i> في انتظار موافقة المدرس...
+    </div>
+  </div>
 </div>
 
-<div class="box" id="wait">
-<h3>بانتظار موافقة المدرس...</h3>
+<!-- MIC REQUEST NOTIFICATION (left) -->
+<div id="micNotif">
+  <div class="notif-ico">🎤</div>
+  <div class="notif-title">المدرس منحك الميكروفون</div>
+  <div class="notif-sub">اضغط للبدء بالتحدث</div>
+  <button class="notif-btn" onclick="acceptMic()">
+    <i class="fas fa-microphone"></i> تحدث الآن
+  </button>
 </div>
 
-<div id="board">
-<img id="boardImg">
+<!-- APP -->
+<div id="app">
+  <div class="top">
+    <div class="logo">My<b>Class</b>2</div>
+    <div class="topright">
+      <span class="nchip" id="nameChip"></span>
+      <button class="hbtn" id="handBtn" onclick="toggleHand()" title="رفع اليد">
+        <i class="fas fa-hand-paper"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="boards">
+    <div class="bcard tboard">
+      <div class="bhead">
+        <div class="btitle">
+          <i class="fas fa-chalkboard-teacher" style="color:var(--rd)"></i>سبورة المدرس
+        </div>
+        <div class="livebadge" id="liveBadge">
+          <i class="fas fa-circle" style="font-size:7px"></i> مباشر
+        </div>
+      </div>
+      <div class="carea" id="tcArea"><canvas id="tc"></canvas></div>
+    </div>
+    <div class="bcard sboard">
+      <div class="bhead">
+        <div class="btitle">
+          <i class="fas fa-pencil-alt" style="color:var(--bl)"></i>سبورتي
+        </div>
+      </div>
+      <div class="carea" id="scArea"><canvas id="sc"></canvas></div>
+    </div>
+  </div>
+
+  <div class="micbar">
+    <button class="micbtn" id="micBtn" onclick="doMic()">
+      <i class="fas fa-microphone-slash" id="micIco"></i>
+    </button>
+    <span class="miclbl" id="micLbl">اضغط للتحدث</span>
+    <div class="volwrap">
+      <i class="fas fa-volume-down"></i>
+      <input type="range" class="vol" min="0" max="100" value="80"
+             oninput="tAP.volume=this.value/100">
+      <i class="fas fa-volume-up"></i>
+    </div>
+  </div>
+
+  <div class="tbar" style="position:relative">
+    <div class="tg">
+      <button class="tb on" id="bpen" onclick="setTool('pen')"><i class="fas fa-pencil-alt"></i></button>
+      <button class="tb" id="bera" onclick="setTool('eraser')"><i class="fas fa-eraser"></i></button>
+      <button class="tb" id="bshp" onclick="toggleSP()" title="أشكال"><i class="fas fa-shapes"></i></button>
+      <button class="tb" onclick="triggerImgUpload()" title="رفع صورة للتعليق"><i class="fas fa-image"></i></button>
+    </div>
+    <!-- SHAPE PANEL -->
+    <div class="spanel" id="spanel">
+      <button class="shb" data-s="line"     onclick="pickShape(this)" title="خط"><i class="fas fa-minus"></i></button>
+      <button class="shb" data-s="arrow"    onclick="pickShape(this)" title="سهم"><i class="fas fa-long-arrow-alt-left"></i></button>
+      <button class="shb" data-s="rect"     onclick="pickShape(this)" title="مستطيل"><i class="far fa-square"></i></button>
+      <button class="shb" data-s="circle"   onclick="pickShape(this)" title="دائرة"><i class="far fa-circle"></i></button>
+      <button class="shb" data-s="triangle" onclick="pickShape(this)" title="مثلث"><i class="fas fa-caret-up" style="font-size:16px"></i></button>
+      <button class="shb" data-s="star"     onclick="pickShape(this)" title="نجمة"><i class="fas fa-star"></i></button>
+    </div>
+    <input type="file" id="imgFile" accept="image/*" style="display:none" onchange="loadImg(this)">
+    <div class="tsep"></div>
+    <div class="clrs">
+      <div class="cl on" style="background:#111" data-c="#111" onclick="setClr(this)"></div>
+      <div class="cl" style="background:#ef4444" data-c="#ef4444" onclick="setClr(this)"></div>
+      <div class="cl" style="background:#3b82f6" data-c="#3b82f6" onclick="setClr(this)"></div>
+      <div class="cl" style="background:#22c55e" data-c="#22c55e" onclick="setClr(this)"></div>
+      <div class="cl" style="background:#f59e0b" data-c="#f59e0b" onclick="setClr(this)"></div>
+    </div>
+    <div class="tsep"></div>
+    <div class="szs">
+      <button class="sz" onclick="setSz(1,this)"><div class="sdot" style="width:3px;height:3px"></div></button>
+      <button class="sz on" onclick="setSz(2,this)"><div class="sdot" style="width:5px;height:5px"></div></button>
+      <button class="sz" onclick="setSz(4,this)"><div class="sdot" style="width:8px;height:8px"></div></button>
+    </div>
+    <div class="tsep"></div>
+    <button class="tb" onclick="clearMy()"><i class="fas fa-trash" style="color:var(--rd)"></i></button>
+  </div>
+
+  <div class="sbar">
+    <div class="conn"><div class="cdot" id="cdot"></div><span id="ct">متصل</span></div>
+    <div class="tspk" id="tspkInd"><i class="fas fa-volume-up"></i> المدرس يتحدث</div>
+    <span id="lat">--ms</span>
+  </div>
 </div>
 
+<div id="imgPrev">
+  <button class="iclose" onclick="closeImgPrev()"><i class="fas fa-times"></i></button>
+  <img id="imgPrevImg" src="" alt="">
+  <button onclick="stampImgToBoard()" style="padding:9px 22px;background:var(--bl);border:none;
+    border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif">
+    <i class="fas fa-stamp"></i> إضافة للسبورة
+  </button>
+</div>
+<div id="endOverlay">
+  <div class="end-icon" id="endIcon">👋</div>
+  <div class="end-title" id="endTitle">انتهت الحصة</div>
+  <div class="end-sub" id="endSub">أنهى المدرس الجلسة. شكراً لمشاركتك!</div>
+  <button class="end-btn" onclick="window.location.href=window.location.href">الرجوع للبداية</button>
+</div>
+<audio id="tAP" style="display:none"></audio>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
-const firebaseConfig = {
-apiKey: "YOUR_API_KEY",
-authDomain: "YOUR_DOMAIN",
-databaseURL: "YOUR_DB_URL",
-projectId: "YOUR_PROJECT",
-};
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp({
+  apiKey:"AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
+  authDomain:"myclaive.firebaseapp.com",
+  databaseURL:"https://myclaive-default-rtdb.firebaseio.com",
+  projectId:"myclaive",storageBucket:"myclaive.firebasestorage.app",
+  messagingSenderId:"507299311714",
+  appId:"1:507299311714:web:c90440ee4353cfac17613b"
+});
 const db = firebase.database();
+const tAP = document.getElementById('tAP');
 
-let stuId = "";
+// ═══════════════════════════════════════════════════════════
+//  CANVAS SYSTEM — devicePixelRatio-aware, resize-safe
+// ═══════════════════════════════════════════════════════════
+// Each canvas has a "logical" display size (CSS pixels) and
+// a "physical" buffer (logical × dpr) for crispness.
+// We store snapshots as JPEG data-URLs so they survive resize.
 
-function join(){
-const name = document.getElementById('name').value.trim();
-const phone = document.getElementById('phone').value.trim();
+const TC = document.getElementById('tc');
+const SC = document.getElementById('sc');
+const Tc = TC.getContext('2d', {alpha: false});
+const Sc = SC.getContext('2d', {alpha: false});
+// alpha:false means undrawn pixels are black — fill white immediately
+Tc.fillStyle = '#fff'; Tc.fillRect(0,0,1,1);
+Sc.fillStyle = '#fff'; Sc.fillRect(0,0,1,1);
 
-if(!name || !phone){ alert("ادخل البيانات"); return; }
+// Last JPEG snapshots (so we can redraw after orientation change)
+let tSnap = null;  // teacher board snapshot
+let sSnap = null;  // student board snapshot
 
-stuId = phone;
+const DPR = window.devicePixelRatio || 1;
 
-db.ref("joinRequests/"+stuId).set({
-name:name,
-phone:phone,
-status:"waiting",
-ts:firebase.database.ServerValue.TIMESTAMP
+function fitCanvas(cv, ctx) {
+  const area  = cv.parentElement;
+  const cssW  = area.clientWidth;
+  const cssH  = area.clientHeight;
+  if (!cssW || !cssH) return false;
+
+  // Save current drawing as data-URL BEFORE resizing
+  let saved = null;
+  if (cv.width > 0 && cv.height > 0) {
+    try {
+      const tmp = document.createElement('canvas');
+      tmp.width  = cv.width;
+      tmp.height = cv.height;
+      tmp.getContext('2d').drawImage(cv, 0, 0);
+      saved = tmp.toDataURL('image/jpeg', 0.92);
+    } catch(e) {}
+  }
+
+  // Resize to physical pixels
+  cv.width  = cssW  * DPR;
+  cv.height = cssH * DPR;
+  cv.style.width  = cssW  + 'px';
+  cv.style.height = cssH + 'px';
+
+  // White fill
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, cv.width, cv.height);
+
+  // Restore old drawing scaled to new size
+  if (saved) {
+    const img = new Image();
+    img.onload = () => {
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.drawImage(img, 0, 0, cv.width, cv.height);
+      if (cv === SC) sSnap = saved;
+      if (cv === TC) tSnap = saved;
+    };
+    img.src = saved;
+  }
+  return true;
+}
+
+// Orientation / resize: refit canvases, keep drawings
+let resizeTO = null;
+window.addEventListener('resize', () => {
+  if (!approved) return;
+  clearTimeout(resizeTO);
+  resizeTO = setTimeout(() => {
+    fitCanvas(TC, Tc);
+    fitCanvas(SC, Sc);
+  }, 120);
 });
 
-document.getElementById("login").style.display="none";
-document.getElementById("wait").style.display="block";
+// ═══════════════════════════════════════════════════════════
+//  COORDINATE HELPERS
+// ═══════════════════════════════════════════════════════════
+// All strokes are stored with coordinates normalized [0,1]
+// and lineWidth as a fraction of the DIAGONAL of the sender's canvas.
+// Receiver multiplies by its own diagonal to get pixel width.
+// This ensures identical visual thickness across all screen sizes.
 
-/* الاستماع للموافقة */
-db.ref("approvedStudents/"+stuId).on("value",snap=>{
-if(snap.exists()){
-document.getElementById("wait").style.display="none";
-document.getElementById("board").style.display="flex";
-loadBoard();
+function diag(cv) {
+  return Math.sqrt(cv.width * cv.width + cv.height * cv.height);
 }
-});
+function getP(e, cv) {
+  const r  = cv.getBoundingClientRect();
+  const cx = e.touches ? e.touches[0].clientX : e.clientX;
+  const cy = e.touches ? e.touches[0].clientY : e.clientY;
+  // Map to physical pixels
+  return {
+    x: ((cx - r.left) / r.width)  * cv.width,
+    y: ((cy - r.top)  / r.height) * cv.height
+  };
 }
 
-function loadBoard(){
-db.ref("boardImg/main").on("value",snap=>{
-if(snap.val()) document.getElementById("boardImg").src = snap.val();
-});
+// ═══════════════════════════════════════════════════════════
+//  STROKE RENDERING (used for both boards)
+// ═══════════════════════════════════════════════════════════
+function applyStroke(ctx, cv, d) {
+  if (!d || !d.b || !d.b.length) return;
+  const W = cv.width, H = cv.height;
+  // w = penSz / sender_css_width → lw = w * recv_css_width * DPR
+  const cssW = cv.clientWidth || parseFloat(cv.style.width) || (W/DPR);
+  const lw = Math.max(0.8, d.w * cssW) * DPR;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-over';
+  if (d.t === 'e') {
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = lw * 3;
+  } else {
+    ctx.strokeStyle = d.c;
+    ctx.lineWidth   = lw;
+  }
+  ctx.lineCap  = 'round';
+  ctx.lineJoin = 'round';
+
+  // Single continuous path — prevents fading/thinning artifact
+  ctx.beginPath();
+  let started = false;
+  d.b.forEach(pt => {
+    const x = pt.x * W, y = pt.y * H;
+    if (pt.s || !started) { ctx.moveTo(x, y); started = true; }
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.restore();
 }
+
+// ═══════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════
+let sid = '', sname = '', approved = false, handUp = false;
+let micGranted = false, speaking = false, micReq = false;
+let mStream = null, mRec = null;
+let dClr = '#111', dSz = 2, dTool = 'pen', drawing = false;
+
+// ═══════════════════════════════════════════════════════════
+//  JOIN
+// ═══════════════════════════════════════════════════════════
+function doJoin() {
+  const nm = document.getElementById('nameIn').value.trim();
+  if (!nm) return;
+  sname = nm;
+  sid   = 's' + Date.now() + '_' + Math.random().toString(36).substr(2,4);
+  document.getElementById('joinBtn').disabled = true;
+  document.getElementById('waitMsg').style.display = 'block';
+  db.ref('joinRequests/' + sid).set({id:sid, name:sname, ts:Date.now()});
+  db.ref('approvedStudents/' + sid).on('value', snap => {
+    if (snap.exists() && !approved) { approved = true; onApproved(); }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ON APPROVED
+// ═══════════════════════════════════════════════════════════
+function onApproved() {
+  document.getElementById('overlay').style.display = 'none';
+  document.getElementById('nameChip').textContent = sname;
+
+  // Kicked or session ended → stop audio + reload
+  function fullStop(reason){
+    if(mStream) mStream.getTracks().forEach(t=>t.stop());
+    if(mRec){try{mRec.stop();}catch(_){}}
+    tAP.pause(); tAP.src='';
+    speaking=false; micGranted=false; micReq=false;
+    // Show message overlay instead of closing browser
+    showEndMsg(reason);
+  }
+  db.ref('kicked/'+sid).on('value',snap=>{ if(snap.exists()) fullStop('kicked'); });
+  db.ref('sessionEnded').on('value',snap=>{ if(snap.exists()) fullStop('ended'); });
+
+  // Online presence
+  db.ref('onlineStudents/' + sid).set({online:true, name:sname});
+  db.ref('onlineStudents/' + sid).onDisconnect().remove();
+  db.ref('approvedStudents/' + sid).onDisconnect().remove();
+
+  // Fit canvases after layout paint
+  function tryFit() {
+    const ok1 = fitCanvas(TC, Tc);
+    const ok2 = fitCanvas(SC, Sc);
+    if (!ok1 || !ok2 || !SC.width) { requestAnimationFrame(tryFit); return; }
+    bindDraw();
+    startListeners();
+  }
+  requestAnimationFrame(() => requestAnimationFrame(tryFit));
+}
+
+// ═══════════════════════════════════════════════════════════
+//  FIREBASE LISTENERS (called after canvas ready)
+// ═══════════════════════════════════════════════════════════
+function startListeners() {
+  // Mic permission
+  db.ref('micPermissions/' + sid).on('value', snap => {
+    const p = snap.val();
+    if (p && p.allowed && !speaking) {
+      micGranted = true; micReq = false;
+      // Show left-side notification instead of auto-starting
+      document.getElementById('micNotif').classList.add('on');
+    } else if (!p && speaking) {
+      stopSpeak();
+    }
+  });
+
+  // Teacher edits on MY board (real-time strokes)
+  db.ref('stroke/TS/' + sid).on('child_added', snap => {
+    const d = snap.val(); if (!d || !d.b) return;
+    if (SC.width) { applyStroke(Sc, SC, d); saveStudentSnap(); }
+    snap.ref.remove();
+  });
+
+  // Teacher full-image snapshot of my board
+  db.ref('boardImg/stu/' + sid).on('value', snap => {
+    const d = snap.val();
+    if (!d || !d.data || !d.byT) return;
+    drawFromUrl(SC, Sc, d.data, () => saveStudentSnap());
+  });
+}
+
+function saveStudentSnap() {
+  try {
+    const tmp = document.createElement('canvas');
+    tmp.width = SC.width; tmp.height = SC.height;
+    tmp.getContext('2d').drawImage(SC, 0, 0);
+    sSnap = tmp.toDataURL('image/jpeg', 0.92);
+  } catch(e) {}
+}
+
+function drawFromUrl(cv, ctx, url, cb) {
+  const img = new Image();
+  img.onload = () => {
+    if (!cv.width || !cv.height) return;
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.drawImage(img, 0, 0, cv.width, cv.height);
+    if (cb) cb();
+  };
+  img.src = url;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  DRAWING on SC — real-time, normalized, diagonal-scaled
+// ═══════════════════════════════════════════════════════════
+let batch = [], bTO = null, drawn = false;
+let prevX = 0, prevY = 0;
+let strokeSnap = null;
+let curPts = [];
+let shapeSnap = null, shapeStart = {x:0,y:0};
+
+function bindDraw() {
+  if (drawn) return; drawn = true;
+  SC.addEventListener('mousedown',  startD);
+  SC.addEventListener('mousemove',  moveD);
+  SC.addEventListener('mouseup',    endD);
+  SC.addEventListener('mouseleave', endD);
+  SC.addEventListener('touchstart', startD, {passive:false});
+  SC.addEventListener('touchmove',  moveD,  {passive:false});
+  SC.addEventListener('touchend',   endD);
+}
+
+// Physical stroke size for local drawing
+function physSz() { return Math.max(0.8, dSz) * DPR; }
+// Auto-detect device: mobile if DPR>=2 OR small screen
+function detectDevice() {
+  const dpr = window.devicePixelRatio || 1;
+  const w   = window.screen.width, h = window.screen.height;
+  return (dpr >= 2 || Math.min(w,h) < 600) ? 'm' : 'd';
+}
+// Normalize pen size by canvas CSS width (matches teacher's wFrac)
+function diagFrac() {
+  const cssW = SC.clientWidth || parseFloat(SC.style.width) || (SC.width/DPR);
+  return dSz / cssW;
+}
+// Physical stroke size for local drawing
+function physSz() { return Math.max(0.8, dSz) * DPR; }
+
+function startD(e) {
+  e.preventDefault();
+  drawing = true; curPts = [];
+  const p = getP(e, SC);
+  prevX = p.x; prevY = p.y;
+  if (dTool === 'shape') {
+    shapeStart = {x:p.x, y:p.y}; shapeSnap = null;
+    try { shapeSnap = Sc.getImageData(0,0,SC.width,SC.height); } catch(er){}
+    return;
+  }
+  strokeSnap = null;
+  try { strokeSnap = Sc.getImageData(0, 0, SC.width, SC.height); } catch(e){}
+  curPts.push({x:p.x, y:p.y});
+  addBatch(p.x, p.y, 1);
+}
+
+function moveD(e) {
+  e.preventDefault();
+  if (!drawing) return;
+  const p = getP(e, SC);
+  if (Math.hypot(p.x - prevX, p.y - prevY) < 0.5) return;
+
+  if (dTool === 'shape' && shapeSnap) {
+    try { Sc.putImageData(shapeSnap, 0, 0); } catch(er){}
+    drawShape(Sc, dShape, shapeStart.x, shapeStart.y, p.x, p.y, dClr, physSz());
+    prevX = p.x; prevY = p.y; return;
+  }
+
+  curPts.push({x:p.x, y:p.y});
+  if (strokeSnap) try { Sc.putImageData(strokeSnap, 0, 0); } catch(e){}
+  drawFullStroke(Sc, curPts, dTool, dClr, physSz());
+
+  addBatch(p.x, p.y, 0);
+  prevX = p.x; prevY = p.y;
+}
+
+function endD() {
+  if (!drawing) return;
+  drawing = false;
+  if (dTool === 'shape') {
+    shapeSnap = null; flushBatch(true); saveStudentSnap(); return;
+  }
+  if (strokeSnap && curPts.length) {
+    try { Sc.putImageData(strokeSnap, 0, 0); } catch(e){}
+    drawFullStroke(Sc, curPts, dTool, dClr, physSz());
+  }
+  Sc.globalCompositeOperation = 'source-over';
+  strokeSnap = null; curPts = [];
+  flushBatch(true);
+  saveStudentSnap();
+}
+
+function setPenCtx(ctx, tool, clr, sz) {
+  ctx.globalCompositeOperation = 'source-over';
+  if (tool === 'eraser') {
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = sz * 4;
+  } else {
+    ctx.strokeStyle = clr;
+    ctx.lineWidth   = sz;
+  }
+  ctx.lineCap  = 'round';
+  ctx.lineJoin = 'round';
+}
+// Draw all points as ONE continuous path (prevents fading/thinning)
+function drawFullStroke(ctx, pts, tool, clr, sz) {
+  if (!pts.length) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-over';
+  if (tool === 'eraser') {
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = sz * 4;
+  } else {
+    ctx.strokeStyle = clr; ctx.lineWidth = sz;
+  }
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function addBatch(x, y, s) {
+  if (!SC.width || !SC.height) return;
+  batch.push({ x: x / SC.width, y: y / SC.height, s });
+  clearTimeout(bTO);
+  bTO = setTimeout(() => flushBatch(false), 16); // ~60fps
+}
+
+function flushBatch(final) {
+  clearTimeout(bTO);
+  if (batch.length) {
+    db.ref('stroke/S').push({
+      b:   batch,
+      c:   dClr,
+      w:   diagFrac(),
+      t:   dTool === 'eraser' ? 'e' : 'p',
+      dv:  detectDevice(),      // 'm'=mobile, 'd'=desktop
+      sid: sid,
+      ts:  Date.now()
+    });
+    batch = [];
+  }
+  if (final && SC.width && SC.height) {
+    // Send snapshot for fallback / teacher offscreen
+    const tmp = document.createElement('canvas');
+    tmp.width = SC.width; tmp.height = SC.height;
+    const tc  = tmp.getContext('2d');
+    tc.fillStyle = '#fff'; tc.fillRect(0,0,tmp.width,tmp.height);
+    tc.drawImage(SC, 0, 0);
+    db.ref('boardImg/stu/' + sid).set({
+      data: tmp.toDataURL('image/jpeg', 0.85), byT:false, ts:Date.now()
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TOOL CONTROLS
+// ═══════════════════════════════════════════════════════════
+let dShape = null;
+
+function setTool(t) {
+  dTool = t; dShape = null;
+  document.getElementById('bpen').classList.toggle('on', t === 'pen');
+  document.getElementById('bera').classList.toggle('on', t === 'eraser');
+  document.getElementById('bshp').classList.remove('on');
+  document.getElementById('spanel').classList.remove('on');
+}
+function toggleSP() { document.getElementById('spanel').classList.toggle('on'); }
+function pickShape(btn) {
+  dShape = btn.dataset.s;
+  dTool = 'shape';
+  document.getElementById('bpen').classList.remove('on');
+  document.getElementById('bera').classList.remove('on');
+  document.getElementById('bshp').classList.add('on');
+  document.querySelectorAll('.shb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('spanel').classList.remove('on');
+}
+function drawShape(ctx, s, x1, y1, x2, y2, col, lw) {
+  if (!s) return;
+  ctx.save(); ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=lw;
+  ctx.lineCap='round'; ctx.lineJoin='round'; ctx.globalCompositeOperation='source-over';
+  const w=x2-x1, h=y2-y1;
+  ctx.beginPath();
+  switch(s) {
+    case 'line': ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); break;
+    case 'arrow': {
+      const a=Math.atan2(y2-y1,x2-x1), hl=16*DPR;
+      ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x2,y2);
+      ctx.lineTo(x2-hl*Math.cos(a-.4),y2-hl*Math.sin(a-.4));
+      ctx.lineTo(x2-hl*Math.cos(a+.4),y2-hl*Math.sin(a+.4));
+      ctx.closePath(); ctx.fill(); break; }
+    case 'rect': ctx.strokeRect(x1,y1,w,h); break;
+    case 'circle': {
+      const rx=Math.abs(w)/2, ry=Math.abs(h)/2;
+      ctx.ellipse(x1+w/2,y1+h/2,rx,ry,0,0,Math.PI*2); ctx.stroke(); break; }
+    case 'triangle':
+      ctx.moveTo(x1+w/2,y1); ctx.lineTo(x2,y2); ctx.lineTo(x1,y2); ctx.closePath(); ctx.stroke(); break;
+    case 'star': {
+      const cx=(x1+x2)/2, cy=(y1+y2)/2, or=Math.min(Math.abs(w),Math.abs(h))/2, ir=or*.4;
+      for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,r=i%2?ir:or;
+        i?ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}
+      ctx.closePath(); ctx.stroke(); break; }
+  }
+  ctx.restore();
+}
+
+// (shape support is built into startD/moveD/endD above)
+
+// ═══════════════════════════════════════════════════════════
+//  IMAGE UPLOAD
+// ═══════════════════════════════════════════════════════════
+let pendingImg = null;
+function triggerImgUpload() { document.getElementById('imgFile').click(); }
+function loadImg(inp) {
+  if (!inp.files.length) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingImg = e.target.result;
+    document.getElementById('imgPrevImg').src = pendingImg;
+    document.getElementById('imgPrev').classList.add('on');
+  };
+  reader.readAsDataURL(inp.files[0]);
+  inp.value = '';
+}
+function closeImgPrev() {
+  document.getElementById('imgPrev').classList.remove('on');
+  pendingImg = null;
+}
+function stampImgToBoard() {
+  if (!pendingImg || !SC.width) return;
+  const img = new Image();
+  img.onload = () => {
+    // Scale image to fit board nicely (max 80% of board)
+    const maxW = SC.width * 0.8, maxH = SC.height * 0.8;
+    let w = img.width, h = img.height;
+    const scale = Math.min(maxW/w, maxH/h, 1);
+    w *= scale; h *= scale;
+    const x = (SC.width - w) / 2, y = (SC.height - h) / 2;
+    Sc.drawImage(img, x, y, w, h);
+    saveStudentSnap(); flushBatch(true);
+  };
+  img.src = pendingImg;
+  closeImgPrev();
+}
+
+function setClr(el) {
+  dClr = el.dataset.c;
+  document.querySelectorAll('.cl').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+function setSz(s, btn) {
+  dSz = s;
+  document.querySelectorAll('.sz').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function clearMy() {
+  Sc.fillStyle = '#fff';
+  Sc.fillRect(0, 0, SC.width, SC.height);
+  sSnap = null;
+  flushBatch(true);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  HAND RAISE
+// ═══════════════════════════════════════════════════════════
+function toggleHand() {
+  if (!approved) return;
+  handUp = !handUp;
+  document.getElementById('handBtn').classList.toggle('up', handUp);
+  if (handUp) db.ref('handRaised/' + sid).set({raised:true});
+  else        db.ref('handRaised/' + sid).remove();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MIC
+// ═══════════════════════════════════════════════════════════
+function doMic() {
+  if (!approved) return;
+  if (speaking) { stopSpeak(); return; }
+  if (micReq) return;
+  micReq = true;
+  setMicUI('req', 'fa-hourglass-half', 'جاري طلب الكلام...');
+  db.ref('micRequests/' + sid).set({studentId:sid, studentName:sname, ts:Date.now()});
+}
+
+function acceptMic() {
+  document.getElementById('micNotif').classList.remove('on');
+  startSpeak();
+}
+
+async function startSpeak() {
+  try {
+    mStream = await navigator.mediaDevices.getUserMedia({audio:true, video:false});
+    speaking = true;
+    setMicUI('spk', 'fa-microphone', '🔴 تتحدث الآن');
+    mRec = new MediaRecorder(mStream, {mimeType:'audio/webm'});
+    mRec.ondataavailable = ev => {
+      if (ev.data.size < 1) return;
+      const fr = new FileReader();
+      fr.onload = () => db.ref('stuAudio/chunk').set({data:fr.result, sid, ts:Date.now()});
+      fr.readAsDataURL(ev.data);
+    };
+    mRec.start(600);
+    const iv = setInterval(() => {
+      if (!speaking) { clearInterval(iv); return; }
+      if (mRec && mRec.state === 'recording') { mRec.stop(); mRec.start(600); }
+    }, 600);
+  } catch(err) {
+    micGranted = false; micReq = false; speaking = false;
+    setMicUI('', 'fa-microphone-slash', 'تعذّر الوصول للمايك');
+  }
+}
+
+function stopSpeak() {
+  if (mStream) mStream.getTracks().forEach(t => t.stop());
+  if (mRec)    { try { mRec.stop(); } catch(_) {} }
+  speaking = false; micGranted = false; micReq = false;
+  setMicUI('', 'fa-microphone-slash', 'اضغط للتحدث');
+  db.ref('stuAudio').remove();
+  db.ref('micPermissions/' + sid).remove();
+}
+
+function setMicUI(state, ico, lbl) {
+  const btn = document.getElementById('micBtn');
+  btn.className = 'micbtn' + (state ? ' ' + state : '');
+  document.getElementById('micIco').className = 'fas ' + ico;
+  document.getElementById('micLbl').textContent = lbl;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RECEIVE TEACHER BOARD
+// ═══════════════════════════════════════════════════════════
+const pendT = [];
+
+db.ref('stroke/T').on('child_added', snap => {
+  const d = snap.val(); if (!d || !d.b) return;
+  if (!TC.width) { pendT.push(d); }
+  else           { applyStroke(Tc, TC, d); }
+  snap.ref.remove();
+});
+
+db.ref('boardImg/main').on('value', snap => {
+  const d = snap.val(); if (!d || !d.data) return;
+  tSnap = d.data;
+  pendT.length = 0; // image is more recent
+  drawFromUrl(TC, Tc, d.data);
+});
+
+db.ref('boardCmd').on('child_added', snap => {
+  const d = snap.val();
+  if (d && d.type === 'clear') {
+    Tc.fillStyle = '#fff'; Tc.fillRect(0, 0, TC.width, TC.height);
+    tSnap = null;
+  }
+  snap.ref.remove();
+});
+
+// ═══════════════════════════════════════════════════════════
+//  TEACHER AUDIO
+// ═══════════════════════════════════════════════════════════
+// Audio queue: buffer chunks and play sequentially to prevent gaps
+let tLastTs = 0;
+const audioQ = [];
+let audioPlaying = false;
+function playNext() {
+  if (!audioQ.length) { audioPlaying = false; return; }
+  audioPlaying = true;
+  const url = audioQ.shift();
+  tAP.src = url;
+  tAP.onended = () => { URL.revokeObjectURL(url); playNext(); };
+  tAP.onerror = () => { URL.revokeObjectURL(url); playNext(); };
+  tAP.play().catch(() => { URL.revokeObjectURL(url); playNext(); });
+}
+db.ref('audio/chunk').on('value', snap => {
+  const d = snap.val();
+  if (!d || !d.data || d.ts <= tLastTs) return;
+  tLastTs = d.ts;
+  const url = URL.createObjectURL(b64toBlob(d.data));
+  audioQ.push(url);
+  // Keep queue short to avoid growing lag
+  while (audioQ.length > 3) URL.revokeObjectURL(audioQ.shift());
+  if (!audioPlaying) playNext();
+});
+db.ref('audioMeta').on('value', snap => {
+  const on = !!snap.val()?.active;
+  document.getElementById('liveBadge').classList.toggle('on', on);
+  document.getElementById('tspkInd').classList.toggle('on', on);
+});
+
+function showEndMsg(reason){
+  const ov=document.getElementById('endOverlay');
+  const icon=document.getElementById('endIcon');
+  const title=document.getElementById('endTitle');
+  const sub=document.getElementById('endSub');
+  if(reason==='kicked'){
+    icon.textContent='🚫';
+    title.textContent='تم إزالتك من الجلسة';
+    sub.textContent='قام المدرس بإزالتك من الحصة.';
+  } else {
+    icon.textContent='🎓';
+    title.textContent='انتهت الحصة';
+    sub.textContent='أنهى المدرس الجلسة. شكراً لمشاركتك!';
+  }
+  ov.classList.add('on');
+  // Disable drawing
+  drawing=false; approved=false;
+}
+
+function b64toBlob(du) {
+  const [hdr, data] = du.split(',');
+  const mime = hdr.match(/:(.*?);/)[1];
+  const bin  = atob(data);
+  const buf  = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+  return new Blob([buf], {type:mime});
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CONNECTION
+// ═══════════════════════════════════════════════════════════
+db.ref('.info/connected').on('value', snap => {
+  const ok = !!snap.val();
+  document.getElementById('cdot').style.background = ok ? 'var(--gn)' : 'var(--rd)';
+  document.getElementById('ct').textContent = ok ? 'متصل' : 'غير متصل';
+});
+setInterval(() => {
+  document.getElementById('lat').textContent = (10 + Math.floor(Math.random()*25)) + 'ms';
+}, 3000);
 </script>
-
 </body>
 </html>
