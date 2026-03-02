@@ -282,12 +282,15 @@ setTimeout(fitCV,0);
 const IS_MOBILE=(DPR>=2||Math.min(screen.width,screen.height)<600);
 
 /* ═══ WIDTH NORMALIZATION ════════════════════════════════════════════════ */
-/* Sender stores: w = penSizePt / diag(canvas)  (device-independent)        */
-/* Receiver:  lw_phys = w * diag(recv_canvas)                               */
-function wFrac(sz){ return sz/Math.sqrt(CV.width*CV.width+CV.height*CV.height); }
-function lwRecv(w, senderMobile){
-  const recvDiag=Math.sqrt(CV.width*CV.width+CV.height*CV.height);
-  return Math.max(0.8*DPR, w*recvDiag);
+/* Store w as penSz / canvas_css_width — normalized to canvas width         */
+/* Receiver: lw = w * recv_css_width * DPR                                  */
+function wFrac(sz){
+  const cssW = CV.clientWidth || parseFloat(CV.style.width) || (CV.width/DPR);
+  return sz / cssW;
+}
+function lwRecv(w){
+  const cssW = CV.clientWidth || parseFloat(CV.style.width) || (CV.width/DPR);
+  return Math.max(0.8, w * cssW) * DPR;
 }
 
 /* ═══ COORDS ══════════════════════════════════════════════════════════════ */
@@ -507,7 +510,7 @@ function sendSnapshot(send){
 function applyStroke(ctx,cv,d){
   if(!d||!d.b||!d.b.length) return;
   const W=cv.width,H=cv.height;
-  const lw=lwRecv(d.w,d.m===1);
+  const lw=lwRecv(d.w);
   ctx.save();
   ctx.globalCompositeOperation='source-over';
   if(d.t==='e'){ctx.strokeStyle='#ffffff';ctx.lineWidth=lw*3;}
