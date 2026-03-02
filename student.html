@@ -1,75 +1,172 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MyClass PRO - طلب انضمام</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{--bl:#3b82f6;--dk:#0f172a;--cd:#1e293b;--br:#334155}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
+body{height:100vh;overflow:hidden;background:var(--dk);display:flex;align-items:center;justify-content:center}
+
+/* شاشة الإدخال */
+#login-screen{
+display:flex;flex-direction:column;gap:15px;
+background:var(--cd);padding:25px;border-radius:10px;
+color:#fff;width:90%;max-width:350px
+}
+
+#login-screen input{
+padding:10px;border:none;border-radius:6px
+}
+
+#login-screen button{
+padding:10px;border:none;border-radius:6px;
+background:var(--bl);color:#fff;cursor:pointer
+}
+
+/* شاشة الانتظار */
+#wait-screen{
+display:none;text-align:center;color:#fff;
+flex-direction:column;gap:20px
+}
+
+.loader{
+width:40px;height:40px;border:4px solid var(--br);
+border-top-color:var(--bl);border-radius:50%;
+animation:spin 1s linear infinite;margin:0 auto
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* السبورة */
+#viewport{
+display:none;position:fixed;inset:0;background:#000;
+align-items:center;justify-content:center
+}
+#board-img{
+max-width:100%;max-height:100%;object-fit:contain;background:#fff
+}
+</style>
+</head>
+<body>
+
+<!-- شاشة تسجيل الدخول -->
+<div id="login-screen">
+<h3 style="text-align:center">طلب انضمام للحصة</h3>
+
+<input id="student-name" type="text" placeholder="ادخل اسمك">
+
+<input id="student-phone" type="text" placeholder="ادخل رقم الموبايل" inputmode="numeric">
+
+<button onclick="startStudent()">إرسال الطلب</button>
+</div>
+
+<!-- شاشة الانتظار -->
+<div id="wait-screen">
+<div class="loader"></div>
+<h3>بانتظار موافقة المدرس...</h3>
+<p style="color:var(--bl);font-size:14px">تم إرسال طلب الانضمام</p>
+</div>
+
+<!-- السبورة -->
+<div id="viewport">
+<img id="board-img" src="" alt="السبورة">
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
 <script>
 const firebaseConfig = {
-    apiKey: "YOUR_KEY",
-    authDomain: "myclaive.firebaseapp.com",
-    databaseURL: "https://myclaive-default-rtdb.firebaseio.com",
-    projectId: "myclaive",
-    storageBucket: "myclaive.firebasestorage.app",
-    messagingSenderId: "507299311714",
-    appId: "1:507299311714:web:c90440ee4353cfac17613b"
+apiKey: "YOUR_API_KEY",
+authDomain: "myclaive.firebaseapp.com",
+databaseURL: "https://myclaive-default-rtdb.firebaseio.com",
+projectId: "myclaive",
+storageBucket: "myclaive.firebasestorage.app",
+messagingSenderId: "507299311714",
+appId: "1:507299311714:web:c90440ee4353cfac17613b"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const stuId = db.ref().push().key; // ID فريد وآمن
-const boardImg = document.getElementById('board-img');
-
-let approvalListener = null;
+let stuId = null;
 let boardListener = null;
 
-function startStudent() {
+function startStudent(){
 
-    // إرسال طلب الانضمام
-    db.ref('joinRequests/' + stuId).set({
-        name: "طالب جديد",
-        status: "waiting",
-        ts: firebase.database.ServerValue.TIMESTAMP
-    });
+const name = document.getElementById('student-name').value.trim();
+const phone = document.getElementById('student-phone').value.trim();
 
-    // مراقبة حالة القبول
-    approvalListener = db.ref('joinRequests/' + stuId);
-    approvalListener.on('value', (snap) => {
-        const val = snap.val();
-
-        if (!val) return;
-
-        if (val.status === 'approved') {
-            showBoard();
-        }
-
-        if (val.status === 'rejected') {
-            alert("تم رفض الدخول");
-        }
-    });
-
-    // حذف الطلب عند قطع الاتصال
-    db.ref('joinRequests/' + stuId).onDisconnect().remove();
+if(!name || !phone){
+alert("من فضلك أدخل الاسم ورقم الموبايل");
+return;
 }
 
-function showBoard() {
-    document.getElementById('wait-screen').style.display = 'none';
-    document.getElementById('viewport').style.display = 'flex';
-    loadBoard();
+// تحقق أن الرقم أرقام فقط
+if(!/^[0-9]+$/.test(phone)){
+alert("رقم الموبايل يجب أن يحتوي على أرقام فقط");
+return;
 }
 
-function loadBoard() {
+// إنشاء ID فريد
+stuId = db.ref().push().key;
 
-    boardListener = db.ref('boardImg/main');
-
-    boardListener.on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data && data.data) {
-            boardImg.src = data.data;
-        }
-    });
-}
-
-// تنظيف عند غلق الصفحة
-window.addEventListener('beforeunload', () => {
-    if (approvalListener) approvalListener.off();
-    if (boardListener) boardListener.off();
+// إرسال الطلب
+db.ref('joinRequests/' + stuId).set({
+name:name,
+phone:phone,
+status:"waiting",
+ts:firebase.database.ServerValue.TIMESTAMP
 });
 
-startStudent();
+// حذف عند قطع الاتصال
+db.ref('joinRequests/' + stuId).onDisconnect().remove();
+
+// إظهار الانتظار
+document.getElementById('login-screen').style.display='none';
+document.getElementById('wait-screen').style.display='flex';
+
+// مراقبة القبول
+db.ref('joinRequests/' + stuId).on('value',(snap)=>{
+const val=snap.val();
+if(!val) return;
+
+if(val.status==="approved"){
+showBoard();
+}
+
+if(val.status==="rejected"){
+alert("تم رفض طلب الانضمام");
+location.reload();
+}
+});
+}
+
+function showBoard(){
+document.getElementById('wait-screen').style.display='none';
+document.getElementById('viewport').style.display='flex';
+loadBoard();
+}
+
+function loadBoard(){
+boardListener=db.ref('boardImg/main');
+boardListener.on('value',(snapshot)=>{
+const data=snapshot.val();
+if(data && data.data){
+document.getElementById('board-img').src=data.data;
+}
+});
+}
+
+window.addEventListener('beforeunload',()=>{
+if(stuId) db.ref('joinRequests/'+stuId).remove();
+if(boardListener) boardListener.off();
+});
 </script>
+
+</body>
+</html>
