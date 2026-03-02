@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyClass2 - السبورة الاحترافية</title>
+    <title>MyClass PRO - شاشة الطالب</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -12,241 +12,129 @@
         body{height:100vh; overflow:hidden; background:var(--dk); display:flex; flex-direction:column}
         
         /* الهيدر */
-        .hdr{height:60px; background:var(--cd); border-bottom:2px solid var(--br); display:flex; align-items:center; justify-content:space-between; padding:0 20px; z-index:10}
-        .logo b{color:var(--bl)}
+        .hdr{height:50px; background:var(--cd); border-bottom:1px solid var(--br); display:flex; align-items:center; justify-content:space-between; padding:0 15px;}
+        .status{display:flex; align-items:center; gap:8px; font-size:12px; color:#fff}
+        .live-dot{width:8px; height:8px; background:var(--rd); border-radius:50%; animation:pulse 1.5s infinite}
+        @keyframes pulse { 0%{opacity:1} 50%{opacity:0.3} 100%{opacity:1} }
 
-        /* منطقة العمل */
-        #main-container{flex:1; display:flex; overflow:hidden; position:relative}
-        .canvas-area{flex:1; background:#f0f2f5; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center}
-        
-        /* الكانفاس بظلال لتمييزه */
-        #mc{
-            background:#fff;
-            box-shadow:0 0 20px rgba(0,0,0,0.3);
-            touch-action:none;
-            cursor:crosshair;
+        /* منطقة السبورة */
+        #viewport{
+            flex:1; 
+            background:#334155; 
+            display:flex; 
+            align-items:center; 
+            justify-content:center; 
+            overflow:hidden;
+            position:relative;
+        }
+        #board-img{
             max-width:100%;
             max-height:100%;
+            object-fit: contain;
+            background:#fff;
+            box-shadow:0 0 20px rgba(0,0,0,0.5);
         }
 
-        /* شريط الأدوات */
-        .toolbar{height:70px; background:var(--cd); border-top:2px solid var(--br); display:flex; align-items:center; gap:15px; padding:0 15px; overflow-x:auto}
-        .btn{width:45px; height:45px; border-radius:10px; border:none; background:var(--br); color:#fff; cursor:pointer; font-size:18px; transition:0.2s; display:flex; align-items:center; justify-content:center}
-        .btn:hover{background:var(--bl)}
-        .btn.active{background:var(--bl); border:2px solid #fff}
-        
-        .sep{width:2px; height:30px; background:var(--br)}
-        .color-circle{width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent}
-        .color-circle.active{border-color:#fff; transform:scale(1.2)}
-
-        /* نافذة التحميل */
-        #loading{position:fixed; inset:0; background:rgba(0,0,0,0.8); display:none; flex-direction:column; align-items:center; justify-content:center; z-index:1000}
+        /* شريط الأدوات السفلي */
+        .controls{
+            height:60px; 
+            background:var(--cd); 
+            display:flex; 
+            align-items:center; 
+            justify-content:space-around; 
+            padding:0 10px;
+            border-top:1px solid var(--br);
+        }
+        .btn-stu{
+            background:var(--br); 
+            color:white; 
+            border:none; 
+            padding:8px 15px; 
+            border-radius:10px; 
+            font-size:14px; 
+            cursor:pointer;
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+        .btn-stu.active{background:var(--bl)}
+        .btn-hand{background:var(--yw, #f59e0b); color:#000; font-weight:bold}
     </style>
 </head>
 <body>
 
-<div id="loading">
-    <i class="fas fa-spinner fa-spin style='font-size:3rem; color:white'"></i>
-    <p style="color:white; margin-top:15px">جاري معالجة الصورة بدقة عالية...</p>
-</div>
-
 <div class="hdr">
-    <div class="logo" style="color:white; font-size:1.5rem">My<b>Class</b> PRO</div>
-    <div style="display:flex; gap:10px">
-        <button class="btn" onclick="triggerUpload()" title="رفع صورة"><i class="fas fa-image"></i></button>
-        <button class="btn" onclick="saveBoard()" title="حفظ السبورة" style="background:var(--gn)"><i class="fas fa-download"></i></button>
-        <button class="btn" onclick="clearAll()" style="background:var(--rd)"><i class="fas fa-trash"></i></button>
+    <div style="color:white; font-weight:bold">MyClass <span style="color:var(--bl)">Student</span></div>
+    <div class="status">
+        <div class="live-dot"></div>
+        <span>متصل مباشرة</span>
     </div>
 </div>
 
-<div id="main-container">
-    <div class="canvas-area">
-        <canvas id="mc"></canvas>
-    </div>
+<div id="viewport">
+    <img id="board-img" src="about:blank" alt="السبورة قيد التحميل...">
 </div>
 
-<div class="toolbar">
-    <button class="btn active" id="penBtn" onclick="setMode('pen')"><i class="fas fa-pencil-alt"></i></button>
-    <button class="btn" id="eraserBtn" onclick="setMode('eraser')"><i class="fas fa-eraser"></i></button>
-    <div class="sep"></div>
-    <div class="color-circle active" style="background:#000" onclick="updateColor('#000', this)"></div>
-    <div class="color-circle" style="background:#ef4444" onclick="updateColor('#ef4444', this)"></div>
-    <div class="color-circle" style="background:#3b82f6" onclick="updateColor('#3b82f6', this)"></div>
-    <div class="color-circle" style="background:#22c55e" onclick="updateColor('#22c55e', this)"></div>
-    <input type="color" onchange="updateColor(this.value)" style="width:30px; height:30px; cursor:pointer">
-    <div class="sep"></div>
-    <select onchange="penWidth = this.value" style="padding:5px; border-radius:5px; background:var(--br); color:white; border:none">
-        <option value="3">خط نحيف</option>
-        <option value="6" selected>خط متوسط</option>
-        <option value="12">خط عريض</option>
-    </select>
+<div class="controls">
+    <button class="btn-stu btn-hand" onclick="raiseHand()">
+        <i class="fas fa-hand-paper"></i> رفع اليد
+    </button>
+    <button class="btn-stu" onclick="refreshBoard()">
+        <i class="fas fa-sync-alt"></i> تحديث
+    </button>
 </div>
-
-<input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileUpload(event)">
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
-// --- الإعدادات ---
-const canvas = document.getElementById('mc');
-const ctx = canvas.getContext('2d', { alpha: false });
-const fileInput = document.getElementById('fileInput');
+// --- إعدادات Firebase (يجب أن تطابق بيانات المدرس) ---
+const firebaseConfig = {
+    apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
+    authDomain: "myclaive.firebaseapp.com",
+    databaseURL: "https://myclaive-default-rtdb.firebaseio.com",
+    projectId: "myclaive",
+    storageBucket: "myclaive.firebasestorage.app",
+    messagingSenderId: "507299311714",
+    appId: "1:507299311714:web:c90440ee4353cfac17613b"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-// ضبط دقة ثابتة للسبورة (Full HD) لضمان الوضوح عند الرفع والحفظ
-const V_WIDTH = 1920;
-const V_HEIGHT = 1080;
+const boardImg = document.getElementById('board-img');
 
-let drawing = false;
-let penColor = '#000000';
-let penWidth = 6;
-let mode = 'pen';
-
-function initCanvas() {
-    canvas.width = V_WIDTH;
-    canvas.height = V_HEIGHT;
+// --- الاستماع لتحديثات السبورة من المدرس ---
+function startListening() {
+    const boardRef = db.ref('boardImg/main');
     
-    // تعبئة الخلفية باللون الأبيض
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
-    
-    // تحسين جودة الخطوط
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    boardRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data && data.data) {
+            // تحديث الصورة فوراً عند تغييرها من قبل المدرس
+            boardImg.src = data.data;
+        }
+    }, (error) => {
+        console.error("خطأ في استقبال البيانات:", error);
+    });
 }
 
-initCanvas();
-
-// --- التعامل مع الإحداثيات (تحويل إحداثيات الشاشة إلى إحداثيات الكانفاس الثابتة) ---
-function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    
-    // نسبة التكبير/التصغير الحالية في المتصفح
-    const scaleX = V_WIDTH / rect.width;
-    const scaleY = V_HEIGHT / rect.height;
-    
-    return {
-        x: (clientX - rect.left) * scaleX,
-        y: (clientY - rect.top) * scaleY
-    };
+// --- وظيفة رفع اليد ---
+function raiseHand() {
+    const studentName = "طالب جديد"; // يمكنك تغييرها لنظام تسجيل دخول
+    db.ref('handRaised').push({
+        name: studentName,
+        time: Date.now()
+    });
+    alert("تم إرسال طلبك للمدرس!");
 }
 
-// --- وظائف الرسم ---
-function startDrawing(e) {
-    drawing = true;
-    const pos = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
-    e.preventDefault();
+function refreshBoard() {
+    location.reload();
 }
 
-function draw(e) {
-    if (!drawing) return;
-    const pos = getPos(e);
-    
-    ctx.strokeStyle = (mode === 'eraser') ? '#ffffff' : penColor;
-    ctx.lineWidth = (mode === 'eraser') ? penWidth * 5 : penWidth;
-    
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-    e.preventDefault();
-}
+// البدء عند تحميل الصفحة
+window.onload = startListening;
 
-function stopDrawing() {
-    if(drawing) {
-        ctx.closePath();
-        drawing = false;
-        syncToFirebase();
-    }
-}
-
-canvas.addEventListener('mousedown', startDrawing);
-canvas.addEventListener('mousemove', draw);
-window.addEventListener('mouseup', stopDrawing);
-
-canvas.addEventListener('touchstart', startDrawing, {passive: false});
-canvas.addEventListener('touchmove', draw, {passive: false});
-canvas.addEventListener('touchend', stopDrawing);
-
-// --- رفع الصور ومعالجتها بحجمها الطبيعي ---
-function triggerUpload() { fileInput.click(); }
-
-function handleFileUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    document.getElementById('loading').style.display = 'flex';
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-            // حساب الأبعاد للحفاظ على النسبة الأصلية داخل السبورة HD
-            let targetW = img.width;
-            let targetH = img.height;
-            
-            // إذا كانت الصورة أكبر من السبورة، قم بتصغيرها لتناسب العرض أو الارتفاع
-            const ratio = Math.min(V_WIDTH / targetW, V_HEIGHT / targetH);
-            if(ratio < 1) {
-                targetW *= ratio;
-                targetH *= ratio;
-            }
-
-            // رسم الصورة في منتصف السبورة
-            const offsetX = (V_WIDTH - targetW) / 2;
-            const offsetY = (V_HEIGHT - targetH) / 2;
-            
-            ctx.drawImage(img, offsetX, offsetY, targetW, targetH);
-            document.getElementById('loading').style.display = 'none';
-            syncToFirebase();
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
-
-// --- حفظ ومزامنة ---
-function saveBoard() {
-    const link = document.createElement('a');
-    link.download = `Lesson-${Date.now()}.png`;
-    // جودة كاملة 1.0 وبصيغة PNG للوضوح
-    link.href = canvas.toDataURL('image/png', 1.0);
-    link.click();
-}
-
-function clearAll() {
-    if(confirm('هل تريد مسح السبورة بالكامل؟')) {
-        initCanvas();
-        syncToFirebase();
-    }
-}
-
-function setMode(m) {
-    mode = m;
-    document.getElementById('penBtn').classList.toggle('active', m === 'pen');
-    document.getElementById('eraserBtn').classList.toggle('active', m === 'eraser');
-}
-
-function updateColor(c, el) {
-    penColor = c;
-    if(el) {
-        document.querySelectorAll('.color-circle').forEach(d => d.classList.remove('active'));
-        el.classList.add('active');
-    }
-    setMode('pen');
-}
-
-// --- Firebase Sync (بجودة عالية) ---
-function syncToFirebase() {
-    const data = canvas.toDataURL('image/jpeg', 0.7); // ضغط بسيط للإرسال فقط لتسريع الأداء
-    // db.ref('boardImg/main').set({ data: data, ts: Date.now() }); 
-    console.log("Synced high-res frame to cloud");
-}
 </script>
-
 </body>
 </html>
