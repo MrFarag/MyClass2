@@ -3,92 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyClass PRO - شاشة الطالب</title>
+    <title>MyClass PRO - طلب انضمام</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root{--bl:#3b82f6;--rd:#ef4444;--gn:#22c55e;--dk:#0f172a;--cd:#1e293b;--br:#334155}
+        :root{--bl:#3b82f6;--dk:#0f172a;--cd:#1e293b;--br:#334155}
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
-        body{height:100vh; overflow:hidden; background:var(--dk); display:flex; flex-direction:column}
+        body{height:100vh; overflow:hidden; background:var(--dk); display:flex; flex-direction:column; align-items:center; justify-content:center}
         
-        /* الهيدر */
-        .hdr{height:50px; background:var(--cd); border-bottom:1px solid var(--br); display:flex; align-items:center; justify-content:space-between; padding:0 15px;}
-        .status{display:flex; align-items:center; gap:8px; font-size:12px; color:#fff}
-        .live-dot{width:8px; height:8px; background:var(--rd); border-radius:50%; animation:pulse 1.5s infinite}
-        @keyframes pulse { 0%{opacity:1} 50%{opacity:0.3} 100%{opacity:1} }
+        /* شاشة الانتظار */
+        #wait-screen{text-align:center; color:#fff; display:flex; flex-direction:column; gap:20px; z-index:100}
+        .loader{width:40px; height:40px; border:4px solid var(--br); border-top-color:var(--bl); border-radius:50%; animation:spin 1s linear infinite; margin:0 auto}
+        @keyframes spin{to{transform:rotate(360deg)}}
 
-        /* منطقة السبورة */
-        #viewport{
-            flex:1; 
-            background:#334155; 
-            display:flex; 
-            align-items:center; 
-            justify-content:center; 
-            overflow:hidden;
-            position:relative;
-        }
-        #board-img{
-            max-width:100%;
-            max-height:100%;
-            object-fit: contain;
-            background:#fff;
-            box-shadow:0 0 20px rgba(0,0,0,0.5);
-        }
-
-        /* شريط الأدوات السفلي */
-        .controls{
-            height:60px; 
-            background:var(--cd); 
-            display:flex; 
-            align-items:center; 
-            justify-content:space-around; 
-            padding:0 10px;
-            border-top:1px solid var(--br);
-        }
-        .btn-stu{
-            background:var(--br); 
-            color:white; 
-            border:none; 
-            padding:8px 15px; 
-            border-radius:10px; 
-            font-size:14px; 
-            cursor:pointer;
-            display:flex;
-            align-items:center;
-            gap:8px;
-        }
-        .btn-stu.active{background:var(--bl)}
-        .btn-hand{background:var(--yw, #f59e0b); color:#000; font-weight:bold}
+        /* منطقة السبورة (مخفية حتى القبول) */
+        #viewport{display:none; position:fixed; inset:0; background:#000; align-items:center; justify-content:center}
+        #board-img{max-width:100%; max-height:100%; object-fit:contain; background:#fff}
     </style>
 </head>
 <body>
 
-<div class="hdr">
-    <div style="color:white; font-weight:bold">MyClass <span style="color:var(--bl)">Student</span></div>
-    <div class="status">
-        <div class="live-dot"></div>
-        <span>متصل مباشرة</span>
-    </div>
+<div id="wait-screen">
+    <div class="loader"></div>
+    <h3>بانتظار موافقة المدرس لدخول الحصة...</h3>
+    <p style="color:var(--bl); font-size:14px">تم إرسال طلب الانضمام بنجاح</p>
 </div>
 
 <div id="viewport">
-    <img id="board-img" src="about:blank" alt="السبورة قيد التحميل...">
-</div>
-
-<div class="controls">
-    <button class="btn-stu btn-hand" onclick="raiseHand()">
-        <i class="fas fa-hand-paper"></i> رفع اليد
-    </button>
-    <button class="btn-stu" onclick="refreshBoard()">
-        <i class="fas fa-sync-alt"></i> تحديث
-    </button>
+    <img id="board-img" src="" alt="السبورة">
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
-// --- إعدادات Firebase (يجب أن تطابق بيانات المدرس) ---
 const firebaseConfig = {
     apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
     authDomain: "myclaive.firebaseapp.com",
@@ -101,40 +48,39 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+const stuId = "stu_" + Math.floor(Math.random() * 10000);
 const boardImg = document.getElementById('board-img');
 
-// --- الاستماع لتحديثات السبورة من المدرس ---
-function startListening() {
-    const boardRef = db.ref('boardImg/main');
-    
-    boardRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data && data.data) {
-            // تحديث الصورة فوراً عند تغييرها من قبل المدرس
-            boardImg.src = data.data;
+function startStudent() {
+    // 1. إرسال طلب الانضمام
+    db.ref('joinRequests/' + stuId).set({
+        name: "طالب جديد",
+        status: "waiting",
+        ts: Date.now()
+    });
+
+    // 2. مراقبة حالة القبول
+    db.ref('joinRequests/' + stuId).on('value', (snap) => {
+        const val = snap.val();
+        if (val && val.status === 'approved') {
+            document.getElementById('wait-screen').style.display = 'none';
+            document.getElementById('viewport').style.display = 'flex';
+            loadBoard();
         }
-    }, (error) => {
-        console.error("خطأ في استقبال البيانات:", error);
+    });
+
+    // حذف الطلب عند الخروج
+    db.ref('joinRequests/' + stuId).onDisconnect().remove();
+}
+
+function loadBoard() {
+    db.ref('boardImg/main').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data && data.data) boardImg.src = data.data;
     });
 }
 
-// --- وظيفة رفع اليد ---
-function raiseHand() {
-    const studentName = "طالب جديد"; // يمكنك تغييرها لنظام تسجيل دخول
-    db.ref('handRaised').push({
-        name: studentName,
-        time: Date.now()
-    });
-    alert("تم إرسال طلبك للمدرس!");
-}
-
-function refreshBoard() {
-    location.reload();
-}
-
-// البدء عند تحميل الصفحة
-window.onload = startListening;
-
+startStudent();
 </script>
 </body>
 </html>
