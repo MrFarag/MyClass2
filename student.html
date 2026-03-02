@@ -1,43 +1,6 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyClass PRO - طلب انضمام</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root{--bl:#3b82f6;--dk:#0f172a;--cd:#1e293b;--br:#334155}
-        *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
-        body{height:100vh; overflow:hidden; background:var(--dk); display:flex; flex-direction:column; align-items:center; justify-content:center}
-        
-        /* شاشة الانتظار */
-        #wait-screen{text-align:center; color:#fff; display:flex; flex-direction:column; gap:20px; z-index:100}
-        .loader{width:40px; height:40px; border:4px solid var(--br); border-top-color:var(--bl); border-radius:50%; animation:spin 1s linear infinite; margin:0 auto}
-        @keyframes spin{to{transform:rotate(360deg)}}
-
-        /* منطقة السبورة (مخفية حتى القبول) */
-        #viewport{display:none; position:fixed; inset:0; background:#000; align-items:center; justify-content:center}
-        #board-img{max-width:100%; max-height:100%; object-fit:contain; background:#fff}
-    </style>
-</head>
-<body>
-
-<div id="wait-screen">
-    <div class="loader"></div>
-    <h3>بانتظار موافقة المدرس لدخول الحصة...</h3>
-    <p style="color:var(--bl); font-size:14px">تم إرسال طلب الانضمام بنجاح</p>
-</div>
-
-<div id="viewport">
-    <img id="board-img" src="" alt="السبورة">
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
 <script>
 const firebaseConfig = {
-    apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
+    apiKey: "YOUR_KEY",
     authDomain: "myclaive.firebaseapp.com",
     databaseURL: "https://myclaive-default-rtdb.firebaseio.com",
     projectId: "myclaive",
@@ -45,42 +8,68 @@ const firebaseConfig = {
     messagingSenderId: "507299311714",
     appId: "1:507299311714:web:c90440ee4353cfac17613b"
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const stuId = "stu_" + Math.floor(Math.random() * 10000);
+const stuId = db.ref().push().key; // ID فريد وآمن
 const boardImg = document.getElementById('board-img');
 
+let approvalListener = null;
+let boardListener = null;
+
 function startStudent() {
-    // 1. إرسال طلب الانضمام
+
+    // إرسال طلب الانضمام
     db.ref('joinRequests/' + stuId).set({
         name: "طالب جديد",
         status: "waiting",
-        ts: Date.now()
+        ts: firebase.database.ServerValue.TIMESTAMP
     });
 
-    // 2. مراقبة حالة القبول
-    db.ref('joinRequests/' + stuId).on('value', (snap) => {
+    // مراقبة حالة القبول
+    approvalListener = db.ref('joinRequests/' + stuId);
+    approvalListener.on('value', (snap) => {
         const val = snap.val();
-        if (val && val.status === 'approved') {
-            document.getElementById('wait-screen').style.display = 'none';
-            document.getElementById('viewport').style.display = 'flex';
-            loadBoard();
+
+        if (!val) return;
+
+        if (val.status === 'approved') {
+            showBoard();
+        }
+
+        if (val.status === 'rejected') {
+            alert("تم رفض الدخول");
         }
     });
 
-    // حذف الطلب عند الخروج
+    // حذف الطلب عند قطع الاتصال
     db.ref('joinRequests/' + stuId).onDisconnect().remove();
 }
 
+function showBoard() {
+    document.getElementById('wait-screen').style.display = 'none';
+    document.getElementById('viewport').style.display = 'flex';
+    loadBoard();
+}
+
 function loadBoard() {
-    db.ref('boardImg/main').on('value', (snapshot) => {
+
+    boardListener = db.ref('boardImg/main');
+
+    boardListener.on('value', (snapshot) => {
         const data = snapshot.val();
-        if (data && data.data) boardImg.src = data.data;
+        if (data && data.data) {
+            boardImg.src = data.data;
+        }
     });
 }
 
+// تنظيف عند غلق الصفحة
+window.addEventListener('beforeunload', () => {
+    if (approvalListener) approvalListener.off();
+    if (boardListener) boardListener.off();
+});
+
 startStudent();
 </script>
-</body>
-</html>
