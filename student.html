@@ -2,170 +2,84 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MyClass PRO - طلب انضمام</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-
-<style>
-:root{--bl:#3b82f6;--dk:#0f172a;--cd:#1e293b;--br:#334155}
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
-body{height:100vh;overflow:hidden;background:var(--dk);display:flex;align-items:center;justify-content:center}
-
-/* شاشة الإدخال */
-#login-screen{
-display:flex;flex-direction:column;gap:15px;
-background:var(--cd);padding:25px;border-radius:10px;
-color:#fff;width:90%;max-width:350px
-}
-
-#login-screen input{
-padding:10px;border:none;border-radius:6px
-}
-
-#login-screen button{
-padding:10px;border:none;border-radius:6px;
-background:var(--bl);color:#fff;cursor:pointer
-}
-
-/* شاشة الانتظار */
-#wait-screen{
-display:none;text-align:center;color:#fff;
-flex-direction:column;gap:20px
-}
-
-.loader{
-width:40px;height:40px;border:4px solid var(--br);
-border-top-color:var(--bl);border-radius:50%;
-animation:spin 1s linear infinite;margin:0 auto
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* السبورة */
-#viewport{
-display:none;position:fixed;inset:0;background:#000;
-align-items:center;justify-content:center
-}
-#board-img{
-max-width:100%;max-height:100%;object-fit:contain;background:#fff
-}
-</style>
-</head>
-<body>
-
-<!-- شاشة تسجيل الدخول -->
-<div id="login-screen">
-<h3 style="text-align:center">طلب انضمام للحصة</h3>
-
-<input id="student-name" type="text" placeholder="ادخل اسمك">
-
-<input id="student-phone" type="text" placeholder="ادخل رقم الموبايل" inputmode="numeric">
-
-<button onclick="startStudent()">إرسال الطلب</button>
-</div>
-
-<!-- شاشة الانتظار -->
-<div id="wait-screen">
-<div class="loader"></div>
-<h3>بانتظار موافقة المدرس...</h3>
-<p style="color:var(--bl);font-size:14px">تم إرسال طلب الانضمام</p>
-</div>
-
-<!-- السبورة -->
-<div id="viewport">
-<img id="board-img" src="" alt="السبورة">
-</div>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyClass PRO - انضمام</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
+<style>
+body{margin:0;font-family:Cairo;background:#0f172a;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh}
+.box{background:#1e293b;padding:25px;border-radius:10px;width:90%;max-width:350px;display:flex;flex-direction:column;gap:15px}
+input{padding:10px;border:none;border-radius:6px}
+button{padding:10px;border:none;border-radius:6px;background:#3b82f6;color:#fff;cursor:pointer}
+#wait{display:none;text-align:center}
+#board{display:none;position:fixed;inset:0;background:#000;justify-content:center;align-items:center}
+#board img{max-width:100%;max-height:100%}
+</style>
+</head>
+<body>
+
+<div class="box" id="login">
+<h3>طلب انضمام للحصة</h3>
+<input id="name" placeholder="ادخل اسمك">
+<input id="phone" placeholder="ادخل رقمك">
+<button onclick="join()">إرسال الطلب</button>
+</div>
+
+<div class="box" id="wait">
+<h3>بانتظار موافقة المدرس...</h3>
+</div>
+
+<div id="board">
+<img id="boardImg">
+</div>
+
 <script>
 const firebaseConfig = {
 apiKey: "YOUR_API_KEY",
-authDomain: "myclaive.firebaseapp.com",
-databaseURL: "https://myclaive-default-rtdb.firebaseio.com",
-projectId: "myclaive",
-storageBucket: "myclaive.firebasestorage.app",
-messagingSenderId: "507299311714",
-appId: "1:507299311714:web:c90440ee4353cfac17613b"
+authDomain: "YOUR_DOMAIN",
+databaseURL: "YOUR_DB_URL",
+projectId: "YOUR_PROJECT",
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let stuId = null;
-let boardListener = null;
+let stuId = "";
 
-function startStudent(){
+function join(){
+const name = document.getElementById('name').value.trim();
+const phone = document.getElementById('phone').value.trim();
 
-const name = document.getElementById('student-name').value.trim();
-const phone = document.getElementById('student-phone').value.trim();
+if(!name || !phone){ alert("ادخل البيانات"); return; }
 
-if(!name || !phone){
-alert("من فضلك أدخل الاسم ورقم الموبايل");
-return;
-}
+stuId = phone;
 
-// تحقق أن الرقم أرقام فقط
-if(!/^[0-9]+$/.test(phone)){
-alert("رقم الموبايل يجب أن يحتوي على أرقام فقط");
-return;
-}
-
-// إنشاء ID فريد
-stuId = db.ref().push().key;
-
-// إرسال الطلب
-db.ref('joinRequests/' + stuId).set({
+db.ref("joinRequests/"+stuId).set({
 name:name,
 phone:phone,
 status:"waiting",
 ts:firebase.database.ServerValue.TIMESTAMP
 });
 
-// حذف عند قطع الاتصال
-db.ref('joinRequests/' + stuId).onDisconnect().remove();
+document.getElementById("login").style.display="none";
+document.getElementById("wait").style.display="block";
 
-// إظهار الانتظار
-document.getElementById('login-screen').style.display='none';
-document.getElementById('wait-screen').style.display='flex';
-
-// مراقبة القبول
-db.ref('joinRequests/' + stuId).on('value',(snap)=>{
-const val=snap.val();
-if(!val) return;
-
-if(val.status==="approved"){
-showBoard();
-}
-
-if(val.status==="rejected"){
-alert("تم رفض طلب الانضمام");
-location.reload();
+/* الاستماع للموافقة */
+db.ref("approvedStudents/"+stuId).on("value",snap=>{
+if(snap.exists()){
+document.getElementById("wait").style.display="none";
+document.getElementById("board").style.display="flex";
+loadBoard();
 }
 });
-}
-
-function showBoard(){
-document.getElementById('wait-screen').style.display='none';
-document.getElementById('viewport').style.display='flex';
-loadBoard();
 }
 
 function loadBoard(){
-boardListener=db.ref('boardImg/main');
-boardListener.on('value',(snapshot)=>{
-const data=snapshot.val();
-if(data && data.data){
-document.getElementById('board-img').src=data.data;
-}
+db.ref("boardImg/main").on("value",snap=>{
+if(snap.val()) document.getElementById("boardImg").src = snap.val();
 });
 }
-
-window.addEventListener('beforeunload',()=>{
-if(stuId) db.ref('joinRequests/'+stuId).remove();
-if(boardListener) boardListener.off();
-});
 </script>
 
 </body>
