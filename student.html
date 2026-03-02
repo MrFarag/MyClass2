@@ -189,19 +189,43 @@
             gap: 5px;
         }
 
+        .room-selector {
+            background: var(--br);
+            border-radius: 20px;
+            padding: 2px 5px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .room-option {
+            background: transparent;
+            border: none;
+            color: var(--dim);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .room-option.active {
+            background: var(--pp);
+            color: #fff;
+        }
+
         /* نافذة مشاركة الشاشة */
         .screen-share-view {
             position: fixed;
             bottom: 80px;
             left: 10px;
-            width: 160px;
-            height: 90px;
+            width: 200px;
+            height: 120px;
             background: #000;
             border-radius: 8px;
             overflow: hidden;
             border: 2px solid var(--bl);
             display: none;
             z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
 
         .screen-share-view video {
@@ -510,12 +534,15 @@
 
     <!-- التطبيق الرئيسي -->
     <div id="app">
-        <!-- الشريط العلوي -->
+        <!-- الشريط العلوي مع إمكانية اختيار الغرفة -->
         <div class="top">
             <div class="logo">My<b>Class</b>2</div>
             <div class="topright">
                 <div class="room-indicator" id="roomIndicator">
                     <i class="fas fa-door-open"></i> <span id="currentRoom">القاعة الرئيسية</span>
+                </div>
+                <div class="room-selector" id="roomSelector" style="display: none;">
+                    <!-- سيتم إضافة خيارات الغرف هنا -->
                 </div>
                 <span class="nchip" id="nameChip"></span>
                 <button class="hbtn" id="handBtn" onclick="toggleHand()">
@@ -623,6 +650,7 @@
         let dClr = '#1a1a1a', dSz = 2, dTool = 'pen';
         let drawing = false;
         let currentRoom = 'main';
+        let availableRooms = {};
 
         // ===== Canvas =====
         const TC = document.getElementById('tc');
@@ -666,17 +694,30 @@
             });
         };
 
-        // ===== استقبال البيانات =====
+        // ===== استقبال البيانات من Firebase =====
         function setupListeners() {
-            // رسم المدرس
+            // رسم المدرس (مثال بسيط)
             db.ref('draw_t').on('child_added', snap => {
                 const d = snap.val();
                 if (!d) return;
-                // تنفيذ الرسم على TC
-                // يمكن إضافة دالة applyStroke مماثلة للمدرس
+                // تطبيق الرسم على TC
+                if (d.type === 'start') {
+                    Tc.beginPath();
+                    Tc.moveTo(d.x * TC.width, d.y * TC.height);
+                } else if (d.type === 'draw') {
+                    Tc.strokeStyle = d.c || '#000';
+                    Tc.lineWidth = d.w * TC.width / 100;
+                    Tc.lineTo(d.x * TC.width, d.y * TC.height);
+                    Tc.stroke();
+                    Tc.beginPath();
+                    Tc.moveTo(d.x * TC.width, d.y * TC.height);
+                } else if (d.type === 'clear') {
+                    Tc.fillStyle = '#fff';
+                    Tc.fillRect(0, 0, TC.width, TC.height);
+                }
             });
 
-            // أوامر المسح
+            // مسح السبورة
             db.ref('boardCmd/main').on('child_added', snap => {
                 if (snap.val()?.type === 'clear') {
                     Tc.fillStyle = '#fff';
@@ -726,21 +767,19 @@
 
             // الغرف المصغرة
             db.ref('breakout/rooms').on('value', snap => {
-                // يمكن عرض الغرف للطالب
+                availableRooms = snap.val() || {};
+                updateRoomSelector();
             });
 
             db.ref('breakout/assignments/' + sid).on('value', snap => {
                 const assign = snap.val();
                 if (assign && assign.roomId) {
                     currentRoom = assign.roomId;
-                    document.getElementById('currentRoom').textContent = assign.roomId.replace('room_', 'غرفة ');
+                    document.getElementById('currentRoom').textContent = 
+                        (availableRooms[currentRoom]?.name) || currentRoom.replace('room_', 'غرفة ');
                     db.ref('onlineStudents/' + sid).update({ room: currentRoom });
                     snap.ref.remove();
                 }
-            });
-
-            db.ref('teacher/room').on('value', snap => {
-                // يمكن استخدامه لمزامنة الغرفة
             });
 
             // طرد
@@ -748,6 +787,43 @@
                 if (snap.exists()) window.location.reload();
             });
         }
+
+        // ===== تحديث قائمة الغرف المتاحة =====
+        function updateRoomSelector() {
+            const selector = document.getElementById('roomSelector');
+            const roomCount = Object.keys(availableRooms).length;
+            if (roomCount === 0) {
+                selector.style.display = 'none';
+                return;
+            }
+            selector.style.display = 'flex';
+            let html = '';
+            html += `<button class="room-option ${currentRoom === 'main' ? 'active' : ''}" onclick="joinRoom('main')">الرئيسية</button>`;
+            Object.keys(availableRooms).forEach(roomId => {
+                const room = availableRooms[roomId];
+                html += `<button class="room-option ${currentRoom === roomId ? 'active' : ''}" onclick="joinRoom('${roomId}')">${room.name}</button>`;
+            });
+            selector.innerHTML = html;
+        }
+
+        // ===== الانضمام إلى غرفة =====
+        window.joinRoom = function(roomId) {
+            if (roomId === 'main') {
+                currentRoom = 'main';
+                document.getElementById('currentRoom').textContent = 'القاعة الرئيسية';
+                db.ref('onlineStudents/' + sid).update({ room: 'main' });
+                // إزالة أي تخصيص سابق
+                db.ref('breakout/assignments/' + sid).remove();
+                return;
+            }
+            // طلب الانضمام إلى الغرفة
+            db.ref('breakout/joinRequests').push({
+                studentId: sid,
+                studentName: sname,
+                roomId: roomId,
+                ts: Date.now()
+            });
+        };
 
         // ===== رسم الطالب =====
         function getCanvasPoint(e) {
