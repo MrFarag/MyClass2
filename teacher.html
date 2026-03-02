@@ -2,13 +2,12 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>MyClass2 - المدرس</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-
     body {
       background: #1a2e25;
       color: #fff;
@@ -17,7 +16,6 @@
       display: flex;
       flex-direction: column;
     }
-
     /* ===== TOP BAR ===== */
     .top-bar {
       height: 50px;
@@ -30,13 +28,11 @@
       position: relative;
       z-index: 10;
     }
-
     .top-left {
       display: flex;
       align-items: center;
       gap: 14px;
     }
-
     .menu-btn {
       background: none;
       border: none;
@@ -45,7 +41,6 @@
       cursor: pointer;
       opacity: 0.8;
     }
-
     .user-avatar-top {
       width: 34px;
       height: 34px;
@@ -57,7 +52,6 @@
       font-size: 14px;
       border: 2px solid rgba(255,255,255,0.2);
     }
-
     .top-center {
       position: absolute;
       left: 50%;
@@ -72,33 +66,20 @@
       font-size: 13px;
       color: #e0e0e0;
     }
-
     .top-center .divider {
       width: 1px;
       height: 16px;
       background: rgba(255,255,255,0.25);
     }
-
     .top-center .platform-name {
       font-weight: 700;
       color: #fff;
     }
-
     .top-right {
       display: flex;
       align-items: center;
       gap: 10px;
     }
-
-    .bell-btn {
-      background: none;
-      border: none;
-      color: #fff;
-      font-size: 16px;
-      cursor: pointer;
-      opacity: 0.8;
-    }
-
     .logo-top {
       font-size: 18px;
       font-weight: 900;
@@ -125,7 +106,6 @@
       padding: 12px 0;
       gap: 6px;
     }
-
     .nav-item {
       width: 46px;
       height: 52px;
@@ -140,14 +120,11 @@
       font-size: 10px;
       color: rgba(255,255,255,0.5);
     }
-
     .nav-item i { font-size: 18px; }
-
     .nav-item.active {
       background: rgba(76, 175, 80, 0.25);
       color: #4CAF50;
     }
-
     .nav-item:not(.active):hover {
       background: rgba(255,255,255,0.06);
       color: rgba(255,255,255,0.8);
@@ -155,82 +132,74 @@
 
     /* ===== STUDENTS PANELS (left thumbnails) ===== */
     .students-panels {
-      width: 330px;
+      width: 340px;
       background: #1a2a20;
       display: flex;
       flex-direction: column;
-      gap: 0;
+      gap: 2px;
       overflow-y: auto;
       border-left: 1px solid rgba(255,255,255,0.06);
+      padding: 4px;
     }
-
     .student-panel {
       background: #1e3228;
-      border-bottom: 2px solid #1a2a20;
+      border-radius: 12px;
       position: relative;
       flex: 0 0 auto;
-      height: 50%;  /* سيتغير ديناميكياً حسب العدد لكننا سنتركها auto */
-      min-height: 180px;
+      margin-bottom: 6px;
+      border: 1px solid #2a4a30;
       cursor: pointer;
+      overflow: hidden;
     }
-
     .student-panel-header {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 5;
-      background: rgba(0,0,0,0.55);
-      padding: 5px 8px;
+      background: rgba(0,0,0,0.7);
+      padding: 6px 8px;
       display: flex;
       align-items: center;
       gap: 6px;
       font-size: 12px;
-      backdrop-filter: blur(2px);
+      backdrop-filter: blur(4px);
+      border-bottom: 1px solid #3a5a40;
     }
-
     .student-panel-avatar {
-      width: 22px;
-      height: 22px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
-      overflow: hidden;
       background: #4CAF50;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
       flex-shrink: 0;
     }
-
-    .student-panel-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; }
-
+    .student-panel-name { 
+      font-size: 12px; 
+      font-weight: 600; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+      max-width: 90px; 
+    }
     .student-panel-icons {
       margin-right: auto;
       display: flex;
-      gap: 6px;
+      gap: 8px;
       align-items: center;
-      color: rgba(255,255,255,0.7);
-      font-size: 12px;
+      color: #ddd;
+      font-size: 13px;
     }
-
-    .close-panel {
-      background: none;
-      border: none;
-      color: rgba(255,255,255,0.6);
-      font-size: 12px;
+    .student-panel-icons i {
       cursor: pointer;
-      padding: 0 2px;
+      transition: color 0.2s;
     }
-
+    .student-panel-icons i:hover { color: #4CAF50; }
     .student-board-canvas {
       width: 100%;
-      height: 100%;
+      height: 120px;
       background: #fff;
       position: relative;
-      overflow: hidden;
     }
-
     .student-board-canvas canvas {
       width: 100%;
       height: 100%;
@@ -245,7 +214,6 @@
       flex-direction: row;
       overflow: hidden;
     }
-
     .main-board {
       flex: 1;
       position: relative;
@@ -253,8 +221,6 @@
       border-bottom: 3px solid #2a4a30;
       background: #fff;
     }
-
-    /* thin colored top border */
     .main-board::before {
       content: '';
       position: absolute;
@@ -263,7 +229,6 @@
       background: linear-gradient(90deg, #ffd700, #ffec6e, #ffd700);
       z-index: 5;
     }
-
     .board-top-icons {
       position: absolute;
       top: 10px;
@@ -274,10 +239,8 @@
       color: rgba(0,0,0,0.45);
       font-size: 14px;
     }
-
     .board-top-icons i { cursor: pointer; transition: color 0.2s; }
     .board-top-icons i:hover { color: rgba(0,0,0,0.9); }
-
     .main-board canvas {
       width: 100%;
       height: 100%;
@@ -285,16 +248,13 @@
       background: #fff;
       touch-action: none;
     }
-
-    /* Second Board (left side, student view) */
     .second-board {
-      width: 260px;
+      width: 280px;
       background: #1e3228;
       border-right: 2px solid #2a4a30;
       position: relative;
       overflow: hidden;
     }
-
     .second-board canvas {
       width: 100%;
       height: 100%;
@@ -310,14 +270,12 @@
       background: #162520;
       border-top: 1px solid rgba(255,255,255,0.07);
     }
-
     .toolbar-center {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-
     .toolbar-tools {
       background: rgba(0,0,0,0.35);
       border: 1px solid rgba(255,255,255,0.1);
@@ -327,7 +285,6 @@
       align-items: flex-end;
       gap: 18px;
     }
-
     .tool-item {
       display: flex;
       flex-direction: column;
@@ -339,23 +296,15 @@
       font-size: 10px;
       color: #ccc;
     }
-
-    .tool-item.active {
-      opacity: 1;
-      color: #fff;
-    }
-
+    .tool-item.active { opacity: 1; color: #fff; }
     .tool-item i { font-size: 22px; }
-
     .tool-item.active i { color: #ffd700; }
-
     .toolbar-actions {
       padding: 0 16px;
       display: flex;
       align-items: center;
       gap: 10px;
     }
-
     .action-circle {
       width: 44px;
       height: 44px;
@@ -368,19 +317,14 @@
       border: none;
       transition: transform 0.15s;
     }
-
     .action-circle:hover { transform: scale(1.08); }
-
     .btn-cam { background: #2d4a35; color: #fff; }
     .btn-mic { background: #2d4a35; color: #fff; }
-    .btn-rec { background: #2d4a35; color: #fff; }
     .btn-screen { background: #4CAF50; color: #fff; }
     .btn-hand { background: #2d4a35; color: #fff; }
-    .btn-settings { background: #2d4a35; color: #fff; }
-    .btn-more { background: #2d4a35; color: #fff; }
     .btn-end { background: #d32f2f; color: #fff; }
 
-    /* Modal for correcting student board */
+    /* ===== MODAL لتصحيح سبورة الطالب ===== */
     .modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -423,8 +367,6 @@
       display: flex;
       gap: 8px;
     }
-
-    /* رفع الصور */
     .image-upload input { display: none; }
     .image-upload label {
       cursor: pointer;
@@ -463,9 +405,7 @@
 <!-- MAIN -->
 <div class="main-layout">
   <!-- STUDENTS PANELS (left) -->
-  <div class="students-panels" id="studentsPanels">
-    <!-- هنا ستضاف لوحات الطلاب ديناميكياً -->
-  </div>
+  <div class="students-panels" id="studentsPanels"></div>
 
   <!-- LEFT SIDEBAR NAV (أيقونات) -->
   <div class="left-sidebar">
@@ -493,8 +433,7 @@
         </div>
         <canvas id="mainBoardCanvas"></canvas>
       </div>
-
-      <!-- Second Board (يسار, عرض سبورة آخر طالب أو آخر تحديث) -->
+      <!-- Second Board (يسار, عرض سبورة آخر طالب) -->
       <div class="second-board">
         <canvas id="secondBoardCanvas"></canvas>
       </div>
@@ -506,30 +445,9 @@
 <div class="bottom-bar">
   <div class="toolbar-center">
     <div class="toolbar-tools">
-      <div class="tool-item active" onclick="setTool('pen')" id="toolPen">
-        <i class="fas fa-pen-nib" style="color:#ffd700"></i><span>قلم</span>
-      </div>
-      <div class="tool-item" onclick="setTool('shape')" id="toolShape">
-        <i class="fas fa-shapes"></i><span>شكل</span>
-      </div>
-      <div class="tool-item" onclick="setTool('rectangle')" id="toolRect">
-        <i class="fas fa-vector-square"></i><span>مستطيل</span>
-      </div>
-      <div class="tool-item" onclick="openColorPicker()" id="toolColor">
-        <i class="fas fa-palette"></i><span>لون</span>
-      </div>
-      <div class="tool-item" onclick="setTool('fill')" id="toolFill">
-        <i class="fas fa-fill-drip"></i><span>تعبئة</span>
-      </div>
-      <div class="tool-item" onclick="setTool('eraser')" id="toolEraser">
-        <i class="fas fa-eraser"></i><span>ممحاة</span>
-      </div>
-      <div class="tool-item" onclick="setTool('layers')" id="toolLayers">
-        <i class="fas fa-layer-group"></i><span>طبقات</span>
-      </div>
-      <div class="tool-item" onclick="setTool('ruler')" id="toolRuler">
-        <i class="fas fa-ruler"></i><span>مسطرة</span>
-      </div>
+      <div class="tool-item active" onclick="setTool('pen')" id="toolPen"><i class="fas fa-pen-nib"></i><span>قلم</span></div>
+      <div class="tool-item" onclick="setTool('eraser')" id="toolEraser"><i class="fas fa-eraser"></i><span>ممحاة</span></div>
+      <div class="tool-item" onclick="openColorPicker()" id="toolColor"><i class="fas fa-palette"></i><span>لون</span></div>
       <div class="tool-item image-upload">
         <label for="teacherImage"><i class="fas fa-file-import"></i><span>رفع</span></label>
         <input type="file" id="teacherImage" accept="image/*" onchange="uploadTeacherImage(this)">
@@ -539,11 +457,8 @@
   <div class="toolbar-actions">
     <button class="action-circle btn-cam" id="cameraBtn"><i class="fas fa-video-slash"></i></button>
     <button class="action-circle btn-mic" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
-    <button class="action-circle btn-rec" id="recordBtn"><i class="fas fa-video"></i></button>
-    <button class="action-circle btn-screen" id="screenShareBtn" onclick="toggleScreenShare()"><i class="fas fa-desktop"></i></button>
+    <button class="action-circle btn-screen" id="screenShareBtn"><i class="fas fa-desktop"></i></button>
     <button class="action-circle btn-hand" id="handBtn"><i class="fas fa-hand-paper"></i></button>
-    <button class="action-circle btn-settings"><i class="fas fa-cog"></i></button>
-    <button class="action-circle btn-more"><i class="fas fa-ellipsis-h"></i></button>
     <button class="action-circle btn-end" onclick="endClass()"><i class="fas fa-power-off"></i></button>
   </div>
 </div>
@@ -564,7 +479,7 @@
     <div class="modal-footer">
       <button class="tool-item" onclick="setModalTool('pen')"><i class="fas fa-pen-nib"></i> قلم</button>
       <button class="tool-item" onclick="setModalTool('eraser')"><i class="fas fa-eraser"></i> ممحاة</button>
-      <div class="color-picker" style="display:flex; gap:5px;">
+      <div style="display:flex; gap:5px;">
         <div style="width:25px; height:25px; background:#ff0000; border-radius:50%; cursor:pointer;" onclick="setModalColor('#ff0000')"></div>
         <div style="width:25px; height:25px; background:#00ff00; border-radius:50%; cursor:pointer;" onclick="setModalColor('#00ff00')"></div>
         <div style="width:25px; height:25px; background:#0000ff; border-radius:50%; cursor:pointer;" onclick="setModalColor('#0000ff')"></div>
@@ -602,7 +517,6 @@
   let modalTool = 'pen';
   let modalColor = '#ff0000';
 
-  // الكانفاسات
   const mainCanvas = document.getElementById('mainBoardCanvas');
   const secondCanvas = document.getElementById('secondBoardCanvas');
   const modalCanvas = document.getElementById('modalCanvas');
@@ -639,10 +553,7 @@
     const scaleY = canvas.height / rect.height;
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY
-    };
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
   }
 
   function startDraw(e) {
@@ -684,13 +595,8 @@
   window.setTool = function(tool) {
     currentTool = tool;
     document.querySelectorAll('.tool-item').forEach(el => el.classList.remove('active'));
-    if (tool === 'pen') document.getElementById('toolPen').classList.add('active');
-    else if (tool === 'eraser') document.getElementById('toolEraser').classList.add('active');
-    else if (tool === 'shape') document.getElementById('toolShape').classList.add('active');
-    else if (tool === 'rectangle') document.getElementById('toolRect').classList.add('active');
-    else if (tool === 'fill') document.getElementById('toolFill').classList.add('active');
-    else if (tool === 'layers') document.getElementById('toolLayers').classList.add('active');
-    else if (tool === 'ruler') document.getElementById('toolRuler').classList.add('active');
+    document.getElementById('toolPen').classList.toggle('active', tool === 'pen');
+    document.getElementById('toolEraser').classList.toggle('active', tool === 'eraser');
   };
 
   window.openColorPicker = function() {
@@ -711,6 +617,7 @@
       const img = new Image();
       img.onload = () => {
         mainCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
+        // إرسال الصورة لجميع الطلاب
         db.ref('boardImg/main').set({ data: e.target.result, ts: Date.now() });
       };
       img.src = e.target.result;
@@ -776,14 +683,29 @@
     db.ref('boardImg/stu').on('child_added', snap => {
       updateStudentsPanels(); // لتحديث الصورة المصغرة
     });
+
+    // استقبال رسم الطلاب لتحديث secondBoard
+    db.ref('draw_st').on('child_added', snap => {
+      const data = snap.val();
+      if (!data || !data.points) return;
+      // نرسم على secondBoard لآخر طالب أو نختار آخر تحديث
+      // يمكن تبسيطاً رسم أي رسم قادم
+      secondCtx.strokeStyle = data.color || '#000';
+      secondCtx.lineWidth = data.size || 4;
+      secondCtx.beginPath();
+      secondCtx.moveTo(data.points[0].x * secondCanvas.width, data.points[0].y * secondCanvas.height);
+      for (let i = 1; i < data.points.length; i++) {
+        secondCtx.lineTo(data.points[i].x * secondCanvas.width, data.points[i].y * secondCanvas.height);
+      }
+      secondCtx.stroke();
+    });
   }
 
-  // تحديث لوحات الطلاب في اليسار
   function updateStudentsPanels() {
     const container = document.getElementById('studentsPanels');
     let html = '';
 
-    // أولاً: طلبات الانضمام (تظهر كبطاقات منفصلة)
+    // طلبات الانضمام
     Object.values(waitingStudents).forEach(s => {
       html += `
         <div class="student-panel" style="background:#2a3a30;">
@@ -791,14 +713,13 @@
             <div class="student-panel-avatar">${s.name.charAt(0)}</div>
             <span class="student-panel-name">${s.name} (طلب)</span>
             <div class="student-panel-icons">
-              <i class="fas fa-clock"></i>
+              <i class="fas fa-door-open" title="دخول" onclick="event.stopPropagation(); approveStudent('${s.id}')"></i>
+              <i class="fas fa-times-circle" title="رفض" onclick="event.stopPropagation(); rejectStudent('${s.id}')"></i>
             </div>
-            <button class="close-panel" onclick="approveStudent('${s.id}')"><i class="fas fa-check" style="color:#4CAF50;"></i></button>
-            <button class="close-panel" onclick="rejectStudent('${s.id}')"><i class="fas fa-times" style="color:#d32f2f;"></i></button>
           </div>
           <div class="student-board-canvas" style="background:#1e2a22;">
-            <svg viewBox="0 0 330 180" style="width:100%; height:100%; opacity:0.5;">
-              <text x="50%" y="50%" fill="#aaa" font-size="20" text-anchor="middle">في الانتظار</text>
+            <svg viewBox="0 0 330 120" style="width:100%; height:100%; opacity:0.5;">
+              <text x="50%" y="50%" fill="#aaa" font-size="16" text-anchor="middle">في الانتظار</text>
             </svg>
           </div>
         </div>
@@ -809,15 +730,16 @@
     Object.values(students).forEach(s => {
       if (!s.online) return;
       html += `
-        <div class="student-panel" onclick="openStudentBoard('${s.id}', '${s.name}')">
+        <div class="student-panel">
           <div class="student-panel-header">
             <div class="student-panel-avatar" style="background:${s.handRaised ? '#f59e0b' : '#4CAF50'}">${s.name.charAt(0)}</div>
             <span class="student-panel-name">${s.name}</span>
             <div class="student-panel-icons">
-              ${s.handRaised ? '<i class="fas fa-hand-paper" style="color:#f59e0b;"></i>' : ''}
-              ${currentSpeaker === s.id ? '<i class="fas fa-microphone" style="color:#22c55e;"></i>' : ''}
+              ${s.handRaised ? '<i class="fas fa-hand-paper" style="color:#f59e0b;" title="رفع اليد"></i>' : ''}
+              ${currentSpeaker === s.id ? '<i class="fas fa-microphone" style="color:#22c55e;" title="يتحدث"></i>' : ''}
+              <i class="fas fa-eye" title="عرض السبورة" onclick="event.stopPropagation(); openStudentBoard('${s.id}', '${s.name}')"></i>
+              <i class="fas fa-door-closed" title="طرد" onclick="event.stopPropagation(); kickStudent('${s.id}')"></i>
             </div>
-            <button class="close-panel" onclick="event.stopPropagation(); openStudentBoard('${s.id}', '${s.name}')"><i class="fas fa-eye"></i></button>
           </div>
           <div class="student-board-canvas">
             <canvas id="studentCanvas_${s.id}" style="width:100%; height:100%;"></canvas>
@@ -828,20 +750,18 @@
 
     container.innerHTML = html || '<div style="padding:20px; color:#aaa; text-align:center;">لا يوجد طلاب</div>';
 
-    // بعد إضافة اللوحات، نقوم بتحميل صور سبورات الطلاب
+    // تحميل صور سبورات الطلاب
     Object.values(students).forEach(s => {
       if (!s.online) return;
       const canvas = document.getElementById(`studentCanvas_${s.id}`);
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      // ضبط حجم الكانفاس (يجب أن يتطابق مع حجم العنصر الأب)
       const parent = canvas.parentElement;
       canvas.width = parent.clientWidth;
       canvas.height = parent.clientHeight;
       ctx.fillStyle = '#fff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // تحميل صورة السبورة من Firebase
       db.ref('boardImg/stu/' + s.id).once('value', snap => {
         const data = snap.val();
         if (data && data.data) {
@@ -855,7 +775,6 @@
     });
   }
 
-  // إجراءات الموافقة
   window.approveStudent = function(id) {
     const s = waitingStudents[id];
     if (s) {
@@ -869,6 +788,15 @@
     delete waitingStudents[id];
     db.ref('joinRequests/' + id).remove();
   };
+  window.kickStudent = function(id) {
+    if (currentSpeaker === id) {
+      currentSpeaker = null;
+      db.ref('micPermissions/' + id).remove();
+    }
+    delete students[id];
+    db.ref('approvedStudents/' + id).remove();
+    db.ref('onlineStudents/' + id).remove();
+  };
 
   // ------------------------------------------------------------
   // فتح سبورة الطالب للتصحيح
@@ -878,13 +806,11 @@
     document.getElementById('modalStudentName').textContent = 'تصحيح سبورة ' + studentName;
     document.getElementById('correctionModal').classList.add('active');
 
-    // ضبط حجم الكانفاس المودال
     modalCanvas.width = modalCanvas.parentElement.clientWidth;
     modalCanvas.height = modalCanvas.parentElement.clientHeight;
     modalCtx.fillStyle = '#fff';
     modalCtx.fillRect(0, 0, modalCanvas.width, modalCanvas.height);
 
-    // تحميل صورة الطالب
     db.ref('boardImg/stu/' + studentId).once('value', snap => {
       const data = snap.val();
       if (data && data.data) {
@@ -909,44 +835,26 @@
     closeModal();
   };
 
-  // أدوات التصحيح في المودال
   window.setModalTool = function(tool) { modalTool = tool; };
   window.setModalColor = function(color) { modalColor = color; };
-
-  // يمكن إضافة أحداث الرسم على modalCanvas هنا (مشابهة للرسم الرئيسي) - اختصاراً
 
   // ------------------------------------------------------------
   // الصوت (مبسطة)
   // ------------------------------------------------------------
   window.toggleMic = function() {
     const micBtn = document.getElementById('micBtn');
-    if (micBtn.classList.contains('btn-mic')) {
-      // تغيير اللون للإشارة
-      micBtn.style.background = '#4CAF50';
-      micBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
-      // هنا يمكن إضافة كود بدء البث الصوتي
-    } else {
+    if (micBtn.style.background === 'rgb(76, 175, 80)') {
       micBtn.style.background = '#2d4a35';
       micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+    } else {
+      micBtn.style.background = '#4CAF50';
+      micBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
     }
-  };
-
-  window.toggleScreenShare = function() {
-    alert('مشاركة الشاشة قيد التطوير');
   };
 
   window.endClass = function() {
-    if (confirm('هل تريد إنهاء الحصة؟')) {
-      window.location.reload();
-    }
+    if (confirm('هل تريد إنهاء الحصة؟')) window.location.reload();
   };
-
-  // ------------------------------------------------------------
-  // حالة الاتصال
-  // ------------------------------------------------------------
-  db.ref('.info/connected').on('value', snap => {
-    // يمكن إضافة مؤشر
-  });
 
   // بدء الاستماع
   setupListeners();
