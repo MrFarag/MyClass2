@@ -9,7 +9,7 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
     body {
-      background: #1a2e25;
+      background: linear-gradient(145deg, #0f2a1f 0%, #1a3a2a 100%);
       color: #fff;
       height: 100vh;
       overflow: hidden;
@@ -18,187 +18,145 @@
     }
     /* ===== TOP BAR ===== */
     .top-bar {
-      height: 50px;
-      background: linear-gradient(90deg, #1a2e25 0%, #1e3a2a 100%);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      height: 56px;
+      background: rgba(10, 25, 18, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,215,0,0.3);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
-      position: relative;
+      padding: 0 20px;
       z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
-    .top-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .menu-btn {
-      background: none;
-      border: none;
-      color: #fff;
-      font-size: 18px;
-      cursor: pointer;
-      opacity: 0.8;
-    }
-    .user-avatar-top {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #4CAF50, #2e7d32);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .logo-top { font-size: 22px; font-weight: 900; color: #ffd966; }
+    .logo-top span { color: #fff; }
+    .teacher-badge {
+      background: #2a4a35;
+      padding: 6px 18px;
+      border-radius: 40px;
       font-size: 14px;
-      border: 2px solid rgba(255,255,255,0.2);
+      border: 1px solid #ffd966;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
     }
     .top-center {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 20px;
       background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 8px;
       padding: 6px 20px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      font-size: 13px;
-      color: #e0e0e0;
+      border-radius: 40px;
+      border: 1px solid #3a5a40;
     }
-    .top-center .divider {
-      width: 1px;
-      height: 16px;
-      background: rgba(255,255,255,0.25);
-    }
-    .top-center .platform-name {
-      font-weight: 700;
-      color: #fff;
-    }
-    .top-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .logo-top {
-      font-size: 18px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: -0.5px;
-    }
-    .logo-top span { color: #4CAF50; }
+    .top-center span { color: #ddd; font-size: 13px; }
+    .top-center i { color: #ffd966; }
 
     /* ===== MAIN LAYOUT ===== */
     .main-layout {
       flex: 1;
       display: flex;
       overflow: hidden;
+      gap: 8px;
+      padding: 8px;
+      background: rgba(0,0,0,0.2);
     }
 
-    /* ===== LEFT SIDEBAR (nav icons) ===== */
+    /* ===== LEFT SIDEBAR (navigation) ===== */
     .left-sidebar {
-      width: 60px;
-      background: linear-gradient(180deg, #1a2e25 0%, #162520 100%);
-      border-left: 1px solid rgba(255,255,255,0.06);
+      width: 70px;
+      background: rgba(20, 40, 30, 0.8);
+      backdrop-filter: blur(8px);
+      border-radius: 24px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 12px 0;
-      gap: 6px;
+      padding: 16px 0;
+      gap: 12px;
+      border: 1px solid #3a5a40;
     }
     .nav-item {
-      width: 46px;
-      height: 52px;
-      border-radius: 10px;
+      width: 50px;
+      height: 50px;
+      border-radius: 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 3px;
+      gap: 4px;
       cursor: pointer;
-      transition: background 0.2s;
-      font-size: 10px;
-      color: rgba(255,255,255,0.5);
+      color: #aaa;
+      transition: 0.2s;
+      font-size: 11px;
     }
-    .nav-item i { font-size: 18px; }
+    .nav-item i { font-size: 22px; }
     .nav-item.active {
-      background: rgba(76, 175, 80, 0.25);
-      color: #4CAF50;
+      background: #4CAF50;
+      color: #fff;
+      box-shadow: 0 4px 10px #4CAF5066;
     }
-    .nav-item:not(.active):hover {
-      background: rgba(255,255,255,0.06);
-      color: rgba(255,255,255,0.8);
-    }
+    .nav-item:hover { background: #2a4a35; color: #fff; }
 
-    /* ===== STUDENTS PANELS (left thumbnails) ===== */
+    /* ===== STUDENTS PANELS (left) ===== */
     .students-panels {
       width: 340px;
-      background: #1a2a20;
+      background: rgba(20, 40, 30, 0.8);
+      backdrop-filter: blur(8px);
+      border-radius: 24px;
+      padding: 12px;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      overflow-y: auto;
-      border-left: 1px solid rgba(255,255,255,0.06);
-      padding: 4px;
+      gap: 12px;
+      border: 1px solid #3a5a40;
     }
     .student-panel {
       background: #1e3228;
-      border-radius: 12px;
-      position: relative;
-      flex: 0 0 auto;
-      margin-bottom: 6px;
+      border-radius: 20px;
       border: 1px solid #2a4a30;
-      cursor: pointer;
       overflow: hidden;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
     }
     .student-panel-header {
-      background: rgba(0,0,0,0.7);
-      padding: 6px 8px;
+      background: linear-gradient(90deg, #1a2e25, #2a4030);
+      padding: 8px 12px;
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      backdrop-filter: blur(4px);
-      border-bottom: 1px solid #3a5a40;
+      gap: 10px;
+      border-bottom: 2px solid #ffd966;
     }
-    .student-panel-avatar {
-      width: 24px;
-      height: 24px;
+    .student-avatar {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: #4CAF50;
+      background: linear-gradient(145deg, #4CAF50, #2e7d32);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      flex-shrink: 0;
+      font-weight: 900;
+      font-size: 16px;
+      border: 2px solid #ffd966;
     }
-    .student-panel-name { 
-      font-size: 12px; 
-      font-weight: 600; 
-      white-space: nowrap; 
-      overflow: hidden; 
-      text-overflow: ellipsis; 
-      max-width: 90px; 
-    }
-    .student-panel-icons {
-      margin-right: auto;
+    .student-info { flex: 1; }
+    .student-name { font-weight: 700; font-size: 14px; }
+    .student-status { font-size: 11px; color: #ccc; }
+    .student-actions {
       display: flex;
-      gap: 8px;
-      align-items: center;
-      color: #ddd;
-      font-size: 13px;
+      gap: 12px;
+      color: #ffd966;
+      font-size: 16px;
     }
-    .student-panel-icons i {
+    .student-actions i {
       cursor: pointer;
-      transition: color 0.2s;
+      transition: transform 0.2s, color 0.2s;
     }
-    .student-panel-icons i:hover { color: #4CAF50; }
+    .student-actions i:hover {
+      transform: scale(1.2);
+      color: #fff;
+    }
     .student-board-canvas {
       width: 100%;
-      height: 120px;
+      height: 110px;
       background: #fff;
-      position: relative;
     }
     .student-board-canvas canvas {
       width: 100%;
@@ -211,36 +169,34 @@
     .board-area {
       flex: 1;
       display: flex;
-      flex-direction: row;
+      gap: 8px;
       overflow: hidden;
     }
     .main-board {
       flex: 1;
+      background: #1e3228;
+      border-radius: 24px;
+      border: 2px solid #2a4a30;
       position: relative;
       overflow: hidden;
-      border-bottom: 3px solid #2a4a30;
-      background: #fff;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
     }
-    .main-board::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, #ffd700, #ffec6e, #ffd700);
-      z-index: 5;
-    }
-    .board-top-icons {
+    .board-header {
       position: absolute;
       top: 10px;
-      right: 14px;
+      right: 15px;
+      z-index: 10;
       display: flex;
-      gap: 10px;
-      z-index: 5;
-      color: rgba(0,0,0,0.45);
-      font-size: 14px;
+      gap: 15px;
+      color: #ffd966;
+      font-size: 18px;
+      background: rgba(0,0,0,0.4);
+      padding: 8px 16px;
+      border-radius: 40px;
+      backdrop-filter: blur(4px);
     }
-    .board-top-icons i { cursor: pointer; transition: color 0.2s; }
-    .board-top-icons i:hover { color: rgba(0,0,0,0.9); }
+    .board-header i { cursor: pointer; transition: 0.2s; }
+    .board-header i:hover { color: #fff; transform: scale(1.1); }
     .main-board canvas {
       width: 100%;
       height: 100%;
@@ -251,9 +207,10 @@
     .second-board {
       width: 280px;
       background: #1e3228;
-      border-right: 2px solid #2a4a30;
-      position: relative;
+      border-radius: 24px;
+      border: 2px solid #2a4a30;
       overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
     }
     .second-board canvas {
       width: 100%;
@@ -264,67 +221,55 @@
 
     /* ===== BOTTOM BAR ===== */
     .bottom-bar {
-      height: 72px;
+      height: 80px;
+      background: rgba(10, 25, 18, 0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid #ffd966;
       display: flex;
       align-items: center;
-      background: #162520;
-      border-top: 1px solid rgba(255,255,255,0.07);
-    }
-    .toolbar-center {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+      padding: 0 20px;
     }
     .toolbar-tools {
-      background: rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 14px;
-      padding: 8px 18px;
       display: flex;
-      align-items: flex-end;
-      gap: 18px;
+      gap: 20px;
+      background: #1a2e25;
+      padding: 8px 20px;
+      border-radius: 50px;
+      border: 1px solid #3a5a40;
     }
     .tool-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      color: #aaa;
       cursor: pointer;
-      opacity: 0.55;
-      transition: opacity 0.2s;
-      font-size: 10px;
-      color: #ccc;
+      font-size: 11px;
+      transition: 0.2s;
     }
-    .tool-item.active { opacity: 1; color: #fff; }
     .tool-item i { font-size: 22px; }
-    .tool-item.active i { color: #ffd700; }
+    .tool-item.active { color: #ffd966; }
     .toolbar-actions {
-      padding: 0 16px;
       display: flex;
-      align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
     .action-circle {
-      width: 44px;
-      height: 44px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 17px;
       border: none;
-      transition: transform 0.15s;
+      background: #2a4a35;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
     }
-    .action-circle:hover { transform: scale(1.08); }
-    .btn-cam { background: #2d4a35; color: #fff; }
-    .btn-mic { background: #2d4a35; color: #fff; }
-    .btn-screen { background: #4CAF50; color: #fff; }
-    .btn-hand { background: #2d4a35; color: #fff; }
-    .btn-end { background: #d32f2f; color: #fff; }
+    .action-circle:hover { transform: scale(1.1); }
+    .btn-mic.active { background: #4CAF50; }
+    .btn-end { background: #b71c1c; }
 
-    /* ===== MODAL لتصحيح سبورة الطالب ===== */
+    /* ===== MODAL ===== */
     .modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -332,100 +277,79 @@
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
+      z-index: 2000;
     }
     .modal.active { display: flex; }
     .modal-content {
       background: #1e3228;
       width: 80%;
       height: 80%;
-      border-radius: 16px;
+      border-radius: 30px;
       display: flex;
       flex-direction: column;
+      border: 2px solid #ffd966;
     }
     .modal-header {
-      padding: 12px;
-      background: #1a2e25;
+      padding: 15px;
+      background: #0f2a1f;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid #ffd966;
     }
-    .modal-body {
-      flex: 1;
-      background: #fff;
-      position: relative;
-    }
-    .modal-body canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+    .modal-body { flex: 1; background: #fff; }
+    .modal-body canvas { width: 100%; height: 100%; }
     .modal-footer {
-      padding: 8px;
-      background: #1a2e25;
+      padding: 10px;
+      background: #0f2a1f;
       display: flex;
-      gap: 8px;
+      gap: 15px;
+      align-items: center;
     }
     .image-upload input { display: none; }
     .image-upload label {
-      cursor: pointer;
-      padding: 5px 10px;
       background: #4CAF50;
-      border-radius: 20px;
-      font-size: 12px;
+      padding: 6px 16px;
+      border-radius: 30px;
+      cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 8px;
     }
   </style>
 </head>
 <body>
-
-<!-- TOP BAR -->
-<div class="top-bar">
-  <div class="top-left">
-    <button class="menu-btn"><i class="fas fa-bars"></i></button>
-    <div class="user-avatar-top"><i class="fas fa-user" style="font-size:13px"></i></div>
-  </div>
-  <div class="top-center">
-    <span class="platform-name">Mr_Farag_Kohail</span>
-    <span class="divider"></span>
-    <span>الفيزياء للثانوية</span>
-    <span class="divider"></span>
-    <span>01141010981</span>
-    <span class="divider"></span>
-    <i class="fas fa-bell" style="font-size:14px; opacity:0.7"></i>
-  </div>
-  <div class="top-right">
+  <!-- TOP BAR -->
+  <div class="top-bar">
     <div class="logo-top">My<span>Class</span>2</div>
-  </div>
-</div>
-
-<!-- MAIN -->
-<div class="main-layout">
-  <!-- STUDENTS PANELS (left) -->
-  <div class="students-panels" id="studentsPanels"></div>
-
-  <!-- LEFT SIDEBAR NAV (أيقونات) -->
-  <div class="left-sidebar">
-    <div class="nav-item active"><i class="fas fa-home"></i><span>الرئيسية</span></div>
-    <div class="nav-item"><i class="fas fa-door-open"></i><span>فصولي</span></div>
-    <div class="nav-item"><i class="fas fa-chart-bar"></i><span>الدرجات</span></div>
-    <div class="nav-item"><i class="fas fa-calendar-alt"></i><span>الجدول</span></div>
-    <div class="nav-item" style="position:relative">
-      <i class="fas fa-comment-dots"></i><span>الرسائل</span>
-      <div style="position:absolute;top:6px;right:6px;width:8px;height:8px;background:#4CAF50;border-radius:50%;border:1.5px solid #1a2e25"></div>
+    <div class="teacher-badge"><i class="fas fa-chalkboard-teacher"></i> المدرس: فراج</div>
+    <div class="top-center">
+      <span><i class="fas fa-circle" style="color:#4CAF50;"></i> مباشر</span>
+      <span><i class="fas fa-users"></i> <span id="studentsCount">0</span></span>
+      <span><i class="fas fa-clock"></i> 24ms</span>
     </div>
-    <div class="nav-item" style="margin-top:auto"><i class="fas fa-cog"></i><span>الاعدادات</span></div>
   </div>
 
-  <!-- BOARD AREA -->
-  <div class="board-area">
-    <div style="display:flex; flex:1; overflow:hidden;">
-      <!-- Main Board (يمين) -->
+  <!-- MAIN -->
+  <div class="main-layout">
+    <!-- LEFT SIDEBAR (nav) -->
+    <div class="left-sidebar">
+      <div class="nav-item active"><i class="fas fa-home"></i><span>الرئيسية</span></div>
+      <div class="nav-item"><i class="fas fa-door-open"></i><span>فصولي</span></div>
+      <div class="nav-item"><i class="fas fa-chart-bar"></i><span>الدرجات</span></div>
+      <div class="nav-item"><i class="fas fa-calendar-alt"></i><span>الجدول</span></div>
+      <div class="nav-item"><i class="fas fa-comment-dots"></i><span>الرسائل</span></div>
+      <div class="nav-item" style="margin-top:auto"><i class="fas fa-cog"></i><span>الاعدادات</span></div>
+    </div>
+
+    <!-- STUDENTS PANELS (left) -->
+    <div class="students-panels" id="studentsPanels"></div>
+
+    <!-- BOARD AREA -->
+    <div class="board-area">
+      <!-- MAIN BOARD -->
       <div class="main-board">
-        <div class="board-top-icons">
+        <div class="board-header">
           <i class="fas fa-download" onclick="saveMainBoard()"></i>
           <i class="fas fa-eye" onclick="toggleGrid()"></i>
           <i class="fas fa-expand" onclick="toggleFullscreen()"></i>
@@ -433,17 +357,15 @@
         </div>
         <canvas id="mainBoardCanvas"></canvas>
       </div>
-      <!-- Second Board (يسار, عرض سبورة آخر طالب) -->
+      <!-- SECOND BOARD (preview) -->
       <div class="second-board">
         <canvas id="secondBoardCanvas"></canvas>
       </div>
     </div>
   </div>
-</div>
 
-<!-- BOTTOM BAR -->
-<div class="bottom-bar">
-  <div class="toolbar-center">
+  <!-- BOTTOM BAR -->
+  <div class="bottom-bar">
     <div class="toolbar-tools">
       <div class="tool-item active" onclick="setTool('pen')" id="toolPen"><i class="fas fa-pen-nib"></i><span>قلم</span></div>
       <div class="tool-item" onclick="setTool('eraser')" id="toolEraser"><i class="fas fa-eraser"></i><span>ممحاة</span></div>
@@ -453,411 +375,447 @@
         <input type="file" id="teacherImage" accept="image/*" onchange="uploadTeacherImage(this)">
       </div>
     </div>
+    <div class="toolbar-actions">
+      <button class="action-circle btn-cam"><i class="fas fa-video-slash"></i></button>
+      <button class="action-circle btn-mic" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
+      <button class="action-circle btn-screen"><i class="fas fa-desktop"></i></button>
+      <button class="action-circle btn-hand" id="handBtn"><i class="fas fa-hand-paper"></i></button>
+      <button class="action-circle btn-end" onclick="endClass()"><i class="fas fa-power-off"></i></button>
+    </div>
   </div>
-  <div class="toolbar-actions">
-    <button class="action-circle btn-cam" id="cameraBtn"><i class="fas fa-video-slash"></i></button>
-    <button class="action-circle btn-mic" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
-    <button class="action-circle btn-screen" id="screenShareBtn"><i class="fas fa-desktop"></i></button>
-    <button class="action-circle btn-hand" id="handBtn"><i class="fas fa-hand-paper"></i></button>
-    <button class="action-circle btn-end" onclick="endClass()"><i class="fas fa-power-off"></i></button>
-  </div>
-</div>
 
-<!-- Modal for correcting student board -->
-<div class="modal" id="correctionModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <span id="modalStudentName">تصحيح سبورة الطالب</span>
-      <div>
-        <button class="action-circle btn-mic" onclick="saveCorrection()"><i class="fas fa-save"></i></button>
-        <button class="action-circle btn-end" onclick="closeModal()"><i class="fas fa-times"></i></button>
+  <!-- MODAL -->
+  <div class="modal" id="correctionModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span id="modalStudentName">تصحيح سبورة الطالب</span>
+        <div>
+          <button class="action-circle" onclick="saveCorrection()"><i class="fas fa-save"></i></button>
+          <button class="action-circle btn-end" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <canvas id="modalCanvas"></canvas>
+      </div>
+      <div class="modal-footer">
+        <button class="action-circle" onclick="setModalTool('pen')"><i class="fas fa-pen-nib"></i></button>
+        <button class="action-circle" onclick="setModalTool('eraser')"><i class="fas fa-eraser"></i></button>
+        <div style="display:flex; gap:5px;">
+          <div style="width:30px; height:30px; background:#ff0000; border-radius:50%; cursor:pointer;" onclick="setModalColor('#ff0000')"></div>
+          <div style="width:30px; height:30px; background:#00ff00; border-radius:50%; cursor:pointer;" onclick="setModalColor('#00ff00')"></div>
+          <div style="width:30px; height:30px; background:#0000ff; border-radius:50%; cursor:pointer;" onclick="setModalColor('#0000ff')"></div>
+          <div style="width:30px; height:30px; background:#ffff00; border-radius:50%; cursor:pointer;" onclick="setModalColor('#ffff00')"></div>
+        </div>
       </div>
     </div>
-    <div class="modal-body">
-      <canvas id="modalCanvas"></canvas>
-    </div>
-    <div class="modal-footer">
-      <button class="tool-item" onclick="setModalTool('pen')"><i class="fas fa-pen-nib"></i> قلم</button>
-      <button class="tool-item" onclick="setModalTool('eraser')"><i class="fas fa-eraser"></i> ممحاة</button>
-      <div style="display:flex; gap:5px;">
-        <div style="width:25px; height:25px; background:#ff0000; border-radius:50%; cursor:pointer;" onclick="setModalColor('#ff0000')"></div>
-        <div style="width:25px; height:25px; background:#00ff00; border-radius:50%; cursor:pointer;" onclick="setModalColor('#00ff00')"></div>
-        <div style="width:25px; height:25px; background:#0000ff; border-radius:50%; cursor:pointer;" onclick="setModalColor('#0000ff')"></div>
-      </div>
-    </div>
   </div>
-</div>
 
-<audio id="audioPlayer" style="display:none"></audio>
+  <audio id="audioPlayer" style="display:none"></audio>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<script>
-  // ------------------------------------------------------------
-  // تهيئة Firebase
-  // ------------------------------------------------------------
-  firebase.initializeApp({
-    apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
-    databaseURL: "https://myclaive-default-rtdb.firebaseio.com"
-  });
-  const db = firebase.database();
-
-  // ------------------------------------------------------------
-  // المتغيرات العامة
-  // ------------------------------------------------------------
-  let teacherId = 'teacher_' + Date.now();
-  let currentTool = 'pen';
-  let currentColor = '#000000';
-  let currentSize = 4;
-  let isDrawing = false;
-  let lastX = 0, lastY = 0;
-  let students = {};          // الطلاب المعتمدون
-  let waitingStudents = {};    // طلبات الانضمام
-  let currentSpeaker = null;
-  let modalTool = 'pen';
-  let modalColor = '#ff0000';
-
-  const mainCanvas = document.getElementById('mainBoardCanvas');
-  const secondCanvas = document.getElementById('secondBoardCanvas');
-  const modalCanvas = document.getElementById('modalCanvas');
-  const mainCtx = mainCanvas.getContext('2d');
-  const secondCtx = secondCanvas.getContext('2d');
-  const modalCtx = modalCanvas.getContext('2d');
-  let currentModalStudentId = null;
-
-  // ------------------------------------------------------------
-  // ضبط حجم الكانفاسات
-  // ------------------------------------------------------------
-  function resizeCanvases() {
-    [mainCanvas, secondCanvas].forEach(c => {
-      const parent = c.parentElement;
-      c.width = parent.clientWidth;
-      c.height = parent.clientHeight;
-      const ctx = c.getContext('2d');
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(0, 0, c.width, c.height);
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.lineWidth = currentSize;
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script>
+    // ------------------------------------------------------------
+    // Firebase
+    // ------------------------------------------------------------
+    firebase.initializeApp({
+      apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
+      databaseURL: "https://myclaive-default-rtdb.firebaseio.com"
     });
-  }
-  window.addEventListener('resize', resizeCanvases);
-  setTimeout(resizeCanvases, 100);
+    const db = firebase.database();
 
-  // ------------------------------------------------------------
-  // الرسم على السبورة الرئيسية
-  // ------------------------------------------------------------
-  function getCanvasPoint(e, canvas) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
-  }
+    // ------------------------------------------------------------
+    // متغيرات عامة
+    // ------------------------------------------------------------
+    let teacherId = 'teacher_' + Date.now();
+    let currentTool = 'pen';
+    let currentColor = '#000000';
+    let currentSize = 4;
+    let isDrawing = false;
+    let lastX = 0, lastY = 0;
+    let students = {};          // الطلاب المعتمدون
+    let waitingStudents = {};    // طلبات الانضمام
+    let currentSpeaker = null;
 
-  function startDraw(e) {
-    e.preventDefault();
-    isDrawing = true;
-    const p = getCanvasPoint(e, mainCanvas);
-    lastX = p.x; lastY = p.y;
-    mainCtx.beginPath();
-    mainCtx.moveTo(p.x, p.y);
-  }
+    const mainCanvas = document.getElementById('mainBoardCanvas');
+    const secondCanvas = document.getElementById('secondBoardCanvas');
+    const modalCanvas = document.getElementById('modalCanvas');
+    const mainCtx = mainCanvas.getContext('2d');
+    const secondCtx = secondCanvas.getContext('2d');
+    const modalCtx = modalCanvas.getContext('2d');
+    let currentModalStudentId = null;
 
-  function draw(e) {
-    e.preventDefault();
-    if (!isDrawing) return;
-    const p = getCanvasPoint(e, mainCanvas);
-    mainCtx.strokeStyle = currentTool === 'eraser' ? '#fff' : currentColor;
-    mainCtx.lineWidth = currentTool === 'eraser' ? currentSize * 5 : currentSize;
-    mainCtx.lineTo(p.x, p.y);
-    mainCtx.stroke();
-    mainCtx.beginPath();
-    mainCtx.moveTo(p.x, p.y);
-  }
+    // ------------------------------------------------------------
+    // ضبط حجم الكانفاسات
+    // ------------------------------------------------------------
+    function resizeCanvases() {
+      [mainCanvas, secondCanvas].forEach(c => {
+        const parent = c.parentElement;
+        c.width = parent.clientWidth;
+        c.height = parent.clientHeight;
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = currentSize;
+      });
+    }
+    window.addEventListener('resize', resizeCanvases);
+    setTimeout(resizeCanvases, 100);
 
-  function stopDraw() {
-    isDrawing = false;
-  }
-
-  mainCanvas.addEventListener('mousedown', startDraw);
-  mainCanvas.addEventListener('mousemove', draw);
-  mainCanvas.addEventListener('mouseup', stopDraw);
-  mainCanvas.addEventListener('mouseleave', stopDraw);
-  mainCanvas.addEventListener('touchstart', startDraw, { passive: false });
-  mainCanvas.addEventListener('touchmove', draw, { passive: false });
-  mainCanvas.addEventListener('touchend', stopDraw);
-
-  // ------------------------------------------------------------
-  // أدوات الرسم
-  // ------------------------------------------------------------
-  window.setTool = function(tool) {
-    currentTool = tool;
-    document.querySelectorAll('.tool-item').forEach(el => el.classList.remove('active'));
-    document.getElementById('toolPen').classList.toggle('active', tool === 'pen');
-    document.getElementById('toolEraser').classList.toggle('active', tool === 'eraser');
-  };
-
-  window.openColorPicker = function() {
-    const color = prompt('أدخل قيمة اللون (مثل #ff0000)', currentColor);
-    if (color) currentColor = color;
-  };
-
-  window.clearMainBoard = function() {
-    mainCtx.fillStyle = '#fff';
-    mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
-    db.ref('boardCmd/main').push({ type: 'clear' });
-  };
-
-  window.uploadTeacherImage = function(input) {
-    if (!input.files[0]) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        mainCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
-        // إرسال الصورة لجميع الطلاب
-        db.ref('boardImg/main').set({ data: e.target.result, ts: Date.now() });
+    // ------------------------------------------------------------
+    // الرسم على السبورة الرئيسية + إرسال إلى Firebase
+    // ------------------------------------------------------------
+    function getCanvasPoint(e, canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
       };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(input.files[0]);
-  };
+    }
 
-  // ------------------------------------------------------------
-  // إدارة الطلاب
-  // ------------------------------------------------------------
-  function setupListeners() {
-    // طلبات الانضمام
-    db.ref('joinRequests').on('child_added', snap => {
-      const s = snap.val();
-      waitingStudents[s.id] = s;
-      updateStudentsPanels();
-    });
-    db.ref('joinRequests').on('child_removed', snap => {
-      const s = snap.val();
-      delete waitingStudents[s.id];
-      updateStudentsPanels();
-    });
+    let points = [];
+    let sendTimer = null;
 
-    // الطلاب المعتمدين
-    db.ref('approvedStudents').on('value', snap => {
-      students = snap.val() || {};
-      updateStudentsPanels();
-    });
+    function startDraw(e) {
+      e.preventDefault();
+      isDrawing = true;
+      const p = getCanvasPoint(e, mainCanvas);
+      lastX = p.x; lastY = p.y;
+      points = [{ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height }];
+      mainCtx.beginPath();
+      mainCtx.moveTo(p.x, p.y);
+    }
 
-    // حالة التواجد
-    db.ref('onlineStudents').on('value', snap => {
-      const online = snap.val() || {};
-      Object.keys(students).forEach(id => {
-        if (students[id]) students[id].online = online[id] ? true : false;
-      });
-      updateStudentsPanels();
-    });
+    function draw(e) {
+      e.preventDefault();
+      if (!isDrawing) return;
+      const p = getCanvasPoint(e, mainCanvas);
+      mainCtx.strokeStyle = currentTool === 'eraser' ? '#fff' : currentColor;
+      mainCtx.lineWidth = currentTool === 'eraser' ? currentSize * 5 : currentSize;
+      mainCtx.lineTo(p.x, p.y);
+      mainCtx.stroke();
+      mainCtx.beginPath();
+      mainCtx.moveTo(p.x, p.y);
 
-    // رفع اليد
-    db.ref('handRaised').on('value', snap => {
-      const hands = snap.val() || {};
-      Object.keys(students).forEach(id => {
-        if (students[id]) students[id].handRaised = hands[id] ? true : false;
-      });
-      updateStudentsPanels();
-    });
+      points.push({ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height });
 
-    // طلبات المايك
-    db.ref('micRequests').on('child_added', snap => {
-      const req = snap.val();
-      if (req && students[req.studentId]) {
-        if (confirm(`الطالب ${req.studentName} يريد التحدث. هل تسمح؟`)) {
-          if (currentSpeaker) db.ref('micPermissions/' + currentSpeaker).remove();
-          currentSpeaker = req.studentId;
-          db.ref('micPermissions/' + req.studentId).set({ allowed: true });
-          db.ref('handRaised/' + req.studentId).remove();
+      if (!sendTimer) {
+        sendTimer = setTimeout(() => {
+          if (points.length > 0) {
+            db.ref('draw_t').push({
+              points: points,
+              color: currentTool === 'eraser' ? null : currentColor,
+              size: currentSize,
+              tool: currentTool,
+              ts: Date.now()
+            });
+            points = [];
+          }
+          sendTimer = null;
+        }, 30);
+      }
+    }
+
+    function stopDraw() {
+      if (isDrawing) {
+        isDrawing = false;
+        if (points.length > 0) {
+          db.ref('draw_t').push({
+            points: points,
+            color: currentTool === 'eraser' ? null : currentColor,
+            size: currentSize,
+            tool: currentTool,
+            ts: Date.now()
+          });
+          points = [];
         }
-        snap.ref.remove();
+        if (sendTimer) clearTimeout(sendTimer);
+        sendTimer = null;
       }
-    });
+    }
 
-    // استقبال صور سبورات الطلاب
-    db.ref('boardImg/stu').on('child_added', snap => {
-      updateStudentsPanels(); // لتحديث الصورة المصغرة
-    });
+    mainCanvas.addEventListener('mousedown', startDraw);
+    mainCanvas.addEventListener('mousemove', draw);
+    mainCanvas.addEventListener('mouseup', stopDraw);
+    mainCanvas.addEventListener('mouseleave', stopDraw);
+    mainCanvas.addEventListener('touchstart', startDraw, { passive: false });
+    mainCanvas.addEventListener('touchmove', draw, { passive: false });
+    mainCanvas.addEventListener('touchend', stopDraw);
 
-    // استقبال رسم الطلاب لتحديث secondBoard
-    db.ref('draw_st').on('child_added', snap => {
-      const data = snap.val();
-      if (!data || !data.points) return;
-      // نرسم على secondBoard لآخر طالب أو نختار آخر تحديث
-      // يمكن تبسيطاً رسم أي رسم قادم
-      secondCtx.strokeStyle = data.color || '#000';
-      secondCtx.lineWidth = data.size || 4;
-      secondCtx.beginPath();
-      secondCtx.moveTo(data.points[0].x * secondCanvas.width, data.points[0].y * secondCanvas.height);
-      for (let i = 1; i < data.points.length; i++) {
-        secondCtx.lineTo(data.points[i].x * secondCanvas.width, data.points[i].y * secondCanvas.height);
-      }
-      secondCtx.stroke();
-    });
-  }
+    // ------------------------------------------------------------
+    // أدوات الرسم
+    // ------------------------------------------------------------
+    window.setTool = function(tool) {
+      currentTool = tool;
+      document.querySelectorAll('.tool-item').forEach(el => el.classList.remove('active'));
+      document.getElementById('toolPen').classList.toggle('active', tool === 'pen');
+      document.getElementById('toolEraser').classList.toggle('active', tool === 'eraser');
+    };
 
-  function updateStudentsPanels() {
-    const container = document.getElementById('studentsPanels');
-    let html = '';
+    window.openColorPicker = function() {
+      const color = prompt('أدخل اللون (#RRGGBB)', currentColor);
+      if (color) currentColor = color;
+    };
 
-    // طلبات الانضمام
-    Object.values(waitingStudents).forEach(s => {
-      html += `
-        <div class="student-panel" style="background:#2a3a30;">
-          <div class="student-panel-header">
-            <div class="student-panel-avatar">${s.name.charAt(0)}</div>
-            <span class="student-panel-name">${s.name} (طلب)</span>
-            <div class="student-panel-icons">
-              <i class="fas fa-door-open" title="دخول" onclick="event.stopPropagation(); approveStudent('${s.id}')"></i>
-              <i class="fas fa-times-circle" title="رفض" onclick="event.stopPropagation(); rejectStudent('${s.id}')"></i>
+    window.clearMainBoard = function() {
+      mainCtx.fillStyle = '#fff';
+      mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+      db.ref('boardCmd/main').push({ type: 'clear' });
+    };
+
+    window.uploadTeacherImage = function(input) {
+      if (!input.files[0]) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          mainCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
+          db.ref('boardImg/main').set({ data: e.target.result, ts: Date.now() });
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(input.files[0]);
+    };
+
+    // ------------------------------------------------------------
+    // إدارة الطلاب
+    // ------------------------------------------------------------
+    function setupListeners() {
+      db.ref('joinRequests').on('child_added', snap => {
+        const s = snap.val();
+        waitingStudents[s.id] = s;
+        updateStudentsPanels();
+      });
+      db.ref('joinRequests').on('child_removed', snap => {
+        const s = snap.val();
+        delete waitingStudents[s.id];
+        updateStudentsPanels();
+      });
+
+      db.ref('approvedStudents').on('value', snap => {
+        students = snap.val() || {};
+        updateStudentsPanels();
+      });
+
+      db.ref('onlineStudents').on('value', snap => {
+        const online = snap.val() || {};
+        Object.keys(students).forEach(id => {
+          if (students[id]) students[id].online = online[id] ? true : false;
+        });
+        updateStudentsPanels();
+      });
+
+      db.ref('handRaised').on('value', snap => {
+        const hands = snap.val() || {};
+        Object.keys(students).forEach(id => {
+          if (students[id]) students[id].handRaised = hands[id] ? true : false;
+        });
+        updateStudentsPanels();
+      });
+
+      db.ref('micRequests').on('child_added', snap => {
+        const req = snap.val();
+        if (req && students[req.studentId]) {
+          if (confirm(`الطالب ${req.studentName} يريد التحدث. هل تسمح؟`)) {
+            if (currentSpeaker) db.ref('micPermissions/' + currentSpeaker).remove();
+            currentSpeaker = req.studentId;
+            db.ref('micPermissions/' + req.studentId).set({ allowed: true });
+            db.ref('handRaised/' + req.studentId).remove();
+          }
+          snap.ref.remove();
+        }
+      });
+
+      // استقبال رسم الطلاب لتحديث secondBoard
+      db.ref('draw_st').on('child_added', snap => {
+        const data = snap.val();
+        if (!data || !data.points) return;
+        secondCtx.strokeStyle = data.color || '#000';
+        secondCtx.lineWidth = data.size || 4;
+        secondCtx.beginPath();
+        secondCtx.moveTo(data.points[0].x * secondCanvas.width, data.points[0].y * secondCanvas.height);
+        for (let i = 1; i < data.points.length; i++) {
+          secondCtx.lineTo(data.points[i].x * secondCanvas.width, data.points[i].y * secondCanvas.height);
+        }
+        secondCtx.stroke();
+      });
+
+      // استقبال صور الطلاب لتحديث المعاينات
+      db.ref('boardImg/stu').on('child_added', snap => {
+        updateStudentsPanels();
+      });
+    }
+
+    function updateStudentsPanels() {
+      const container = document.getElementById('studentsPanels');
+      let html = '';
+
+      // طلبات الانضمام
+      Object.values(waitingStudents).forEach(s => {
+        html += `
+          <div class="student-panel" style="border-color: #f39c12;">
+            <div class="student-panel-header">
+              <div class="student-avatar">${s.name.charAt(0)}</div>
+              <div class="student-info">
+                <div class="student-name">${s.name}</div>
+                <div class="student-status">⏳ في الانتظار</div>
+              </div>
+              <div class="student-actions">
+                <i class="fas fa-door-open" title="قبول" onclick="event.stopPropagation(); approveStudent('${s.id}')"></i>
+                <i class="fas fa-times-circle" title="رفض" onclick="event.stopPropagation(); rejectStudent('${s.id}')"></i>
+              </div>
+            </div>
+            <div class="student-board-canvas" style="background:#eee;">
+              <svg width="100%" height="100%" viewBox="0 0 340 110">
+                <text x="50%" y="50%" fill="#aaa" font-size="16" text-anchor="middle">في الانتظار</text>
+              </svg>
             </div>
           </div>
-          <div class="student-board-canvas" style="background:#1e2a22;">
-            <svg viewBox="0 0 330 120" style="width:100%; height:100%; opacity:0.5;">
-              <text x="50%" y="50%" fill="#aaa" font-size="16" text-anchor="middle">في الانتظار</text>
-            </svg>
-          </div>
-        </div>
-      `;
-    });
+        `;
+      });
 
-    // الطلاب المعتمدون
-    Object.values(students).forEach(s => {
-      if (!s.online) return;
-      html += `
-        <div class="student-panel">
-          <div class="student-panel-header">
-            <div class="student-panel-avatar" style="background:${s.handRaised ? '#f59e0b' : '#4CAF50'}">${s.name.charAt(0)}</div>
-            <span class="student-panel-name">${s.name}</span>
-            <div class="student-panel-icons">
-              ${s.handRaised ? '<i class="fas fa-hand-paper" style="color:#f59e0b;" title="رفع اليد"></i>' : ''}
-              ${currentSpeaker === s.id ? '<i class="fas fa-microphone" style="color:#22c55e;" title="يتحدث"></i>' : ''}
-              <i class="fas fa-eye" title="عرض السبورة" onclick="event.stopPropagation(); openStudentBoard('${s.id}', '${s.name}')"></i>
-              <i class="fas fa-door-closed" title="طرد" onclick="event.stopPropagation(); kickStudent('${s.id}')"></i>
+      // الطلاب المعتمدون
+      Object.values(students).forEach(s => {
+        if (!s.online) return;
+        html += `
+          <div class="student-panel">
+            <div class="student-panel-header">
+              <div class="student-avatar" style="background:${s.handRaised ? '#f59e0b' : '#4CAF50'}">${s.name.charAt(0)}</div>
+              <div class="student-info">
+                <div class="student-name">${s.name}</div>
+                <div class="student-status">
+                  ${s.handRaised ? '<i class="fas fa-hand-paper" style="color:#f59e0b;"></i> رفع اليد' : (currentSpeaker === s.id ? '<i class="fas fa-microphone" style="color:#22c55e;"></i> يتحدث' : 'مستمع')}
+                </div>
+              </div>
+              <div class="student-actions">
+                <i class="fas fa-eye" title="عرض السبورة" onclick="event.stopPropagation(); openStudentBoard('${s.id}', '${s.name}')"></i>
+                <i class="fas fa-door-closed" title="طرد" onclick="event.stopPropagation(); kickStudent('${s.id}')"></i>
+              </div>
+            </div>
+            <div class="student-board-canvas">
+              <canvas id="studentCanvas_${s.id}"></canvas>
             </div>
           </div>
-          <div class="student-board-canvas">
-            <canvas id="studentCanvas_${s.id}" style="width:100%; height:100%;"></canvas>
-          </div>
-        </div>
-      `;
-    });
+        `;
+      });
 
-    container.innerHTML = html || '<div style="padding:20px; color:#aaa; text-align:center;">لا يوجد طلاب</div>';
+      container.innerHTML = html || '<div style="padding:20px; color:#aaa; text-align:center;">لا يوجد طلاب</div>';
 
-    // تحميل صور سبورات الطلاب
-    Object.values(students).forEach(s => {
-      if (!s.online) return;
-      const canvas = document.getElementById(`studentCanvas_${s.id}`);
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const parent = canvas.parentElement;
-      canvas.width = parent.clientWidth;
-      canvas.height = parent.clientHeight;
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // تحميل صور سبورات الطلاب
+      Object.values(students).forEach(s => {
+        if (!s.online) return;
+        const canvas = document.getElementById(`studentCanvas_${s.id}`);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const parent = canvas.parentElement;
+        canvas.width = parent.clientWidth;
+        canvas.height = parent.clientHeight;
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      db.ref('boardImg/stu/' + s.id).once('value', snap => {
+        db.ref('boardImg/stu/' + s.id).once('value', snap => {
+          const data = snap.val();
+          if (data && data.data) {
+            const img = new Image();
+            img.onload = () => {
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            };
+            img.src = data.data;
+          }
+        });
+      });
+
+      document.getElementById('studentsCount').textContent = Object.keys(students).length;
+    }
+
+    window.approveStudent = function(id) {
+      const s = waitingStudents[id];
+      if (s) {
+        students[id] = { id, name: s.name, online: true };
+        delete waitingStudents[id];
+        db.ref('approvedStudents/' + id).set(students[id]);
+        db.ref('joinRequests/' + id).remove();
+      }
+    };
+    window.rejectStudent = function(id) {
+      delete waitingStudents[id];
+      db.ref('joinRequests/' + id).remove();
+    };
+    window.kickStudent = function(id) {
+      if (currentSpeaker === id) {
+        currentSpeaker = null;
+        db.ref('micPermissions/' + id).remove();
+      }
+      delete students[id];
+      db.ref('approvedStudents/' + id).remove();
+      db.ref('onlineStudents/' + id).remove();
+    };
+
+    // ------------------------------------------------------------
+    // فتح سبورة الطالب للتصحيح
+    // ------------------------------------------------------------
+    window.openStudentBoard = function(studentId, studentName) {
+      currentModalStudentId = studentId;
+      document.getElementById('modalStudentName').textContent = 'تصحيح سبورة ' + studentName;
+      document.getElementById('correctionModal').classList.add('active');
+
+      modalCanvas.width = modalCanvas.parentElement.clientWidth;
+      modalCanvas.height = modalCanvas.parentElement.clientHeight;
+      modalCtx.fillStyle = '#fff';
+      modalCtx.fillRect(0, 0, modalCanvas.width, modalCanvas.height);
+
+      db.ref('boardImg/stu/' + studentId).once('value', snap => {
         const data = snap.val();
         if (data && data.data) {
           const img = new Image();
           img.onload = () => {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            modalCtx.drawImage(img, 0, 0, modalCanvas.width, modalCanvas.height);
           };
           img.src = data.data;
         }
       });
-    });
-  }
+    };
 
-  window.approveStudent = function(id) {
-    const s = waitingStudents[id];
-    if (s) {
-      students[id] = { id, name: s.name, online: true };
-      delete waitingStudents[id];
-      db.ref('approvedStudents/' + id).set(students[id]);
-      db.ref('joinRequests/' + id).remove();
-    }
-  };
-  window.rejectStudent = function(id) {
-    delete waitingStudents[id];
-    db.ref('joinRequests/' + id).remove();
-  };
-  window.kickStudent = function(id) {
-    if (currentSpeaker === id) {
-      currentSpeaker = null;
-      db.ref('micPermissions/' + id).remove();
-    }
-    delete students[id];
-    db.ref('approvedStudents/' + id).remove();
-    db.ref('onlineStudents/' + id).remove();
-  };
+    window.closeModal = function() {
+      document.getElementById('correctionModal').classList.remove('active');
+    };
 
-  // ------------------------------------------------------------
-  // فتح سبورة الطالب للتصحيح
-  // ------------------------------------------------------------
-  window.openStudentBoard = function(studentId, studentName) {
-    currentModalStudentId = studentId;
-    document.getElementById('modalStudentName').textContent = 'تصحيح سبورة ' + studentName;
-    document.getElementById('correctionModal').classList.add('active');
+    window.saveCorrection = function() {
+      if (!currentModalStudentId) return;
+      const dataURL = modalCanvas.toDataURL('image/jpeg', 0.85);
+      db.ref('boardImg/stu/' + currentModalStudentId).set({ data: dataURL, byTeacher: true, ts: Date.now() });
+      alert('تم حفظ التصحيح');
+      closeModal();
+    };
 
-    modalCanvas.width = modalCanvas.parentElement.clientWidth;
-    modalCanvas.height = modalCanvas.parentElement.clientHeight;
-    modalCtx.fillStyle = '#fff';
-    modalCtx.fillRect(0, 0, modalCanvas.width, modalCanvas.height);
+    let modalTool = 'pen', modalColor = '#ff0000';
+    window.setModalTool = function(tool) { modalTool = tool; };
+    window.setModalColor = function(color) { modalColor = color; };
 
-    db.ref('boardImg/stu/' + studentId).once('value', snap => {
-      const data = snap.val();
-      if (data && data.data) {
-        const img = new Image();
-        img.onload = () => {
-          modalCtx.drawImage(img, 0, 0, modalCanvas.width, modalCanvas.height);
-        };
-        img.src = data.data;
-      }
-    });
-  };
+    // ------------------------------------------------------------
+    // الصوت والإنهاء
+    // ------------------------------------------------------------
+    window.toggleMic = function() {
+      const mic = document.getElementById('micBtn');
+      mic.classList.toggle('active');
+      if (mic.classList.contains('active')) mic.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+      else mic.innerHTML = '<i class="fas fa-microphone"></i>';
+    };
 
-  window.closeModal = function() {
-    document.getElementById('correctionModal').classList.remove('active');
-  };
+    window.endClass = function() {
+      if (confirm('إنهاء الحصة؟')) window.location.reload();
+    };
 
-  window.saveCorrection = function() {
-    if (!currentModalStudentId) return;
-    const dataURL = modalCanvas.toDataURL('image/jpeg', 0.85);
-    db.ref('boardImg/stu/' + currentModalStudentId).set({ data: dataURL, byTeacher: true, ts: Date.now() });
-    alert('تم حفظ التصحيح');
-    closeModal();
-  };
-
-  window.setModalTool = function(tool) { modalTool = tool; };
-  window.setModalColor = function(color) { modalColor = color; };
-
-  // ------------------------------------------------------------
-  // الصوت (مبسطة)
-  // ------------------------------------------------------------
-  window.toggleMic = function() {
-    const micBtn = document.getElementById('micBtn');
-    if (micBtn.style.background === 'rgb(76, 175, 80)') {
-      micBtn.style.background = '#2d4a35';
-      micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-    } else {
-      micBtn.style.background = '#4CAF50';
-      micBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
-    }
-  };
-
-  window.endClass = function() {
-    if (confirm('هل تريد إنهاء الحصة؟')) window.location.reload();
-  };
-
-  // بدء الاستماع
-  setupListeners();
-</script>
+    // ------------------------------------------------------------
+    // بدء التشغيل
+    // ------------------------------------------------------------
+    setupListeners();
+  </script>
 </body>
 </html>
