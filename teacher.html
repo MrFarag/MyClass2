@@ -260,7 +260,8 @@ const db = firebase.database();
 ].forEach(p=>db.ref(p).remove());
 
 /* ═══ CANVAS / DPR ════════════════════════════════════════════════════════ */
-const CV=document.getElementById('mc'), CX=CV.getContext('2d');
+const CV=document.getElementById('mc'), CX=CV.getContext('2d', {alpha: false});
+CX.fillStyle='#fff'; CX.fillRect(0,0,1,1);
 const DPR=window.devicePixelRatio||1;
 
 function fitCV(){
@@ -273,7 +274,7 @@ function fitCV(){
   CV.width=W*DPR; CV.height=H*DPR;
   CV.style.width=W+'px'; CV.style.height=H+'px';
   CX.fillStyle='#fff'; CX.fillRect(0,0,CV.width,CV.height);
-  if(snap){const i=new Image();i.onload=()=>CX.drawImage(i,0,0,CV.width,CV.height);i.src=snap;}
+  if(snap){const i=new Image();i.onload=()=>{CX.fillStyle='#fff';CX.fillRect(0,0,CV.width,CV.height);CX.drawImage(i,0,0,CV.width,CV.height);};i.src=snap;}
 }
 window.addEventListener('resize',()=>{saveSnap();fitCV();});
 setTimeout(fitCV,0);
@@ -533,7 +534,8 @@ function getOff(id){
   if(!offscr[id]){
     const c=document.createElement('canvas');
     c.width=CV.width||800;c.height=CV.height||500;
-    const cx=c.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,c.width,c.height);
+    const cx=c.getContext('2d',{alpha:false});
+    cx.fillStyle='#fff';cx.fillRect(0,0,c.width,c.height);
     offscr[id]={c,cx};
   }
   return offscr[id];
