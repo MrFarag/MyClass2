@@ -384,10 +384,9 @@ function getP(e, cv) {
 function applyStroke(ctx, cv, d) {
   if (!d || !d.b || !d.b.length) return;
   const W = cv.width, H = cv.height;
-  // Use diagonal-based scaling: sender stored w = sz/diag(sender)
-  // We multiply by diag(receiver) to get pixel width on this device
-  const receiverDiag = Math.sqrt(W*W + H*H);
-  const lw = Math.max(0.8 * DPR, d.w * receiverDiag);
+  // w = penSz / sender_css_width → lw = w * recv_css_width * DPR
+  const cssW = cv.clientWidth || parseFloat(cv.style.width) || (W/DPR);
+  const lw = Math.max(0.8, d.w * cssW) * DPR;
 
   ctx.save();
   ctx.globalCompositeOperation = 'source-over';
@@ -516,7 +515,8 @@ function drawFromUrl(cv, ctx, url, cb) {
   const img = new Image();
   img.onload = () => {
     if (!cv.width || !cv.height) return;
-    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, cv.width, cv.height);
     ctx.drawImage(img, 0, 0, cv.width, cv.height);
     if (cb) cb();
   };
@@ -543,18 +543,21 @@ function bindDraw() {
   SC.addEventListener('touchend',   endD);
 }
 
-// dSz is logical px (1/2/4). Scale to physical.
-function physSz() {
-  return dSz * DPR;
-}
+// Physical stroke size for local drawing
+function physSz() { return Math.max(0.8, dSz) * DPR; }
 // Auto-detect device: mobile if DPR>=2 OR small screen
 function detectDevice() {
   const dpr = window.devicePixelRatio || 1;
   const w   = window.screen.width, h = window.screen.height;
   return (dpr >= 2 || Math.min(w,h) < 600) ? 'm' : 'd';
 }
-// Use fixed reference diagonal (1000px) so same visual thickness on all devices
-function diagFrac() { return dSz / diag(SC); } // normalize to actual canvas diagonal
+// Normalize pen size by canvas CSS width (matches teacher's wFrac)
+function diagFrac() {
+  const cssW = SC.clientWidth || parseFloat(SC.style.width) || (SC.width/DPR);
+  return dSz / cssW;
+}
+// Physical stroke size for local drawing
+function physSz() { return Math.max(0.8, dSz) * DPR; }
 
 function startD(e) {
   e.preventDefault();
