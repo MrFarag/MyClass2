@@ -6,190 +6,32 @@
     <title>الطالب - MyClass2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* نفس التنسيقات السابقة (محذوفة للاختصار) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #1a2634;
-            display: flex;
-            flex-direction: column;
-            height: 100dvh;
-            overflow: hidden;
-            color: white;
-        }
-        .header {
-            background: #2c3e50;
-            padding: 8px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid #3498db;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a2634; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; color: white; }
+        .header { background: #2c3e50; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #3498db; }
         .logo i { color: #3498db; }
-        .status-badge {
-            background: #27ae60;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* شاشة تسجيل الدخول */
-        .login-screen {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #1a2634;
-            padding: 20px;
-        }
-        .login-box {
-            background: #2c3e50;
-            padding: 30px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-        .login-box h2 {
-            margin-bottom: 20px;
-            color: #3498db;
-        }
-        .login-input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 8px;
-            background: #34495e;
-            color: white;
-            font-size: 16px;
-            direction: ltr;
-            text-align: left;
-        }
-        .login-input::placeholder {
-            color: #7f8c8d;
-        }
-        .login-btn {
-            width: 100%;
-            padding: 14px;
-            background: #27ae60;
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 18px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        .login-btn:hover {
-            background: #2ecc71;
-        }
-        .error-message {
-            color: #e74c3c;
-            margin-top: 10px;
-        }
-
-        /* باقي العناصر (تظهر بعد القبول) */
-        .board-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #2c3e50;
-            margin: 8px;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .board-header {
-            padding: 10px 15px;
-            background: #34495e;
-            border-bottom: 2px solid #3498db;
-        }
-        .canvas-wrapper {
-            flex: 1;
-            overflow: auto;
-            background: #ecf0f1;
-            -webkit-overflow-scrolling: touch;
-        }
-        #teacherCanvas {
-            width: 2000px;
-            height: 1500px;
-            display: block;
-            background: white;
-            pointer-events: none;
-        }
-        .panel {
-            background: #2c3e50;
-            padding: 15px;
-            border-top: 2px solid #3498db;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .exam-card {
-            background: #34495e;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-        .exam-option {
-            display: block;
-            margin: 8px 0;
-            padding: 10px;
-            background: #2c3e50;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .exam-option.selected {
-            background: #27ae60;
-        }
-        .file-upload label {
-            background: #f39c12;
-            padding: 8px 15px;
-            border-radius: 20px;
-            display: inline-block;
-            cursor: pointer;
-        }
-        #submitBtn {
-            background: #27ae60;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            margin-top: 10px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-        }
-        .audio-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .waiting-screen {
-            text-align: center;
-            padding: 30px;
-        }
-        #requestBtn {
-            background: #3498db;
-            border: none;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 30px;
-            font-size: 18px;
-            margin-top: 20px;
-            cursor: pointer;
-        }
-        .file-item {
-            background: #34495e;
-            padding: 5px 10px;
-            border-radius: 5px;
-            margin: 3px 0;
-        }
-        #mainContent {
-            display: none;
-            flex:1;
-            flex-direction: column;
-        }
+        .status-badge { background: #27ae60; padding: 4px 10px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+        .login-screen { flex: 1; display: flex; justify-content: center; align-items: center; background: #1a2634; padding: 20px; }
+        .login-box { background: #2c3e50; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; }
+        .login-box h2 { margin-bottom: 20px; color: #3498db; }
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px; background: #34495e; color: white; font-size: 16px; direction: ltr; text-align: left; }
+        .login-btn { width: 100%; padding: 14px; background: #27ae60; border: none; border-radius: 10px; color: white; font-size: 18px; cursor: pointer; margin-top: 20px; }
+        .error-message { color: #e74c3c; margin-top: 10px; }
+        .board-container { flex: 1; display: flex; flex-direction: column; background: #2c3e50; margin: 8px; border-radius: 12px; overflow: hidden; }
+        .board-header { padding: 10px 15px; background: #34495e; border-bottom: 2px solid #3498db; }
+        .canvas-wrapper { flex: 1; overflow: auto; background: #ecf0f1; -webkit-overflow-scrolling: touch; }
+        #teacherCanvas { width: 2000px; height: 1500px; display: block; background: white; pointer-events: none; }
+        .panel { background: #2c3e50; padding: 15px; border-top: 2px solid #3498db; max-height: 300px; overflow-y: auto; }
+        .exam-card { background: #34495e; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+        .exam-option { display: block; margin: 8px 0; padding: 10px; background: #2c3e50; border-radius: 8px; cursor: pointer; }
+        .exam-option.selected { background: #27ae60; }
+        .file-upload label { background: #f39c12; padding: 8px 15px; border-radius: 20px; display: inline-block; cursor: pointer; }
+        #submitBtn { background: #27ae60; border: none; color: white; padding: 10px 20px; border-radius: 25px; margin-top: 10px; cursor: pointer; width: 100%; font-size: 16px; }
+        .waiting-screen { text-align: center; padding: 30px; }
+        #requestBtn { background: #3498db; border: none; color: white; padding: 15px 30px; border-radius: 30px; font-size: 18px; margin-top: 20px; cursor: pointer; }
+        .file-item { background: #34495e; padding: 5px 10px; border-radius: 5px; margin: 3px 0; }
+        #mainContent { display: none; flex:1; flex-direction: column; }
     </style>
 </head>
 <body>
@@ -205,7 +47,7 @@
         </div>
     </div>
 
-    <!-- شاشة انتظار القبول (تظهر بعد تسجيل الدخول الناجح) -->
+    <!-- شاشة انتظار القبول -->
     <div id="waitingScreen" style="display: none; flex:1; justify-content: center; align-items: center; flex-direction: column;">
         <div style="background: #2c3e50; padding: 30px; border-radius: 20px; text-align: center;">
             <i class="fas fa-hourglass-half" style="font-size: 50px; color: #f39c12; margin-bottom: 20px;"></i>
@@ -215,7 +57,7 @@
         </div>
     </div>
 
-    <!-- المحتوى الرئيسي (يظهر بعد القبول) -->
+    <!-- المحتوى الرئيسي -->
     <div id="mainContent">
         <!-- سبورة المدرس -->
         <div class="board-container">
@@ -263,7 +105,6 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        // متغيرات الطالب
         let studentId = null;
         let studentName = '';
         let studentPhone = '';
@@ -281,23 +122,19 @@
                 return;
             }
 
-            // التحقق من أن الرقم السري هو معكوس رقم التليفون
             const reversedPhone = phone.split('').reverse().join('');
             if (secret !== reversedPhone) {
                 errorDiv.innerText = 'الرقم السري غير صحيح (يجب أن يكون معكوس رقم التليفون)';
                 return;
             }
 
-            // نجاح الدخول
             studentName = name;
             studentPhone = phone;
             studentId = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
 
-            // إخفاء شاشة الدخول وإظهار شاشة الانتظار
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('waitingScreen').style.display = 'flex';
 
-            // يمكن تخزين بيانات الطالب في Firebase (اختياري)
             db.ref('studentData/' + studentId).set({
                 name: studentName,
                 phone: studentPhone,
@@ -326,7 +163,7 @@
                 accepted = true;
                 document.getElementById('waitingScreen').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'flex';
-                startStudent(); // بدء تحميل الرسم والصوت
+                startStudent();
             }
         });
 
@@ -337,7 +174,7 @@
             teacherCanvas.width = 2000; teacherCanvas.height = 1500;
             teacherCtx.lineCap = 'round'; teacherCtx.lineJoin = 'round';
 
-            // استقبال الرسم (يدعم النصوص والصور)
+            // استقبال الرسم
             db.ref('teacherDrawings').on('child_added', (snap) => {
                 const d = snap.val();
                 if (d.type === 'text') {
@@ -350,7 +187,7 @@
                         teacherCtx.drawImage(img, d.x, d.y, d.width, d.height);
                     };
                     img.src = d.imageData;
-                } else { // رسم عادي
+                } else {
                     teacherCtx.strokeStyle = d.color === 'eraser' ? '#ffffff' : d.color;
                     teacherCtx.lineWidth = d.size || 3;
                     teacherCtx.beginPath();
@@ -360,38 +197,40 @@
                 }
             });
 
-            // استقبال أمر المسح
             db.ref('teacherCommands').on('child_added', (snap) => {
                 if (snap.val().type === 'clear') {
                     teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
                 }
             });
 
-            // -------------------- الصوت (PeerJS) --------------------
-            let peer, call;
+            // -------------------- الصوت (استقبال فقط من المدرس) --------------------
+            let peer, currentCall;
             peer = new Peer(studentId);
 
             peer.on('open', (id) => {
                 console.log('Student peer ID:', id);
+                // تخزين peerId ليتمكن المدرس من الاتصال بنا
+                db.ref('studentPeerIds/' + studentId).set(id);
             });
 
-            // الاستماع لبث المدرس
-            db.ref('teacherAudioId').on('value', (snap) => {
-                const teacherId = snap.val();
-                db.ref('teacherAudioActive').on('value', async (activeSnap) => {
-                    if (activeSnap.val() && teacherId) {
-                        try {
-                            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                            call = peer.call(teacherId, stream);
-                            document.getElementById('audioIndicator').style.display = 'inline';
-                        } catch (e) {
-                            console.log('لا يمكن إنشاء اتصال صوتي');
-                        }
-                    } else {
-                        if (call) call.close();
-                        document.getElementById('audioIndicator').style.display = 'none';
-                    }
+            // استقبال المكالمة من المدرس
+            peer.on('call', (incomingCall) => {
+                // نجيب على المكالمة بدون إرسال أي صوت (لأننا لا نريد إرسال صوت الطالب)
+                incomingCall.answer(); // إجابة بدون stream محلي
+
+                incomingCall.on('stream', (remoteStream) => {
+                    // تشغيل الصوت القادم من المدرس
+                    const audio = new Audio();
+                    audio.srcObject = remoteStream;
+                    audio.play().catch(e => console.log('Audio play error:', e));
+                    document.getElementById('audioIndicator').style.display = 'inline';
                 });
+
+                incomingCall.on('close', () => {
+                    document.getElementById('audioIndicator').style.display = 'none';
+                });
+
+                currentCall = incomingCall;
             });
 
             // -------------------- استقبال الامتحانات --------------------
@@ -453,7 +292,7 @@
         };
 
         window.submitAnswer = () => {
-            const examRef = db.ref('currentExam').once('value', (snap) => {
+            db.ref('currentExam').once('value', (snap) => {
                 const exam = snap.val();
                 if (exam.type === 'text') {
                     if (!selectedAnswer) {
@@ -496,6 +335,7 @@
                     snap.forEach(child => child.ref.remove());
                 });
                 db.ref('studentData/' + studentId).remove();
+                db.ref('studentPeerIds/' + studentId).remove();
             }
         });
     </script>
