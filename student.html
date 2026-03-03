@@ -6,58 +6,195 @@
     <title>الطالب - MyClass2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* نفس التنسيقات السابقة (محذوفة للاختصار) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #1a2634; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; color: white; }
-        .header { background: #2c3e50; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #3498db; }
-        .logo i { color: #3498db; }
-        .status-badge { background: #27ae60; padding: 4px 10px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 5px; }
-        .login-screen { flex: 1; display: flex; justify-content: center; align-items: center; background: #1a2634; padding: 20px; }
-        .login-box { background: #2c3e50; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; }
-        .login-box h2 { margin-bottom: 20px; color: #3498db; }
-        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px; background: #34495e; color: white; font-size: 16px; direction: ltr; text-align: left; }
-        .login-btn { width: 100%; padding: 14px; background: #27ae60; border: none; border-radius: 10px; color: white; font-size: 18px; cursor: pointer; margin-top: 20px; }
-        .error-message { color: #e74c3c; margin-top: 10px; }
-        .board-container { flex: 1; display: flex; flex-direction: column; background: #2c3e50; margin: 8px; border-radius: 12px; overflow: hidden; }
-        .board-header { padding: 10px 15px; background: #34495e; border-bottom: 2px solid #3498db; }
-        .canvas-wrapper { flex: 1; overflow: auto; background: #ecf0f1; -webkit-overflow-scrolling: touch; }
-        #teacherCanvas { width: 2000px; height: 1500px; display: block; background: white; pointer-events: none; }
-        .panel { background: #2c3e50; padding: 15px; border-top: 2px solid #3498db; max-height: 300px; overflow-y: auto; }
-        .exam-card { background: #34495e; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
-        .exam-option { display: block; margin: 8px 0; padding: 10px; background: #2c3e50; border-radius: 8px; cursor: pointer; }
-        .exam-option.selected { background: #27ae60; }
-        .file-upload label { background: #f39c12; padding: 8px 15px; border-radius: 20px; display: inline-block; cursor: pointer; }
-        #submitBtn { background: #27ae60; border: none; color: white; padding: 10px 20px; border-radius: 25px; margin-top: 10px; cursor: pointer; width: 100%; font-size: 16px; }
-        .waiting-screen { text-align: center; padding: 30px; }
-        #requestBtn { background: #3498db; border: none; color: white; padding: 15px 30px; border-radius: 30px; font-size: 18px; margin-top: 20px; cursor: pointer; }
-        .file-item { background: #34495e; padding: 5px 10px; border-radius: 5px; margin: 3px 0; }
-        #mainContent { display: none; flex:1; flex-direction: column; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a2634;
+            display: flex;
+            flex-direction: column;
+            height: 100dvh;
+            overflow: hidden;
+            color: white;
+        }
+        /* شاشة الدخول (نفس الصفحة) */
+        .login-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #1a2634;
+            padding: 20px;
+        }
+        .login-box {
+            background: #2c3e50;
+            padding: 30px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-box h2 {
+            margin-bottom: 20px;
+            color: #3498db;
+        }
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            background: #34495e;
+            color: white;
+            font-size: 16px;
+            direction: ltr;
+            text-align: left;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #27ae60;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+        .waiting-message {
+            background: #f39c12;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        /* السبورة (تظهر بعد القبول) */
+        .board-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #2c3e50;
+            margin: 8px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .board-header {
+            padding: 10px 15px;
+            background: #34495e;
+            border-bottom: 2px solid #3498db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .canvas-wrapper {
+            flex: 1;
+            overflow: auto;
+            background: #ecf0f1;
+            -webkit-overflow-scrolling: touch;
+        }
+        #teacherCanvas {
+            width: 2000px;
+            height: 1500px;
+            display: block;
+            background: white;
+            pointer-events: none;
+        }
+        .panel {
+            background: #2c3e50;
+            padding: 15px;
+            border-top: 2px solid #3498db;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .exam-card {
+            background: #34495e;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .exam-option {
+            display: block;
+            margin: 8px 0;
+            padding: 10px;
+            background: #2c3e50;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .exam-option.selected {
+            background: #27ae60;
+        }
+        .file-upload label {
+            background: #f39c12;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            cursor: pointer;
+        }
+        #submitBtn {
+            background: #27ae60;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-top: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        .file-item {
+            background: #34495e;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 3px 0;
+        }
+        #mainContent {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            height: 100%;
+        }
+        .status-badge {
+            background: #27ae60;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
     </style>
 </head>
 <body>
-    <!-- شاشة تسجيل الدخول -->
-    <div id="loginScreen" class="login-screen">
+    <!-- شاشة الدخول والانتظار (كلها في عنصر واحد) -->
+    <div id="loginScreen" class="login-container">
         <div class="login-box">
             <h2><i class="fas fa-user-graduate"></i> تسجيل الدخول</h2>
             <input type="text" id="studentName" class="login-input" placeholder="الاسم" autocomplete="off">
             <input type="tel" id="studentPhone" class="login-input" placeholder="رقم التليفون" autocomplete="off">
             <input type="text" id="studentSecret" class="login-input" placeholder="الرقم السري" autocomplete="off">
-            <button class="login-btn" onclick="validateLogin()">دخول</button>
+            <button class="login-btn" id="loginBtn" onclick="validateLogin()">
+                <i class="fas fa-sign-in-alt"></i> دخول
+            </button>
             <div id="loginError" class="error-message"></div>
+            <div id="waitingMessage" class="waiting-message" style="display:none;">
+                <i class="fas fa-spinner fa-spin"></i> جاري إرسال الطلب، انتظر موافقة المدرس...
+            </div>
         </div>
     </div>
 
-    <!-- شاشة انتظار القبول -->
-    <div id="waitingScreen" style="display: none; flex:1; justify-content: center; align-items: center; flex-direction: column;">
-        <div style="background: #2c3e50; padding: 30px; border-radius: 20px; text-align: center;">
-            <i class="fas fa-hourglass-half" style="font-size: 50px; color: #f39c12; margin-bottom: 20px;"></i>
-            <h2>انتظار موافقة المدرس</h2>
-            <p>سيتم تفعيل السبورة والصوت بعد القبول</p>
-            <button id="requestBtn" onclick="sendJoinRequest()"><i class="fas fa-paper-plane"></i> إرسال طلب انضمام</button>
-        </div>
-    </div>
-
-    <!-- المحتوى الرئيسي -->
+    <!-- المحتوى الرئيسي (السبورة) -->
     <div id="mainContent">
         <!-- سبورة المدرس -->
         <div class="board-container">
@@ -116,6 +253,8 @@
             const phone = document.getElementById('studentPhone').value.trim();
             const secret = document.getElementById('studentSecret').value.trim();
             const errorDiv = document.getElementById('loginError');
+            const loginBtn = document.getElementById('loginBtn');
+            const waitingMsg = document.getElementById('waitingMessage');
 
             if (!name || !phone || !secret) {
                 errorDiv.innerText = 'جميع الحقول مطلوبة';
@@ -128,32 +267,31 @@
                 return;
             }
 
+            // نجاح الدخول
             studentName = name;
             studentPhone = phone;
             studentId = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
 
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('waitingScreen').style.display = 'flex';
+            // تعطيل الزر وإظهار رسالة الانتظار
+            loginBtn.disabled = true;
+            waitingMsg.style.display = 'block';
+            errorDiv.innerText = '';
 
+            // تخزين بيانات الطالب
             db.ref('studentData/' + studentId).set({
                 name: studentName,
                 phone: studentPhone,
                 timestamp: Date.now()
             });
-        };
 
-        // -------------------- طلب الانضمام --------------------
-        window.sendJoinRequest = () => {
-            const btn = document.getElementById('requestBtn');
-            btn.disabled = true;
-            btn.innerHTML = 'جاري الإرسال...';
+            // إرسال طلب الانضمام
             db.ref('joinRequests').push({
                 studentId: studentId,
                 studentName: studentName,
                 studentPhone: studentPhone,
                 timestamp: Date.now()
             }).then(() => {
-                btn.innerHTML = 'تم الإرسال، انتظر...';
+                // تم الإرسال
             });
         };
 
@@ -161,7 +299,8 @@
         db.ref('acceptedStudents/' + studentId).on('value', (snap) => {
             if (snap.val() === true && !accepted) {
                 accepted = true;
-                document.getElementById('waitingScreen').style.display = 'none';
+                // إخفاء شاشة الدخول وإظهار السبورة
+                document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'flex';
                 startStudent();
             }
