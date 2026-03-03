@@ -16,28 +16,40 @@
       display: flex;
       flex-direction: column;
     }
-    /* الشريط العلوي */
+    /* الشريط العلوي - مطابق للصورة */
     .top-bar {
-      height: 56px;
+      height: 70px;
       background: linear-gradient(90deg, #0f2a1f 0%, #1e3a2a 100%);
-      border-bottom: 1px solid #ffaa00;
+      border-bottom: 2px solid #ffaa00;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
+      padding: 0 20px;
     }
-    .logo-top { font-size: 20px; font-weight: 900; color: #ffaa00; }
-    .logo-top span { color: #fff; }
-    .teacher-badge {
-      background: #2a4a35;
-      padding: 6px 16px;
-      border-radius: 30px;
-      border: 1px solid #ffaa00;
-      font-size: 14px;
+    .teacher-info {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
     }
+    .teacher-name {
+      font-size: 18px;
+      font-weight: 900;
+      color: #ffaa00;
+    }
+    .teacher-desc {
+      font-size: 12px;
+      color: #ccc;
+    }
+    .teacher-phone {
+      font-size: 14px;
+      color: #ffaa00;
+      direction: ltr;
+    }
+    .logo-top {
+      font-size: 24px;
+      font-weight: 900;
+      color: #ffaa00;
+    }
+    .logo-top span { color: #fff; }
     .top-center {
       display: flex;
       align-items: center;
@@ -47,6 +59,8 @@
       border-radius: 30px;
     }
     .top-center span { font-size: 13px; display: flex; align-items: center; gap: 5px; }
+    .top-center i { color: #ffaa00; }
+
     /* التخطيط الرئيسي */
     .main-layout {
       flex: 1;
@@ -55,7 +69,8 @@
       padding: 8px;
       gap: 8px;
     }
-    /* الشريط الجانبي الأيسر (أيقونات التنقل) */
+
+    /* الشريط الجانبي الأيسر (أيقونات التنقل) - مطابق للصورة */
     .left-sidebar {
       width: 70px;
       background: #1e3228;
@@ -63,8 +78,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 16px 0;
-      gap: 16px;
+      padding: 20px 0;
+      gap: 20px;
       border: 1px solid #3a5a40;
     }
     .nav-item {
@@ -82,7 +97,8 @@
     }
     .nav-item i { font-size: 22px; }
     .nav-item.active { background: #ffaa00; color: #000; }
-    /* لوحة الطلاب (يسار) */
+
+    /* لوحة الطلاب (يسار) - مع سبورات مصغرة وأيقونات */
     .students-panels {
       width: 340px;
       background: #1e3228;
@@ -140,6 +156,7 @@
       display: block;
       background: #fff;
     }
+
     /* منطقة السبورات */
     .board-area {
       flex: 1;
@@ -190,6 +207,7 @@
       display: block;
       background: #fff;
     }
+
     /* شريط الأدوات السفلي */
     .bottom-bar {
       height: 80px;
@@ -249,6 +267,7 @@
     }
     .btn-mic.active { background: #ffaa00; color: #000; }
     .btn-end { background: #b71c1c; }
+
     /* نافذة تعديل سبورة الطالب */
     .modal {
       position: fixed;
@@ -299,10 +318,13 @@
   </style>
 </head>
 <body>
-  <!-- الشريط العلوي -->
+  <!-- الشريط العلوي مطابق للصورة -->
   <div class="top-bar">
-    <div class="logo-top">My<span>Class</span>2</div>
-    <div class="teacher-badge"><i class="fas fa-chalkboard-teacher"></i> Mr_Farag_Kohail</div>
+    <div class="teacher-info">
+      <span class="teacher-name">Mr_Farag_Kohail</span>
+      <span class="teacher-desc">منصة الفيزياء للثانوية العامة</span>
+    </div>
+    <div class="teacher-phone">01141010981</div>
     <div class="top-center">
       <span><i class="fas fa-circle" style="color:#4CAF50;"></i> مباشر</span>
       <span><i class="fas fa-users"></i> <span id="studentsCount">0</span></span>
@@ -311,7 +333,7 @@
   </div>
 
   <div class="main-layout">
-    <!-- الشريط الجانبي الأيسر (أيقونات) -->
+    <!-- الشريط الجانبي الأيسر (أيقونات) مطابق للصورة -->
     <div class="left-sidebar">
       <div class="nav-item active"><i class="fas fa-home"></i><span>الرئيسية</span></div>
       <div class="nav-item"><i class="fas fa-door-open"></i><span>فصول</span></div>
@@ -321,7 +343,7 @@
       <div class="nav-item" style="margin-top:auto"><i class="fas fa-cog"></i><span>الإعدادات</span></div>
     </div>
 
-    <!-- لوحة الطلاب (يسار) مع سبوراتهم المصغرة -->
+    <!-- لوحة الطلاب (يسار) مع سبوراتهم المصغرة وأيقونات بجانب الاسم -->
     <div class="students-panels" id="studentsPanels"></div>
 
     <!-- منطقة السبورات -->
@@ -453,7 +475,7 @@
       };
     }
 
-    // رسم المدرس على السبورة الرئيسية وإرسالها لجميع الطلاب
+    // رسم المدرس وإرساله لجميع الطلاب
     let points = [];
     let sendTimer = null;
 
@@ -552,7 +574,6 @@
 
     // إدارة الطلاب
     function setupListeners() {
-      // طلبات الانضمام
       db.ref('joinRequests').on('child_added', snap => {
         const s = snap.val();
         waitingStudents[s.id] = s;
@@ -564,13 +585,11 @@
         updateStudentsPanels();
       });
 
-      // الطلاب المعتمدون
       db.ref('approvedStudents').on('value', snap => {
         students = snap.val() || {};
         updateStudentsPanels();
       });
 
-      // حالة التواجد
       db.ref('onlineStudents').on('value', snap => {
         const online = snap.val() || {};
         Object.keys(students).forEach(id => {
@@ -579,7 +598,6 @@
         updateStudentsPanels();
       });
 
-      // رفع اليد
       db.ref('handRaised').on('value', snap => {
         const hands = snap.val() || {};
         Object.keys(students).forEach(id => {
@@ -588,7 +606,6 @@
         updateStudentsPanels();
       });
 
-      // طلبات المايك
       db.ref('micRequests').on('child_added', snap => {
         const req = snap.val();
         if (req && students[req.studentId]) {
@@ -635,7 +652,7 @@
 
       // استقبال صور الطلاب
       db.ref('boardImg/stu').on('child_added', snap => {
-        updateStudentsPanels(); // يعيد تحميل الصور المصغرة
+        updateStudentsPanels();
       });
     }
 
@@ -692,7 +709,7 @@
 
       container.innerHTML = html || '<div style="padding:20px; color:#aaa; text-align:center;">لا يوجد طلاب</div>';
 
-      // تحميل صور سبورات الطلاب (آخر صورة أو رسم)
+      // تحميل صور سبورات الطلاب
       Object.values(students).forEach(s => {
         if (!s.online) return;
         const canvas = document.getElementById(`studentCanvas_${s.id}`);
@@ -780,7 +797,6 @@
       if (confirm('إنهاء الحصة؟')) window.location.reload();
     };
 
-    // بدء الاستماع
     setupListeners();
   </script>
 </body>
