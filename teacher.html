@@ -6,7 +6,6 @@
     <title>المدرس - MyClass2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* (هنا نفس التنسيقات السابقة مع تحسينات) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -73,7 +72,7 @@
             touch-action: none;
         }
 
-        /* شريط الأدوات المحسّن */
+        /* شريط الأدوات الموحد */
         .toolbar {
             background: #34495e;
             padding: 10px;
@@ -129,8 +128,8 @@
         }
         .size-btn.active { background: #e67e22; }
 
-        /* منطقة الامتحانات والملفات */
-        .exam-panel {
+        /* لوحة الطلبات والملفات */
+        .panel {
             background: #2c3e50;
             padding: 10px;
             border-top: 2px solid #e67e22;
@@ -138,43 +137,29 @@
             overflow-y: auto;
             flex-shrink: 0;
         }
-        .exam-header {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-        .exam-btn {
-            background: #27ae60;
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 14px;
-        }
-        .exam-btn.danger { background: #e74c3c; }
-        .submission-item {
+        .request-item {
             background: #34495e;
-            padding: 8px;
+            padding: 8px 12px;
             border-radius: 8px;
             margin-bottom: 5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .status-badge {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
+        .request-item button {
+            background: #27ae60;
+            border: none;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            cursor: pointer;
         }
-        .online { background: #27ae60; }
-        .offline { background: #e74c3c; }
+        .file-item {
+            background: #34495e;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 3px 0;
+        }
     </style>
 </head>
 <body>
@@ -196,7 +181,7 @@
         </div>
     </div>
 
-    <!-- شريط الأدوات المحسّن -->
+    <!-- شريط الأدوات الموحد -->
     <div class="toolbar">
         <!-- الألوان -->
         <div class="tool-group">
@@ -206,37 +191,45 @@
             <div class="color-btn" style="background:#27ae60" onclick="changeColor('#27ae60',this)"></div>
             <div class="color-btn" style="background:#8e44ad" onclick="changeColor('#8e44ad',this)"></div>
         </div>
+
         <!-- أحجام القلم -->
         <div class="tool-group">
             <button class="size-btn" onclick="changeSize(2,this)">رفيع</button>
             <button class="size-btn active" onclick="changeSize(5,this)">وسط</button>
             <button class="size-btn" onclick="changeSize(10,this)">سميك</button>
         </div>
-        <!-- الأدوات -->
+
+        <!-- أدوات الرسم -->
         <div class="tool-group">
             <button class="tool-btn active" id="penBtn" onclick="setPen()"><i class="fas fa-pencil-alt"></i></button>
             <button class="tool-btn" id="eraserBtn" onclick="setEraser()"><i class="fas fa-eraser"></i></button>
             <button class="tool-btn" onclick="clearBoard()"><i class="fas fa-trash-alt"></i></button>
         </div>
-        <!-- الصوت -->
+
+        <!-- رفع ملف / صورة -->
+        <div class="tool-group">
+            <button class="tool-btn" onclick="uploadFile()" style="background:#3498db"><i class="fas fa-upload"></i></button>
+        </div>
+
+        <!-- الميكروفون -->
         <div class="tool-group">
             <button class="tool-btn" id="audioBtn" onclick="toggleAudio()"><i class="fas fa-microphone"></i></button>
         </div>
+
         <!-- إرسال امتحان -->
         <div class="tool-group">
             <button class="tool-btn" onclick="showExamForm()" style="background:#f39c12"><i class="fas fa-file-alt"></i></button>
         </div>
     </div>
 
-    <!-- لوحة إدارة الامتحانات والملفات -->
-    <div class="exam-panel" id="examPanel">
-        <div class="exam-header">
-            <button class="exam-btn" onclick="showExamForm()"><i class="fas fa-plus"></i> إرسال امتحان جديد</button>
-            <span id="examStatus"></span>
+    <!-- لوحة الطلبات والملفات -->
+    <div class="panel">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <span><i class="fas fa-user-clock"></i> طلبات الانضمام</span>
+            <span><i class="fas fa-file"></i> الملفات المرسلة</span>
         </div>
-        <div id="submissionsList" style="max-height: 120px; overflow-y: auto;">
-            <!-- ستظهر هنا إجابات الطلاب -->
-        </div>
+        <div id="requestsList" style="max-height: 80px; overflow-y: auto;"></div>
+        <div id="filesList" style="max-height: 80px; overflow-y: auto;"></div>
     </div>
 
     <!-- Firebase & PeerJS -->
@@ -246,7 +239,7 @@
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
     <script>
-        // ================== Firebase Config ==================
+        // -------------------- Firebase --------------------
         const firebaseConfig = {
             apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
             authDomain: "myclaive.firebaseapp.com",
@@ -260,7 +253,7 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        // ================== عناصر الرسم ==================
+        // -------------------- الرسم --------------------
         const canvas = document.getElementById('teacherCanvas');
         const ctx = canvas.getContext('2d');
         const wrapper = document.getElementById('teacherWrapper');
@@ -320,13 +313,12 @@
             ctx.beginPath();
             ctx.moveTo(pos.x, pos.y);
 
-            // إرسال الرسم إلى الطلاب
+            // إرسال الرسم للطلاب (المقبولين فقط)
             db.ref('teacherDrawings').push({
                 x: pos.x, y: pos.y,
                 lastX, lastY,
                 color: currentTool === 'eraser' ? 'eraser' : currentColor,
                 size: currentTool === 'eraser' ? 30 : currentSize,
-                isEraser: currentTool === 'eraser',
                 timestamp: Date.now()
             });
 
@@ -346,14 +338,7 @@
         canvas.addEventListener('touchstart', startDraw, { passive: false });
         canvas.addEventListener('touchmove', draw, { passive: false });
         canvas.addEventListener('touchend', stopDraw);
-        canvas.addEventListener('touchcancel', stopDraw);
 
-        function clearBoard() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            db.ref('teacherCommands').push({ type: 'clear' });
-        }
-
-        // أدوات الرسم
         window.changeColor = (color, el) => {
             currentColor = color;
             currentTool = 'pen';
@@ -381,12 +366,17 @@
             document.getElementById('penBtn').classList.remove('active');
         };
 
-        // ================== الصوت باستخدام PeerJS ==================
+        window.clearBoard = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            db.ref('teacherCommands').push({ type: 'clear' });
+        };
+
+        // -------------------- الصوت (PeerJS) --------------------
         let localStream, peer;
         peer = new Peer('teacher_' + Date.now());
 
         peer.on('open', (id) => {
-            console.log('معرف المدرس للصوت:', id);
+            console.log('Teacher audio ID:', id);
             db.ref('teacherAudioId').set(id);
         });
 
@@ -406,7 +396,6 @@
                     btn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
                     btn.classList.add('active');
                     indicator.classList.add('active');
-                    // تحديث حالة البث في قاعدة البيانات
                     db.ref('teacherAudioActive').set(true);
                 } catch (err) {
                     alert('لا يمكن الوصول للميكروفون');
@@ -422,15 +411,71 @@
             }
         };
 
-        // ================== إدارة الطلاب المتصلين ==================
-        db.ref('onlineStudents').on('value', (snap) => {
-            const students = snap.val();
-            document.getElementById('onlineCount').innerText = students ? Object.keys(students).length : 0;
+        // -------------------- طلبات الانضمام --------------------
+        // مراقبة طلبات الطلاب
+        db.ref('joinRequests').on('child_added', (snap) => {
+            const req = snap.val();
+            const reqId = snap.key;
+            const list = document.getElementById('requestsList');
+            const div = document.createElement('div');
+            div.className = 'request-item';
+            div.id = 'req_' + reqId;
+            div.innerHTML = `
+                <span>طالب: ${req.studentId.substring(0,6)}</span>
+                <button onclick="acceptStudent('${reqId}', '${req.studentId}')">قبول</button>
+            `;
+            list.appendChild(div);
         });
 
-        // ================== إرسال امتحان (نص / صورة) ==================
+        window.acceptStudent = (reqId, studentId) => {
+            // إضافة الطالب إلى قائمة المقبولين
+            db.ref('acceptedStudents/' + studentId).set(true);
+            // حذف الطلب
+            db.ref('joinRequests/' + reqId).remove();
+            // إزالة العنصر من الواجهة
+            const el = document.getElementById('req_' + reqId);
+            if (el) el.remove();
+        };
+
+        // عرض عدد الطلاب المقبولين (المتصلين فعلياً)
+        db.ref('acceptedStudents').on('value', (snap) => {
+            const count = snap.val() ? Object.keys(snap.val()).length : 0;
+            document.getElementById('onlineCount').innerText = count;
+        });
+
+        // -------------------- رفع الملفات --------------------
+        window.uploadFile = () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*,application/pdf';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                const storageRef = storage.ref('teacher_files/' + Date.now() + '_' + file.name);
+                await storageRef.put(file);
+                const url = await storageRef.getDownloadURL();
+                db.ref('teacherFiles').push({
+                    fileName: file.name,
+                    fileUrl: url,
+                    timestamp: Date.now()
+                });
+                alert('تم رفع الملف وإرساله للطلاب');
+            };
+            input.click();
+        };
+
+        // عرض الملفات المرسلة
+        db.ref('teacherFiles').on('child_added', (snap) => {
+            const file = snap.val();
+            const list = document.getElementById('filesList');
+            const div = document.createElement('div');
+            div.className = 'file-item';
+            div.innerHTML = `<a href="${file.fileUrl}" target="_blank">📎 ${file.fileName}</a>`;
+            list.appendChild(div);
+        });
+
+        // -------------------- الامتحانات --------------------
         window.showExamForm = () => {
-            const examType = prompt('نوع الامتحان: 1- نص مع خيارات, 2- صورة');
+            const examType = prompt('نوع الامتحان:\n1- نص مع خيارات\n2- صورة');
             if (examType === '1') {
                 const question = prompt('أدخل نص السؤال:');
                 const options = prompt('أدخل الخيارات مفصولة بفاصلة (مثل: نعم,لا,ربما)');
@@ -462,29 +507,20 @@
             }
         };
 
-        // ================== استقبال إجابات الطلاب ==================
+        // -------------------- إجابات الطلاب --------------------
         db.ref('submissions').on('child_added', (snap) => {
             const sub = snap.val();
-            const list = document.getElementById('submissionsList');
-            const div = document.createElement('div');
-            div.className = 'submission-item';
-            div.innerHTML = `
-                <span>طالب: ${sub.studentId.substring(0,6)}</span>
-                <span>${sub.answer ? 'إجابة: ' + sub.answer : ''}</span>
-                ${sub.fileUrl ? `<a href="${sub.fileUrl}" target="_blank"><i class="fas fa-download"></i></a>` : ''}
-            `;
-            list.appendChild(div);
+            console.log('إجابة جديدة:', sub);
+            // يمكن عرضها في واجهة المدرس إذا أردت
         });
 
-        // تنظيف السبورة عند أمر المسح
+        // -------------------- أوامر المسح --------------------
         db.ref('teacherCommands').on('child_added', (snap) => {
-            const cmd = snap.val();
-            if (cmd.type === 'clear') {
+            if (snap.val().type === 'clear') {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
         });
 
-        // منع القائمة اليمنى
         canvas.addEventListener('contextmenu', e => e.preventDefault());
 
         // تسجيل المدرس
