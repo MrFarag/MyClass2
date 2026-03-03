@@ -3,85 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>الطالب - MyClass2</title>
+    <title>المدرس - MyClass2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* نفس التنسيقات السابقة (محذوفة للاختصار) */
+        /* نفس التنسيقات السابقة تماماً (محذوفة للاختصار) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: #1a2634; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; color: white; }
-        .header { background: #2c3e50; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #3498db; }
-        .logo i { color: #3498db; }
-        .status-badge { background: #27ae60; padding: 4px 10px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 5px; }
-        .login-screen { flex: 1; display: flex; justify-content: center; align-items: center; background: #1a2634; padding: 20px; }
-        .login-box { background: #2c3e50; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; }
-        .login-box h2 { margin-bottom: 20px; color: #3498db; }
-        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px; background: #34495e; color: white; font-size: 16px; direction: ltr; text-align: left; }
-        .login-btn { width: 100%; padding: 14px; background: #27ae60; border: none; border-radius: 10px; color: white; font-size: 18px; cursor: pointer; margin-top: 20px; }
-        .error-message { color: #e74c3c; margin-top: 10px; }
+        .header { background: #2c3e50; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #e67e22; flex-shrink: 0; }
+        .logo i { color: #e67e22; margin-left: 6px; }
+        .online-count { background: #27ae60; padding: 5px 12px; border-radius: 30px; font-size: 13px; }
+        .mic-indicator { display: none; background: #e74c3c; padding: 5px 12px; border-radius: 30px; font-size: 13px; animation: pulse 1s infinite; }
+        .mic-indicator.active { display: flex; gap: 5px; }
+        @keyframes pulse { 50% { opacity: 0.6; } }
         .board-container { flex: 1; display: flex; flex-direction: column; background: #2c3e50; margin: 8px; border-radius: 12px; overflow: hidden; }
-        .board-header { padding: 10px 15px; background: #34495e; border-bottom: 2px solid #3498db; }
+        .board-header { padding: 10px 15px; background: #34495e; border-bottom: 2px solid #e67e22; }
         .canvas-wrapper { flex: 1; overflow: auto; background: #ecf0f1; -webkit-overflow-scrolling: touch; }
-        #teacherCanvas { width: 2000px; height: 1500px; display: block; background: white; pointer-events: none; }
-        .panel { background: #2c3e50; padding: 15px; border-top: 2px solid #3498db; max-height: 300px; overflow-y: auto; }
-        .exam-card { background: #34495e; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
-        .exam-option { display: block; margin: 8px 0; padding: 10px; background: #2c3e50; border-radius: 8px; cursor: pointer; }
-        .exam-option.selected { background: #27ae60; }
-        .file-upload label { background: #f39c12; padding: 8px 15px; border-radius: 20px; display: inline-block; cursor: pointer; }
-        #submitBtn { background: #27ae60; border: none; color: white; padding: 10px 20px; border-radius: 25px; margin-top: 10px; cursor: pointer; width: 100%; font-size: 16px; }
-        .waiting-screen { text-align: center; padding: 30px; }
-        #requestBtn { background: #3498db; border: none; color: white; padding: 15px 30px; border-radius: 30px; font-size: 18px; margin-top: 20px; cursor: pointer; }
+        #teacherCanvas { width: 2000px; height: 1500px; display: block; background: white; touch-action: none; }
+        .toolbar { background: #34495e; padding: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; border-top: 2px solid #e67e22; flex-shrink: 0; overflow-x: auto; justify-content: center; }
+        .tool-group { display: flex; gap: 5px; background: #2c3e50; padding: 5px; border-radius: 12px; }
+        .tool-btn { width: 48px; height: 48px; border: none; border-radius: 10px; background: #3d566e; color: white; font-size: 20px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .tool-btn:hover { background: #e67e22; transform: scale(1.05); }
+        .tool-btn.active { background: #e67e22; }
+        .color-btn { width: 40px; height: 40px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
+        .color-btn.active { border-color: white; transform: scale(1.1); }
+        .size-btn { width: 48px; height: 48px; background: #3d566e; border: none; border-radius: 10px; color: white; font-size: 16px; cursor: pointer; }
+        .size-btn.active { background: #e67e22; }
+        .panel { background: #2c3e50; padding: 10px; border-top: 2px solid #e67e22; max-height: 200px; overflow-y: auto; flex-shrink: 0; }
+        .request-item { background: #34495e; padding: 8px 12px; border-radius: 8px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .request-item .student-info { font-size: 14px; }
+        .request-item button { background: #27ae60; border: none; color: white; padding: 4px 10px; border-radius: 15px; cursor: pointer; }
         .file-item { background: #34495e; padding: 5px 10px; border-radius: 5px; margin: 3px 0; }
-        #mainContent { display: none; flex:1; flex-direction: column; }
     </style>
 </head>
 <body>
-    <!-- شاشة تسجيل الدخول -->
-    <div id="loginScreen" class="login-screen">
-        <div class="login-box">
-            <h2><i class="fas fa-user-graduate"></i> تسجيل الدخول</h2>
-            <input type="text" id="studentName" class="login-input" placeholder="الاسم" autocomplete="off">
-            <input type="tel" id="studentPhone" class="login-input" placeholder="رقم التليفون" autocomplete="off">
-            <input type="text" id="studentSecret" class="login-input" placeholder="الرقم السري" autocomplete="off">
-            <button class="login-btn" onclick="validateLogin()">دخول</button>
-            <div id="loginError" class="error-message"></div>
+    <div class="header">
+        <div class="logo"><i class="fas fa-chalkboard-teacher"></i> MyClass2 - المدرس</div>
+        <div style="display: flex; gap: 10px;">
+            <div class="mic-indicator" id="micIndicator"><i class="fas fa-microphone"></i> الميك شغال</div>
+            <div class="online-count"><i class="fas fa-users"></i> <span id="onlineCount">0</span> طالب</div>
         </div>
     </div>
 
-    <!-- شاشة انتظار القبول -->
-    <div id="waitingScreen" style="display: none; flex:1; justify-content: center; align-items: center; flex-direction: column;">
-        <div style="background: #2c3e50; padding: 30px; border-radius: 20px; text-align: center;">
-            <i class="fas fa-hourglass-half" style="font-size: 50px; color: #f39c12; margin-bottom: 20px;"></i>
-            <h2>انتظار موافقة المدرس</h2>
-            <p>سيتم تفعيل السبورة والصوت بعد القبول</p>
-            <button id="requestBtn" onclick="sendJoinRequest()"><i class="fas fa-paper-plane"></i> إرسال طلب انضمام</button>
+    <!-- السبورة -->
+    <div class="board-container">
+        <div class="board-header">
+            <span><i class="fas fa-pen-fancy"></i> سبورة المدرس</span>
+        </div>
+        <div class="canvas-wrapper" id="teacherWrapper">
+            <canvas id="teacherCanvas"></canvas>
         </div>
     </div>
 
-    <!-- المحتوى الرئيسي -->
-    <div id="mainContent">
-        <!-- سبورة المدرس -->
-        <div class="board-container">
-            <div class="board-header">
-                <span><i class="fas fa-chalkboard-teacher"></i> سبورة المدرس</span>
-                <span id="audioIndicator" style="display:none;"><i class="fas fa-volume-up"></i> صوت مباشر</span>
-            </div>
-            <div class="canvas-wrapper" id="teacherWrapper">
-                <canvas id="teacherCanvas"></canvas>
-            </div>
+    <!-- شريط الأدوات الموحد -->
+    <div class="toolbar">
+        <!-- مجموعة الألوان -->
+        <div class="tool-group">
+            <div class="color-btn active" style="background:#1a1a1a" onclick="changeColor('#1a1a1a',this)" title="أسود"></div>
+            <div class="color-btn" style="background:#e74c3c" onclick="changeColor('#e74c3c',this)" title="أحمر"></div>
+            <div class="color-btn" style="background:#2980b9" onclick="changeColor('#2980b9',this)" title="أزرق"></div>
+            <div class="color-btn" style="background:#27ae60" onclick="changeColor('#27ae60',this)" title="أخضر"></div>
+            <div class="color-btn" style="background:#8e44ad" onclick="changeColor('#8e44ad',this)" title="بنفسجي"></div>
+            <div class="color-btn" style="background:#f39c12" onclick="changeColor('#f39c12',this)" title="برتقالي"></div>
         </div>
 
-        <!-- لوحة الامتحانات والملفات -->
-        <div class="panel">
-            <div id="examDisplay"></div>
-            <div id="teacherFilesDisplay"></div>
-            <div id="fileUploadArea" style="display:none;">
-                <div class="file-upload">
-                    <label for="fileInput"><i class="fas fa-upload"></i> رفع ملف الإجابة</label>
-                    <input type="file" id="fileInput" style="display:none;">
-                </div>
-            </div>
-            <button id="submitBtn" style="display:none;" onclick="submitAnswer()">إرسال الإجابة</button>
+        <!-- أحجام القلم -->
+        <div class="tool-group">
+            <button class="size-btn" onclick="changeSize(2,this)" title="رفيع">رفيع</button>
+            <button class="size-btn active" onclick="changeSize(5,this)" title="وسط">وسط</button>
+            <button class="size-btn" onclick="changeSize(10,this)" title="سميك">سميك</button>
         </div>
+
+        <!-- أدوات الرسم -->
+        <div class="tool-group">
+            <button class="tool-btn active" id="penBtn" onclick="setPen()" title="قلم"><i class="fas fa-pencil-alt"></i></button>
+            <button class="tool-btn" id="eraserBtn" onclick="setEraser()" title="ممحاة"><i class="fas fa-eraser"></i></button>
+            <button class="tool-btn" onclick="setTool('layers')" title="الطبقات"><i class="fas fa-layer-group"></i></button>
+            <button class="tool-btn" onclick="setTool('ruler')" title="مسطرة"><i class="fas fa-ruler"></i></button>
+            <button class="tool-btn" onclick="setTool('shape')" title="أشكال"><i class="fas fa-shapes"></i></button>
+            <button class="tool-btn" onclick="setTool('text')" title="نص"><i class="fas fa-font"></i></button>
+        </div>
+
+        <!-- أدوات إضافية -->
+        <div class="tool-group">
+            <button class="tool-btn" onclick="importFile()" title="استيراد صورة"><i class="fas fa-file-import"></i></button>
+            <button class="tool-btn" onclick="clearBoard()" title="مسح الكل"><i class="fas fa-trash-alt"></i></button>
+        </div>
+
+        <!-- رفع ملف -->
+        <div class="tool-group">
+            <button class="tool-btn" onclick="uploadFile()" style="background:#3498db" title="رفع ملف"><i class="fas fa-upload"></i></button>
+        </div>
+
+        <!-- الميكروفون -->
+        <div class="tool-group">
+            <button class="tool-btn" id="audioBtn" onclick="toggleAudio()" title="تشغيل الميكروفون"><i class="fas fa-microphone"></i></button>
+        </div>
+
+        <!-- إرسال امتحان -->
+        <div class="tool-group">
+            <button class="tool-btn" onclick="showExamForm()" style="background:#f39c12" title="إرسال امتحان"><i class="fas fa-file-alt"></i></button>
+        </div>
+    </div>
+
+    <!-- لوحة الطلبات والملفات -->
+    <div class="panel">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <span><i class="fas fa-user-clock"></i> طلبات الانضمام</span>
+            <span><i class="fas fa-file"></i> الملفات المرسلة</span>
+        </div>
+        <div id="requestsList" style="max-height: 80px; overflow-y: auto;"></div>
+        <div id="filesList" style="max-height: 80px; overflow-y: auto;"></div>
     </div>
 
     <!-- Firebase & PeerJS -->
@@ -105,238 +136,373 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        let studentId = null;
-        let studentName = '';
-        let studentPhone = '';
-        let accepted = false;
+        // -------------------- الرسم --------------------
+        const canvas = document.getElementById('teacherCanvas');
+        const ctx = canvas.getContext('2d');
+        const wrapper = document.getElementById('teacherWrapper');
+        let drawing = false;
+        let currentTool = 'pen';
+        let currentColor = '#1a1a1a';
+        let currentSize = 5;
+        let lastX = 0, lastY = 0;
 
-        // -------------------- التحقق من تسجيل الدخول --------------------
-        window.validateLogin = () => {
-            const name = document.getElementById('studentName').value.trim();
-            const phone = document.getElementById('studentPhone').value.trim();
-            const secret = document.getElementById('studentSecret').value.trim();
-            const errorDiv = document.getElementById('loginError');
+        canvas.width = 2000; canvas.height = 1500;
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
 
-            if (!name || !phone || !secret) {
-                errorDiv.innerText = 'جميع الحقول مطلوبة';
-                return;
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            return {
+                x: (clientX - rect.left) * scaleX + wrapper.scrollLeft * scaleX,
+                y: (clientY - rect.top) * scaleY + wrapper.scrollTop * scaleY
+            };
+        }
+
+        function startDraw(e) {
+            e.preventDefault();
+            drawing = true;
+            const pos = getPos(e);
+            lastX = pos.x; lastY = pos.y;
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function draw(e) {
+            e.preventDefault();
+            if (!drawing) return;
+            const pos = getPos(e);
+            
+            if (currentTool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.strokeStyle = 'rgba(0,0,0,1)';
+                ctx.lineWidth = 30;
+            } else {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = currentSize;
             }
 
-            const reversedPhone = phone.split('').reverse().join('');
-            if (secret !== reversedPhone) {
-                errorDiv.innerText = 'الرقم السري غير صحيح (يجب أن يكون معكوس رقم التليفون)';
-                return;
-            }
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
 
-            studentName = name;
-            studentPhone = phone;
-            studentId = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
-
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('waitingScreen').style.display = 'flex';
-
-            db.ref('studentData/' + studentId).set({
-                name: studentName,
-                phone: studentPhone,
+            db.ref('teacherDrawings').push({
+                x: pos.x, y: pos.y,
+                lastX, lastY,
+                color: currentTool === 'eraser' ? 'eraser' : currentColor,
+                size: currentTool === 'eraser' ? 30 : currentSize,
+                type: 'draw',
                 timestamp: Date.now()
             });
+
+            lastX = pos.x; lastY = pos.y;
+        }
+
+        function stopDraw() {
+            drawing = false;
+            ctx.beginPath();
+            ctx.globalCompositeOperation = 'source-over';
+        }
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDraw);
+        canvas.addEventListener('mouseleave', stopDraw);
+        canvas.addEventListener('touchstart', startDraw, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stopDraw);
+
+        window.changeColor = (color, el) => {
+            currentColor = color;
+            currentTool = 'pen';
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('penBtn').classList.add('active');
+            document.getElementById('eraserBtn').classList.remove('active');
         };
 
-        // -------------------- طلب الانضمام --------------------
-        window.sendJoinRequest = () => {
-            const btn = document.getElementById('requestBtn');
-            btn.disabled = true;
-            btn.innerHTML = 'جاري الإرسال...';
-            db.ref('joinRequests').push({
-                studentId: studentId,
-                studentName: studentName,
-                studentPhone: studentPhone,
-                timestamp: Date.now()
-            }).then(() => {
-                btn.innerHTML = 'تم الإرسال، انتظر...';
-            });
+        window.changeSize = (size, el) => {
+            currentSize = size;
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
         };
 
-        // مراقبة القبول
-        db.ref('acceptedStudents/' + studentId).on('value', (snap) => {
-            if (snap.val() === true && !accepted) {
-                accepted = true;
-                document.getElementById('waitingScreen').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'flex';
-                startStudent();
+        window.setPen = () => {
+            currentTool = 'pen';
+            document.getElementById('penBtn').classList.add('active');
+            document.getElementById('eraserBtn').classList.remove('active');
+        };
+
+        window.setEraser = () => {
+            currentTool = 'eraser';
+            document.getElementById('eraserBtn').classList.add('active');
+            document.getElementById('penBtn').classList.remove('active');
+        };
+
+        window.setTool = (tool) => {
+            currentTool = tool;
+            alert(`أداة "${tool}" قيد التطوير حالياً`);
+        };
+
+        window.clearBoard = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            db.ref('teacherCommands').push({ type: 'clear' });
+        };
+
+        window.importFile = () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.drawImage(img, 100, 100, 400, 300);
+                        db.ref('teacherDrawings').push({
+                            type: 'image',
+                            imageData: event.target.result,
+                            x: 100, y: 100,
+                            width: 400, height: 300,
+                            timestamp: Date.now()
+                        });
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        };
+
+        canvas.addEventListener('click', (e) => {
+            if (currentTool === 'text') {
+                const pos = getPos(e);
+                const text = prompt('أدخل النص:');
+                if (text) {
+                    ctx.font = '30px Arial';
+                    ctx.fillStyle = currentColor;
+                    ctx.fillText(text, pos.x, pos.y);
+                    db.ref('teacherDrawings').push({
+                        type: 'text',
+                        text: text,
+                        x: pos.x, y: pos.y,
+                        color: currentColor,
+                        fontSize: 30,
+                        timestamp: Date.now()
+                    });
+                }
             }
         });
 
-        // -------------------- بدء جلسة الطالب بعد القبول --------------------
-        function startStudent() {
-            const teacherCanvas = document.getElementById('teacherCanvas');
-            const teacherCtx = teacherCanvas.getContext('2d');
-            teacherCanvas.width = 2000; teacherCanvas.height = 1500;
-            teacherCtx.lineCap = 'round'; teacherCtx.lineJoin = 'round';
+        // -------------------- الصوت (البث المباشر من المدرس للطلاب) --------------------
+        let localStream, peer;
+        let studentCalls = {}; // تخزين المكالمات النشطة
 
-            // استقبال الرسم
-            db.ref('teacherDrawings').on('child_added', (snap) => {
-                const d = snap.val();
-                if (d.type === 'text') {
-                    teacherCtx.font = (d.fontSize || 30) + 'px Arial';
-                    teacherCtx.fillStyle = d.color || '#000';
-                    teacherCtx.fillText(d.text, d.x, d.y);
-                } else if (d.type === 'image') {
-                    const img = new Image();
-                    img.onload = () => {
-                        teacherCtx.drawImage(img, d.x, d.y, d.width, d.height);
-                    };
-                    img.src = d.imageData;
-                } else {
-                    teacherCtx.strokeStyle = d.color === 'eraser' ? '#ffffff' : d.color;
-                    teacherCtx.lineWidth = d.size || 3;
-                    teacherCtx.beginPath();
-                    teacherCtx.moveTo(d.lastX, d.lastY);
-                    teacherCtx.lineTo(d.x, d.y);
-                    teacherCtx.stroke();
-                }
-            });
+        peer = new Peer('teacher_' + Date.now());
 
-            db.ref('teacherCommands').on('child_added', (snap) => {
-                if (snap.val().type === 'clear') {
-                    teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
-                }
-            });
+        peer.on('open', (id) => {
+            console.log('Teacher audio ID:', id);
+            db.ref('teacherAudioId').set(id);
+        });
 
-            // -------------------- الصوت (استقبال فقط من المدرس) --------------------
-            let peer, currentCall;
-            peer = new Peer(studentId);
+        // استقبال مكالمات الطلاب (إذا أراد الطالب التحدث) - يمكن تعطيلها
+        peer.on('call', (call) => {
+            if (localStream) {
+                call.answer(localStream);
+            }
+        });
 
-            peer.on('open', (id) => {
-                console.log('Student peer ID:', id);
-                // تخزين peerId ليتمكن المدرس من الاتصال بنا
-                db.ref('studentPeerIds/' + studentId).set(id);
-            });
-
-            // استقبال المكالمة من المدرس
-            peer.on('call', (incomingCall) => {
-                // نجيب على المكالمة بدون إرسال أي صوت (لأننا لا نريد إرسال صوت الطالب)
-                incomingCall.answer(); // إجابة بدون stream محلي
-
-                incomingCall.on('stream', (remoteStream) => {
-                    // تشغيل الصوت القادم من المدرس
-                    const audio = new Audio();
-                    audio.srcObject = remoteStream;
-                    audio.play().catch(e => console.log('Audio play error:', e));
-                    document.getElementById('audioIndicator').style.display = 'inline';
-                });
-
-                incomingCall.on('close', () => {
-                    document.getElementById('audioIndicator').style.display = 'none';
-                });
-
-                currentCall = incomingCall;
-            });
-
-            // -------------------- استقبال الامتحانات --------------------
-            db.ref('currentExam').on('value', (snap) => {
-                const exam = snap.val();
-                const display = document.getElementById('examDisplay');
-                const fileArea = document.getElementById('fileUploadArea');
-                const submitBtn = document.getElementById('submitBtn');
-                if (!exam) {
-                    display.innerHTML = '';
-                    fileArea.style.display = 'none';
-                    submitBtn.style.display = 'none';
-                    return;
-                }
-
-                if (exam.type === 'text') {
-                    let optionsHtml = '';
-                    exam.options.forEach((opt) => {
-                        optionsHtml += `<label class="exam-option" onclick="selectOption(this, '${opt}')">${opt}</label>`;
+        // دالة لبدء البث لجميع الطلاب المقبولين
+        async function startBroadcast() {
+            if (!localStream) return;
+            
+            const acceptedSnap = await db.ref('acceptedStudents').once('value');
+            const accepted = acceptedSnap.val();
+            if (!accepted) return;
+            
+            for (let studentId in accepted) {
+                const studentPeerId = await db.ref('studentPeerIds/' + studentId).once('value');
+                if (studentPeerId.exists()) {
+                    const call = peer.call(studentPeerId.val(), localStream);
+                    studentCalls[studentId] = call;
+                    call.on('close', () => {
+                        delete studentCalls[studentId];
                     });
-                    display.innerHTML = `
-                        <div class="exam-card">
-                            <div class="exam-question">${exam.question}</div>
-                            ${optionsHtml}
-                        </div>
-                    `;
-                    fileArea.style.display = 'none';
-                    submitBtn.style.display = 'block';
-                    submitBtn.innerText = 'إرسال الإجابة';
-                } else if (exam.type === 'image') {
-                    display.innerHTML = `
-                        <div class="exam-card">
-                            <img src="${exam.imageUrl}" style="max-width:100%; max-height:200px; border-radius:8px;">
-                        </div>
-                    `;
-                    fileArea.style.display = 'block';
-                    submitBtn.style.display = 'block';
-                    submitBtn.innerText = 'رفع الإجابة';
                 }
-            });
-
-            // -------------------- استقبال ملفات المدرس --------------------
-            db.ref('teacherFiles').on('child_added', (snap) => {
-                const file = snap.val();
-                const filesDiv = document.getElementById('teacherFilesDisplay');
-                const div = document.createElement('div');
-                div.className = 'file-item';
-                div.innerHTML = `<a href="${file.fileUrl}" target="_blank">📎 ${file.fileName}</a>`;
-                filesDiv.appendChild(div);
-            });
+            }
         }
 
-        // -------------------- إرسال الإجابة --------------------
-        let selectedAnswer = '';
-        window.selectOption = (el, opt) => {
-            document.querySelectorAll('.exam-option').forEach(o => o.classList.remove('selected'));
-            el.classList.add('selected');
-            selectedAnswer = opt;
+        window.toggleAudio = async () => {
+            const btn = document.getElementById('audioBtn');
+            const indicator = document.getElementById('micIndicator');
+            if (!localStream) {
+                try {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    btn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+                    btn.classList.add('active');
+                    indicator.classList.add('active');
+                    db.ref('teacherAudioActive').set(true);
+                    
+                    // بدء البث للطلاب الحاليين
+                    await startBroadcast();
+                    
+                    // مراقبة الطلاب الجدد (عند قبول طالب)
+                    db.ref('acceptedStudents').on('child_added', async (snap) => {
+                        if (localStream) {
+                            const newStudentId = snap.key;
+                            // تأخير صغير لضمان تسجيل peerId
+                            setTimeout(async () => {
+                                const studentPeerId = await db.ref('studentPeerIds/' + newStudentId).once('value');
+                                if (studentPeerId.exists()) {
+                                    const call = peer.call(studentPeerId.val(), localStream);
+                                    studentCalls[newStudentId] = call;
+                                }
+                            }, 1000);
+                        }
+                    });
+                    
+                } catch (err) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    alert('لا يمكن الوصول للميكروفون');
+                }
+            } else {
+                // إيقاف البث
+                for (let id in studentCalls) {
+                    studentCalls[id].close();
+                }
+                studentCalls = {};
+                localStream.getTracks().forEach(t => t.stop());
+                localStream = null;
+                btn.innerHTML = '<i class="fas fa-microphone"></i>';
+                btn.classList.remove('active');
+                indicator.classList.remove('active');
+                db.ref('teacherAudioActive').set(false);
+                db.ref('acceptedStudents').off('child_added');
+            }
         };
 
-        window.submitAnswer = () => {
-            db.ref('currentExam').once('value', (snap) => {
-                const exam = snap.val();
-                if (exam.type === 'text') {
-                    if (!selectedAnswer) {
-                        alert('اختر إجابة أولاً');
-                        return;
-                    }
-                    db.ref('submissions').push({
-                        studentId: studentId,
-                        studentName: studentName,
-                        studentPhone: studentPhone,
-                        answer: selectedAnswer,
+        // -------------------- طلبات الانضمام --------------------
+        db.ref('joinRequests').on('child_added', (snap) => {
+            const req = snap.val();
+            const reqId = snap.key;
+            const list = document.getElementById('requestsList');
+            const div = document.createElement('div');
+            div.className = 'request-item';
+            div.id = 'req_' + reqId;
+            div.innerHTML = `
+                <div class="student-info">
+                    <strong>${req.studentName || 'طالب'}</strong><br>
+                    <span>📞 ${req.studentPhone || '??'}</span>
+                </div>
+                <button onclick="acceptStudent('${reqId}', '${req.studentId}')">قبول</button>
+            `;
+            list.appendChild(div);
+        });
+
+        window.acceptStudent = (reqId, studentId) => {
+            db.ref('acceptedStudents/' + studentId).set(true);
+            db.ref('joinRequests/' + reqId).remove();
+            const el = document.getElementById('req_' + reqId);
+            if (el) el.remove();
+        };
+
+        db.ref('acceptedStudents').on('value', (snap) => {
+            const count = snap.val() ? Object.keys(snap.val()).length : 0;
+            document.getElementById('onlineCount').innerText = count;
+        });
+
+        // -------------------- رفع الملفات --------------------
+        window.uploadFile = () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*,application/pdf';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                const storageRef = storage.ref('teacher_files/' + Date.now() + '_' + file.name);
+                await storageRef.put(file);
+                const url = await storageRef.getDownloadURL();
+                db.ref('teacherFiles').push({
+                    fileName: file.name,
+                    fileUrl: url,
+                    timestamp: Date.now()
+                });
+                alert('تم رفع الملف وإرساله للطلاب');
+            };
+            input.click();
+        };
+
+        db.ref('teacherFiles').on('child_added', (snap) => {
+            const file = snap.val();
+            const list = document.getElementById('filesList');
+            const div = document.createElement('div');
+            div.className = 'file-item';
+            div.innerHTML = `<a href="${file.fileUrl}" target="_blank">📎 ${file.fileName}</a>`;
+            list.appendChild(div);
+        });
+
+        // -------------------- الامتحانات --------------------
+        window.showExamForm = () => {
+            const examType = prompt('نوع الامتحان:\n1- نص مع خيارات\n2- صورة');
+            if (examType === '1') {
+                const question = prompt('أدخل نص السؤال:');
+                const options = prompt('أدخل الخيارات مفصولة بفاصلة (مثل: نعم,لا,ربما)');
+                if (question && options) {
+                    const optArray = options.split(',').map(s => s.trim());
+                    db.ref('currentExam').set({
+                        type: 'text',
+                        question,
+                        options: optArray,
                         timestamp: Date.now()
                     });
-                    alert('تم إرسال الإجابة');
-                } else if (exam.type === 'image') {
-                    const fileInput = document.getElementById('fileInput');
-                    fileInput.click();
-                    fileInput.onchange = async (e) => {
-                        const file = e.target.files[0];
-                        const storageRef = storage.ref('submissions/' + Date.now() + '_' + file.name);
-                        await storageRef.put(file);
-                        const url = await storageRef.getDownloadURL();
-                        db.ref('submissions').push({
-                            studentId: studentId,
-                            studentName: studentName,
-                            studentPhone: studentPhone,
-                            fileUrl: url,
-                            timestamp: Date.now()
-                        });
-                        alert('تم رفع الملف');
-                    };
                 }
-            });
+            } else if (examType === '2') {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    const storageRef = storage.ref('exams/' + Date.now() + '_' + file.name);
+                    await storageRef.put(file);
+                    const url = await storageRef.getDownloadURL();
+                    db.ref('currentExam').set({
+                        type: 'image',
+                        imageUrl: url,
+                        timestamp: Date.now()
+                    });
+                };
+                input.click();
+            }
         };
 
-        // -------------------- تنظيف عند الخروج --------------------
-        window.addEventListener('beforeunload', () => {
-            if (studentId) {
-                db.ref('joinRequests').orderByChild('studentId').equalTo(studentId).once('value', (snap) => {
-                    snap.forEach(child => child.ref.remove());
-                });
-                db.ref('studentData/' + studentId).remove();
-                db.ref('studentPeerIds/' + studentId).remove();
+        db.ref('submissions').on('child_added', (snap) => {
+            console.log('إجابة جديدة:', snap.val());
+        });
+
+        db.ref('teacherCommands').on('child_added', (snap) => {
+            if (snap.val().type === 'clear') {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
+        });
+
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        db.ref('teacher/online').set({ online: true });
+        window.addEventListener('beforeunload', () => {
+            db.ref('teacher/online').remove();
+            if (localStream) localStream.getTracks().forEach(t => t.stop());
         });
     </script>
 </body>
