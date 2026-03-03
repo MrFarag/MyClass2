@@ -6,7 +6,7 @@
     <title>الطالب - MyClass2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ========== الأساسيات ========== */
+        /* ===== الأساسيات ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -18,7 +18,7 @@
             color: white;
         }
 
-        /* ========== شاشة الدخول (أحمر داكن) ========== */
+        /* ===== شاشة الدخول (أحمر داكن) ===== */
         .login-screen {
             flex: 1;
             display: flex;
@@ -28,7 +28,7 @@
             padding: 20px;
         }
         .login-box {
-            background: #8B0000; /* أحمر داكن */
+            background: #8B0000;
             color: white;
             padding: 30px;
             border-radius: 20px;
@@ -37,63 +37,45 @@
             text-align: center;
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
         }
-        .login-box h2 {
-            margin-bottom: 20px;
-            color: white;
-            font-weight: bold;
-        }
+        .login-box h2 { margin-bottom: 20px; color: white; }
         .login-input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 8px;
-            background: #a52a2a; /* لون أفتح قليلاً */
-            color: white;
-            font-size: 16px;
-            direction: ltr;
-            text-align: left;
+            width: 100%; padding: 12px; margin: 10px 0;
+            border: none; border-radius: 8px;
+            background: #a52a2a; color: white; font-size: 16px;
             border: 1px solid #c04040;
         }
-        .login-input::placeholder {
-            color: #ffb6b6;
-        }
+        .login-input::placeholder { color: #ffb6b6; }
         .login-btn {
-            width: 100%;
-            padding: 14px;
-            background: #27ae60;
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 18px;
-            cursor: pointer;
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            width: 100%; padding: 14px; background: #27ae60;
+            border: none; border-radius: 10px; color: white;
+            font-size: 18px; cursor: pointer; margin-top: 20px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        .login-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .error-message {
-            color: #ffcccc;
-            margin-top: 10px;
-            background: rgba(0,0,0,0.3);
-            padding: 8px;
-            border-radius: 5px;
-        }
+        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .error-message { color: #ffcccc; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px; }
         .waiting-message {
-            background: #27ae60;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-weight: bold;
+            background: #27ae60; color: white; padding: 12px;
+            border-radius: 8px; margin-top: 15px; font-weight: bold;
         }
 
-        /* ========== السبورة (تظهر بعد القبول) ========== */
+        /* ===== المحتوى الرئيسي ===== */
+        #mainContent { display: none; flex: 1; flex-direction: column; }
+
+        /* ===== الشريط العلوي (للطالب) ===== */
+        .top-bar {
+            background: #2c3e50;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid #3498db;
+            flex-shrink: 0;
+        }
+        .logo i { color: #3498db; }
+        .audio-indicator { background: #e67e22; padding: 4px 10px; border-radius: 20px; font-size: 13px; display: none; }
+        .audio-indicator.active { display: inline-flex; gap: 5px; }
+
+        /* ===== السبورة ===== */
         .board-container {
             flex: 1;
             display: flex;
@@ -107,9 +89,6 @@
             padding: 10px 15px;
             background: #34495e;
             border-bottom: 2px solid #3498db;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         .canvas-wrapper {
             flex: 1;
@@ -124,74 +103,45 @@
             background: white;
             pointer-events: none;
         }
-        .panel {
-            background: #2c3e50;
-            padding: 15px;
+
+        /* ===== الشريط السفلي (الامتحانات والملفات) ===== */
+        .bottom-bar {
+            background: #34495e;
+            padding: 10px;
             border-top: 2px solid #3498db;
-            max-height: 300px;
+            flex-shrink: 0;
             overflow-y: auto;
+            max-height: 30vh;
         }
         .exam-card {
-            background: #34495e;
+            background: #2c3e50;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 10px;
         }
         .exam-option {
-            display: block;
-            margin: 8px 0;
-            padding: 10px;
-            background: #2c3e50;
-            border-radius: 8px;
-            cursor: pointer;
+            display: block; margin: 8px 0; padding: 10px;
+            background: #34495e; border-radius: 8px; cursor: pointer;
         }
-        .exam-option.selected {
-            background: #27ae60;
-        }
+        .exam-option.selected { background: #27ae60; }
         .file-upload label {
-            background: #f39c12;
-            padding: 8px 15px;
-            border-radius: 20px;
-            display: inline-block;
-            cursor: pointer;
+            background: #f39c12; padding: 8px 15px; border-radius: 20px;
+            display: inline-block; cursor: pointer; margin: 5px 0;
         }
         #submitBtn {
-            background: #27ae60;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            margin-top: 10px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
+            background: #27ae60; border: none; color: white;
+            padding: 10px 20px; border-radius: 25px; margin-top: 10px;
+            cursor: pointer; width: 100%; font-size: 16px;
         }
         .file-item {
-            background: #34495e;
-            padding: 5px 10px;
-            border-radius: 5px;
-            margin: 3px 0;
+            background: #2c3e50; padding: 5px 10px; border-radius: 5px; margin: 3px 0;
         }
-        #mainContent {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            height: 100%;
-        }
-        .status-badge {
-            background: #27ae60;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+        .file-item a { color: white; text-decoration: none; }
     </style>
 </head>
 <body>
 
-    <!-- ========== شاشة الدخول (أحمر داكن) ========== -->
+    <!-- ===== شاشة الدخول ===== -->
     <div id="loginScreen" class="login-screen">
         <div class="login-box">
             <h2><i class="fas fa-user-graduate"></i> تسجيل الدخول</h2>
@@ -208,21 +158,26 @@
         </div>
     </div>
 
-    <!-- ========== المحتوى الرئيسي (السبورة) ========== -->
+    <!-- ===== المحتوى الرئيسي ===== -->
     <div id="mainContent">
-        <!-- سبورة المدرس -->
+        <!-- الشريط العلوي -->
+        <div class="top-bar">
+            <div class="logo"><i class="fas fa-user-graduate"></i> MyClass2 - طالب</div>
+            <div class="audio-indicator" id="audioIndicator"><i class="fas fa-volume-up"></i> صوت مباشر</div>
+        </div>
+
+        <!-- السبورة -->
         <div class="board-container">
             <div class="board-header">
                 <span><i class="fas fa-chalkboard-teacher"></i> سبورة المدرس</span>
-                <span id="audioIndicator" style="display:none;"><i class="fas fa-volume-up"></i> صوت مباشر</span>
             </div>
             <div class="canvas-wrapper" id="teacherWrapper">
                 <canvas id="teacherCanvas"></canvas>
             </div>
         </div>
 
-        <!-- لوحة الامتحانات والملفات -->
-        <div class="panel">
+        <!-- الشريط السفلي (الامتحانات والملفات) -->
+        <div class="bottom-bar" id="bottomBar">
             <div id="examDisplay"></div>
             <div id="teacherFilesDisplay"></div>
             <div id="fileUploadArea" style="display:none;">
@@ -261,7 +216,7 @@
         let studentPhone = '';
         let accepted = false;
 
-        // ================== التحقق من تسجيل الدخول ==================
+        // ================== التحقق من الدخول ==================
         window.validateLogin = () => {
             const name = document.getElementById('studentName').value.trim();
             const phone = document.getElementById('studentPhone').value.trim();
@@ -275,7 +230,7 @@
                 return;
             }
 
-            // التحقق من أن الرقم السري هو معكوس رقم التليفون (دون إخبار المستخدم)
+            // تحقق بسيط: الرقم السري هو معكوس رقم التليفون (بدون إفشاء)
             const reversedPhone = phone.split('').reverse().join('');
             if (secret !== reversedPhone) {
                 errorDiv.innerText = 'الرقم السري غير صحيح';
@@ -308,18 +263,24 @@
             }).then(() => {
                 // تم الإرسال
             });
+
+            // بدء مراقبة القبول بعد تعيين studentId
+            watchAcceptance();
         };
 
-        // ================== مراقبة القبول ==================
-        db.ref('acceptedStudents/' + studentId).on('value', (snap) => {
-            if (snap.val() === true && !accepted) {
-                accepted = true;
-                // إخفاء شاشة الدخول وإظهار السبورة
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'flex';
-                startStudent();
-            }
-        });
+        // ================== مراقبة القبول (تُستدعى بعد تسجيل الدخول) ==================
+        function watchAcceptance() {
+            if (!studentId) return;
+            db.ref('acceptedStudents/' + studentId).on('value', (snap) => {
+                if (snap.val() === true && !accepted) {
+                    accepted = true;
+                    // إخفاء شاشة الدخول وإظهار المحتوى
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'flex';
+                    startStudent();
+                }
+            });
+        }
 
         // ================== بدء جلسة الطالب بعد القبول ==================
         function startStudent() {
@@ -357,33 +318,28 @@
                 }
             });
 
-            // ================== الصوت (استقبال فقط) ==================
+            // ===== الصوت (استقبال فقط) =====
             let peer, currentCall;
             peer = new Peer(studentId);
-
             peer.on('open', (id) => {
                 console.log('Student peer ID:', id);
                 db.ref('studentPeerIds/' + studentId).set(id);
             });
-
             peer.on('call', (incomingCall) => {
-                incomingCall.answer(); // بدون stream محلي
-
+                incomingCall.answer(); // بدون إرسال صوت
                 incomingCall.on('stream', (remoteStream) => {
                     const audio = new Audio();
                     audio.srcObject = remoteStream;
                     audio.play().catch(e => console.log('Audio play error:', e));
-                    document.getElementById('audioIndicator').style.display = 'inline';
+                    document.getElementById('audioIndicator').style.display = 'inline-flex';
                 });
-
                 incomingCall.on('close', () => {
                     document.getElementById('audioIndicator').style.display = 'none';
                 });
-
                 currentCall = incomingCall;
             });
 
-            // ================== استقبال الامتحانات ==================
+            // ===== استقبال الامتحانات =====
             db.ref('currentExam').on('value', (snap) => {
                 const exam = snap.val();
                 const display = document.getElementById('examDisplay');
@@ -395,34 +351,24 @@
                     submitBtn.style.display = 'none';
                     return;
                 }
-
                 if (exam.type === 'text') {
                     let optionsHtml = '';
                     exam.options.forEach((opt) => {
                         optionsHtml += `<label class="exam-option" onclick="selectOption(this, '${opt}')">${opt}</label>`;
                     });
-                    display.innerHTML = `
-                        <div class="exam-card">
-                            <div class="exam-question">${exam.question}</div>
-                            ${optionsHtml}
-                        </div>
-                    `;
+                    display.innerHTML = `<div class="exam-card"><div class="exam-question">${exam.question}</div>${optionsHtml}</div>`;
                     fileArea.style.display = 'none';
                     submitBtn.style.display = 'block';
                     submitBtn.innerText = 'إرسال الإجابة';
                 } else if (exam.type === 'image') {
-                    display.innerHTML = `
-                        <div class="exam-card">
-                            <img src="${exam.imageUrl}" style="max-width:100%; max-height:200px; border-radius:8px;">
-                        </div>
-                    `;
+                    display.innerHTML = `<div class="exam-card"><img src="${exam.imageUrl}" style="max-width:100%; max-height:200px; border-radius:8px;"></div>`;
                     fileArea.style.display = 'block';
                     submitBtn.style.display = 'block';
                     submitBtn.innerText = 'رفع الإجابة';
                 }
             });
 
-            // ================== استقبال ملفات المدرس ==================
+            // ===== استقبال ملفات المدرس =====
             db.ref('teacherFiles').on('child_added', (snap) => {
                 const file = snap.val();
                 const filesDiv = document.getElementById('teacherFilesDisplay');
@@ -433,29 +379,19 @@
             });
         }
 
-        // ================== إرسال الإجابة ==================
+        // ===== إرسال الإجابة =====
         let selectedAnswer = '';
         window.selectOption = (el, opt) => {
             document.querySelectorAll('.exam-option').forEach(o => o.classList.remove('selected'));
             el.classList.add('selected');
             selectedAnswer = opt;
         };
-
         window.submitAnswer = () => {
             db.ref('currentExam').once('value', (snap) => {
                 const exam = snap.val();
                 if (exam.type === 'text') {
-                    if (!selectedAnswer) {
-                        alert('اختر إجابة أولاً');
-                        return;
-                    }
-                    db.ref('submissions').push({
-                        studentId: studentId,
-                        studentName: studentName,
-                        studentPhone: studentPhone,
-                        answer: selectedAnswer,
-                        timestamp: Date.now()
-                    });
+                    if (!selectedAnswer) { alert('اختر إجابة أولاً'); return; }
+                    db.ref('submissions').push({ studentId, studentName, studentPhone, answer: selectedAnswer, timestamp: Date.now() });
                     alert('تم إرسال الإجابة');
                 } else if (exam.type === 'image') {
                     const fileInput = document.getElementById('fileInput');
@@ -465,20 +401,14 @@
                         const storageRef = storage.ref('submissions/' + Date.now() + '_' + file.name);
                         await storageRef.put(file);
                         const url = await storageRef.getDownloadURL();
-                        db.ref('submissions').push({
-                            studentId: studentId,
-                            studentName: studentName,
-                            studentPhone: studentPhone,
-                            fileUrl: url,
-                            timestamp: Date.now()
-                        });
+                        db.ref('submissions').push({ studentId, studentName, studentPhone, fileUrl: url, timestamp: Date.now() });
                         alert('تم رفع الملف');
                     };
                 }
             });
         };
 
-        // ================== تنظيف عند الخروج ==================
+        // ===== تنظيف عند الخروج =====
         window.addEventListener('beforeunload', () => {
             if (studentId) {
                 db.ref('joinRequests').orderByChild('studentId').equalTo(studentId).once('value', (snap) => {
