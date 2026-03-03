@@ -62,7 +62,7 @@
       gap: 8px;
     }
 
-    /* شريط الأيقونات (في أقصى اليسار) */
+    /* شريط الأيقونات الرئيسي (أقصى اليسار) */
     .icon-sidebar {
       width: 70px;
       background: #1e3228;
@@ -73,7 +73,7 @@
       padding: 20px 0;
       gap: 20px;
       border: 1px solid #3a5a40;
-      order: 3; /* يظهر في أقصى اليسار في الترتيب RTL */
+      order: 3;
     }
     .nav-item {
       width: 50px;
@@ -91,7 +91,7 @@
     .nav-item i { font-size: 22px; }
     .nav-item.active { background: #ffaa00; color: #000; }
 
-    /* لوحة الطلاب (العمود الأيمن) */
+    /* لوحة الطلاب */
     .students-panel {
       width: 280px;
       background: #1e3228;
@@ -119,10 +119,8 @@
       align-items: center;
       gap: 10px;
       border: 1px solid #2a4a30;
-      cursor: pointer;
       transition: 0.2s;
     }
-    .student-item:hover { background: #2a4030; }
     .student-avatar {
       width: 32px;
       height: 32px;
@@ -135,20 +133,8 @@
       flex-shrink: 0;
     }
     .student-info { flex: 1; min-width: 0; }
-    .student-name {
-      font-weight: 700;
-      font-size: 13px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .student-status {
-      font-size: 10px;
-      color: #ccc;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
+    .student-name { font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .student-status { font-size: 10px; color: #ccc; display: flex; align-items: center; gap: 4px; }
     .student-actions {
       display: flex;
       gap: 8px;
@@ -158,8 +144,16 @@
     }
     .student-actions i { cursor: pointer; transition: 0.2s; }
     .student-actions i:hover { transform: scale(1.2); color: #fff; }
+    .blink {
+      animation: blink-animation 1s infinite;
+    }
+    @keyframes blink-animation {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
 
-    /* منطقة السبورة الرئيسية */
+    /* منطقة السبورة */
     .board-area {
       flex: 1;
       display: flex;
@@ -183,15 +177,8 @@
       align-items: center;
       gap: 15px;
     }
-    .board-header-right i {
-      color: #ffaa00;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .current-board-title {
-      font-weight: 700;
-      color: #ffaa00;
-    }
+    .board-header-right i { color: #ffaa00; cursor: pointer; font-size: 16px; }
+    .current-board-title { font-weight: 700; color: #ffaa00; }
     .main-board {
       flex: 1;
       background: #1e3228;
@@ -279,7 +266,6 @@
       gap: 8px;
     }
 
-    /* نافذة عرض وتصحيح الصورة */
     .modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -306,23 +292,17 @@
       justify-content: space-between;
       align-items: center;
     }
-    .modal-body { flex: 1; background: #fff; position: relative; }
-    .modal-body canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+    .modal-body { flex: 1; background: #fff; }
+    .modal-body canvas { width: 100%; height: 100%; }
     .modal-footer {
       padding: 10px 20px;
       background: #0f2a1f;
       display: flex;
       gap: 15px;
-      align-items: center;
     }
   </style>
 </head>
 <body>
-  <!-- الشريط العلوي -->
   <div class="top-bar">
     <div class="teacher-info">
       <span class="teacher-name">Mr_Farag_Kohail</span>
@@ -337,7 +317,7 @@
   </div>
 
   <div class="main-layout">
-    <!-- لوحة الطلاب (العمود الأيمن) -->
+    <!-- لوحة الطلاب -->
     <div class="students-panel">
       <div class="panel-header">
         <span><i class="fas fa-users"></i> المشاركون</span>
@@ -346,14 +326,14 @@
       <div id="studentsList"></div>
     </div>
 
-    <!-- منطقة السبورة الرئيسية (العمود الأوسط) -->
+    <!-- السبورة الرئيسية -->
     <div class="board-area">
       <div class="board-header">
         <div class="current-board-title" id="currentBoardTitle">السبورة الرئيسية</div>
         <div class="board-header-right">
-          <i class="fas fa-home" onclick="switchToMainBoard()" title="العودة للسبورة الرئيسية"></i>
-          <i class="fas fa-download" onclick="saveCurrentBoard()" title="حفظ السبورة"></i>
-          <i class="fas fa-expand" onclick="toggleFullscreen()" title="تكبير"></i>
+          <i class="fas fa-home" onclick="switchToMainBoard()"></i>
+          <i class="fas fa-download" onclick="saveCurrentBoard()"></i>
+          <i class="fas fa-expand" onclick="toggleFullscreen()"></i>
         </div>
       </div>
       <div class="main-board">
@@ -361,7 +341,7 @@
       </div>
     </div>
 
-    <!-- شريط الأيقونات (في أقصى اليسار) -->
+    <!-- شريط الأيقونات -->
     <div class="icon-sidebar">
       <div class="nav-item active"><i class="fas fa-home"></i><span>الرئيسية</span></div>
       <div class="nav-item"><i class="fas fa-door-open"></i><span>فصول</span></div>
@@ -392,19 +372,19 @@
     </div>
     <div class="toolbar-actions">
       <button class="action-circle btn-mic" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
-      <button class="action-circle btn-screen" onclick="alert('مشاركة الشاشة قيد التطوير')"><i class="fas fa-desktop"></i></button>
+      <button class="action-circle btn-screen" onclick="alert('قريباً')"><i class="fas fa-desktop"></i></button>
       <button class="action-circle btn-reset" onclick="resetAllData()"><i class="fas fa-broom"></i></button>
       <button class="action-circle btn-end" onclick="endClass()"><i class="fas fa-power-off"></i></button>
     </div>
   </div>
 
-  <!-- نافذة عرض وتصحيح صورة الطالب -->
+  <!-- نافذة التصحيح -->
   <div class="modal" id="correctionModal">
     <div class="modal-content">
       <div class="modal-header">
         <span id="modalStudentName">تصحيح واجب الطالب</span>
         <div>
-          <button class="action-circle" onclick="saveCorrectedImage()" style="background:#ffaa00;"><i class="fas fa-save"></i> حفظ</button>
+          <button class="action-circle" onclick="saveCorrectedImage()" style="background:#ffaa00;"><i class="fas fa-save"></i></button>
           <button class="action-circle btn-end" onclick="closeModal()"><i class="fas fa-times"></i></button>
         </div>
       </div>
@@ -418,7 +398,6 @@
           <div class="color-dot" style="background:#ff0000;" onclick="setCorrectionColor('#ff0000')"></div>
           <div class="color-dot" style="background:#00ff00;" onclick="setCorrectionColor('#00ff00')"></div>
           <div class="color-dot" style="background:#0000ff;" onclick="setCorrectionColor('#0000ff')"></div>
-          <div class="color-dot" style="background:#ffff00;" onclick="setCorrectionColor('#ffff00')"></div>
         </div>
       </div>
     </div>
@@ -429,105 +408,126 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script>
-    // ------------------------------------------------------------
-    // تهيئة Firebase وتصفير البيانات القديمة
-    // ------------------------------------------------------------
-    firebase.initializeApp({
-      apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
-      databaseURL: "https://myclaive-default-rtdb.firebaseio.com"
-    });
-    const db = firebase.database();
-
-    const oneMinuteAgo = Date.now() - 60000;
-    const pathsToClean = ['joinRequests', 'micRequests', 'approvedStudents', 'onlineStudents', 'handRaised', 'micPermissions', 'studentImages'];
-    pathsToClean.forEach(path => {
-      db.ref(path).once('value', snap => {
-        snap.forEach(child => {
-          if (child.val().ts && child.val().ts < oneMinuteAgo) {
-            child.ref.remove();
-          }
-        });
+    (function() {
+      // ------------------------------------------------------------
+      // تهيئة Firebase وحذف أي بيانات قديمة (لضمان عدم ظهور طلاب سابقين)
+      // ------------------------------------------------------------
+      firebase.initializeApp({
+        apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
+        databaseURL: "https://myclaive-default-rtdb.firebaseio.com"
       });
-    });
+      const db = firebase.database();
 
-    // ------------------------------------------------------------
-    // متغيرات عامة
-    // ------------------------------------------------------------
-    let currentTool = 'pen';
-    let currentColor = '#000000';
-    let currentSize = 4;
-    let isDrawing = false;
-    let lastX = 0, lastY = 0;
-    let students = {};          // الطلاب المعتمدون
-    let waitingStudents = {};    // طلبات الانضمام
-    let currentSpeaker = null;
-    let currentBoard = 'main';   // السبورة الحالية
-    let studentImages = {};      // صور الطلاب (object بمصفوفات لكل طالب)
+      // حذف كل شيء عند بدء الجلسة (لأن المدرس يبدأ صفحة جديدة)
+      db.ref('joinRequests').remove();
+      db.ref('micRequests').remove();
+      db.ref('approvedStudents').remove();
+      db.ref('onlineStudents').remove();
+      db.ref('handRaised').remove();
+      db.ref('micPermissions').remove();
+      db.ref('studentImages').remove();
+      db.ref('draw_t').remove();
+      db.ref('draw_st').remove();
+      db.ref('boardCmd').remove();
+      db.ref('boardImg').remove();
+      db.ref('audio').remove();
+      db.ref('audioMeta').remove();
 
-    const mainCanvas = document.getElementById('mainBoardCanvas');
-    const correctionCanvas = document.getElementById('correctionCanvas');
-    const mainCtx = mainCanvas.getContext('2d');
-    const correctionCtx = correctionCanvas.getContext('2d');
-    let currentImageStudentId = null;
-    let correctionTool = 'pen';
-    let correctionColor = '#ff0000';
+      // ------------------------------------------------------------
+      // متغيرات عامة
+      // ------------------------------------------------------------
+      let currentTool = 'pen';
+      let currentColor = '#000000';
+      let currentSize = 4;
+      let isDrawing = false;
+      let lastX = 0, lastY = 0;
+      let students = {};          // الطلاب المعتمدون
+      let waitingStudents = {};    // طلبات الانضمام
+      let currentSpeaker = null;
+      let currentBoard = 'main';
+      let studentImages = {};      // صور الطلاب
 
-    // ------------------------------------------------------------
-    // ضبط حجم الكانفاس الرئيسي
-    // ------------------------------------------------------------
-    function resizeMainCanvas() {
-      const parent = mainCanvas.parentElement;
-      mainCanvas.width = parent.clientWidth;
-      mainCanvas.height = parent.clientHeight;
-      mainCtx.fillStyle = '#fff';
-      mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
-      mainCtx.lineCap = 'round';
-      mainCtx.lineJoin = 'round';
-      mainCtx.lineWidth = currentSize;
-    }
-    window.addEventListener('resize', resizeMainCanvas);
-    setTimeout(resizeMainCanvas, 100);
+      const mainCanvas = document.getElementById('mainBoardCanvas');
+      const correctionCanvas = document.getElementById('correctionCanvas');
+      const mainCtx = mainCanvas.getContext('2d');
+      const correctionCtx = correctionCanvas.getContext('2d');
+      let currentImageStudentId = null;
+      let correctionTool = 'pen';
+      let correctionColor = '#ff0000';
 
-    // ------------------------------------------------------------
-    // دوال الرسم على السبورة الرئيسية
-    // ------------------------------------------------------------
-    function getCanvasPoint(e, canvas) {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      return {
-        x: (clientX - rect.left) * scaleX,
-        y: (clientY - rect.top) * scaleY
-      };
-    }
+      // ------------------------------------------------------------
+      // ضبط حجم الكانفاس
+      // ------------------------------------------------------------
+      function resizeMainCanvas() {
+        const parent = mainCanvas.parentElement;
+        mainCanvas.width = parent.clientWidth;
+        mainCanvas.height = parent.clientHeight;
+        mainCtx.fillStyle = '#fff';
+        mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+        mainCtx.lineCap = 'round';
+        mainCtx.lineJoin = 'round';
+        mainCtx.lineWidth = currentSize;
+      }
+      window.addEventListener('resize', resizeMainCanvas);
+      setTimeout(resizeMainCanvas, 100);
 
-    let points = [], sendTimer = null;
+      // ------------------------------------------------------------
+      // الرسم على السبورة الرئيسية (مع تحسين النقاط لتجنب التقطيع)
+      // ------------------------------------------------------------
+      function getCanvasPoint(e, canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+          x: (clientX - rect.left) * scaleX,
+          y: (clientY - rect.top) * scaleY
+        };
+      }
 
-    function startDraw(e) {
-      e.preventDefault();
-      isDrawing = true;
-      const p = getCanvasPoint(e, mainCanvas);
-      lastX = p.x; lastY = p.y;
-      points = [{ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height }];
-      mainCtx.beginPath();
-      mainCtx.moveTo(p.x, p.y);
-    }
+      let points = [], sendTimer = null;
 
-    function draw(e) {
-      e.preventDefault();
-      if (!isDrawing) return;
-      const p = getCanvasPoint(e, mainCanvas);
-      mainCtx.strokeStyle = currentTool === 'eraser' ? '#fff' : currentColor;
-      mainCtx.lineWidth = currentTool === 'eraser' ? currentSize * 5 : currentSize;
-      mainCtx.lineTo(p.x, p.y);
-      mainCtx.stroke();
-      mainCtx.beginPath();
-      mainCtx.moveTo(p.x, p.y);
-      points.push({ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height });
-      if (!sendTimer) {
-        sendTimer = setTimeout(() => {
+      function startDraw(e) {
+        e.preventDefault();
+        isDrawing = true;
+        const p = getCanvasPoint(e, mainCanvas);
+        lastX = p.x; lastY = p.y;
+        points = [{ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height }];
+        mainCtx.beginPath();
+        mainCtx.moveTo(p.x, p.y);
+      }
+
+      function draw(e) {
+        e.preventDefault();
+        if (!isDrawing) return;
+        const p = getCanvasPoint(e, mainCanvas);
+        mainCtx.strokeStyle = currentTool === 'eraser' ? '#fff' : currentColor;
+        mainCtx.lineWidth = currentTool === 'eraser' ? currentSize * 5 : currentSize;
+        mainCtx.lineTo(p.x, p.y);
+        mainCtx.stroke();
+        mainCtx.beginPath();
+        mainCtx.moveTo(p.x, p.y);
+        points.push({ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height });
+        if (!sendTimer) {
+          sendTimer = setTimeout(() => {
+            if (points.length) {
+              db.ref('draw_t').push({
+                points: points,
+                color: currentTool === 'eraser' ? null : currentColor,
+                size: currentSize,
+                ts: Date.now()
+              });
+              points = [];
+            }
+            sendTimer = null;
+          }, 30);
+        }
+      }
+
+      function stopDraw() {
+        if (isDrawing) {
+          isDrawing = false;
           if (points.length) {
             db.ref('draw_t').push({
               points: points,
@@ -537,313 +537,305 @@
             });
             points = [];
           }
+          if (sendTimer) clearTimeout(sendTimer);
           sendTimer = null;
-        }, 30);
-      }
-    }
-
-    function stopDraw() {
-      if (isDrawing) {
-        isDrawing = false;
-        if (points.length) {
-          db.ref('draw_t').push({
-            points: points,
-            color: currentTool === 'eraser' ? null : currentColor,
-            size: currentSize,
-            ts: Date.now()
-          });
-          points = [];
         }
-        if (sendTimer) clearTimeout(sendTimer);
-        sendTimer = null;
       }
-    }
 
-    mainCanvas.addEventListener('mousedown', startDraw);
-    mainCanvas.addEventListener('mousemove', draw);
-    mainCanvas.addEventListener('mouseup', stopDraw);
-    mainCanvas.addEventListener('mouseleave', stopDraw);
-    mainCanvas.addEventListener('touchstart', startDraw, { passive: false });
-    mainCanvas.addEventListener('touchmove', draw, { passive: false });
-    mainCanvas.addEventListener('touchend', stopDraw);
+      mainCanvas.addEventListener('mousedown', startDraw);
+      mainCanvas.addEventListener('mousemove', draw);
+      mainCanvas.addEventListener('mouseup', stopDraw);
+      mainCanvas.addEventListener('mouseleave', stopDraw);
+      mainCanvas.addEventListener('touchstart', startDraw, { passive: false });
+      mainCanvas.addEventListener('touchmove', draw, { passive: false });
+      mainCanvas.addEventListener('touchend', stopDraw);
 
-    // ------------------------------------------------------------
-    // أدوات الرسم
-    // ------------------------------------------------------------
-    window.setTool = function(tool) {
-      currentTool = tool;
-      document.querySelectorAll('.tool-item').forEach(el => el.classList.remove('active'));
-      document.getElementById('toolPen').classList.toggle('active', tool === 'pen');
-      document.getElementById('toolEraser').classList.toggle('active', tool === 'eraser');
-    };
-    window.setColor = function(color, el) {
-      currentColor = color;
-      document.querySelectorAll('.color-dot').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-    };
-    window.clearMainBoard = function() {
-      mainCtx.fillStyle = '#fff';
-      mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
-      db.ref('boardCmd/main').push({ type: 'clear' });
-    };
-    window.uploadTeacherImage = function(input) {
-      if (!input.files[0]) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          mainCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
-          db.ref('boardImg/main').set({ data: e.target.result, ts: Date.now() });
-        };
-        img.src = e.target.result;
+      // ------------------------------------------------------------
+      // أدوات الرسم
+      // ------------------------------------------------------------
+      window.setTool = function(tool) {
+        currentTool = tool;
+        document.querySelectorAll('.tool-item').forEach(el => el.classList.remove('active'));
+        document.getElementById('toolPen').classList.toggle('active', tool === 'pen');
+        document.getElementById('toolEraser').classList.toggle('active', tool === 'eraser');
       };
-      reader.readAsDataURL(input.files[0]);
-    };
-    window.saveCurrentBoard = function() {
-      const dataURL = mainCanvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = 'board.png';
-      link.href = dataURL;
-      link.click();
-    };
-    window.toggleFullscreen = function() {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-      else document.exitFullscreen();
-    };
-
-    // ------------------------------------------------------------
-    // التبديل إلى السبورة الرئيسية
-    // ------------------------------------------------------------
-    window.switchToMainBoard = function() {
-      currentBoard = 'main';
-      document.getElementById('currentBoardTitle').textContent = 'السبورة الرئيسية';
-    };
-
-    // ------------------------------------------------------------
-    // إدارة الطلاب
-    // ------------------------------------------------------------
-    function setupListeners() {
-      db.ref('joinRequests').on('child_added', snap => {
-        const s = snap.val();
-        waitingStudents[s.id] = s;
-        updateStudentsList();
-      });
-      db.ref('joinRequests').on('child_removed', snap => {
-        const s = snap.val();
-        delete waitingStudents[s.id];
-        updateStudentsList();
-      });
-
-      db.ref('approvedStudents').on('value', snap => {
-        students = snap.val() || {};
-        updateStudentsList();
-      });
-
-      db.ref('onlineStudents').on('value', snap => {
-        const online = snap.val() || {};
-        Object.keys(students).forEach(id => {
-          if (students[id]) students[id].online = online[id] ? true : false;
-        });
-        updateStudentsList();
-      });
-
-      db.ref('handRaised').on('value', snap => {
-        const hands = snap.val() || {};
-        Object.keys(students).forEach(id => {
-          if (students[id]) students[id].handRaised = hands[id] ? true : false;
-        });
-        updateStudentsList();
-      });
-
-      db.ref('micRequests').on('child_added', snap => {
-        const req = snap.val();
-        if (req && students[req.studentId]) {
-          if (confirm(`الطالب ${req.studentName} يريد التحدث. هل تسمح؟`)) {
-            if (currentSpeaker) db.ref('micPermissions/' + currentSpeaker).remove();
-            currentSpeaker = req.studentId;
-            db.ref('micPermissions/' + req.studentId).set({ allowed: true });
-            db.ref('handRaised/' + req.studentId).remove();
-          }
-          snap.ref.remove();
-        }
-      });
-
-      // استقبال صور الطلاب (لإضافتها إلى قائمة الطلاب)
-      db.ref('studentImages').on('child_added', snap => {
-        const img = snap.val();
-        if (img && img.studentId) {
-          if (!studentImages[img.studentId]) studentImages[img.studentId] = [];
-          studentImages[img.studentId].push(img);
-          updateStudentsList(); // نحدث القائمة لإظهار أيقونة الصورة
-        }
-      });
-
-      // استقبال رسم الطلاب (لتحديث السبورة إذا كانت مفتوحة)
-      db.ref('draw_st').on('child_added', snap => {
-        // يمكن إضافته إذا أردنا عرض رسم الطالب في الوقت الفعلي
-      });
-    }
-
-    function updateStudentsList() {
-      const container = document.getElementById('studentsList');
-      let html = '';
-
-      // طلبات الانضمام
-      Object.values(waitingStudents).forEach(s => {
-        html += `
-          <div class="student-item" style="border-color:#f39c12;">
-            <div class="student-avatar">${s.name.charAt(0)}</div>
-            <div class="student-info">
-              <div class="student-name">${s.name}</div>
-              <div class="student-status"><i class="fas fa-clock"></i> في الانتظار</div>
-            </div>
-            <div class="student-actions">
-              <i class="fas fa-check-circle" style="color:#4CAF50;" title="قبول" onclick="event.stopPropagation(); approveStudent('${s.id}')"></i>
-              <i class="fas fa-times-circle" style="color:#b71c1c;" title="رفض" onclick="event.stopPropagation(); rejectStudent('${s.id}')"></i>
-            </div>
-          </div>
-        `;
-      });
-
-      // الطلاب المعتمدون
-      Object.values(students).forEach(s => {
-        if (!s.online) return;
-        const hasImage = studentImages[s.id] && studentImages[s.id].length > 0;
-        const statusIcon = s.handRaised ? '<i class="fas fa-hand-paper" style="color:#f59e0b;"></i>' : (currentSpeaker === s.id ? '<i class="fas fa-microphone" style="color:#22c55e;"></i>' : '<i class="fas fa-headphones" style="color:#aaa;"></i>');
-        const statusText = s.handRaised ? ' رفع اليد' : (currentSpeaker === s.id ? ' يتحدث' : ' مستمع');
-        html += `
-          <div class="student-item">
-            <div class="student-avatar" style="background:${s.handRaised ? '#f59e0b' : '#ffaa00'};">${s.name.charAt(0)}</div>
-            <div class="student-info">
-              <div class="student-name">${s.name}</div>
-              <div class="student-status">${statusIcon} ${statusText}</div>
-            </div>
-            <div class="student-actions">
-              ${hasImage ? `<i class="fas fa-image" title="عرض الصورة" onclick="event.stopPropagation(); openCorrectionModal('${s.id}', '${s.name}')"></i>` : ''}
-              <i class="fas fa-eye" title="عرض السبورة" onclick="event.stopPropagation(); viewStudentBoard('${s.id}', '${s.name}')"></i>
-              <i class="fas fa-door-closed" title="طرد" onclick="event.stopPropagation(); kickStudent('${s.id}')"></i>
-            </div>
-          </div>
-        `;
-      });
-
-      container.innerHTML = html || '<div style="color:#aaa; text-align:center; padding:20px;">لا يوجد طلاب</div>';
-      document.getElementById('studentsCount').textContent = Object.keys(students).length;
-      document.getElementById('studentsCountPanel').textContent = Object.keys(students).length;
-    }
-
-    window.approveStudent = function(id) {
-      const s = waitingStudents[id];
-      if (s) {
-        students[id] = { id, name: s.name, online: true };
-        delete waitingStudents[id];
-        db.ref('approvedStudents/' + id).set(students[id]);
-        db.ref('joinRequests/' + id).remove();
-      }
-    };
-    window.rejectStudent = function(id) {
-      delete waitingStudents[id];
-      db.ref('joinRequests/' + id).remove();
-    };
-    window.kickStudent = function(id) {
-      if (currentSpeaker === id) {
-        currentSpeaker = null;
-        db.ref('micPermissions/' + id).remove();
-      }
-      delete students[id];
-      db.ref('approvedStudents/' + id).remove();
-      db.ref('onlineStudents/' + id).remove();
-    };
-    window.viewStudentBoard = function(studentId, studentName) {
-      currentBoard = studentId;
-      document.getElementById('currentBoardTitle').textContent = `سبورة ${studentName}`;
-      db.ref('boardImg/stu/' + studentId).once('value', snap => {
-        const data = snap.val();
-        if (data && data.data) {
+      window.setColor = function(color, el) {
+        currentColor = color;
+        document.querySelectorAll('.color-dot').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+      };
+      window.clearMainBoard = function() {
+        mainCtx.fillStyle = '#fff';
+        mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+        db.ref('boardCmd/main').push({ type: 'clear' });
+      };
+      window.uploadTeacherImage = function(input) {
+        if (!input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
           const img = new Image();
           img.onload = () => {
-            mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
             mainCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
+            db.ref('boardImg/main').set({ data: e.target.result, ts: Date.now() });
           };
-          img.src = data.data;
-        } else {
-          mainCtx.fillStyle = '#fff';
-          mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
-        }
-      });
-    };
-
-    // ------------------------------------------------------------
-    // نافذة التصحيح
-    // ------------------------------------------------------------
-    window.openCorrectionModal = function(studentId, studentName) {
-      if (!studentImages[studentId] || studentImages[studentId].length === 0) return;
-      // نأخذ أحدث صورة
-      const latestImage = studentImages[studentId][studentImages[studentId].length - 1];
-      currentImageStudentId = studentId;
-      document.getElementById('modalStudentName').textContent = `تصحيح واجب ${studentName}`;
-      document.getElementById('correctionModal').classList.add('active');
-
-      const container = correctionCanvas.parentElement;
-      correctionCanvas.width = container.clientWidth;
-      correctionCanvas.height = container.clientHeight;
-      correctionCtx.fillStyle = '#fff';
-      correctionCtx.fillRect(0, 0, correctionCanvas.width, correctionCanvas.height);
-
-      const img = new Image();
-      img.onload = () => {
-        correctionCtx.drawImage(img, 0, 0, correctionCanvas.width, correctionCanvas.height);
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
       };
-      img.src = latestImage.data;
-    };
+      window.saveCurrentBoard = function() {
+        const dataURL = mainCanvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = 'board.png';
+        link.href = dataURL;
+        link.click();
+      };
+      window.toggleFullscreen = function() {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+      };
 
-    window.closeModal = function() {
-      document.getElementById('correctionModal').classList.remove('active');
-    };
+      // ------------------------------------------------------------
+      // العودة للسبورة الرئيسية
+      // ------------------------------------------------------------
+      window.switchToMainBoard = function() {
+        currentBoard = 'main';
+        document.getElementById('currentBoardTitle').textContent = 'السبورة الرئيسية';
+      };
 
-    window.saveCorrectedImage = function() {
-      if (!currentImageStudentId) return;
-      const dataURL = correctionCanvas.toDataURL('image/jpeg', 0.85);
-      db.ref('boardImg/stu/' + currentImageStudentId).set({ data: dataURL, byTeacher: true, ts: Date.now() });
-      alert('تم حفظ التصحيح وإرساله للطالب');
-      closeModal();
-    };
+      // ------------------------------------------------------------
+      // إدارة الطلاب
+      // ------------------------------------------------------------
+      function setupListeners() {
+        // طلبات الانضمام
+        db.ref('joinRequests').on('child_added', snap => {
+          const s = snap.val();
+          waitingStudents[s.id] = s;
+          updateStudentsList();
+        });
+        db.ref('joinRequests').on('child_removed', snap => {
+          const s = snap.val();
+          delete waitingStudents[s.id];
+          updateStudentsList();
+        });
 
-    window.setCorrectionTool = function(tool) { correctionTool = tool; };
-    window.setCorrectionColor = function(color) { correctionColor = color; };
+        // الطلاب المعتمدون
+        db.ref('approvedStudents').on('value', snap => {
+          students = snap.val() || {};
+          updateStudentsList();
+        });
 
-    // ------------------------------------------------------------
-    // الصوت والإنهاء والتصفير
-    // ------------------------------------------------------------
-    window.toggleMic = function() {
-      document.getElementById('micBtn').classList.toggle('active');
-    };
-    window.endClass = function() {
-      if (confirm('إنهاء الحصة؟')) window.location.reload();
-    };
-    window.resetAllData = function() {
-      if (confirm('سيتم حذف جميع الطلبات والطلاب الحاليين. هل أنت متأكد؟')) {
-        db.ref('joinRequests').remove();
-        db.ref('approvedStudents').remove();
-        db.ref('onlineStudents').remove();
-        db.ref('handRaised').remove();
-        db.ref('micRequests').remove();
-        db.ref('micPermissions').remove();
-        db.ref('studentImages').remove();
-        students = {};
-        waitingStudents = {};
-        studentImages = {};
-        currentSpeaker = null;
-        switchToMainBoard();
-        updateStudentsList();
+        // حالة التواجد
+        db.ref('onlineStudents').on('value', snap => {
+          const online = snap.val() || {};
+          Object.keys(students).forEach(id => {
+            if (students[id]) students[id].online = online[id] ? true : false;
+          });
+          updateStudentsList();
+        });
+
+        // رفع اليد
+        db.ref('handRaised').on('value', snap => {
+          const hands = snap.val() || {};
+          Object.keys(students).forEach(id => {
+            if (students[id]) students[id].handRaised = hands[id] ? true : false;
+          });
+          updateStudentsList();
+        });
+
+        // طلبات المايك
+        db.ref('micRequests').on('child_added', snap => {
+          const req = snap.val();
+          if (req && students[req.studentId]) {
+            // نعرض قبول/رفض باستخدام confirm (يمكن تحسينه لاحقاً)
+            if (confirm(`الطالب ${req.studentName} يريد التحدث. هل تسمح؟`)) {
+              if (currentSpeaker) db.ref('micPermissions/' + currentSpeaker).remove();
+              currentSpeaker = req.studentId;
+              db.ref('micPermissions/' + req.studentId).set({ allowed: true });
+              db.ref('handRaised/' + req.studentId).remove();
+            }
+            snap.ref.remove();
+          }
+        });
+
+        // استقبال صور الطلاب
+        db.ref('studentImages').on('child_added', snap => {
+          const img = snap.val();
+          if (img && img.studentId) {
+            if (!studentImages[img.studentId]) studentImages[img.studentId] = [];
+            studentImages[img.studentId].push(img);
+            updateStudentsList();
+          }
+        });
       }
-    };
 
-    setupListeners();
+      function updateStudentsList() {
+        const container = document.getElementById('studentsList');
+        let html = '';
 
-    setInterval(() => {
-      document.getElementById('latency').textContent = Math.floor(Math.random() * 30 + 10) + 'ms';
-    }, 3000);
+        // طلبات الانضمام (تظهر بحدود برتقالية)
+        Object.values(waitingStudents).forEach(s => {
+          html += `
+            <div class="student-item" style="border-color:#f39c12;">
+              <div class="student-avatar">${s.name.charAt(0)}</div>
+              <div class="student-info">
+                <div class="student-name">${s.name}</div>
+                <div class="student-status"><i class="fas fa-clock blink"></i> في الانتظار</div>
+              </div>
+              <div class="student-actions">
+                <i class="fas fa-check-circle" style="color:#4CAF50;" title="قبول" onclick="event.stopPropagation(); approveStudent('${s.id}')"></i>
+                <i class="fas fa-times-circle" style="color:#b71c1c;" title="رفض" onclick="event.stopPropagation(); rejectStudent('${s.id}')"></i>
+              </div>
+            </div>
+          `;
+        });
+
+        // الطلاب المعتمدون
+        Object.values(students).forEach(s => {
+          if (!s.online) return;
+          const hasImage = studentImages[s.id] && studentImages[s.id].length > 0;
+          const isHandRaised = s.handRaised;
+          const isSpeaking = (currentSpeaker === s.id);
+          const statusIcon = isHandRaised ? '<i class="fas fa-hand-paper blink" style="color:#f59e0b;"></i>' : (isSpeaking ? '<i class="fas fa-microphone" style="color:#22c55e;"></i>' : '<i class="fas fa-headphones" style="color:#aaa;"></i>');
+          const statusText = isHandRaised ? ' رفع اليد' : (isSpeaking ? ' يتحدث' : ' مستمع');
+          html += `
+            <div class="student-item">
+              <div class="student-avatar" style="background:${isHandRaised ? '#f59e0b' : '#ffaa00'};">${s.name.charAt(0)}</div>
+              <div class="student-info">
+                <div class="student-name">${s.name}</div>
+                <div class="student-status">${statusIcon} ${statusText}</div>
+              </div>
+              <div class="student-actions">
+                ${hasImage ? `<i class="fas fa-image" title="عرض الصورة" onclick="event.stopPropagation(); openCorrectionModal('${s.id}', '${s.name}')"></i>` : ''}
+                <i class="fas fa-eye" title="عرض السبورة" onclick="event.stopPropagation(); viewStudentBoard('${s.id}', '${s.name}')"></i>
+                <i class="fas fa-door-closed" title="طرد" onclick="event.stopPropagation(); kickStudent('${s.id}')"></i>
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html || '<div style="color:#aaa; text-align:center; padding:20px;">لا يوجد طلاب</div>';
+        document.getElementById('studentsCount').textContent = Object.keys(students).length;
+        document.getElementById('studentsCountPanel').textContent = Object.keys(students).length;
+      }
+
+      window.approveStudent = function(id) {
+        const s = waitingStudents[id];
+        if (s) {
+          students[id] = { id, name: s.name, online: true };
+          delete waitingStudents[id];
+          db.ref('approvedStudents/' + id).set(students[id]);
+          db.ref('joinRequests/' + id).remove();
+        }
+      };
+      window.rejectStudent = function(id) {
+        delete waitingStudents[id];
+        db.ref('joinRequests/' + id).remove();
+      };
+      window.kickStudent = function(id) {
+        if (currentSpeaker === id) {
+          currentSpeaker = null;
+          db.ref('micPermissions/' + id).remove();
+        }
+        delete students[id];
+        db.ref('approvedStudents/' + id).remove();
+        db.ref('onlineStudents/' + id).remove();
+      };
+      window.viewStudentBoard = function(studentId, studentName) {
+        currentBoard = studentId;
+        document.getElementById('currentBoardTitle').textContent = `سبورة ${studentName}`;
+        db.ref('boardImg/stu/' + studentId).once('value', snap => {
+          const data = snap.val();
+          if (data && data.data) {
+            const img = new Image();
+            img.onload = () => {
+              mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+              mainCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
+            };
+            img.src = data.data;
+          } else {
+            mainCtx.fillStyle = '#fff';
+            mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+          }
+        });
+      };
+
+      // ------------------------------------------------------------
+      // نافذة التصحيح
+      // ------------------------------------------------------------
+      window.openCorrectionModal = function(studentId, studentName) {
+        if (!studentImages[studentId] || studentImages[studentId].length === 0) return;
+        const latestImage = studentImages[studentId][studentImages[studentId].length - 1];
+        currentImageStudentId = studentId;
+        document.getElementById('modalStudentName').textContent = `تصحيح واجب ${studentName}`;
+        document.getElementById('correctionModal').classList.add('active');
+
+        const container = correctionCanvas.parentElement;
+        correctionCanvas.width = container.clientWidth;
+        correctionCanvas.height = container.clientHeight;
+        correctionCtx.fillStyle = '#fff';
+        correctionCtx.fillRect(0, 0, correctionCanvas.width, correctionCanvas.height);
+
+        const img = new Image();
+        img.onload = () => {
+          correctionCtx.drawImage(img, 0, 0, correctionCanvas.width, correctionCanvas.height);
+        };
+        img.src = latestImage.data;
+      };
+      window.closeModal = function() {
+        document.getElementById('correctionModal').classList.remove('active');
+      };
+      window.saveCorrectedImage = function() {
+        if (!currentImageStudentId) return;
+        const dataURL = correctionCanvas.toDataURL('image/jpeg', 0.85);
+        db.ref('boardImg/stu/' + currentImageStudentId).set({ data: dataURL, byTeacher: true, ts: Date.now() });
+        alert('تم حفظ التصحيح وإرساله للطالب');
+        closeModal();
+      };
+      window.setCorrectionTool = function(tool) { correctionTool = tool; };
+      window.setCorrectionColor = function(color) { correctionColor = color; };
+
+      // ------------------------------------------------------------
+      // الصوت (مبسط)
+      // ------------------------------------------------------------
+      window.toggleMic = function() {
+        const btn = document.getElementById('micBtn');
+        btn.classList.toggle('active');
+      };
+
+      // ------------------------------------------------------------
+      // إنهاء الجلسة وتصفير
+      // ------------------------------------------------------------
+      window.endClass = function() {
+        if (confirm('إنهاء الحصة؟')) window.location.reload();
+      };
+      window.resetAllData = function() {
+        if (confirm('سيتم حذف جميع الطلبات والطلاب. هل أنت متأكد؟')) {
+          db.ref('joinRequests').remove();
+          db.ref('approvedStudents').remove();
+          db.ref('onlineStudents').remove();
+          db.ref('handRaised').remove();
+          db.ref('micRequests').remove();
+          db.ref('micPermissions').remove();
+          db.ref('studentImages').remove();
+          students = {};
+          waitingStudents = {};
+          studentImages = {};
+          currentSpeaker = null;
+          switchToMainBoard();
+          updateStudentsList();
+        }
+      };
+
+      // ------------------------------------------------------------
+      // بدء الاستماع
+      // ------------------------------------------------------------
+      setupListeners();
+
+      // محاكاة زمن الاستجابة
+      setInterval(() => {
+        document.getElementById('latency').textContent = Math.floor(Math.random() * 30 + 10) + 'ms';
+      }, 3000);
+    })();
   </script>
 </body>
 </html>
