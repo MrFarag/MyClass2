@@ -24,7 +24,6 @@
             align-items: center;
             border-bottom: 3px solid #ff9800;
             flex-shrink: 0;
-            position: relative;
             gap: 10px;
             flex-wrap: wrap;
         }
@@ -42,42 +41,61 @@
             font-size: 14px;
             font-weight: bold;
         }
+        /* مؤشر الميكروفون للمدرس */
+        .mic-status {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .mic-status.active {
+            background: #4caf50;
+            box-shadow: 0 0 10px #4caf50;
+        }
+        .mic-status i { font-size: 20px; }
+
         /* زر طلب الانضمام النابض */
         .request-preview {
             background: #ff9800;
             color: #1e1e2f;
-            padding: 5px 15px;
+            padding: 5px 10px;
             border-radius: 30px;
             font-size: 14px;
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             animation: pulse 1s infinite;
-            cursor: pointer;
-            transition: 0.2s;
+            cursor: default;
+            max-width: 200px;
         }
-        .request-preview:hover {
-            transform: scale(1.05);
-            background: #ffb347;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        .request-preview .request-name {
-            max-width: 100px;
+        .request-preview .student-name-short {
+            background: rgba(0,0,0,0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
+            max-width: 80px;
+            cursor: default;
         }
-        .request-actions {
+        .request-preview .student-name-short:hover {
+            background: rgba(0,0,0,0.4);
+            max-width: none;
+            overflow: visible;
+            position: relative;
+        }
+        .request-preview .request-actions {
             display: flex;
             gap: 5px;
         }
         .req-btn {
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.3);
             border: none;
             color: white;
             width: 30px;
@@ -92,15 +110,11 @@
         .req-btn.accept:hover { background: #4caf50; }
         .req-btn.reject:hover { background: #f44336; }
         .req-btn.mic:hover { background: #2196f3; }
-
-        .audio-indicator {
-            background: #f44336;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            display: none;
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
-        .audio-indicator.active { display: inline-flex; align-items: center; gap: 5px; }
 
         .canvas-container {
             flex: 1;
@@ -191,11 +205,13 @@
     <header>
         <div class="logo"><i class="fas fa-chalkboard-teacher"></i> MyClass2 - المدرس</div>
         <div class="header-right">
-            <span class="audio-indicator" id="micIndicator"><i class="fas fa-microphone"></i> الميكروفون شغال</span>
+            <div class="mic-status" id="micButton" onclick="toggleAudio()" title="تشغيل/إيقاف الميكروفون">
+                <i class="fas fa-microphone"></i>
+            </div>
             <span class="online-count" id="onlineCount">0 طالب</span>
             <!-- زر طلب الانضمام النابض (يظهر عند وجود طلبات) -->
             <div class="request-preview" id="requestPreview" style="display:none;">
-                <span class="request-name" id="requestName"></span>
+                <div class="student-name-short" id="studentNameShort" title="">...</div>
                 <div class="request-actions">
                     <button class="req-btn accept" onclick="acceptCurrentRequest()" title="قبول"><i class="fas fa-check"></i></button>
                     <button class="req-btn reject" onclick="rejectCurrentRequest()" title="رفض"><i class="fas fa-times"></i></button>
@@ -246,7 +262,6 @@
         <button class="tool-btn" onclick="gridToggle()" title="شبكة"><i class="fas fa-th"></i></button>
         <button class="tool-btn" onclick="lockBoard()" title="قفل"><i class="fas fa-lock"></i></button>
         <button class="tool-btn" onclick="unlockBoard()" title="فتح"><i class="fas fa-lock-open"></i></button>
-        <button class="tool-btn" id="audioBtn" onclick="toggleAudio()" title="ميكروفون"><i class="fas fa-microphone"></i></button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -393,10 +408,15 @@
         window.lockBoard = () => {};
         window.unlockBoard = () => {};
 
-        // ========== نظام طلبات الانضمام (زر نابض مع أيقونات) ==========
+        // ========== نظام طلبات الانضمام (زر نابض مع اسم مختصر) ==========
         const requestPreview = document.getElementById('requestPreview');
-        const requestNameSpan = document.getElementById('requestName');
+        const studentNameShort = document.getElementById('studentNameShort');
         let requestsArray = []; // مصفوفة لتخزين الطلبات بالترتيب
+
+        function getShortName(fullName) {
+            if (fullName.length <= 8) return fullName;
+            return fullName.substring(0, 5) + '...';
+        }
 
         function updateRequestPreview() {
             if (requestsArray.length === 0) {
@@ -405,7 +425,9 @@
             }
             requestPreview.style.display = 'flex';
             const first = requestsArray[0];
-            requestNameSpan.innerText = first.studentName;
+            const short = getShortName(first.studentName);
+            studentNameShort.innerText = short;
+            studentNameShort.title = first.studentName; // الاسم الكامل يظهر عند hover
         }
 
         // قبول أول طلب
@@ -461,17 +483,16 @@
             document.getElementById('onlineCount').innerText = count + ' طالب';
         });
 
-        // ========== نظام الصوت ==========
+        // ========== نظام الصوت (محسّن) ==========
         let audioStream, mediaRecorder;
+        const micButton = document.getElementById('micButton');
+
         window.toggleAudio = async () => {
-            const btn = document.getElementById('audioBtn');
-            const indicator = document.getElementById('micIndicator');
             if (!audioStream) {
                 try {
                     audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    btn.classList.add('active');
-                    indicator.classList.add('active');
-                    mediaRecorder = new MediaRecorder(audioStream);
+                    micButton.classList.add('active');
+                    mediaRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm' });
                     mediaRecorder.ondataavailable = (e) => {
                         if (e.data.size > 0) {
                             const reader = new FileReader();
@@ -484,7 +505,7 @@
                             reader.readAsDataURL(e.data);
                         }
                     };
-                    mediaRecorder.start(1000);
+                    mediaRecorder.start(1000); // قطع كل ثانية
                     db.ref('audioActive').set(true);
                 } catch (err) {
                     alert('لا يمكن الوصول للميكروفون');
@@ -493,11 +514,17 @@
                 if (mediaRecorder) mediaRecorder.stop();
                 audioStream.getTracks().forEach(t => t.stop());
                 audioStream = null;
-                btn.classList.remove('active');
-                indicator.classList.remove('active');
+                micButton.classList.remove('active');
                 db.ref('audioActive').set(false);
             }
         };
+
+        // استقبال طلبات الميكروفون من الطلاب
+        db.ref('micRequests').on('child_added', (snap) => {
+            const req = snap.val();
+            // هنا يمكن إشعار المدرس (اختياري) ولكننا نفضل الصمت
+            snap.ref.remove();
+        });
 
         window.addEventListener('beforeunload', () => {
             db.ref('teacher/online').remove();
