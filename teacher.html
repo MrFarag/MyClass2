@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>المدرس - MyClass2</title>
-    <!-- Font Awesome - 3 روابط لضمان الظهور -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.4.0/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -26,8 +24,14 @@
             align-items: center;
             border-bottom: 3px solid #ff9800;
             flex-shrink: 0;
+            position: relative;
         }
         .logo i { color: #ff9800; margin-left: 8px; }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
         .online-count {
             background: #4caf50;
             padding: 5px 15px;
@@ -35,12 +39,82 @@
             font-size: 14px;
             font-weight: bold;
         }
-        /* حاوية canvas مع تمرير */
+        /* أيقونة طلبات الانضمام */
+        .request-badge {
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: #ff9800;
+            border-radius: 50%;
+            color: #1e1e2f;
+            font-size: 20px;
+            transition: transform 0.2s;
+        }
+        .request-badge.pulse {
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .request-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #f44336;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        /* القائمة المنسدلة للطلبات */
+        .request-dropdown {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            background: #2d2d44;
+            border: 2px solid #ff9800;
+            border-radius: 10px;
+            width: 250px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .request-dropdown.show { display: block; }
+        .request-item {
+            padding: 10px;
+            border-bottom: 1px solid #444;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .request-item:last-child { border-bottom: none; }
+        .request-item button {
+            background: #4caf50;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .request-item button:hover { background: #45a049; }
+
         .canvas-container {
             flex: 1;
             overflow: auto;
             background: #fff;
-            position: relative;
         }
         canvas {
             display: block;
@@ -50,7 +124,6 @@
             touch-action: none;
             cursor: crosshair;
         }
-        /* شريط الأدوات السفلي (أيقونات فقط) */
         .toolbar {
             background: #2d2d44;
             padding: 10px;
@@ -96,7 +169,6 @@
             cursor: pointer;
         }
         .color-btn.active { border-color: white; transform: scale(1.1); }
-        /* سليدر التحكم في السمك */
         .size-slider {
             display: inline-flex;
             align-items: center;
@@ -122,33 +194,6 @@
             border-radius: 50%;
             cursor: pointer;
         }
-        /* لوحة الطلاب */
-        .students-panel {
-            background: #2d2d44;
-            padding: 10px;
-            max-height: 120px;
-            overflow-y: auto;
-            border-top: 1px solid #444;
-            flex-shrink: 0;
-        }
-        .student-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #3e3e5e;
-            padding: 5px 10px;
-            margin: 3px 0;
-            border-radius: 5px;
-        }
-        .student-item button {
-            background: #4caf50;
-            border: none;
-            color: white;
-            padding: 3px 12px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 12px;
-        }
         .audio-indicator {
             background: #f44336;
             padding: 5px 15px;
@@ -157,73 +202,34 @@
             display: none;
         }
         .audio-indicator.active { display: inline-flex; align-items: center; gap: 5px; }
-        /* الإشعارات (toasts) */
-        #toast-container {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-        }
-        .toast {
-            background: #2d2d44;
-            border: 2px solid #ff9800;
-            border-radius: 10px;
-            padding: 12px 20px;
-            color: white;
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            pointer-events: auto;
-            min-width: 250px;
-            animation: slideIn 0.3s ease;
-        }
-        .toast i { font-size: 20px; color: #ff9800; }
-        .toast button {
-            background: #4caf50;
-            border: none;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: auto;
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body>
-    <div id="toast-container"></div>
-
     <header>
         <div class="logo"><i class="fas fa-chalkboard-teacher"></i> MyClass2 - المدرس</div>
-        <div style="display: flex; gap: 15px; align-items: center;">
+        <div class="header-right">
             <span class="audio-indicator" id="micIndicator"><i class="fas fa-microphone"></i> الميكروفون شغال</span>
             <span class="online-count" id="onlineCount">0 طالب</span>
+            <!-- أيقونة طلبات الانضمام -->
+            <div class="request-badge" id="requestBadge" onclick="toggleRequestDropdown()">
+                <i class="fas fa-user-plus"></i>
+                <span class="request-count" id="requestCount">0</span>
+            </div>
         </div>
     </header>
 
-    <!-- حاوية canvas مع تمرير -->
+    <!-- القائمة المنسدلة للطلبات -->
+    <div class="request-dropdown" id="requestDropdown"></div>
+
     <div class="canvas-container" id="canvasContainer">
         <canvas id="board" width="2000" height="1500"></canvas>
     </div>
 
-    <!-- شريط الأدوات السفلي -->
     <div class="toolbar">
-        <!-- قلم / ممحاة -->
         <button class="tool-btn active" id="penBtn" onclick="setTool('pen')" title="قلم"><i class="fas fa-pencil-alt"></i></button>
         <button class="tool-btn" id="eraserBtn" onclick="setTool('eraser')" title="ممحاة"><i class="fas fa-eraser"></i></button>
         <button class="tool-btn" onclick="clearBoard()" title="مسح"><i class="fas fa-trash-alt"></i></button>
 
-        <!-- ألوان -->
         <div class="color-picker">
             <div class="color-btn active" style="background:#000;" onclick="setColor('#000',this)" title="أسود"></div>
             <div class="color-btn" style="background:#f44336;" onclick="setColor('#f44336',this)" title="أحمر"></div>
@@ -235,14 +241,12 @@
             <div class="color-btn" style="background:#795548;" onclick="setColor('#795548',this)" title="بني"></div>
         </div>
 
-        <!-- سليدر السمك -->
         <div class="size-slider">
             <i class="fas fa-circle" style="font-size:12px;"></i>
             <input type="range" id="sizeSlider" min="1" max="30" value="5" oninput="setSize(this.value)">
             <i class="fas fa-circle" style="font-size:20px;"></i>
         </div>
 
-        <!-- أدوات إضافية (بدون وظائف الآن) -->
         <button class="tool-btn" onclick="drawShape('rect')" title="مستطيل"><i class="far fa-square"></i></button>
         <button class="tool-btn" onclick="drawShape('circle')" title="دائرة"><i class="far fa-circle"></i></button>
         <button class="tool-btn" onclick="drawShape('line')" title="خط"><i class="fas fa-slash"></i></button>
@@ -258,17 +262,10 @@
         <button class="tool-btn" onclick="gridToggle()" title="شبكة"><i class="fas fa-th"></i></button>
         <button class="tool-btn" onclick="lockBoard()" title="قفل"><i class="fas fa-lock"></i></button>
         <button class="tool-btn" onclick="unlockBoard()" title="فتح"><i class="fas fa-lock-open"></i></button>
-
-        <!-- ميكروفون -->
         <button class="tool-btn" id="audioBtn" onclick="toggleAudio()" title="ميكروفون"><i class="fas fa-microphone"></i></button>
     </div>
 
-    <!-- لوحة الطلاب -->
-    <div class="students-panel" id="studentsList">
-        <!-- طلبات الانضمام تظهر هنا -->
-    </div>
-
-    <!-- Firebase & PeerJS (للبث الصوتي) -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
@@ -288,7 +285,7 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        // مسح أي رسومات سابقة (لبداية نظيفة)
+        // مسح الرسومات القديمة
         db.ref('teacherDrawings').remove();
         db.ref('teacherCommands').remove();
 
@@ -308,7 +305,6 @@
         let currentSize = 5;
         let currentColor = '#000';
 
-        // الحصول على الإحداثيات الصحيحة داخل canvas
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -353,7 +349,6 @@
             ctx.beginPath();
             ctx.moveTo(pos.x, pos.y);
 
-            // إرسال الرسم إلى Firebase
             db.ref('teacherDrawings').push({
                 x: pos.x, y: pos.y,
                 lastX: lastX, lastY: lastY,
@@ -380,7 +375,6 @@
         canvas.addEventListener('touchend', stopDraw);
         canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-        // ========== أدوات الرسم ==========
         window.setTool = (tool) => {
             currentTool = tool;
             document.getElementById('penBtn').classList.toggle('active', tool === 'pen');
@@ -393,9 +387,7 @@
             el.classList.add('active');
         };
 
-        window.setSize = (size) => {
-            currentSize = parseInt(size);
-        };
+        window.setSize = (size) => { currentSize = parseInt(size); };
 
         window.clearBoard = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -404,8 +396,8 @@
             db.ref('teacherCommands').push({ type: 'clear', timestamp: Date.now() });
         };
 
-        // وظائف إضافية (غير مفعلة)
-        window.drawShape = (shape) => {};
+        // وظائف إضافية غير مفعلة
+        window.drawShape = () => {};
         window.importImage = () => {};
         window.addText = () => {};
         window.zoomIn = () => {};
@@ -418,52 +410,66 @@
         window.lockBoard = () => {};
         window.unlockBoard = () => {};
 
-        // ========== نظام الإشعارات (Toast) ==========
-        function showToast(title, message, buttons = []) {
-            return new Promise((resolve) => {
-                const container = document.getElementById('toast-container');
-                const toast = document.createElement('div');
-                toast.className = 'toast';
-                toast.innerHTML = `<i class="fas fa-bell"></i><div><b>${title}</b><br>${message}</div>`;
-                if (buttons.length > 0) {
-                    const btnDiv = document.createElement('div');
-                    btnDiv.style.marginRight = 'auto';
-                    buttons.forEach((btn, i) => {
-                        const b = document.createElement('button');
-                        b.innerText = btn;
-                        b.onclick = () => {
-                            toast.remove();
-                            resolve(i);
-                        };
-                        btnDiv.appendChild(b);
-                    });
-                    toast.appendChild(btnDiv);
-                } else {
-                    setTimeout(() => {
-                        toast.remove();
-                        resolve(-1);
-                    }, 3000);
-                }
-                container.appendChild(toast);
-            });
+        // ========== نظام طلبات الانضمام (أيقونة وامضة) ==========
+        const requestBadge = document.getElementById('requestBadge');
+        const requestCountSpan = document.getElementById('requestCount');
+        const requestDropdown = document.getElementById('requestDropdown');
+        let requests = {}; // تخزين الطلبات
+
+        function updateRequestBadge() {
+            const count = Object.keys(requests).length;
+            requestCountSpan.innerText = count;
+            if (count > 0) {
+                requestBadge.classList.add('pulse');
+            } else {
+                requestBadge.classList.remove('pulse');
+            }
+            renderDropdown();
         }
 
-        // ========== نظام الموافقة على الطلاب ==========
-        const studentsList = document.getElementById('studentsList');
-        db.ref('joinRequests').on('child_added', async (snap) => {
-            const req = snap.val();
-            const choice = await showToast('طلب انضمام', `الطالب: ${req.studentName}`, ['قبول', 'رفض']);
-            if (choice === 0) {
-                db.ref('acceptedStudents/' + req.studentId).set(true);
+        function renderDropdown() {
+            if (Object.keys(requests).length === 0) {
+                requestDropdown.innerHTML = '<div style="padding:10px; text-align:center;">لا توجد طلبات</div>';
+                return;
             }
-            snap.ref.remove();
-        });
+            let html = '';
+            for (let id in requests) {
+                const req = requests[id];
+                html += `
+                    <div class="request-item">
+                        <span>${req.studentName}</span>
+                        <button onclick="acceptRequest('${id}', '${req.studentId}')">قبول</button>
+                    </div>
+                `;
+            }
+            requestDropdown.innerHTML = html;
+        }
 
-        window.acceptStudent = (reqId, studentId) => {
-            db.ref('acceptedStudents/' + studentId).set(true);
-            db.ref('joinRequests/' + reqId).remove();
+        window.toggleRequestDropdown = () => {
+            requestDropdown.classList.toggle('show');
         };
 
+        window.acceptRequest = (reqId, studentId) => {
+            db.ref('acceptedStudents/' + studentId).set(true);
+            db.ref('joinRequests/' + reqId).remove();
+            delete requests[reqId];
+            updateRequestBadge();
+            // إغلاق القائمة بعد القبول (اختياري)
+            requestDropdown.classList.remove('show');
+        };
+
+        // الاستماع لطلبات الانضمام
+        db.ref('joinRequests').on('child_added', (snap) => {
+            requests[snap.key] = snap.val();
+            updateRequestBadge();
+        });
+
+        db.ref('joinRequests').on('child_removed', (snap) => {
+            delete requests[snap.key];
+            updateRequestBadge();
+        });
+
+        // تحديث عدد الطلاب المقبولين
         db.ref('acceptedStudents').on('value', (snap) => {
             const count = snap.val() ? Object.keys(snap.val()).length : 0;
             document.getElementById('onlineCount').innerText = count + ' طالب';
@@ -492,7 +498,7 @@
                             reader.readAsDataURL(e.data);
                         }
                     };
-                    mediaRecorder.start(1000); // قطع كل ثانية
+                    mediaRecorder.start(1000);
                     db.ref('audioActive').set(true);
                 } catch (err) {
                     alert('لا يمكن الوصول للميكروفون');
@@ -507,14 +513,12 @@
             }
         };
 
-        // استقبال الصور المرفوعة من الطلاب
+        // استقبال صور الطلاب (اختياري)
         db.ref('studentUploads').on('child_added', (snap) => {
-            const data = snap.val();
-            showToast('صورة من طالب', `الطالب: ${data.studentName}`);
-            // يمكن إضافة معاينة الصورة
+            // يمكن عرض إشعار
+            snap.ref.remove(); // تنظيف
         });
 
-        // ========== تنظيف عند الخروج ==========
         window.addEventListener('beforeunload', () => {
             db.ref('teacher/online').remove();
             if (audioStream) audioStream.getTracks().forEach(t => t.stop());
