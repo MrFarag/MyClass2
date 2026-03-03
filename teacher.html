@@ -6,164 +6,33 @@
     <title>المدرس - MyClass2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* نفس التنسيقات السابقة تماماً (محذوفة للاختصار) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #1a2634;
-            display: flex;
-            flex-direction: column;
-            height: 100dvh;
-            overflow: hidden;
-            color: white;
-        }
-        .header {
-            background: #2c3e50;
-            padding: 8px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid #e67e22;
-            flex-shrink: 0;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a2634; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; color: white; }
+        .header { background: #2c3e50; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #e67e22; flex-shrink: 0; }
         .logo i { color: #e67e22; margin-left: 6px; }
-        .online-count {
-            background: #27ae60;
-            padding: 5px 12px;
-            border-radius: 30px;
-            font-size: 13px;
-        }
-        .mic-indicator {
-            display: none;
-            background: #e74c3c;
-            padding: 5px 12px;
-            border-radius: 30px;
-            font-size: 13px;
-            animation: pulse 1s infinite;
-        }
+        .online-count { background: #27ae60; padding: 5px 12px; border-radius: 30px; font-size: 13px; }
+        .mic-indicator { display: none; background: #e74c3c; padding: 5px 12px; border-radius: 30px; font-size: 13px; animation: pulse 1s infinite; }
         .mic-indicator.active { display: flex; gap: 5px; }
         @keyframes pulse { 50% { opacity: 0.6; } }
-
-        /* منطقة السبورة */
-        .board-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #2c3e50;
-            margin: 8px;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .board-header {
-            padding: 10px 15px;
-            background: #34495e;
-            border-bottom: 2px solid #e67e22;
-        }
-        .canvas-wrapper {
-            flex: 1;
-            overflow: auto;
-            background: #ecf0f1;
-            -webkit-overflow-scrolling: touch;
-        }
-        #teacherCanvas {
-            width: 2000px;
-            height: 1500px;
-            display: block;
-            background: white;
-            touch-action: none;
-        }
-
-        /* شريط الأدوات الموحد (كامل) */
-        .toolbar {
-            background: #34495e;
-            padding: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            border-top: 2px solid #e67e22;
-            flex-shrink: 0;
-            overflow-x: auto;
-            justify-content: center;
-        }
-        .tool-group {
-            display: flex;
-            gap: 5px;
-            background: #2c3e50;
-            padding: 5px;
-            border-radius: 12px;
-        }
-        .tool-btn {
-            width: 48px;
-            height: 48px;
-            border: none;
-            border-radius: 10px;
-            background: #3d566e;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .board-container { flex: 1; display: flex; flex-direction: column; background: #2c3e50; margin: 8px; border-radius: 12px; overflow: hidden; }
+        .board-header { padding: 10px 15px; background: #34495e; border-bottom: 2px solid #e67e22; }
+        .canvas-wrapper { flex: 1; overflow: auto; background: #ecf0f1; -webkit-overflow-scrolling: touch; }
+        #teacherCanvas { width: 2000px; height: 1500px; display: block; background: white; touch-action: none; }
+        .toolbar { background: #34495e; padding: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; border-top: 2px solid #e67e22; flex-shrink: 0; overflow-x: auto; justify-content: center; }
+        .tool-group { display: flex; gap: 5px; background: #2c3e50; padding: 5px; border-radius: 12px; }
+        .tool-btn { width: 48px; height: 48px; border: none; border-radius: 10px; background: #3d566e; color: white; font-size: 20px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .tool-btn:hover { background: #e67e22; transform: scale(1.05); }
         .tool-btn.active { background: #e67e22; }
-        .color-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 3px solid transparent;
-            cursor: pointer;
-        }
+        .color-btn { width: 40px; height: 40px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
         .color-btn.active { border-color: white; transform: scale(1.1); }
-        .size-btn {
-            width: 48px;
-            height: 48px;
-            background: #3d566e;
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
+        .size-btn { width: 48px; height: 48px; background: #3d566e; border: none; border-radius: 10px; color: white; font-size: 16px; cursor: pointer; }
         .size-btn.active { background: #e67e22; }
-
-        /* لوحة الطلبات والملفات */
-        .panel {
-            background: #2c3e50;
-            padding: 10px;
-            border-top: 2px solid #e67e22;
-            max-height: 200px;
-            overflow-y: auto;
-            flex-shrink: 0;
-        }
-        .request-item {
-            background: #34495e;
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .request-item .student-info {
-            font-size: 14px;
-        }
-        .request-item button {
-            background: #27ae60;
-            border: none;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 15px;
-            cursor: pointer;
-        }
-        .file-item {
-            background: #34495e;
-            padding: 5px 10px;
-            border-radius: 5px;
-            margin: 3px 0;
-        }
+        .panel { background: #2c3e50; padding: 10px; border-top: 2px solid #e67e22; max-height: 200px; overflow-y: auto; flex-shrink: 0; }
+        .request-item { background: #34495e; padding: 8px 12px; border-radius: 8px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .request-item .student-info { font-size: 14px; }
+        .request-item button { background: #27ae60; border: none; color: white; padding: 4px 10px; border-radius: 15px; cursor: pointer; }
+        .file-item { background: #34495e; padding: 5px 10px; border-radius: 5px; margin: 3px 0; }
     </style>
 </head>
 <body>
@@ -185,9 +54,9 @@
         </div>
     </div>
 
-    <!-- شريط الأدوات الموحد (كامل) -->
+    <!-- شريط الأدوات الموحد -->
     <div class="toolbar">
-        <!-- مجموعة الألوان (Color) -->
+        <!-- مجموعة الألوان -->
         <div class="tool-group">
             <div class="color-btn active" style="background:#1a1a1a" onclick="changeColor('#1a1a1a',this)" title="أسود"></div>
             <div class="color-btn" style="background:#e74c3c" onclick="changeColor('#e74c3c',this)" title="أحمر"></div>
@@ -197,14 +66,14 @@
             <div class="color-btn" style="background:#f39c12" onclick="changeColor('#f39c12',this)" title="برتقالي"></div>
         </div>
 
-        <!-- مجموعة أحجام القلم (Pens) -->
+        <!-- أحجام القلم -->
         <div class="tool-group">
             <button class="size-btn" onclick="changeSize(2,this)" title="رفيع">رفيع</button>
             <button class="size-btn active" onclick="changeSize(5,this)" title="وسط">وسط</button>
             <button class="size-btn" onclick="changeSize(10,this)" title="سميك">سميك</button>
         </div>
 
-        <!-- أدوات الرسم الأساسية (Eraser, Layers, Ruler, Shape, Text) -->
+        <!-- أدوات الرسم -->
         <div class="tool-group">
             <button class="tool-btn active" id="penBtn" onclick="setPen()" title="قلم"><i class="fas fa-pencil-alt"></i></button>
             <button class="tool-btn" id="eraserBtn" onclick="setEraser()" title="ممحاة"><i class="fas fa-eraser"></i></button>
@@ -214,13 +83,13 @@
             <button class="tool-btn" onclick="setTool('text')" title="نص"><i class="fas fa-font"></i></button>
         </div>
 
-        <!-- أدوات إضافية (Import, مسح الكل) -->
+        <!-- أدوات إضافية -->
         <div class="tool-group">
             <button class="tool-btn" onclick="importFile()" title="استيراد صورة"><i class="fas fa-file-import"></i></button>
             <button class="tool-btn" onclick="clearBoard()" title="مسح الكل"><i class="fas fa-trash-alt"></i></button>
         </div>
 
-        <!-- رفع ملف / صورة -->
+        <!-- رفع ملف -->
         <div class="tool-group">
             <button class="tool-btn" onclick="uploadFile()" style="background:#3498db" title="رفع ملف"><i class="fas fa-upload"></i></button>
         </div>
@@ -272,7 +141,7 @@
         const ctx = canvas.getContext('2d');
         const wrapper = document.getElementById('teacherWrapper');
         let drawing = false;
-        let currentTool = 'pen'; // pen, eraser, layers, ruler, shape, text
+        let currentTool = 'pen';
         let currentColor = '#1a1a1a';
         let currentSize = 5;
         let lastX = 0, lastY = 0;
@@ -322,13 +191,11 @@
                 ctx.lineWidth = currentSize;
             }
 
-            // رسم ناعم
             ctx.lineTo(pos.x, pos.y);
             ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(pos.x, pos.y);
 
-            // إرسال الرسم للطلاب (المقبولين فقط)
             db.ref('teacherDrawings').push({
                 x: pos.x, y: pos.y,
                 lastX, lastY,
@@ -355,7 +222,6 @@
         canvas.addEventListener('touchmove', draw, { passive: false });
         canvas.addEventListener('touchend', stopDraw);
 
-        // دوال تغيير الأدوات
         window.changeColor = (color, el) => {
             currentColor = color;
             currentTool = 'pen';
@@ -385,7 +251,6 @@
 
         window.setTool = (tool) => {
             currentTool = tool;
-            // مؤقتاً نعطي رسالة
             alert(`أداة "${tool}" قيد التطوير حالياً`);
         };
 
@@ -394,7 +259,6 @@
             db.ref('teacherCommands').push({ type: 'clear' });
         };
 
-        // دالة استيراد صورة
         window.importFile = () => {
             const input = document.createElement('input');
             input.type = 'file';
@@ -406,12 +270,9 @@
                     const img = new Image();
                     img.onload = () => {
                         ctx.drawImage(img, 100, 100, 400, 300);
-                        // إرسال الصورة للطلاب كرسم (يمكن تحويلها لـ base64 وإرسالها)
-                        // لكن لتبسيط، سنرسلها كأمر خاص
-                        const imgData = event.target.result; // base64
                         db.ref('teacherDrawings').push({
                             type: 'image',
-                            imageData: imgData,
+                            imageData: event.target.result,
                             x: 100, y: 100,
                             width: 400, height: 300,
                             timestamp: Date.now()
@@ -424,7 +285,6 @@
             input.click();
         };
 
-        // دالة النقر على السبورة لإضافة نص (عند استخدام أداة النص)
         canvas.addEventListener('click', (e) => {
             if (currentTool === 'text') {
                 const pos = getPos(e);
@@ -433,12 +293,10 @@
                     ctx.font = '30px Arial';
                     ctx.fillStyle = currentColor;
                     ctx.fillText(text, pos.x, pos.y);
-                    // إرسال النص للطلاب
                     db.ref('teacherDrawings').push({
                         type: 'text',
                         text: text,
-                        x: pos.x,
-                        y: pos.y,
+                        x: pos.x, y: pos.y,
                         color: currentColor,
                         fontSize: 30,
                         timestamp: Date.now()
@@ -447,8 +305,10 @@
             }
         });
 
-        // -------------------- الصوت (PeerJS) --------------------
+        // -------------------- الصوت (البث المباشر من المدرس للطلاب) --------------------
         let localStream, peer;
+        let studentCalls = {}; // تخزين المكالمات النشطة
+
         peer = new Peer('teacher_' + Date.now());
 
         peer.on('open', (id) => {
@@ -456,11 +316,32 @@
             db.ref('teacherAudioId').set(id);
         });
 
+        // استقبال مكالمات الطلاب (إذا أراد الطالب التحدث) - يمكن تعطيلها
         peer.on('call', (call) => {
             if (localStream) {
                 call.answer(localStream);
             }
         });
+
+        // دالة لبدء البث لجميع الطلاب المقبولين
+        async function startBroadcast() {
+            if (!localStream) return;
+            
+            const acceptedSnap = await db.ref('acceptedStudents').once('value');
+            const accepted = acceptedSnap.val();
+            if (!accepted) return;
+            
+            for (let studentId in accepted) {
+                const studentPeerId = await db.ref('studentPeerIds/' + studentId).once('value');
+                if (studentPeerId.exists()) {
+                    const call = peer.call(studentPeerId.val(), localStream);
+                    studentCalls[studentId] = call;
+                    call.on('close', () => {
+                        delete studentCalls[studentId];
+                    });
+                }
+            }
+        }
 
         window.toggleAudio = async () => {
             const btn = document.getElementById('audioBtn');
@@ -473,21 +354,47 @@
                     btn.classList.add('active');
                     indicator.classList.add('active');
                     db.ref('teacherAudioActive').set(true);
+                    
+                    // بدء البث للطلاب الحاليين
+                    await startBroadcast();
+                    
+                    // مراقبة الطلاب الجدد (عند قبول طالب)
+                    db.ref('acceptedStudents').on('child_added', async (snap) => {
+                        if (localStream) {
+                            const newStudentId = snap.key;
+                            // تأخير صغير لضمان تسجيل peerId
+                            setTimeout(async () => {
+                                const studentPeerId = await db.ref('studentPeerIds/' + newStudentId).once('value');
+                                if (studentPeerId.exists()) {
+                                    const call = peer.call(studentPeerId.val(), localStream);
+                                    studentCalls[newStudentId] = call;
+                                }
+                            }, 1000);
+                        }
+                    });
+                    
                 } catch (err) {
-                    alert('لا يمكن الوصول للميكروفون');
+                    btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    alert('لا يمكن الوصول للميكروفون');
                 }
             } else {
+                // إيقاف البث
+                for (let id in studentCalls) {
+                    studentCalls[id].close();
+                }
+                studentCalls = {};
                 localStream.getTracks().forEach(t => t.stop());
                 localStream = null;
                 btn.innerHTML = '<i class="fas fa-microphone"></i>';
                 btn.classList.remove('active');
                 indicator.classList.remove('active');
                 db.ref('teacherAudioActive').set(false);
+                db.ref('acceptedStudents').off('child_added');
             }
         };
 
-        // -------------------- طلبات الانضمام (مع بيانات الطالب) --------------------
+        // -------------------- طلبات الانضمام --------------------
         db.ref('joinRequests').on('child_added', (snap) => {
             const req = snap.val();
             const reqId = snap.key;
@@ -512,7 +419,6 @@
             if (el) el.remove();
         };
 
-        // عدد الطلاب المقبولين
         db.ref('acceptedStudents').on('value', (snap) => {
             const count = snap.val() ? Object.keys(snap.val()).length : 0;
             document.getElementById('onlineCount').innerText = count;
@@ -538,7 +444,6 @@
             input.click();
         };
 
-        // عرض الملفات المرسلة
         db.ref('teacherFiles').on('child_added', (snap) => {
             const file = snap.val();
             const list = document.getElementById('filesList');
@@ -582,14 +487,10 @@
             }
         };
 
-        // -------------------- إجابات الطلاب --------------------
         db.ref('submissions').on('child_added', (snap) => {
-            const sub = snap.val();
-            console.log('إجابة جديدة:', sub);
-            // يمكن عرضها في واجهة المدرس إذا أردت
+            console.log('إجابة جديدة:', snap.val());
         });
 
-        // -------------------- أوامر المسح --------------------
         db.ref('teacherCommands').on('child_added', (snap) => {
             if (snap.val().type === 'clear') {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -598,7 +499,6 @@
 
         canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-        // تسجيل المدرس
         db.ref('teacher/online').set({ online: true });
         window.addEventListener('beforeunload', () => {
             db.ref('teacher/online').remove();
