@@ -105,13 +105,14 @@
             background: #3e3e5e;
             border: none;
             color: white;
-            padding: 10px 20px;
+            width: 40px;
+            height: 40px;
             border-radius: 8px;
+            font-size: 18px;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            font-size: 16px;
+            justify-content: center;
         }
         .tool-btn i { font-size: 18px; }
         .tool-btn:hover { background: #4caf50; }
@@ -158,8 +159,8 @@
         <canvas id="teacherBoard"></canvas>
 
         <div class="toolbar">
-            <button class="tool-btn" id="handBtn" onclick="toggleHand()"><i class="fas fa-hand-paper"></i> رفع اليد</button>
-            <button class="tool-btn" id="micBtn" onclick="requestMic()"><i class="fas fa-microphone"></i> طلب ميكروفون</button>
+            <button class="tool-btn" id="handBtn" onclick="toggleHand()" title="رفع اليد"><i class="fas fa-hand-paper"></i></button>
+            <button class="tool-btn" id="micBtn" onclick="requestMic()" title="طلب ميكروفون"><i class="fas fa-microphone"></i></button>
         </div>
 
         <div class="status-bar">
@@ -272,21 +273,24 @@
                 snap.ref.remove();
             });
 
-            // الصوت
+            // ===== الصوت (استقبال من المدرس) =====
             const audio = document.getElementById('audioPlayer');
             let peer, call;
             peer = new Peer(studentId);
             peer.on('open', (id) => {
                 db.ref('studentPeerIds/' + studentId).set(id);
             });
+
+            // استقبال المكالمة من المدرس (إذا بدأ البث)
             peer.on('call', (incomingCall) => {
-                incomingCall.answer();
+                incomingCall.answer(); // استقبل بدون إرسال صوت (الطالب لا يرسل)
                 incomingCall.on('stream', (remoteStream) => {
                     audio.srcObject = remoteStream;
                     audio.play().catch(() => {});
                 });
             });
 
+            // مؤشر صوت المدرس
             db.ref('teacherAudioActive').on('value', (snap) => {
                 const active = snap.val();
                 const ind = document.getElementById('teacherAudioIndicator');
