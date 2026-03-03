@@ -250,7 +250,7 @@
       <div id="participantsList"></div>
     </div>
 
-    <!-- منطقة السبورة (يستقبل الطالب رسم المدرس) -->
+    <!-- منطقة السبورة -->
     <div class="board-area">
       <div class="board-header">
         <div class="current-board-title">سبورة المدرس</div>
@@ -277,7 +277,7 @@
         <div class="color-dot" style="background:#0000ff;" onclick="setColor('#0000ff',this)"></div>
       </div>
       <div class="image-upload">
-        <label for="studentImage"><i class="fas fa-image"></i> رفع صورة</label>
+        <label for="studentImage"><i class="fas fa-image"></i> رفع صورة الواجب</label>
         <input type="file" id="studentImage" accept="image/*" onchange="uploadImage(this)">
       </div>
     </div>
@@ -301,6 +301,9 @@
     });
     const db = firebase.database();
 
+    // ------------------------------------------------------------
+    // متغيرات
+    // ------------------------------------------------------------
     let studentId = 's' + Date.now() + '_' + Math.random().toString(36).substr(2,4);
     let studentName = '';
     let approved = false;
@@ -335,12 +338,16 @@
     setTimeout(resizeCanvas, 100);
 
     // ------------------------------------------------------------
-    // طلب الانضمام
+    // طلب الانضمام (مع حذف أي طلب سابق)
     // ------------------------------------------------------------
     (function joinClass() {
       let name = prompt('أدخل اسمك:');
       if (!name) name = 'طالب' + Math.floor(Math.random()*1000);
       studentName = name;
+
+      // حذف أي طلب سابق لهذا الطالب (إن وجد)
+      db.ref('joinRequests/' + studentId).remove();
+
       db.ref('joinRequests/' + studentId).set({ id: studentId, name: studentName, ts: Date.now() });
       db.ref('approvedStudents/' + studentId).on('value', snap => {
         if (snap.exists() && !approved) {
@@ -391,6 +398,19 @@
           mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
         }
         snap.ref.remove();
+      });
+
+      // استقبال الصور المصححة من المدرس
+      db.ref('boardImg/stu/' + studentId).on('value', snap => {
+        const data = snap.val();
+        if (data && data.data && data.byTeacher) {
+          const img = new Image();
+          img.onload = () => {
+            mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            mainCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
+          };
+          img.src = data.data;
+        }
       });
 
       // تحديث قائمة المشاركين
@@ -459,8 +479,7 @@
       };
     }
 
-    let points = [];
-    let sendTimer = null;
+    let points = [], sendTimer = null;
 
     function startDraw(e) {
       e.preventDefault();
@@ -544,12 +563,20 @@
       if (!input.files[0] || !approved) return;
       const reader = new FileReader();
       reader.onload = (e) => {
+        // رسم الصورة على سبورة الطالب (اختياري)
         const img = new Image();
         img.onload = () => {
           mainCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
-          db.ref('boardImg/stu/' + studentId).set({ data: e.target.result, ts: Date.now() });
         };
         img.src = e.target.result;
+
+        // حفظ الصورة في Firebase ليراها المدرس
+        db.ref('studentImages').push({
+          studentId: studentId,
+          studentName: studentName,
+          data: e.target.result,
+          ts: Date.now()
+        });
       };
       reader.readAsDataURL(input.files[0]);
     };
