@@ -94,7 +94,7 @@
 
     /* لوحة الطلاب (يمين) - مصغرة */
     .students-panel {
-      width: 260px; /* تم التصغير من 340 إلى 260 */
+      width: 260px;
       background: #1e3228;
       border-radius: 24px;
       padding: 12px;
@@ -158,6 +158,40 @@
     }
     .student-actions i { cursor: pointer; transition: 0.2s; }
     .student-actions i:hover { transform: scale(1.2); color: #fff; }
+
+    /* لوحة صور الطلاب */
+    .images-panel {
+      width: 260px;
+      background: #1e3228;
+      border-radius: 24px;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border: 1px solid #3a5a40;
+      margin-right: 8px;
+    }
+    .image-item {
+      background: #1a2e25;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #2a4a30;
+      cursor: pointer;
+    }
+    .image-item img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      display: block;
+    }
+    .image-caption {
+      padding: 5px 8px;
+      font-size: 11px;
+      background: #0f2a1f;
+      display: flex;
+      justify-content: space-between;
+    }
 
     /* منطقة السبورة الرئيسية */
     .board-area {
@@ -278,7 +312,7 @@
       gap: 8px;
     }
 
-    /* نافذة عرض سبورة الطالب */
+    /* نافذة عرض وتصحيح الصورة */
     .modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -305,8 +339,12 @@
       justify-content: space-between;
       align-items: center;
     }
-    .modal-body { flex: 1; background: #fff; }
-    .modal-body canvas { width: 100%; height: 100%; }
+    .modal-body { flex: 1; background: #fff; position: relative; }
+    .modal-body canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
     .modal-footer {
       padding: 10px 20px;
       background: #0f2a1f;
@@ -351,6 +389,14 @@
       <div id="studentsList"></div>
     </div>
 
+    <!-- لوحة صور الطلاب -->
+    <div class="images-panel">
+      <div class="panel-header">
+        <span><i class="fas fa-images"></i> صور الطلاب</span>
+      </div>
+      <div id="studentImagesList"></div>
+    </div>
+
     <!-- منطقة السبورة الرئيسية -->
     <div class="board-area">
       <div class="board-header">
@@ -393,17 +439,28 @@
     </div>
   </div>
 
-  <!-- نافذة عرض سبورة الطالب (عند الضغط على أيقونة العين) -->
-  <div class="modal" id="studentBoardModal">
+  <!-- نافذة عرض وتصحيح صورة الطالب -->
+  <div class="modal" id="correctionModal">
     <div class="modal-content">
       <div class="modal-header">
-        <span id="modalStudentName">سبورة الطالب</span>
+        <span id="modalStudentName">تصحيح واجب الطالب</span>
         <div>
-          <button class="action-circle" onclick="closeStudentBoard()" style="background:#b71c1c;"><i class="fas fa-times"></i></button>
+          <button class="action-circle" onclick="saveCorrectedImage()" style="background:#ffaa00;"><i class="fas fa-save"></i> حفظ التصحيح</button>
+          <button class="action-circle btn-end" onclick="closeModal()"><i class="fas fa-times"></i></button>
         </div>
       </div>
       <div class="modal-body">
-        <canvas id="studentBoardCanvas"></canvas>
+        <canvas id="correctionCanvas"></canvas>
+      </div>
+      <div class="modal-footer">
+        <button class="action-circle" onclick="setCorrectionTool('pen')" style="background:#ffaa00;"><i class="fas fa-pen-nib"></i></button>
+        <button class="action-circle" onclick="setCorrectionTool('eraser')" style="background:#ffaa00;"><i class="fas fa-eraser"></i></button>
+        <div class="color-picker">
+          <div class="color-dot" style="background:#ff0000;" onclick="setCorrectionColor('#ff0000')"></div>
+          <div class="color-dot" style="background:#00ff00;" onclick="setCorrectionColor('#00ff00')"></div>
+          <div class="color-dot" style="background:#0000ff;" onclick="setCorrectionColor('#0000ff')"></div>
+          <div class="color-dot" style="background:#ffff00;" onclick="setCorrectionColor('#ffff00')"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -414,7 +471,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script>
     // ------------------------------------------------------------
-    // تهيئة Firebase وتنظيف البيانات القديمة
+    // تهيئة Firebase وتصفير أي بيانات قديمة عند بدء الجلسة
     // ------------------------------------------------------------
     firebase.initializeApp({
       apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
@@ -422,21 +479,21 @@
     });
     const db = firebase.database();
 
-    // تنظيف البيانات القديمة (أقدم من 5 دقائق) عند بدء التشغيل
-    const fiveMinutesAgo = Date.now() - 300000;
-    db.ref('joinRequests').once('value', snap => {
-      snap.forEach(child => {
-        if (child.val().ts < fiveMinutesAgo) child.ref.remove();
-      });
-    });
-    db.ref('micRequests').once('value', snap => {
-      snap.forEach(child => {
-        if (child.val().ts < fiveMinutesAgo) child.ref.remove();
+    // تنظيف البيانات القديمة (أقدم من دقيقة) عند بدء التشغيل
+    const oneMinuteAgo = Date.now() - 60000;
+    const pathsToClean = ['joinRequests', 'micRequests', 'approvedStudents', 'onlineStudents', 'handRaised', 'micPermissions', 'studentImages'];
+    pathsToClean.forEach(path => {
+      db.ref(path).once('value', snap => {
+        snap.forEach(child => {
+          if (child.val().ts && child.val().ts < oneMinuteAgo) {
+            child.ref.remove();
+          }
+        });
       });
     });
 
     // ------------------------------------------------------------
-    // المتغيرات العامة
+    // متغيرات عامة
     // ------------------------------------------------------------
     let currentTool = 'pen';
     let currentColor = '#000000';
@@ -448,11 +505,15 @@
     let currentSpeaker = null;
     let currentBoard = 'main';   // السبورة الحالية: 'main' أو معرف طالب
     let currentBoardStudentId = null;
+    let studentImages = {};      // صور الطلاب
 
     const mainCanvas = document.getElementById('mainBoardCanvas');
-    const studentModalCanvas = document.getElementById('studentBoardCanvas');
+    const correctionCanvas = document.getElementById('correctionCanvas');
     const mainCtx = mainCanvas.getContext('2d');
-    const modalCtx = studentModalCanvas.getContext('2d');
+    const correctionCtx = correctionCanvas.getContext('2d');
+    let currentImageStudentId = null;
+    let correctionTool = 'pen';
+    let correctionColor = '#ff0000';
 
     // ------------------------------------------------------------
     // ضبط حجم الكانفاس الرئيسي
@@ -473,10 +534,10 @@
     // ------------------------------------------------------------
     // دوال الرسم على السبورة الرئيسية (المدرس)
     // ------------------------------------------------------------
-    function getCanvasPoint(e) {
-      const rect = mainCanvas.getBoundingClientRect();
-      const scaleX = mainCanvas.width / rect.width;
-      const scaleY = mainCanvas.height / rect.height;
+    function getCanvasPoint(e, canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       return {
@@ -490,7 +551,7 @@
     function startDraw(e) {
       e.preventDefault();
       isDrawing = true;
-      const p = getCanvasPoint(e);
+      const p = getCanvasPoint(e, mainCanvas);
       lastX = p.x; lastY = p.y;
       points = [{ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height }];
       mainCtx.beginPath();
@@ -500,7 +561,7 @@
     function draw(e) {
       e.preventDefault();
       if (!isDrawing) return;
-      const p = getCanvasPoint(e);
+      const p = getCanvasPoint(e, mainCanvas);
       mainCtx.strokeStyle = currentTool === 'eraser' ? '#fff' : currentColor;
       mainCtx.lineWidth = currentTool === 'eraser' ? currentSize * 5 : currentSize;
       mainCtx.lineTo(p.x, p.y);
@@ -601,15 +662,13 @@
       currentBoard = 'main';
       currentBoardStudentId = null;
       document.getElementById('currentBoardTitle').textContent = 'السبورة الرئيسية';
-      // إعادة تعيين الرسم على الكانفاس إلى السبورة الرئيسية
-      // (يتم تحديثها من Firebase تلقائياً)
     };
 
     window.viewStudentBoard = function(studentId, studentName) {
       currentBoard = studentId;
       currentBoardStudentId = studentId;
       document.getElementById('currentBoardTitle').textContent = `سبورة ${studentName}`;
-      // تحميل صورة سبورة الطالب
+      // تحميل صورة سبورة الطالب إن وجدت
       db.ref('boardImg/stu/' + studentId).once('value', snap => {
         const data = snap.val();
         if (data && data.data) {
@@ -680,12 +739,21 @@
         }
       });
 
+      // استقبال صور الطلاب
+      db.ref('studentImages').on('child_added', snap => {
+        const img = snap.val();
+        if (img && img.studentId) {
+          if (!studentImages[img.studentId]) studentImages[img.studentId] = [];
+          studentImages[img.studentId].push(img);
+          updateImagesList();
+        }
+      });
+
       // استقبال رسم الطلاب لتحديث السبورة الحالية إذا كانت سبورة طالب
       db.ref('draw_st').on('child_added', snap => {
         const d = snap.val();
         if (!d || !d.points || !d.studentId) return;
         if (currentBoard === d.studentId) {
-          // إذا كنا نشاهد سبورة هذا الطالب حالياً، نرسم عليها مباشرة
           mainCtx.strokeStyle = d.color || '#000';
           mainCtx.lineWidth = d.size || 4;
           mainCtx.beginPath();
@@ -695,16 +763,6 @@
           }
           mainCtx.stroke();
         }
-      });
-
-      // استقبال صور الطلاب
-      db.ref('boardImg/stu').on('child_added', snap => {
-        // لا حاجة لتحديث القائمة هنا
-      });
-
-      // استقبال رسم المدرس للطالب (عند التبديل)
-      db.ref('draw_t').on('child_added', snap => {
-        // لا تفعل شيئاً هنا، لأن الطالب هو من يستقبل
       });
     }
 
@@ -779,29 +837,68 @@
     };
 
     // ------------------------------------------------------------
-    // فتح نافذة منبثقة لعرض سبورة الطالب (اختياري)
+    // عرض صور الطلاب
     // ------------------------------------------------------------
-    window.openStudentBoardModal = function(studentId, studentName) {
-      document.getElementById('modalStudentName').textContent = `سبورة ${studentName}`;
-      document.getElementById('studentBoardModal').classList.add('active');
-      const canvas = studentModalCanvas;
-      const ctx = modalCtx;
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = canvas.parentElement.clientHeight;
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      db.ref('boardImg/stu/' + studentId).once('value', snap => {
-        const data = snap.val();
-        if (data && data.data) {
-          const img = new Image();
-          img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          img.src = data.data;
-        }
+    function updateImagesList() {
+      const container = document.getElementById('studentImagesList');
+      let html = '';
+      Object.entries(studentImages).forEach(([studentId, images]) => {
+        const studentName = students[studentId]?.name || 'طالب';
+        images.slice().reverse().forEach(img => {
+          html += `
+            <div class="image-item" onclick="openCorrectionModal('${studentId}', '${studentName}', '${img.data}')">
+              <img src="${img.data}" alt="student work">
+              <div class="image-caption">
+                <span>${studentName}</span>
+                <span>${new Date(img.ts).toLocaleTimeString()}</span>
+              </div>
+            </div>
+          `;
+        });
       });
+      container.innerHTML = html || '<div style="color:#aaa; text-align:center; padding:20px;">لا توجد صور</div>';
+    }
+
+    // ------------------------------------------------------------
+    // نافذة التصحيح (الرسم على صورة الطالب)
+    // ------------------------------------------------------------
+    window.openCorrectionModal = function(studentId, studentName, imageData) {
+      currentImageStudentId = studentId;
+      document.getElementById('modalStudentName').textContent = `تصحيح واجب ${studentName}`;
+      document.getElementById('correctionModal').classList.add('active');
+
+      // ضبط حجم كانفاس التصحيح
+      const container = correctionCanvas.parentElement;
+      correctionCanvas.width = container.clientWidth;
+      correctionCanvas.height = container.clientHeight;
+      correctionCtx.fillStyle = '#fff';
+      correctionCtx.fillRect(0, 0, correctionCanvas.width, correctionCanvas.height);
+
+      // رسم الصورة على الكانفاس
+      const img = new Image();
+      img.onload = () => {
+        correctionCtx.drawImage(img, 0, 0, correctionCanvas.width, correctionCanvas.height);
+      };
+      img.src = imageData;
+
+      // إعداد أدوات التصحيح (يمكن إضافة أحداث الرسم لاحقاً)
     };
-    window.closeStudentBoard = function() {
-      document.getElementById('studentBoardModal').classList.remove('active');
+
+    window.closeModal = function() {
+      document.getElementById('correctionModal').classList.remove('active');
     };
+
+    window.saveCorrectedImage = function() {
+      if (!currentImageStudentId) return;
+      const dataURL = correctionCanvas.toDataURL('image/jpeg', 0.85);
+      db.ref('boardImg/stu/' + currentImageStudentId).set({ data: dataURL, byTeacher: true, ts: Date.now() });
+      alert('تم حفظ التصحيح وإرساله للطالب');
+      closeModal();
+    };
+
+    // أدوات التصحيح (يمكن توسيعها لاحقاً)
+    window.setCorrectionTool = function(tool) { correctionTool = tool; };
+    window.setCorrectionColor = function(color) { correctionColor = color; };
 
     // ------------------------------------------------------------
     // الصوت والإنهاء والتصفير
@@ -820,11 +917,14 @@
         db.ref('handRaised').remove();
         db.ref('micRequests').remove();
         db.ref('micPermissions').remove();
+        db.ref('studentImages').remove();
         students = {};
         waitingStudents = {};
+        studentImages = {};
         currentSpeaker = null;
         switchToMainBoard();
         updateStudentsList();
+        updateImagesList();
       }
     };
 
