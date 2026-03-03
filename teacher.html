@@ -72,7 +72,7 @@
             touch-action: none;
         }
 
-        /* شريط الأدوات الموحد */
+        /* شريط الأدوات الموحد (كامل) */
         .toolbar {
             background: #34495e;
             padding: 10px;
@@ -145,6 +145,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+        }
+        .request-item .student-info {
+            font-size: 14px;
         }
         .request-item button {
             background: #27ae60;
@@ -181,44 +185,54 @@
         </div>
     </div>
 
-    <!-- شريط الأدوات الموحد -->
+    <!-- شريط الأدوات الموحد (كامل) -->
     <div class="toolbar">
-        <!-- الألوان -->
+        <!-- مجموعة الألوان (Color) -->
         <div class="tool-group">
-            <div class="color-btn active" style="background:#1a1a1a" onclick="changeColor('#1a1a1a',this)"></div>
-            <div class="color-btn" style="background:#e74c3c" onclick="changeColor('#e74c3c',this)"></div>
-            <div class="color-btn" style="background:#2980b9" onclick="changeColor('#2980b9',this)"></div>
-            <div class="color-btn" style="background:#27ae60" onclick="changeColor('#27ae60',this)"></div>
-            <div class="color-btn" style="background:#8e44ad" onclick="changeColor('#8e44ad',this)"></div>
+            <div class="color-btn active" style="background:#1a1a1a" onclick="changeColor('#1a1a1a',this)" title="أسود"></div>
+            <div class="color-btn" style="background:#e74c3c" onclick="changeColor('#e74c3c',this)" title="أحمر"></div>
+            <div class="color-btn" style="background:#2980b9" onclick="changeColor('#2980b9',this)" title="أزرق"></div>
+            <div class="color-btn" style="background:#27ae60" onclick="changeColor('#27ae60',this)" title="أخضر"></div>
+            <div class="color-btn" style="background:#8e44ad" onclick="changeColor('#8e44ad',this)" title="بنفسجي"></div>
+            <div class="color-btn" style="background:#f39c12" onclick="changeColor('#f39c12',this)" title="برتقالي"></div>
         </div>
 
-        <!-- أحجام القلم -->
+        <!-- مجموعة أحجام القلم (Pens) -->
         <div class="tool-group">
-            <button class="size-btn" onclick="changeSize(2,this)">رفيع</button>
-            <button class="size-btn active" onclick="changeSize(5,this)">وسط</button>
-            <button class="size-btn" onclick="changeSize(10,this)">سميك</button>
+            <button class="size-btn" onclick="changeSize(2,this)" title="رفيع">رفيع</button>
+            <button class="size-btn active" onclick="changeSize(5,this)" title="وسط">وسط</button>
+            <button class="size-btn" onclick="changeSize(10,this)" title="سميك">سميك</button>
         </div>
 
-        <!-- أدوات الرسم -->
+        <!-- أدوات الرسم الأساسية (Eraser, Layers, Ruler, Shape, Text) -->
         <div class="tool-group">
-            <button class="tool-btn active" id="penBtn" onclick="setPen()"><i class="fas fa-pencil-alt"></i></button>
-            <button class="tool-btn" id="eraserBtn" onclick="setEraser()"><i class="fas fa-eraser"></i></button>
-            <button class="tool-btn" onclick="clearBoard()"><i class="fas fa-trash-alt"></i></button>
+            <button class="tool-btn active" id="penBtn" onclick="setPen()" title="قلم"><i class="fas fa-pencil-alt"></i></button>
+            <button class="tool-btn" id="eraserBtn" onclick="setEraser()" title="ممحاة"><i class="fas fa-eraser"></i></button>
+            <button class="tool-btn" onclick="setTool('layers')" title="الطبقات"><i class="fas fa-layer-group"></i></button>
+            <button class="tool-btn" onclick="setTool('ruler')" title="مسطرة"><i class="fas fa-ruler"></i></button>
+            <button class="tool-btn" onclick="setTool('shape')" title="أشكال"><i class="fas fa-shapes"></i></button>
+            <button class="tool-btn" onclick="setTool('text')" title="نص"><i class="fas fa-font"></i></button>
+        </div>
+
+        <!-- أدوات إضافية (Import, مسح الكل) -->
+        <div class="tool-group">
+            <button class="tool-btn" onclick="importFile()" title="استيراد صورة"><i class="fas fa-file-import"></i></button>
+            <button class="tool-btn" onclick="clearBoard()" title="مسح الكل"><i class="fas fa-trash-alt"></i></button>
         </div>
 
         <!-- رفع ملف / صورة -->
         <div class="tool-group">
-            <button class="tool-btn" onclick="uploadFile()" style="background:#3498db"><i class="fas fa-upload"></i></button>
+            <button class="tool-btn" onclick="uploadFile()" style="background:#3498db" title="رفع ملف"><i class="fas fa-upload"></i></button>
         </div>
 
         <!-- الميكروفون -->
         <div class="tool-group">
-            <button class="tool-btn" id="audioBtn" onclick="toggleAudio()"><i class="fas fa-microphone"></i></button>
+            <button class="tool-btn" id="audioBtn" onclick="toggleAudio()" title="تشغيل الميكروفون"><i class="fas fa-microphone"></i></button>
         </div>
 
         <!-- إرسال امتحان -->
         <div class="tool-group">
-            <button class="tool-btn" onclick="showExamForm()" style="background:#f39c12"><i class="fas fa-file-alt"></i></button>
+            <button class="tool-btn" onclick="showExamForm()" style="background:#f39c12" title="إرسال امتحان"><i class="fas fa-file-alt"></i></button>
         </div>
     </div>
 
@@ -258,7 +272,7 @@
         const ctx = canvas.getContext('2d');
         const wrapper = document.getElementById('teacherWrapper');
         let drawing = false;
-        let currentTool = 'pen';
+        let currentTool = 'pen'; // pen, eraser, layers, ruler, shape, text
         let currentColor = '#1a1a1a';
         let currentSize = 5;
         let lastX = 0, lastY = 0;
@@ -308,6 +322,7 @@
                 ctx.lineWidth = currentSize;
             }
 
+            // رسم ناعم
             ctx.lineTo(pos.x, pos.y);
             ctx.stroke();
             ctx.beginPath();
@@ -319,6 +334,7 @@
                 lastX, lastY,
                 color: currentTool === 'eraser' ? 'eraser' : currentColor,
                 size: currentTool === 'eraser' ? 30 : currentSize,
+                type: 'draw',
                 timestamp: Date.now()
             });
 
@@ -339,6 +355,7 @@
         canvas.addEventListener('touchmove', draw, { passive: false });
         canvas.addEventListener('touchend', stopDraw);
 
+        // دوال تغيير الأدوات
         window.changeColor = (color, el) => {
             currentColor = color;
             currentTool = 'pen';
@@ -366,10 +383,69 @@
             document.getElementById('penBtn').classList.remove('active');
         };
 
+        window.setTool = (tool) => {
+            currentTool = tool;
+            // مؤقتاً نعطي رسالة
+            alert(`أداة "${tool}" قيد التطوير حالياً`);
+        };
+
         window.clearBoard = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             db.ref('teacherCommands').push({ type: 'clear' });
         };
+
+        // دالة استيراد صورة
+        window.importFile = () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.drawImage(img, 100, 100, 400, 300);
+                        // إرسال الصورة للطلاب كرسم (يمكن تحويلها لـ base64 وإرسالها)
+                        // لكن لتبسيط، سنرسلها كأمر خاص
+                        const imgData = event.target.result; // base64
+                        db.ref('teacherDrawings').push({
+                            type: 'image',
+                            imageData: imgData,
+                            x: 100, y: 100,
+                            width: 400, height: 300,
+                            timestamp: Date.now()
+                        });
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        };
+
+        // دالة النقر على السبورة لإضافة نص (عند استخدام أداة النص)
+        canvas.addEventListener('click', (e) => {
+            if (currentTool === 'text') {
+                const pos = getPos(e);
+                const text = prompt('أدخل النص:');
+                if (text) {
+                    ctx.font = '30px Arial';
+                    ctx.fillStyle = currentColor;
+                    ctx.fillText(text, pos.x, pos.y);
+                    // إرسال النص للطلاب
+                    db.ref('teacherDrawings').push({
+                        type: 'text',
+                        text: text,
+                        x: pos.x,
+                        y: pos.y,
+                        color: currentColor,
+                        fontSize: 30,
+                        timestamp: Date.now()
+                    });
+                }
+            }
+        });
 
         // -------------------- الصوت (PeerJS) --------------------
         let localStream, peer;
@@ -411,8 +487,7 @@
             }
         };
 
-        // -------------------- طلبات الانضمام --------------------
-        // مراقبة طلبات الطلاب
+        // -------------------- طلبات الانضمام (مع بيانات الطالب) --------------------
         db.ref('joinRequests').on('child_added', (snap) => {
             const req = snap.val();
             const reqId = snap.key;
@@ -421,23 +496,23 @@
             div.className = 'request-item';
             div.id = 'req_' + reqId;
             div.innerHTML = `
-                <span>طالب: ${req.studentId.substring(0,6)}</span>
+                <div class="student-info">
+                    <strong>${req.studentName || 'طالب'}</strong><br>
+                    <span>📞 ${req.studentPhone || '??'}</span>
+                </div>
                 <button onclick="acceptStudent('${reqId}', '${req.studentId}')">قبول</button>
             `;
             list.appendChild(div);
         });
 
         window.acceptStudent = (reqId, studentId) => {
-            // إضافة الطالب إلى قائمة المقبولين
             db.ref('acceptedStudents/' + studentId).set(true);
-            // حذف الطلب
             db.ref('joinRequests/' + reqId).remove();
-            // إزالة العنصر من الواجهة
             const el = document.getElementById('req_' + reqId);
             if (el) el.remove();
         };
 
-        // عرض عدد الطلاب المقبولين (المتصلين فعلياً)
+        // عدد الطلاب المقبولين
         db.ref('acceptedStudents').on('value', (snap) => {
             const count = snap.val() ? Object.keys(snap.val()).length : 0;
             document.getElementById('onlineCount').innerText = count;
