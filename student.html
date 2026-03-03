@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>الطالب - MyClass2</title>
-    <!-- Font Awesome - 3 روابط -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.4.0/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -38,9 +35,8 @@
             width: 2000px;
             height: 1500px;
             background: white;
-            pointer-events: none; /* الطالب لا يرسم */
+            pointer-events: none;
         }
-        /* شاشة الدخول */
         .login-container {
             display: flex;
             align-items: center;
@@ -143,7 +139,6 @@
     </style>
 </head>
 <body>
-    <!-- شاشة الدخول -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
             <h3><i class="fas fa-user-graduate"></i> تسجيل الدخول</h3>
@@ -158,7 +153,6 @@
         </div>
     </div>
 
-    <!-- المحتوى الرئيسي بعد القبول -->
     <div id="mainContent">
         <header>
             <div class="logo"><i class="fas fa-user-graduate"></i> MyClass2 - طالب</div>
@@ -180,7 +174,7 @@
         </div>
     </div>
 
-    <audio id="audioPlayer" style="display:none" controls></audio>
+    <audio id="audioPlayer" style="display:none"></audio>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -204,7 +198,6 @@
         let approved = false;
         let attemptCount = 0;
 
-        // ===== التحقق من الدخول (3 محاولات) =====
         window.validateLogin = () => {
             const name = document.getElementById('studentName').value.trim();
             const phone = document.getElementById('studentPhone').value.trim();
@@ -257,7 +250,6 @@
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
 
-            // استقبال الرسم
             db.ref('teacherDrawings').on('child_added', (snap) => {
                 const d = snap.val();
                 if (d.color === 'eraser') {
@@ -285,11 +277,8 @@
                 snap.ref.remove();
             });
 
-            // ===== استقبال الصوت =====
             const audio = document.getElementById('audioPlayer');
-            audio.volume = 0.8;
             let lastTs = 0;
-
             db.ref('audioChunks').on('child_added', (snap) => {
                 const chunk = snap.val();
                 if (chunk.timestamp > lastTs) {
@@ -297,7 +286,7 @@
                     audio.src = chunk.data;
                     audio.play().catch(() => {});
                 }
-                snap.ref.remove(); // تنظيف بعد التشغيل
+                snap.ref.remove();
             });
 
             db.ref('audioActive').on('value', (snap) => {
@@ -308,13 +297,11 @@
             });
         }
 
-        // ===== رفع اليد =====
         window.toggleHand = () => {
             db.ref('handRaised/' + studentId).set({ raised: true });
             setTimeout(() => db.ref('handRaised/' + studentId).remove(), 5000);
         };
 
-        // ===== رفع صورة =====
         window.uploadImage = () => {
             const input = document.createElement('input');
             input.type = 'file';
@@ -325,10 +312,7 @@
                 await ref.put(file);
                 const url = await ref.getDownloadURL();
                 db.ref('studentUploads').push({
-                    studentId: studentId,
-                    studentName: studentName,
-                    imageUrl: url,
-                    timestamp: Date.now()
+                    studentId, studentName, imageUrl: url, timestamp: Date.now()
                 });
                 alert('تم رفع الصورة');
             };
