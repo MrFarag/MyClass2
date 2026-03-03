@@ -6,6 +6,7 @@
     <title>الطالب - MyClass2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ========== الأساسيات ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -16,8 +17,9 @@
             overflow: hidden;
             color: white;
         }
-        /* شاشة الدخول (نفس الصفحة) */
-        .login-container {
+
+        /* ========== شاشة الدخول (أحمر داكن) ========== */
+        .login-screen {
             flex: 1;
             display: flex;
             justify-content: center;
@@ -26,16 +28,19 @@
             padding: 20px;
         }
         .login-box {
-            background: #2c3e50;
+            background: #8B0000; /* أحمر داكن */
+            color: white;
             padding: 30px;
             border-radius: 20px;
             width: 100%;
             max-width: 400px;
             text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
         }
         .login-box h2 {
             margin-bottom: 20px;
-            color: #3498db;
+            color: white;
+            font-weight: bold;
         }
         .login-input {
             width: 100%;
@@ -43,11 +48,15 @@
             margin: 10px 0;
             border: none;
             border-radius: 8px;
-            background: #34495e;
+            background: #a52a2a; /* لون أفتح قليلاً */
             color: white;
             font-size: 16px;
             direction: ltr;
             text-align: left;
+            border: 1px solid #c04040;
+        }
+        .login-input::placeholder {
+            color: #ffb6b6;
         }
         .login-btn {
             width: 100%;
@@ -69,18 +78,22 @@
             cursor: not-allowed;
         }
         .error-message {
-            color: #e74c3c;
+            color: #ffcccc;
             margin-top: 10px;
+            background: rgba(0,0,0,0.3);
+            padding: 8px;
+            border-radius: 5px;
         }
         .waiting-message {
-            background: #f39c12;
+            background: #27ae60;
             color: white;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
             margin-top: 15px;
+            font-weight: bold;
         }
 
-        /* السبورة (تظهر بعد القبول) */
+        /* ========== السبورة (تظهر بعد القبول) ========== */
         .board-container {
             flex: 1;
             display: flex;
@@ -177,8 +190,9 @@
     </style>
 </head>
 <body>
-    <!-- شاشة الدخول والانتظار (كلها في عنصر واحد) -->
-    <div id="loginScreen" class="login-container">
+
+    <!-- ========== شاشة الدخول (أحمر داكن) ========== -->
+    <div id="loginScreen" class="login-screen">
         <div class="login-box">
             <h2><i class="fas fa-user-graduate"></i> تسجيل الدخول</h2>
             <input type="text" id="studentName" class="login-input" placeholder="الاسم" autocomplete="off">
@@ -194,7 +208,7 @@
         </div>
     </div>
 
-    <!-- المحتوى الرئيسي (السبورة) -->
+    <!-- ========== المحتوى الرئيسي (السبورة) ========== -->
     <div id="mainContent">
         <!-- سبورة المدرس -->
         <div class="board-container">
@@ -228,7 +242,7 @@
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
     <script>
-        // -------------------- Firebase --------------------
+        // ================== Firebase ==================
         const firebaseConfig = {
             apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
             authDomain: "myclaive.firebaseapp.com",
@@ -247,7 +261,7 @@
         let studentPhone = '';
         let accepted = false;
 
-        // -------------------- التحقق من تسجيل الدخول --------------------
+        // ================== التحقق من تسجيل الدخول ==================
         window.validateLogin = () => {
             const name = document.getElementById('studentName').value.trim();
             const phone = document.getElementById('studentPhone').value.trim();
@@ -261,9 +275,10 @@
                 return;
             }
 
+            // التحقق من أن الرقم السري هو معكوس رقم التليفون (دون إخبار المستخدم)
             const reversedPhone = phone.split('').reverse().join('');
             if (secret !== reversedPhone) {
-                errorDiv.innerText = 'الرقم السري غير صحيح (يجب أن يكون معكوس رقم التليفون)';
+                errorDiv.innerText = 'الرقم السري غير صحيح';
                 return;
             }
 
@@ -295,7 +310,7 @@
             });
         };
 
-        // مراقبة القبول
+        // ================== مراقبة القبول ==================
         db.ref('acceptedStudents/' + studentId).on('value', (snap) => {
             if (snap.val() === true && !accepted) {
                 accepted = true;
@@ -306,7 +321,7 @@
             }
         });
 
-        // -------------------- بدء جلسة الطالب بعد القبول --------------------
+        // ================== بدء جلسة الطالب بعد القبول ==================
         function startStudent() {
             const teacherCanvas = document.getElementById('teacherCanvas');
             const teacherCtx = teacherCanvas.getContext('2d');
@@ -342,23 +357,19 @@
                 }
             });
 
-            // -------------------- الصوت (استقبال فقط من المدرس) --------------------
+            // ================== الصوت (استقبال فقط) ==================
             let peer, currentCall;
             peer = new Peer(studentId);
 
             peer.on('open', (id) => {
                 console.log('Student peer ID:', id);
-                // تخزين peerId ليتمكن المدرس من الاتصال بنا
                 db.ref('studentPeerIds/' + studentId).set(id);
             });
 
-            // استقبال المكالمة من المدرس
             peer.on('call', (incomingCall) => {
-                // نجيب على المكالمة بدون إرسال أي صوت (لأننا لا نريد إرسال صوت الطالب)
-                incomingCall.answer(); // إجابة بدون stream محلي
+                incomingCall.answer(); // بدون stream محلي
 
                 incomingCall.on('stream', (remoteStream) => {
-                    // تشغيل الصوت القادم من المدرس
                     const audio = new Audio();
                     audio.srcObject = remoteStream;
                     audio.play().catch(e => console.log('Audio play error:', e));
@@ -372,7 +383,7 @@
                 currentCall = incomingCall;
             });
 
-            // -------------------- استقبال الامتحانات --------------------
+            // ================== استقبال الامتحانات ==================
             db.ref('currentExam').on('value', (snap) => {
                 const exam = snap.val();
                 const display = document.getElementById('examDisplay');
@@ -411,7 +422,7 @@
                 }
             });
 
-            // -------------------- استقبال ملفات المدرس --------------------
+            // ================== استقبال ملفات المدرس ==================
             db.ref('teacherFiles').on('child_added', (snap) => {
                 const file = snap.val();
                 const filesDiv = document.getElementById('teacherFilesDisplay');
@@ -422,7 +433,7 @@
             });
         }
 
-        // -------------------- إرسال الإجابة --------------------
+        // ================== إرسال الإجابة ==================
         let selectedAnswer = '';
         window.selectOption = (el, opt) => {
             document.querySelectorAll('.exam-option').forEach(o => o.classList.remove('selected'));
@@ -467,7 +478,7 @@
             });
         };
 
-        // -------------------- تنظيف عند الخروج --------------------
+        // ================== تنظيف عند الخروج ==================
         window.addEventListener('beforeunload', () => {
             if (studentId) {
                 db.ref('joinRequests').orderByChild('studentId').equalTo(studentId).once('value', (snap) => {
