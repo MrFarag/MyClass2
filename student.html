@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ========== الألوان الفاقعة (مطابقة للمدرس) ========== */
+        /* ===== الألوان الأصلية (كما كانت) ===== */
         :root {
             --primary: #3b82f6;
             --danger: #ef4444;
@@ -36,7 +36,7 @@
             color: #fff;
         }
 
-        /* ========== شاشة الدخول (بطاقة واحدة) ========== */
+        /* ===== شاشة الدخول (بطاقة واحدة) ===== */
         #overlay {
             position: fixed;
             inset: 0;
@@ -62,7 +62,6 @@
             font-weight: 900;
             color: var(--warning);
         }
-
         .jlogo b { color: #fff; }
 
         .jsub {
@@ -138,7 +137,7 @@
             border: 1px solid var(--warning);
         }
 
-        /* ========== باقي الأنماط للسبورة (مطابقة للمدرس تقريباً) ========== */
+        /* ===== التطبيق الرئيسي (السبورة) ===== */
         #app {
             display: none;
             position: fixed;
@@ -162,7 +161,6 @@
             font-weight: 900;
             color: var(--warning);
         }
-
         .logo b { color: #fff; }
 
         .topright {
@@ -244,15 +242,14 @@
             flex: 1;
             background: #fff;
             position: relative;
-            overflow: hidden;
+            overflow: auto;  /* مهم جداً: التمرير يظهر كل أجزاء السبورة */
         }
 
         .carea canvas {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
             display: block;
+            width: 2000px;    /* حجم ثابت كبير */
+            height: 1500px;
+            background: white;
             touch-action: none;
         }
 
@@ -266,7 +263,6 @@
             gap: 3px;
             color: #fff;
         }
-
         .livebadge.on { display: flex; }
 
         .micbar {
@@ -307,7 +303,6 @@
             align-items: center;
             gap: 5px;
         }
-
         .volwrap i { color: var(--light); }
 
         input.vol {
@@ -317,7 +312,6 @@
             border-radius: 2px;
             -webkit-appearance: none;
         }
-
         input.vol::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 13px;
@@ -351,7 +345,6 @@
             align-items: center;
             justify-content: center;
         }
-
         .tb.on { background: var(--primary); }
 
         .clrs {
@@ -367,7 +360,6 @@
             cursor: pointer;
             border: 2px solid transparent;
         }
-
         .cl.on { border-color: #fff; transform: scale(1.15); }
 
         .szs {
@@ -387,9 +379,7 @@
             border-radius: 5px;
             color: #fff;
         }
-
         .sz.on { background: var(--primary); }
-
         .sdot { background: #fff; border-radius: 50%; }
 
         .sbar {
@@ -472,7 +462,9 @@
                         <i class="fas fa-circle" style="font-size:7px"></i> مباشر
                     </div>
                 </div>
-                <div class="carea" id="tcArea"><canvas id="tc"></canvas></div>
+                <div class="carea" id="tcArea">
+                    <canvas id="tc" width="2000" height="1500"></canvas>
+                </div>
             </div>
             <!-- سبورتي -->
             <div class="bcard sboard">
@@ -481,7 +473,9 @@
                         <i class="fas fa-pencil-alt" style="color:var(--primary)"></i> سبورتي
                     </div>
                 </div>
-                <div class="carea" id="scArea"><canvas id="sc"></canvas></div>
+                <div class="carea" id="scArea">
+                    <canvas id="sc" width="2000" height="1500"></canvas>
+                </div>
             </div>
         </div>
 
@@ -559,9 +553,8 @@
         let studentName = '';
         let studentPhone = '';
         let approved = false;
-        let attemptCount = 0;              // عدد محاولات الرقم السري
+        let attemptCount = 0;          // عدد محاولات الرقم السري
         let handUp = false;
-        let micGranted = false;
         let speaking = false;
         let mStream = null;
         let mRec = null;
@@ -571,7 +564,6 @@
         const studentCanvas = document.getElementById('sc');
         const tCtx = teacherCanvas.getContext('2d');
         const sCtx = studentCanvas.getContext('2d');
-        const DPR = window.devicePixelRatio || 1;
 
         let penTool = 'pen';
         let penClr = '#111';
@@ -579,132 +571,48 @@
         let drawing = false;
         let lastX = 0, lastY = 0;
 
-        // ================== التحقق من الدخول (3 محاولات فقط) ==================
-        window.validateLogin = () => {
-            const name = document.getElementById('studentName').value.trim();
-            const phone = document.getElementById('studentPhone').value.trim();
-            const secret = document.getElementById('studentSecret').value.trim();
-            const errorDiv = document.getElementById('loginError');
-            const joinBtn = document.getElementById('joinBtn');
-            const waitMsg = document.getElementById('waitMsg');
-
-            if (!name || !phone || !secret) {
-                errorDiv.innerText = 'جميع الحقول مطلوبة';
-                return;
-            }
-
-            // التحقق من أن الرقم السري هو معكوس رقم التليفون
-            const reversedPhone = phone.split('').reverse().join('');
-            if (secret !== reversedPhone) {
-                attemptCount++;
-                const remaining = 3 - attemptCount;
-                if (remaining > 0) {
-                    errorDiv.innerText = `الرقم السري غير صحيح. لديك ${remaining} محاولات متبقية.`;
-                } else {
-                    errorDiv.innerText = 'لقد استنفدت المحاولات. سيتم إعادة تحميل الصفحة.';
-                    setTimeout(() => location.reload(), 2000);
-                }
-                return;
-            }
-
-            // نجاح الدخول
-            studentName = name;
-            studentPhone = phone;
-            studentId = 's' + Date.now() + '_' + Math.random().toString(36).substr(2,4);
-
-            // تعطيل الزر وإظهار رسالة الانتظار داخل نفس البطاقة
-            joinBtn.disabled = true;
-            waitMsg.style.display = 'block';
-            errorDiv.innerText = '';
-
-            // تخزين بيانات الطالب
-            db.ref('studentData/' + studentId).set({
-                name: studentName,
-                phone: studentPhone,
-                timestamp: Date.now()
-            });
-
-            // إرسال طلب الانضمام
-            db.ref('joinRequests/' + studentId).set({
-                studentId: studentId,
-                studentName: studentName,
-                studentPhone: studentPhone,
-                timestamp: Date.now()
-            });
-
-            // بدء مراقبة القبول
-            watchAcceptance();
-        };
-
-        // ================== مراقبة القبول ==================
-        function watchAcceptance() {
-            if (!studentId) return;
-            db.ref('approvedStudents/' + studentId).on('value', (snap) => {
-                if (snap.val() && !approved) {
-                    approved = true;
-                    onApproved();
-                }
-            });
-        }
-
-        // ================== بعد القبول ==================
-        function onApproved() {
-            document.getElementById('overlay').style.display = 'none';
-            document.getElementById('app').style.display = 'flex';
-            document.getElementById('nameChip').textContent = studentName;
-
-            // الاستماع لإنهاء الحصة أو الطرد
-            db.ref('kicked/' + studentId).on('value', snap => {
-                if (snap.exists()) showEndMsg('kicked');
-            });
-            db.ref('sessionEnded').on('value', snap => {
-                if (snap.exists()) showEndMsg('ended');
-            });
-
-            // تسجيل الحضور
-            db.ref('onlineStudents/' + studentId).set({ online: true, name: studentName });
-            db.ref('onlineStudents/' + studentId).onDisconnect().remove();
-            db.ref('approvedStudents/' + studentId).onDisconnect().remove();
-
-            // تجهيز الكانفاسات
-            fitCanvases();
-            startListeners();
-        }
-
-        // ================== تجهيز الكانفاسات ==================
-        function fitCanvases() {
-            [teacherCanvas, studentCanvas].forEach(canvas => {
-                const parent = canvas.parentElement;
-                const w = parent.clientWidth;
-                const h = parent.clientHeight;
-                if (!w || !h) return;
-                canvas.width = w * DPR;
-                canvas.height = h * DPR;
-                canvas.style.width = w + 'px';
-                canvas.style.height = h + 'px';
-                const ctx = canvas.getContext('2d');
+        // تهيئة الكانفاس
+        function initCanvases() {
+            teacherCanvas.width = 2000;
+            teacherCanvas.height = 1500;
+            studentCanvas.width = 2000;
+            studentCanvas.height = 1500;
+            [tCtx, sCtx].forEach(ctx => {
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.lineWidth = penSz;
+                ctx.strokeStyle = penClr;
                 ctx.fillStyle = '#fff';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, 2000, 1500);
             });
         }
-        window.addEventListener('resize', fitCanvases);
+        initCanvases();
 
-        // ================== الرسم على سبورتي ==================
-        function getXY(e, canvas) {
+        // ================== الحصول على موقع الرسم (بالنسبة للـ canvas) ==================
+        function getPos(e, canvas) {
             const rect = canvas.getBoundingClientRect();
-            const cx = e.touches ? e.touches[0].clientX : e.clientX;
-            const cy = e.touches ? e.touches[0].clientY : e.clientY;
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
             return {
-                x: ((cx - rect.left) / rect.width) * canvas.width,
-                y: ((cy - rect.top) / rect.height) * canvas.height
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
             };
         }
 
+        // ================== الرسم على سبورتي ==================
         function startDraw(e) {
             e.preventDefault();
             if (!approved) return;
             drawing = true;
-            const p = getXY(e, studentCanvas);
+            const p = getPos(e, studentCanvas);
             lastX = p.x; lastY = p.y;
             sCtx.beginPath();
             sCtx.moveTo(p.x, p.y);
@@ -713,14 +621,15 @@
         function draw(e) {
             e.preventDefault();
             if (!drawing || !approved) return;
-            const p = getXY(e, studentCanvas);
+            const p = getPos(e, studentCanvas);
             if (penTool === 'eraser') {
                 sCtx.globalCompositeOperation = 'destination-out';
-                sCtx.lineWidth = penSz * 4;
+                sCtx.lineWidth = 30; // حجم ثابت للممحاة
+                sCtx.strokeStyle = 'rgba(0,0,0,1)';
             } else {
                 sCtx.globalCompositeOperation = 'source-over';
                 sCtx.strokeStyle = penClr;
-                sCtx.lineWidth = penSz * DPR;
+                sCtx.lineWidth = penSz;
             }
             sCtx.lineTo(p.x, p.y);
             sCtx.stroke();
@@ -729,12 +638,10 @@
 
             // إرسال الرسم للمدرس
             db.ref('stroke/S').push({
-                x: p.x / studentCanvas.width,
-                y: p.y / studentCanvas.height,
-                lastX: lastX / studentCanvas.width,
-                lastY: lastY / studentCanvas.height,
+                x: p.x, y: p.y,
+                lastX: lastX, lastY: lastY,
                 c: penClr,
-                w: penSz / 1000,
+                w: penSz,
                 t: penTool === 'eraser' ? 'e' : 'p',
                 sid: studentId,
                 ts: Date.now()
@@ -782,46 +689,113 @@
         };
 
         // ================== استقبال الرسم من المدرس ==================
-        function startListeners() {
-            db.ref('stroke/T').on('child_added', (snap) => {
-                const d = snap.val();
-                if (!d) return;
-                const x = d.x * teacherCanvas.width;
-                const y = d.y * teacherCanvas.height;
-                const lastX = d.lastX * teacherCanvas.width;
-                const lastY = d.lastY * teacherCanvas.height;
-                if (d.t === 'e') {
-                    tCtx.globalCompositeOperation = 'destination-out';
-                    tCtx.lineWidth = d.w * 1000 * DPR * 4;
+        db.ref('stroke/T').on('child_added', (snap) => {
+            const d = snap.val();
+            if (!d) return;
+            if (d.t === 'e') {
+                tCtx.globalCompositeOperation = 'destination-out';
+                tCtx.lineWidth = 30;
+                tCtx.strokeStyle = 'rgba(0,0,0,1)';
+            } else {
+                tCtx.globalCompositeOperation = 'source-over';
+                tCtx.strokeStyle = d.c;
+                tCtx.lineWidth = d.w;
+            }
+            tCtx.beginPath();
+            tCtx.moveTo(d.lastX, d.lastY);
+            tCtx.lineTo(d.x, d.y);
+            tCtx.stroke();
+            tCtx.globalCompositeOperation = 'source-over';
+            snap.ref.remove();
+        });
+
+        db.ref('boardCmd').on('child_added', (snap) => {
+            const d = snap.val();
+            if (d && d.type === 'clear') {
+                tCtx.fillStyle = '#fff';
+                tCtx.fillRect(0, 0, teacherCanvas.width, teacherCanvas.height);
+            }
+            snap.ref.remove();
+        });
+
+        // ================== التحقق من الدخول (3 محاولات) ==================
+        window.validateLogin = () => {
+            const name = document.getElementById('studentName').value.trim();
+            const phone = document.getElementById('studentPhone').value.trim();
+            const secret = document.getElementById('studentSecret').value.trim();
+            const errorDiv = document.getElementById('loginError');
+            const joinBtn = document.getElementById('joinBtn');
+            const waitMsg = document.getElementById('waitMsg');
+
+            if (!name || !phone || !secret) {
+                errorDiv.innerText = 'جميع الحقول مطلوبة';
+                return;
+            }
+
+            const reversedPhone = phone.split('').reverse().join('');
+            if (secret !== reversedPhone) {
+                attemptCount++;
+                const remaining = 3 - attemptCount;
+                if (remaining > 0) {
+                    errorDiv.innerText = `الرقم السري غير صحيح. لديك ${remaining} محاولات متبقية.`;
                 } else {
-                    tCtx.globalCompositeOperation = 'source-over';
-                    tCtx.strokeStyle = d.c;
-                    tCtx.lineWidth = d.w * 1000 * DPR;
+                    errorDiv.innerText = 'لقد استنفدت المحاولات. سيتم إعادة تحميل الصفحة.';
+                    setTimeout(() => location.reload(), 2000);
                 }
-                tCtx.beginPath();
-                tCtx.moveTo(lastX, lastY);
-                tCtx.lineTo(x, y);
-                tCtx.stroke();
-                snap.ref.remove();
+                return;
+            }
+
+            // نجاح الدخول
+            studentName = name;
+            studentPhone = phone;
+            studentId = 's' + Date.now() + '_' + Math.random().toString(36).substr(2,4);
+
+            joinBtn.disabled = true;
+            waitMsg.style.display = 'block';
+            errorDiv.innerText = '';
+
+            db.ref('studentData/' + studentId).set({
+                name: studentName,
+                phone: studentPhone,
+                timestamp: Date.now()
             });
 
-            db.ref('boardImg/main').on('value', (snap) => {
-                const d = snap.val();
-                if (d && d.data) {
-                    const img = new Image();
-                    img.onload = () => tCtx.drawImage(img, 0, 0, teacherCanvas.width, teacherCanvas.height);
-                    img.src = d.data;
-                }
+            db.ref('joinRequests/' + studentId).set({
+                studentId: studentId,
+                studentName: studentName,
+                studentPhone: studentPhone,
+                timestamp: Date.now()
             });
 
-            db.ref('boardCmd').on('child_added', (snap) => {
-                const d = snap.val();
-                if (d && d.type === 'clear') {
-                    tCtx.fillStyle = '#fff';
-                    tCtx.fillRect(0, 0, teacherCanvas.width, teacherCanvas.height);
+            watchAcceptance();
+        };
+
+        // ================== مراقبة القبول ==================
+        function watchAcceptance() {
+            if (!studentId) return;
+            db.ref('approvedStudents/' + studentId).on('value', (snap) => {
+                if (snap.val() && !approved) {
+                    approved = true;
+                    onApproved();
                 }
-                snap.ref.remove();
             });
+        }
+
+        function onApproved() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('app').style.display = 'flex';
+            document.getElementById('nameChip').textContent = studentName;
+
+            db.ref('kicked/' + studentId).on('value', snap => {
+                if (snap.exists()) showEndMsg('kicked');
+            });
+            db.ref('sessionEnded').on('value', snap => {
+                if (snap.exists()) showEndMsg('ended');
+            });
+
+            db.ref('onlineStudents/' + studentId).set({ online: true, name: studentName });
+            db.ref('onlineStudents/' + studentId).onDisconnect().remove();
+            db.ref('approvedStudents/' + studentId).onDisconnect().remove();
         }
 
         // ================== رفع اليد ==================
@@ -862,7 +836,6 @@
             document.getElementById('micLbl').textContent = label;
         }
 
-        // الاستماع لمنح الميكروفون
         db.ref('micPermissions/' + studentId).on('value', async (snap) => {
             if (snap.val() && snap.val().allowed && !speaking) {
                 try {
