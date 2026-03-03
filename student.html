@@ -35,7 +35,6 @@
             gap: 5px;
         }
 
-        /* سبورة المدرس فقط */
         .board-container {
             flex: 1;
             display: flex;
@@ -61,11 +60,10 @@
             height: 1500px;
             display: block;
             background: white;
-            pointer-events: none; /* الطالب لا يستطيع الرسم */
+            pointer-events: none; /* الطالب لا يرسم */
         }
 
-        /* منطقة الامتحان والرفع */
-        .exam-area {
+        .panel {
             background: #2c3e50;
             padding: 15px;
             border-top: 2px solid #3498db;
@@ -78,10 +76,6 @@
             border-radius: 10px;
             margin-bottom: 10px;
         }
-        .exam-question {
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
         .exam-option {
             display: block;
             margin: 8px 0;
@@ -92,9 +86,6 @@
         }
         .exam-option.selected {
             background: #27ae60;
-        }
-        .file-upload {
-            margin-top: 10px;
         }
         .file-upload label {
             background: #f39c12;
@@ -114,25 +105,30 @@
             width: 100%;
             font-size: 16px;
         }
-        .audio-status {
-            display: flex;
+        .audio-indicator {
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
         }
-        .audio-wave {
-            display: flex;
-            gap: 2px;
-            align-items: center;
+        .waiting-screen {
+            text-align: center;
+            padding: 30px;
         }
-        .audio-wave span {
-            width: 4px;
-            background: #e67e22;
-            border-radius: 2px;
-            animation: wave 1s infinite;
+        #requestBtn {
+            background: #3498db;
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 18px;
+            margin-top: 20px;
+            cursor: pointer;
         }
-        @keyframes wave {
-            0%,100% { height: 8px; }
-            50% { height: 18px; }
+        .file-item {
+            background: #34495e;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 3px 0;
         }
     </style>
 </head>
@@ -145,27 +141,41 @@
         </div>
     </div>
 
-    <!-- سبورة المدرس فقط -->
-    <div class="board-container">
-        <div class="board-header">
-            <span><i class="fas fa-chalkboard-teacher"></i> سبورة المدرس</span>
-            <span id="audioIndicator" style="display:none;"><i class="fas fa-volume-up"></i> صوت مباشر</span>
-        </div>
-        <div class="canvas-wrapper" id="teacherWrapper">
-            <canvas id="teacherCanvas"></canvas>
+    <!-- شاشة انتظار القبول (تظهر قبل الموافقة) -->
+    <div id="waitingScreen" style="flex:1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div style="background: #2c3e50; padding: 30px; border-radius: 20px; text-align: center;">
+            <i class="fas fa-hourglass-half" style="font-size: 50px; color: #f39c12; margin-bottom: 20px;"></i>
+            <h2>انتظار موافقة المدرس</h2>
+            <p>سيتم تفعيل السبورة والصوت بعد القبول</p>
+            <button id="requestBtn" onclick="sendJoinRequest()"><i class="fas fa-paper-plane"></i> إرسال طلب انضمام</button>
         </div>
     </div>
 
-    <!-- منطقة الامتحان والرفع -->
-    <div class="exam-area" id="examArea">
-        <div id="examDisplay"></div>
-        <div id="fileUploadArea" style="display:none;">
-            <div class="file-upload">
-                <label for="fileInput"><i class="fas fa-upload"></i> رفع ملف الإجابة</label>
-                <input type="file" id="fileInput" style="display:none;">
+    <!-- المحتوى الرئيسي (يظهر بعد القبول) -->
+    <div id="mainContent" style="display: none; flex:1; flex-direction: column;">
+        <!-- سبورة المدرس -->
+        <div class="board-container">
+            <div class="board-header">
+                <span><i class="fas fa-chalkboard-teacher"></i> سبورة المدرس</span>
+                <span id="audioIndicator" style="display:none;"><i class="fas fa-volume-up"></i> صوت مباشر</span>
+            </div>
+            <div class="canvas-wrapper" id="teacherWrapper">
+                <canvas id="teacherCanvas"></canvas>
             </div>
         </div>
-        <button id="submitBtn" style="display:none;" onclick="submitAnswer()">إرسال الإجابة</button>
+
+        <!-- لوحة الامتحانات والملفات -->
+        <div class="panel">
+            <div id="examDisplay"></div>
+            <div id="teacherFilesDisplay"></div>
+            <div id="fileUploadArea" style="display:none;">
+                <div class="file-upload">
+                    <label for="fileInput"><i class="fas fa-upload"></i> رفع ملف الإجابة</label>
+                    <input type="file" id="fileInput" style="display:none;">
+                </div>
+            </div>
+            <button id="submitBtn" style="display:none;" onclick="submitAnswer()">إرسال الإجابة</button>
+        </div>
     </div>
 
     <!-- Firebase & PeerJS -->
@@ -175,7 +185,7 @@
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
     <script>
-        // ================== Firebase Config ==================
+        // -------------------- Firebase --------------------
         const firebaseConfig = {
             apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
             authDomain: "myclaive.firebaseapp.com",
@@ -189,103 +199,135 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        // ================== عناصر ==================
-        const teacherCanvas = document.getElementById('teacherCanvas');
-        const teacherCtx = teacherCanvas.getContext('2d');
-        const wrapper = document.getElementById('teacherWrapper');
+        const studentId = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
+        let accepted = false;
 
-        teacherCanvas.width = 2000; teacherCanvas.height = 1500;
-        teacherCtx.lineCap = 'round'; teacherCtx.lineJoin = 'round';
+        // -------------------- طلب الانضمام --------------------
+        window.sendJoinRequest = () => {
+            const btn = document.getElementById('requestBtn');
+            btn.disabled = true;
+            btn.innerHTML = 'جاري الإرسال...';
+            db.ref('joinRequests').push({
+                studentId: studentId,
+                timestamp: Date.now()
+            }).then(() => {
+                btn.innerHTML = 'تم الإرسال، انتظر...';
+            });
+        };
 
-        // ================== استقبال رسم المدرس ==================
-        db.ref('teacherDrawings').on('child_added', (snap) => {
-            const d = snap.val();
-            teacherCtx.strokeStyle = d.color === 'eraser' ? '#ffffff' : d.color;
-            teacherCtx.lineWidth = d.size;
-            teacherCtx.beginPath();
-            teacherCtx.moveTo(d.lastX, d.lastY);
-            teacherCtx.lineTo(d.x, d.y);
-            teacherCtx.stroke();
-        });
-
-        db.ref('teacherCommands').on('child_added', (snap) => {
-            if (snap.val().type === 'clear') {
-                teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
+        // مراقبة القبول
+        db.ref('acceptedStudents/' + studentId).on('value', (snap) => {
+            if (snap.val() === true && !accepted) {
+                accepted = true;
+                document.getElementById('waitingScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'flex';
+                startStudent(); // بدء تحميل الرسم والصوت
             }
         });
 
-        // ================== الصوت عبر PeerJS ==================
-        let peer, call;
-        const studentId = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
+        // -------------------- بدء جلسة الطالب بعد القبول --------------------
+        function startStudent() {
+            // استقبال رسم المدرس
+            const teacherCanvas = document.getElementById('teacherCanvas');
+            const teacherCtx = teacherCanvas.getContext('2d');
+            teacherCanvas.width = 2000; teacherCanvas.height = 1500;
+            teacherCtx.lineCap = 'round'; teacherCtx.lineJoin = 'round';
 
-        peer = new Peer(studentId);
+            db.ref('teacherDrawings').on('child_added', (snap) => {
+                const d = snap.val();
+                teacherCtx.strokeStyle = d.color === 'eraser' ? '#ffffff' : d.color;
+                teacherCtx.lineWidth = d.size;
+                teacherCtx.beginPath();
+                teacherCtx.moveTo(d.lastX, d.lastY);
+                teacherCtx.lineTo(d.x, d.y);
+                teacherCtx.stroke();
+            });
 
-        peer.on('open', (id) => {
-            console.log('معرف الطالب:', id);
-            db.ref('onlineStudents/' + id).set({ online: true, timestamp: Date.now() });
-        });
-
-        // الاستماع لبث المدرس
-        db.ref('teacherAudioId').on('value', (snap) => {
-            const teacherId = snap.val();
-            db.ref('teacherAudioActive').on('value', async (activeSnap) => {
-                if (activeSnap.val() && teacherId) {
-                    // طلب الاتصال بالمدرس
-                    try {
-                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        call = peer.call(teacherId, stream);
-                        document.getElementById('audioIndicator').style.display = 'inline';
-                    } catch (e) {
-                        console.log('لا يمكن إنشاء اتصال صوتي');
-                    }
-                } else {
-                    if (call) call.close();
-                    document.getElementById('audioIndicator').style.display = 'none';
+            db.ref('teacherCommands').on('child_added', (snap) => {
+                if (snap.val().type === 'clear') {
+                    teacherCtx.clearRect(0, 0, teacherCanvas.width, teacherCanvas.height);
                 }
             });
-        });
 
-        // ================== استقبال الامتحان ==================
-        db.ref('currentExam').on('value', (snap) => {
-            const exam = snap.val();
-            const display = document.getElementById('examDisplay');
-            const fileArea = document.getElementById('fileUploadArea');
-            const submitBtn = document.getElementById('submitBtn');
-            if (!exam) {
-                display.innerHTML = '<p>لا يوجد امتحان حالياً</p>';
-                fileArea.style.display = 'none';
-                submitBtn.style.display = 'none';
-                return;
-            }
+            // -------------------- الصوت (PeerJS) --------------------
+            let peer, call;
+            peer = new Peer(studentId);
 
-            if (exam.type === 'text') {
-                let optionsHtml = '';
-                exam.options.forEach((opt, i) => {
-                    optionsHtml += `<label class="exam-option" onclick="selectOption(this, '${opt}')">${opt}</label>`;
+            peer.on('open', (id) => {
+                console.log('Student peer ID:', id);
+            });
+
+            // الاستماع لبث المدرس
+            db.ref('teacherAudioId').on('value', (snap) => {
+                const teacherId = snap.val();
+                db.ref('teacherAudioActive').on('value', async (activeSnap) => {
+                    if (activeSnap.val() && teacherId) {
+                        try {
+                            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                            call = peer.call(teacherId, stream);
+                            document.getElementById('audioIndicator').style.display = 'inline';
+                        } catch (e) {
+                            console.log('لا يمكن إنشاء اتصال صوتي');
+                        }
+                    } else {
+                        if (call) call.close();
+                        document.getElementById('audioIndicator').style.display = 'none';
+                    }
                 });
-                display.innerHTML = `
-                    <div class="exam-card">
-                        <div class="exam-question">${exam.question}</div>
-                        ${optionsHtml}
-                    </div>
-                `;
-                fileArea.style.display = 'none';
-                submitBtn.style.display = 'block';
-                submitBtn.innerText = 'إرسال الإجابة';
-            } else if (exam.type === 'image') {
-                display.innerHTML = `
-                    <div class="exam-card">
-                        <img src="${exam.imageUrl}" style="max-width:100%; max-height:200px; border-radius:8px;">
-                    </div>
-                `;
-                fileArea.style.display = 'block';
-                submitBtn.style.display = 'block';
-                submitBtn.innerText = 'رفع الإجابة';
-            }
-        });
+            });
 
+            // -------------------- استقبال الامتحانات --------------------
+            db.ref('currentExam').on('value', (snap) => {
+                const exam = snap.val();
+                const display = document.getElementById('examDisplay');
+                const fileArea = document.getElementById('fileUploadArea');
+                const submitBtn = document.getElementById('submitBtn');
+                if (!exam) {
+                    display.innerHTML = '';
+                    fileArea.style.display = 'none';
+                    submitBtn.style.display = 'none';
+                    return;
+                }
+
+                if (exam.type === 'text') {
+                    let optionsHtml = '';
+                    exam.options.forEach((opt) => {
+                        optionsHtml += `<label class="exam-option" onclick="selectOption(this, '${opt}')">${opt}</label>`;
+                    });
+                    display.innerHTML = `
+                        <div class="exam-card">
+                            <div class="exam-question">${exam.question}</div>
+                            ${optionsHtml}
+                        </div>
+                    `;
+                    fileArea.style.display = 'none';
+                    submitBtn.style.display = 'block';
+                    submitBtn.innerText = 'إرسال الإجابة';
+                } else if (exam.type === 'image') {
+                    display.innerHTML = `
+                        <div class="exam-card">
+                            <img src="${exam.imageUrl}" style="max-width:100%; max-height:200px; border-radius:8px;">
+                        </div>
+                    `;
+                    fileArea.style.display = 'block';
+                    submitBtn.style.display = 'block';
+                    submitBtn.innerText = 'رفع الإجابة';
+                }
+            });
+
+            // -------------------- استقبال ملفات المدرس --------------------
+            db.ref('teacherFiles').on('child_added', (snap) => {
+                const file = snap.val();
+                const filesDiv = document.getElementById('teacherFilesDisplay');
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.innerHTML = `<a href="${file.fileUrl}" target="_blank">📎 ${file.fileName}</a>`;
+                filesDiv.appendChild(div);
+            });
+        }
+
+        // -------------------- إرسال الإجابة --------------------
         let selectedAnswer = '';
-
         window.selectOption = (el, opt) => {
             document.querySelectorAll('.exam-option').forEach(o => o.classList.remove('selected'));
             el.classList.add('selected');
@@ -325,11 +367,11 @@
             });
         };
 
-        // عند إغلاق الصفحة
+        // -------------------- تنظيف عند الخروج --------------------
         window.addEventListener('beforeunload', () => {
-            db.ref('onlineStudents/' + studentId).remove();
-            if (call) call.close();
-            if (peer) peer.destroy();
+            db.ref('joinRequests').orderByChild('studentId').equalTo(studentId).once('value', (snap) => {
+                snap.forEach(child => child.ref.remove());
+            });
         });
     </script>
 </body>
