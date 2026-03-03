@@ -16,7 +16,6 @@
       display: flex;
       flex-direction: column;
     }
-    /* الشريط العلوي */
     .top-bar {
       height: 70px;
       background: linear-gradient(90deg, #0f2a1f 0%, #1e3a2a 100%);
@@ -55,7 +54,6 @@
     .top-center span { font-size: 13px; display: flex; align-items: center; gap: 5px; }
     .top-center i { color: #ffaa00; }
 
-    /* التخطيط الرئيسي */
     .main-layout {
       flex: 1;
       display: flex;
@@ -64,8 +62,8 @@
       gap: 8px;
     }
 
-    /* الشريط الجانبي الأيسر (أيقونات) */
-    .left-sidebar {
+    /* شريط الأيقونات (في أقصى اليسار) */
+    .icon-sidebar {
       width: 70px;
       background: #1e3228;
       border-radius: 24px;
@@ -75,6 +73,7 @@
       padding: 20px 0;
       gap: 20px;
       border: 1px solid #3a5a40;
+      order: 3; /* يظهر في أقصى اليسار في الترتيب RTL */
     }
     .nav-item {
       width: 50px;
@@ -92,9 +91,9 @@
     .nav-item i { font-size: 22px; }
     .nav-item.active { background: #ffaa00; color: #000; }
 
-    /* لوحة الطلاب (يمين) - مصغرة */
+    /* لوحة الطلاب (العمود الأيمن) */
     .students-panel {
-      width: 260px;
+      width: 280px;
       background: #1e3228;
       border-radius: 24px;
       padding: 12px;
@@ -103,6 +102,7 @@
       flex-direction: column;
       gap: 8px;
       border: 1px solid #3a5a40;
+      order: 1;
     }
     .panel-header {
       display: flex;
@@ -159,46 +159,13 @@
     .student-actions i { cursor: pointer; transition: 0.2s; }
     .student-actions i:hover { transform: scale(1.2); color: #fff; }
 
-    /* لوحة صور الطلاب */
-    .images-panel {
-      width: 260px;
-      background: #1e3228;
-      border-radius: 24px;
-      padding: 12px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      border: 1px solid #3a5a40;
-      margin-right: 8px;
-    }
-    .image-item {
-      background: #1a2e25;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid #2a4a30;
-      cursor: pointer;
-    }
-    .image-item img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      display: block;
-    }
-    .image-caption {
-      padding: 5px 8px;
-      font-size: 11px;
-      background: #0f2a1f;
-      display: flex;
-      justify-content: space-between;
-    }
-
     /* منطقة السبورة الرئيسية */
     .board-area {
       flex: 1;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      order: 2;
     }
     .board-header {
       height: 40px;
@@ -370,17 +337,7 @@
   </div>
 
   <div class="main-layout">
-    <!-- الشريط الجانبي الأيسر (أيقونات) -->
-    <div class="left-sidebar">
-      <div class="nav-item active"><i class="fas fa-home"></i><span>الرئيسية</span></div>
-      <div class="nav-item"><i class="fas fa-door-open"></i><span>فصول</span></div>
-      <div class="nav-item"><i class="fas fa-chart-bar"></i><span>الدرجات</span></div>
-      <div class="nav-item"><i class="fas fa-calendar-alt"></i><span>الجدول</span></div>
-      <div class="nav-item"><i class="fas fa-comment-dots"></i><span>الرسائل</span></div>
-      <div class="nav-item" style="margin-top:auto"><i class="fas fa-cog"></i><span>الإعدادات</span></div>
-    </div>
-
-    <!-- لوحة الطلاب (يمين) مصغرة -->
+    <!-- لوحة الطلاب (العمود الأيمن) -->
     <div class="students-panel">
       <div class="panel-header">
         <span><i class="fas fa-users"></i> المشاركون</span>
@@ -389,15 +346,7 @@
       <div id="studentsList"></div>
     </div>
 
-    <!-- لوحة صور الطلاب -->
-    <div class="images-panel">
-      <div class="panel-header">
-        <span><i class="fas fa-images"></i> صور الطلاب</span>
-      </div>
-      <div id="studentImagesList"></div>
-    </div>
-
-    <!-- منطقة السبورة الرئيسية -->
+    <!-- منطقة السبورة الرئيسية (العمود الأوسط) -->
     <div class="board-area">
       <div class="board-header">
         <div class="current-board-title" id="currentBoardTitle">السبورة الرئيسية</div>
@@ -410,6 +359,16 @@
       <div class="main-board">
         <canvas id="mainBoardCanvas"></canvas>
       </div>
+    </div>
+
+    <!-- شريط الأيقونات (في أقصى اليسار) -->
+    <div class="icon-sidebar">
+      <div class="nav-item active"><i class="fas fa-home"></i><span>الرئيسية</span></div>
+      <div class="nav-item"><i class="fas fa-door-open"></i><span>فصول</span></div>
+      <div class="nav-item"><i class="fas fa-chart-bar"></i><span>الدرجات</span></div>
+      <div class="nav-item"><i class="fas fa-calendar-alt"></i><span>الجدول</span></div>
+      <div class="nav-item"><i class="fas fa-comment-dots"></i><span>الرسائل</span></div>
+      <div class="nav-item" style="margin-top:auto"><i class="fas fa-cog"></i><span>الإعدادات</span></div>
     </div>
   </div>
 
@@ -445,7 +404,7 @@
       <div class="modal-header">
         <span id="modalStudentName">تصحيح واجب الطالب</span>
         <div>
-          <button class="action-circle" onclick="saveCorrectedImage()" style="background:#ffaa00;"><i class="fas fa-save"></i> حفظ التصحيح</button>
+          <button class="action-circle" onclick="saveCorrectedImage()" style="background:#ffaa00;"><i class="fas fa-save"></i> حفظ</button>
           <button class="action-circle btn-end" onclick="closeModal()"><i class="fas fa-times"></i></button>
         </div>
       </div>
@@ -471,7 +430,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script>
     // ------------------------------------------------------------
-    // تهيئة Firebase وتصفير أي بيانات قديمة عند بدء الجلسة
+    // تهيئة Firebase وتصفير البيانات القديمة
     // ------------------------------------------------------------
     firebase.initializeApp({
       apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
@@ -479,7 +438,6 @@
     });
     const db = firebase.database();
 
-    // تنظيف البيانات القديمة (أقدم من دقيقة) عند بدء التشغيل
     const oneMinuteAgo = Date.now() - 60000;
     const pathsToClean = ['joinRequests', 'micRequests', 'approvedStudents', 'onlineStudents', 'handRaised', 'micPermissions', 'studentImages'];
     pathsToClean.forEach(path => {
@@ -503,9 +461,8 @@
     let students = {};          // الطلاب المعتمدون
     let waitingStudents = {};    // طلبات الانضمام
     let currentSpeaker = null;
-    let currentBoard = 'main';   // السبورة الحالية: 'main' أو معرف طالب
-    let currentBoardStudentId = null;
-    let studentImages = {};      // صور الطلاب
+    let currentBoard = 'main';   // السبورة الحالية
+    let studentImages = {};      // صور الطلاب (object بمصفوفات لكل طالب)
 
     const mainCanvas = document.getElementById('mainBoardCanvas');
     const correctionCanvas = document.getElementById('correctionCanvas');
@@ -532,7 +489,7 @@
     setTimeout(resizeMainCanvas, 100);
 
     // ------------------------------------------------------------
-    // دوال الرسم على السبورة الرئيسية (المدرس)
+    // دوال الرسم على السبورة الرئيسية
     // ------------------------------------------------------------
     function getCanvasPoint(e, canvas) {
       const rect = canvas.getBoundingClientRect();
@@ -572,7 +529,6 @@
       if (!sendTimer) {
         sendTimer = setTimeout(() => {
           if (points.length) {
-            // إرسال الرسم لجميع الطلاب
             db.ref('draw_t').push({
               points: points,
               color: currentTool === 'eraser' ? null : currentColor,
@@ -656,40 +612,17 @@
     };
 
     // ------------------------------------------------------------
-    // التبديل بين السبورة الرئيسية وسبورة الطالب
+    // التبديل إلى السبورة الرئيسية
     // ------------------------------------------------------------
     window.switchToMainBoard = function() {
       currentBoard = 'main';
-      currentBoardStudentId = null;
       document.getElementById('currentBoardTitle').textContent = 'السبورة الرئيسية';
-    };
-
-    window.viewStudentBoard = function(studentId, studentName) {
-      currentBoard = studentId;
-      currentBoardStudentId = studentId;
-      document.getElementById('currentBoardTitle').textContent = `سبورة ${studentName}`;
-      // تحميل صورة سبورة الطالب إن وجدت
-      db.ref('boardImg/stu/' + studentId).once('value', snap => {
-        const data = snap.val();
-        if (data && data.data) {
-          const img = new Image();
-          img.onload = () => {
-            mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-            mainCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
-          };
-          img.src = data.data;
-        } else {
-          mainCtx.fillStyle = '#fff';
-          mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
-        }
-      });
     };
 
     // ------------------------------------------------------------
     // إدارة الطلاب
     // ------------------------------------------------------------
     function setupListeners() {
-      // طلبات الانضمام
       db.ref('joinRequests').on('child_added', snap => {
         const s = snap.val();
         waitingStudents[s.id] = s;
@@ -701,13 +634,11 @@
         updateStudentsList();
       });
 
-      // الطلاب المعتمدون
       db.ref('approvedStudents').on('value', snap => {
         students = snap.val() || {};
         updateStudentsList();
       });
 
-      // حالة التواجد
       db.ref('onlineStudents').on('value', snap => {
         const online = snap.val() || {};
         Object.keys(students).forEach(id => {
@@ -716,7 +647,6 @@
         updateStudentsList();
       });
 
-      // رفع اليد
       db.ref('handRaised').on('value', snap => {
         const hands = snap.val() || {};
         Object.keys(students).forEach(id => {
@@ -725,7 +655,6 @@
         updateStudentsList();
       });
 
-      // طلبات المايك
       db.ref('micRequests').on('child_added', snap => {
         const req = snap.val();
         if (req && students[req.studentId]) {
@@ -739,30 +668,19 @@
         }
       });
 
-      // استقبال صور الطلاب
+      // استقبال صور الطلاب (لإضافتها إلى قائمة الطلاب)
       db.ref('studentImages').on('child_added', snap => {
         const img = snap.val();
         if (img && img.studentId) {
           if (!studentImages[img.studentId]) studentImages[img.studentId] = [];
           studentImages[img.studentId].push(img);
-          updateImagesList();
+          updateStudentsList(); // نحدث القائمة لإظهار أيقونة الصورة
         }
       });
 
-      // استقبال رسم الطلاب لتحديث السبورة الحالية إذا كانت سبورة طالب
+      // استقبال رسم الطلاب (لتحديث السبورة إذا كانت مفتوحة)
       db.ref('draw_st').on('child_added', snap => {
-        const d = snap.val();
-        if (!d || !d.points || !d.studentId) return;
-        if (currentBoard === d.studentId) {
-          mainCtx.strokeStyle = d.color || '#000';
-          mainCtx.lineWidth = d.size || 4;
-          mainCtx.beginPath();
-          mainCtx.moveTo(d.points[0].x * mainCanvas.width, d.points[0].y * mainCanvas.height);
-          for (let i = 1; i < d.points.length; i++) {
-            mainCtx.lineTo(d.points[i].x * mainCanvas.width, d.points[i].y * mainCanvas.height);
-          }
-          mainCtx.stroke();
-        }
+        // يمكن إضافته إذا أردنا عرض رسم الطالب في الوقت الفعلي
       });
     }
 
@@ -790,16 +708,18 @@
       // الطلاب المعتمدون
       Object.values(students).forEach(s => {
         if (!s.online) return;
+        const hasImage = studentImages[s.id] && studentImages[s.id].length > 0;
         const statusIcon = s.handRaised ? '<i class="fas fa-hand-paper" style="color:#f59e0b;"></i>' : (currentSpeaker === s.id ? '<i class="fas fa-microphone" style="color:#22c55e;"></i>' : '<i class="fas fa-headphones" style="color:#aaa;"></i>');
         const statusText = s.handRaised ? ' رفع اليد' : (currentSpeaker === s.id ? ' يتحدث' : ' مستمع');
         html += `
-          <div class="student-item ${currentBoard === s.id ? 'active' : ''}" style="${currentBoard === s.id ? 'border-color:#ffaa00; background:#2a4030;' : ''}">
+          <div class="student-item">
             <div class="student-avatar" style="background:${s.handRaised ? '#f59e0b' : '#ffaa00'};">${s.name.charAt(0)}</div>
             <div class="student-info">
               <div class="student-name">${s.name}</div>
               <div class="student-status">${statusIcon} ${statusText}</div>
             </div>
             <div class="student-actions">
+              ${hasImage ? `<i class="fas fa-image" title="عرض الصورة" onclick="event.stopPropagation(); openCorrectionModal('${s.id}', '${s.name}')"></i>` : ''}
               <i class="fas fa-eye" title="عرض السبورة" onclick="event.stopPropagation(); viewStudentBoard('${s.id}', '${s.name}')"></i>
               <i class="fas fa-door-closed" title="طرد" onclick="event.stopPropagation(); kickStudent('${s.id}')"></i>
             </div>
@@ -833,55 +753,48 @@
       delete students[id];
       db.ref('approvedStudents/' + id).remove();
       db.ref('onlineStudents/' + id).remove();
-      if (currentBoard === id) switchToMainBoard();
+    };
+    window.viewStudentBoard = function(studentId, studentName) {
+      currentBoard = studentId;
+      document.getElementById('currentBoardTitle').textContent = `سبورة ${studentName}`;
+      db.ref('boardImg/stu/' + studentId).once('value', snap => {
+        const data = snap.val();
+        if (data && data.data) {
+          const img = new Image();
+          img.onload = () => {
+            mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            mainCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
+          };
+          img.src = data.data;
+        } else {
+          mainCtx.fillStyle = '#fff';
+          mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+        }
+      });
     };
 
     // ------------------------------------------------------------
-    // عرض صور الطلاب
+    // نافذة التصحيح
     // ------------------------------------------------------------
-    function updateImagesList() {
-      const container = document.getElementById('studentImagesList');
-      let html = '';
-      Object.entries(studentImages).forEach(([studentId, images]) => {
-        const studentName = students[studentId]?.name || 'طالب';
-        images.slice().reverse().forEach(img => {
-          html += `
-            <div class="image-item" onclick="openCorrectionModal('${studentId}', '${studentName}', '${img.data}')">
-              <img src="${img.data}" alt="student work">
-              <div class="image-caption">
-                <span>${studentName}</span>
-                <span>${new Date(img.ts).toLocaleTimeString()}</span>
-              </div>
-            </div>
-          `;
-        });
-      });
-      container.innerHTML = html || '<div style="color:#aaa; text-align:center; padding:20px;">لا توجد صور</div>';
-    }
-
-    // ------------------------------------------------------------
-    // نافذة التصحيح (الرسم على صورة الطالب)
-    // ------------------------------------------------------------
-    window.openCorrectionModal = function(studentId, studentName, imageData) {
+    window.openCorrectionModal = function(studentId, studentName) {
+      if (!studentImages[studentId] || studentImages[studentId].length === 0) return;
+      // نأخذ أحدث صورة
+      const latestImage = studentImages[studentId][studentImages[studentId].length - 1];
       currentImageStudentId = studentId;
       document.getElementById('modalStudentName').textContent = `تصحيح واجب ${studentName}`;
       document.getElementById('correctionModal').classList.add('active');
 
-      // ضبط حجم كانفاس التصحيح
       const container = correctionCanvas.parentElement;
       correctionCanvas.width = container.clientWidth;
       correctionCanvas.height = container.clientHeight;
       correctionCtx.fillStyle = '#fff';
       correctionCtx.fillRect(0, 0, correctionCanvas.width, correctionCanvas.height);
 
-      // رسم الصورة على الكانفاس
       const img = new Image();
       img.onload = () => {
         correctionCtx.drawImage(img, 0, 0, correctionCanvas.width, correctionCanvas.height);
       };
-      img.src = imageData;
-
-      // إعداد أدوات التصحيح (يمكن إضافة أحداث الرسم لاحقاً)
+      img.src = latestImage.data;
     };
 
     window.closeModal = function() {
@@ -896,7 +809,6 @@
       closeModal();
     };
 
-    // أدوات التصحيح (يمكن توسيعها لاحقاً)
     window.setCorrectionTool = function(tool) { correctionTool = tool; };
     window.setCorrectionColor = function(color) { correctionColor = color; };
 
@@ -924,16 +836,11 @@
         currentSpeaker = null;
         switchToMainBoard();
         updateStudentsList();
-        updateImagesList();
       }
     };
 
-    // ------------------------------------------------------------
-    // بدء الاستماع
-    // ------------------------------------------------------------
     setupListeners();
 
-    // محاكاة زمن الاستجابة
     setInterval(() => {
       document.getElementById('latency').textContent = Math.floor(Math.random() * 30 + 10) + 'ms';
     }, 3000);
