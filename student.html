@@ -4,143 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>الطالب - MyClass2</title>
-    <!-- Font Awesome - 3 روابط -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.4.0/css/all.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             height: 100vh;
-            background: #1e1e2f;
+            background: #1a1a2e;
             color: white;
         }
         header {
-            background: #2d2d44;
-            padding: 12px 20px;
+            background: #16213e;
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 3px solid #4caf50;
+            border-bottom: 3px solid #0f3460;
         }
-        .logo i { color: #4caf50; margin-left: 8px; }
+        .logo i { color: #e94560; margin-left: 8px; }
         canvas {
             flex: 1;
             background: white;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* الطالب لا يستطيع الرسم */
+            pointer-events: none;
         }
         .login-container {
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100%;
-            background: #1e1e2f;
+            background: #1a1a2e;
         }
         .login-box {
-            background: #8B0000;
+            background: #16213e;
             padding: 30px;
             border-radius: 20px;
             width: 300px;
             text-align: center;
-            border: 2px solid #ff9800;
+            border: 2px solid #e94560;
         }
-        .login-box h3 { margin-bottom: 20px; color: #fff; }
         .login-box input {
             width: 100%;
             padding: 10px;
             margin: 8px 0;
             border: none;
             border-radius: 8px;
-            background: #b22222;
+            background: #0f3460;
             color: white;
             text-align: center;
-            font-size: 16px;
         }
         .login-box button {
-            background: #ff9800;
+            background: #e94560;
             border: none;
             padding: 12px;
             width: 100%;
             border-radius: 10px;
+            color: white;
             font-size: 16px;
-            font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
         }
-        .login-box button:hover { background: #ffb347; }
         .wait-msg {
             margin-top: 15px;
             padding: 10px;
-            background: rgba(0,0,0,0.3);
+            background: #0f3460;
             border-radius: 8px;
             color: #ff0;
             display: none;
         }
-        .error-msg {
-            color: #ffaaaa;
-            margin-top: 10px;
-        }
+        .error-msg { color: #ffaaaa; margin-top: 10px; }
         #mainContent {
             display: none;
             flex-direction: column;
             height: 100%;
         }
         .toolbar {
-            background: #2d2d44;
+            background: #16213e;
             padding: 10px;
             display: flex;
             gap: 10px;
-            border-top: 2px solid #4caf50;
+            border-top: 2px solid #0f3460;
             justify-content: center;
         }
         .tool-btn {
-            background: #3e3e5e;
+            background: #0f3460;
             border: none;
             color: white;
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 8px;
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
         }
-        .tool-btn i { font-size: 18px; }
-        .tool-btn:hover { background: #4caf50; }
+        .tool-btn:hover { background: #e94560; }
         .status-bar {
-            background: #2d2d44;
+            background: #16213e;
             padding: 5px 15px;
             font-size: 14px;
             display: flex;
             justify-content: space-between;
-            border-top: 1px solid #444;
+            border-top: 1px solid #0f3460;
         }
         .audio-indicator {
-            color: #f44336;
+            color: #e94560;
             display: none;
             align-items: center;
             gap: 5px;
         }
         .audio-indicator.active { display: flex; }
+        /* رسالة جانبية (Toast) */
+        .toast-message {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #0f3460;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border-left: 4px solid #e94560;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 9999;
+        }
+        .toast-message.show { display: flex; }
     </style>
 </head>
 <body>
-    <!-- شاشة الدخول -->
+    <div class="toast-message" id="permissionToast">
+        <i class="fas fa-microphone"></i>
+        <span>المدرس منحك الإذن للتحدث</span>
+    </div>
+
     <div id="loginScreen" class="login-container">
         <div class="login-box">
             <h3><i class="fas fa-user-graduate"></i> تسجيل الدخول</h3>
-            <input type="text" id="studentName" placeholder="الاسم" autocomplete="off">
-            <input type="tel" id="studentPhone" placeholder="رقم التليفون" autocomplete="off">
-            <input type="text" id="studentSecret" placeholder="الرقم السري" autocomplete="off">
+            <input type="text" id="studentName" placeholder="الاسم">
+            <input type="tel" id="studentPhone" placeholder="رقم التليفون">
+            <input type="text" id="studentSecret" placeholder="الرقم السري">
             <button onclick="validateLogin()"><i class="fas fa-sign-in-alt"></i> دخول</button>
             <div class="error-msg" id="loginError"></div>
             <div class="wait-msg" id="waitMsg">
@@ -149,10 +159,9 @@
         </div>
     </div>
 
-    <!-- المحتوى الرئيسي بعد القبول -->
     <div id="mainContent">
         <header>
-            <div class="logo"><i class="fas fa-user-graduate"></i> MyClass2 - طالب</div>
+            <div class="logo"><i class="fas fa-user-graduate"></i> طالب</div>
             <span id="nameChip"></span>
         </header>
 
@@ -161,6 +170,7 @@
         <div class="toolbar">
             <button class="tool-btn" id="handBtn" onclick="toggleHand()" title="رفع اليد"><i class="fas fa-hand-paper"></i></button>
             <button class="tool-btn" id="micBtn" onclick="requestMic()" title="طلب ميكروفون"><i class="fas fa-microphone"></i></button>
+            <button class="tool-btn" id="uploadBtn" onclick="uploadImage()" title="رفع صورة"><i class="fas fa-upload"></i></button>
         </div>
 
         <div class="status-bar">
@@ -187,49 +197,33 @@
         });
         const db = firebase.database();
 
-        let studentId = null;
-        let studentName = '';
-        let approved = false;
-        let attemptCount = 0;
+        let studentId = null, studentName = '', approved = false, attemptCount = 0;
 
-        // ===== التحقق من الدخول =====
         window.validateLogin = () => {
             const name = document.getElementById('studentName').value.trim();
             const phone = document.getElementById('studentPhone').value.trim();
             const secret = document.getElementById('studentSecret').value.trim();
-            const errorDiv = document.getElementById('loginError');
-            const waitMsg = document.getElementById('waitMsg');
-            const loginBtn = event.target;
-
             if (!name || !phone || !secret) {
-                errorDiv.innerText = 'جميع الحقول مطلوبة';
+                document.getElementById('loginError').innerText = 'جميع الحقول مطلوبة';
                 return;
             }
-
-            const reversed = phone.split('').reverse().join('');
-            if (secret !== reversed) {
+            if (secret !== phone.split('').reverse().join('')) {
                 attemptCount++;
                 if (attemptCount < 3) {
-                    errorDiv.innerText = `الرقم السري خطأ. المحاولات المتبقية: ${3-attemptCount}`;
+                    document.getElementById('loginError').innerText = `خطأ. المحاولات المتبقية: ${3-attemptCount}`;
                 } else {
-                    errorDiv.innerText = 'لقد استنفدت المحاولات. أعد تحميل الصفحة.';
+                    document.getElementById('loginError').innerText = 'انتهت المحاولات. أعد تحميل الصفحة.';
                     setTimeout(() => location.reload(), 2000);
                 }
                 return;
             }
-
             studentName = name;
             studentId = 's' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
-
-            loginBtn.disabled = true;
-            waitMsg.style.display = 'block';
-            errorDiv.innerText = '';
-
-            db.ref('studentData/' + studentId).set({ name, phone });
+            document.querySelector('button').disabled = true;
+            document.getElementById('waitMsg').style.display = 'block';
             db.ref('joinRequests/' + studentId).set({ studentId, studentName: name, studentPhone: phone, timestamp: Date.now() });
-
             db.ref('acceptedStudents/' + studentId).on('value', (snap) => {
-                if (snap.val() === true && !approved) {
+                if (snap.val() && !approved) {
                     approved = true;
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('mainContent').style.display = 'flex';
@@ -243,11 +237,10 @@
             const canvas = document.getElementById('teacherBoard');
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight - 140;
+            canvas.height = window.innerHeight - 130;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
 
-            // استقبال الرسم الجديد فقط (الرسومات السابقة محذوفة)
             db.ref('teacherDrawings').on('child_added', (snap) => {
                 const d = snap.val();
                 if (d.color === 'eraser') {
@@ -263,39 +256,38 @@
                 ctx.lineTo(d.x, d.y);
                 ctx.stroke();
                 ctx.globalCompositeOperation = 'source-over';
-                snap.ref.remove(); // مهم: حذف بعد الرسم لمنع التراكم
-            });
-
-            db.ref('teacherCommands').on('child_added', (snap) => {
-                if (snap.val().type === 'clear') {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                }
                 snap.ref.remove();
             });
 
-            // ===== الصوت (استقبال من المدرس) =====
-            const audio = document.getElementById('audioPlayer');
-            let peer, call;
-            peer = new Peer(studentId);
-            peer.on('open', (id) => {
-                db.ref('studentPeerIds/' + studentId).set(id);
+            db.ref('teacherCommands').on('child_added', (snap) => {
+                if (snap.val().type === 'clear') ctx.clearRect(0,0,canvas.width,canvas.height);
+                snap.ref.remove();
             });
 
-            // استقبال المكالمة من المدرس (إذا بدأ البث)
-            peer.on('call', (incomingCall) => {
-                incomingCall.answer(); // استقبل بدون إرسال صوت (الطالب لا يرسل)
-                incomingCall.on('stream', (remoteStream) => {
-                    audio.srcObject = remoteStream;
+            // ===== الصوت (استقبال) =====
+            const audio = document.getElementById('audioPlayer');
+            let peer = new Peer(studentId);
+            peer.on('open', (id) => db.ref('studentPeerIds/' + studentId).set(id));
+            peer.on('call', (call) => {
+                call.answer();
+                call.on('stream', (stream) => {
+                    audio.srcObject = stream;
                     audio.play().catch(() => {});
                 });
             });
 
-            // مؤشر صوت المدرس
             db.ref('teacherAudioActive').on('value', (snap) => {
-                const active = snap.val();
-                const ind = document.getElementById('teacherAudioIndicator');
-                if (active) ind.classList.add('active');
-                else ind.classList.remove('active');
+                document.getElementById('teacherAudioIndicator').classList.toggle('active', snap.val());
+            });
+
+            // ===== إذن الميكروفون (رسالة جانبية) =====
+            db.ref('micPermissions/' + studentId).on('value', (snap) => {
+                if (snap.val() && snap.val().allowed) {
+                    const toast = document.getElementById('permissionToast');
+                    toast.classList.add('show');
+                    setTimeout(() => toast.classList.remove('show'), 4000);
+                    snap.ref.remove();
+                }
             });
         }
 
@@ -309,12 +301,26 @@
             alert('تم إرسال الطلب');
         };
 
-        window.addEventListener('beforeunload', () => {
-            if (studentId) {
-                db.ref('onlineStudents/' + studentId).remove();
-                db.ref('acceptedStudents/' + studentId).remove();
-            }
-        });
+        // ===== رفع الصورة =====
+        window.uploadImage = () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    // إرسال الصورة للمدرس عبر Firebase (يمكن تخزينها في قاعدة البيانات)
+                    db.ref('studentImages/' + studentId).push({
+                        imageData: event.target.result,
+                        timestamp: Date.now()
+                    });
+                    alert('تم رفع الصورة');
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        };
     </script>
 </body>
 </html>
