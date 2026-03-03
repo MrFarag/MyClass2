@@ -6,7 +6,7 @@
     <title>المدرس - MyClass2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ========== الأساسيات ========== */
+        /* ===== الأساسيات ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -18,19 +18,23 @@
             color: white;
         }
 
-        /* ========== الهيدر ========== */
-        .header {
+        /* ===== الشريط العلوي (يحتوي على كل شيء) ===== */
+        .top-bar {
             background: #2c3e50;
             padding: 8px 15px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 15px;
             border-bottom: 3px solid #e67e22;
             flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .logo {
+            font-size: 18px;
+            font-weight: bold;
+            white-space: nowrap;
         }
         .logo i { color: #e67e22; margin-left: 6px; }
-
-        /* عداد الطلاب */
         .online-count {
             background: #27ae60;
             padding: 5px 12px;
@@ -38,8 +42,6 @@
             font-size: 13px;
             white-space: nowrap;
         }
-
-        /* مؤشر الميكروفون */
         .mic-indicator {
             display: none;
             background: #e74c3c;
@@ -48,24 +50,19 @@
             font-size: 13px;
             animation: pulse 1s infinite;
         }
-        .mic-indicator.active { display: flex; gap: 5px; }
+        .mic-indicator.active { display: inline-flex; gap: 5px; }
         @keyframes pulse { 50% { opacity: 0.6; } }
 
-        /* ========== منطقة عرض الطلبات (شريط صغير) ========== */
-        .requests-bar {
-            background: #34495e;
-            padding: 6px 10px;
-            border-bottom: 1px solid #e67e22;
+        /* ===== شريط طلبات الانضمام (ضمن الشريط العلوي) ===== */
+        .requests-container {
             display: flex;
+            flex: 1;
             gap: 8px;
             overflow-x: auto;
-            white-space: nowrap;
-            flex-shrink: 0;
-            min-height: 50px;
-            align-items: center;
+            padding: 2px 0;
         }
         .request-chip {
-            background: #c0392b; /* أحمر داكن */
+            background: #c0392b;
             color: white;
             padding: 5px 12px;
             border-radius: 30px;
@@ -74,11 +71,9 @@
             align-items: center;
             gap: 8px;
             animation: blink 1.2s infinite;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            cursor: default;
+            white-space: nowrap;
         }
-        .request-chip i { font-size: 12px; }
         .request-chip button {
             background: #27ae60;
             border: none;
@@ -87,14 +82,10 @@
             padding: 2px 8px;
             font-size: 12px;
             cursor: pointer;
-            margin-right: 5px;
         }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+        @keyframes blink { 50% { opacity: 0.5; } }
 
-        /* ========== السبورة ========== */
+        /* ===== السبورة ===== */
         .board-container {
             flex: 1;
             display: flex;
@@ -123,8 +114,8 @@
             touch-action: none;
         }
 
-        /* ========== شريط الأدوات (كامل) ========== */
-        .toolbar {
+        /* ===== الشريط السفلي (الأدوات) ===== */
+        .bottom-bar {
             background: #34495e;
             padding: 10px;
             display: flex;
@@ -160,7 +151,6 @@
         .tool-btn:hover { background: #e67e22; transform: scale(1.05); }
         .tool-btn.active { background: #e67e22; }
 
-        /* الألوان */
         .color-btn {
             width: 40px;
             height: 40px;
@@ -170,7 +160,6 @@
         }
         .color-btn.active { border-color: white; transform: scale(1.1); }
 
-        /* أحجام القلم - دوائر مصمتة */
         .size-btn {
             width: 48px;
             height: 48px;
@@ -185,45 +174,38 @@
             justify-content: center;
         }
         .size-btn.active { background: #e67e22; }
-        .size-dot {
-            background: white;
-            border-radius: 50%;
-        }
+        .size-dot { background: white; border-radius: 50%; }
 
-        /* ========== لوحة الملفات ========== */
-        .panel {
+        /* لوحة الملفات في الشريط السفلي (جزء صغير) */
+        .files-panel {
             background: #2c3e50;
-            padding: 10px;
-            border-top: 2px solid #e67e22;
-            max-height: 150px;
-            overflow-y: auto;
-            flex-shrink: 0;
+            padding: 5px 10px;
+            border-radius: 12px;
+            display: flex;
+            gap: 5px;
+            overflow-x: auto;
+            max-width: 200px;
         }
         .file-item {
-            background: #34495e;
-            padding: 5px 10px;
-            border-radius: 5px;
-            margin: 3px 0;
+            background: #3d566e;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            white-space: nowrap;
         }
+        .file-item a { color: white; text-decoration: none; }
     </style>
 </head>
 <body>
-
-    <!-- ========== الهيدر ========== -->
-    <div class="header">
+    <!-- ===== الشريط العلوي (كل شيء) ===== -->
+    <div class="top-bar">
         <div class="logo"><i class="fas fa-chalkboard-teacher"></i> MyClass2 - المدرس</div>
-        <div style="display: flex; gap: 10px;">
-            <div class="mic-indicator" id="micIndicator"><i class="fas fa-microphone"></i> الميك شغال</div>
-            <div class="online-count"><i class="fas fa-users"></i> <span id="onlineCount">0</span> طالب</div>
-        </div>
+        <div class="mic-indicator" id="micIndicator"><i class="fas fa-microphone"></i> الميك شغال</div>
+        <div class="online-count"><i class="fas fa-users"></i> <span id="onlineCount">0</span> طالب</div>
+        <div class="requests-container" id="requestsContainer"></div>
     </div>
 
-    <!-- ========== شريط طلبات الانضمام (يظهر كأزرار وميض) ========== -->
-    <div class="requests-bar" id="requestsBar">
-        <!-- ستظهر هنا طلبات الطلاب ديناميكياً -->
-    </div>
-
-    <!-- ========== السبورة ========== -->
+    <!-- ===== السبورة ===== -->
     <div class="board-container">
         <div class="board-header">
             <span><i class="fas fa-pen-fancy"></i> سبورة المدرس</span>
@@ -233,9 +215,9 @@
         </div>
     </div>
 
-    <!-- ========== شريط الأدوات (كامل) ========== -->
-    <div class="toolbar">
-        <!-- مجموعة الألوان -->
+    <!-- ===== الشريط السفلي (أدوات + ملفات) ===== -->
+    <div class="bottom-bar">
+        <!-- الألوان -->
         <div class="tool-group">
             <div class="color-btn active" style="background:#1a1a1a" onclick="changeColor('#1a1a1a',this)" title="أسود"></div>
             <div class="color-btn" style="background:#e74c3c" onclick="changeColor('#e74c3c',this)" title="أحمر"></div>
@@ -245,11 +227,11 @@
             <div class="color-btn" style="background:#f39c12" onclick="changeColor('#f39c12',this)" title="برتقالي"></div>
         </div>
 
-        <!-- أحجام القلم - دوائر مصمتة -->
+        <!-- أحجام القلم (دوائر) -->
         <div class="tool-group">
-            <button class="size-btn" onclick="changeSize(2,this)" title="رفيع"><span class="size-dot" style="width:6px;height:6px;">●</span></button>
-            <button class="size-btn active" onclick="changeSize(5,this)" title="وسط"><span class="size-dot" style="width:12px;height:12px;">●</span></button>
-            <button class="size-btn" onclick="changeSize(10,this)" title="سميك"><span class="size-dot" style="width:18px;height:18px;">●</span></button>
+            <button class="size-btn" onclick="changeSize(2,this)" title="رفيع"><span class="size-dot" style="display:inline-block; width:6px; height:6px;">●</span></button>
+            <button class="size-btn active" onclick="changeSize(5,this)" title="وسط"><span class="size-dot" style="display:inline-block; width:12px; height:12px;">●</span></button>
+            <button class="size-btn" onclick="changeSize(10,this)" title="سميك"><span class="size-dot" style="display:inline-block; width:18px; height:18px;">●</span></button>
         </div>
 
         <!-- أدوات الرسم -->
@@ -266,30 +248,13 @@
         <div class="tool-group">
             <button class="tool-btn" onclick="importFile()" title="استيراد صورة"><i class="fas fa-file-import"></i></button>
             <button class="tool-btn" onclick="clearBoard()" title="مسح الكل"><i class="fas fa-trash-alt"></i></button>
-        </div>
-
-        <!-- رفع ملف -->
-        <div class="tool-group">
             <button class="tool-btn" onclick="uploadFile()" style="background:#3498db" title="رفع ملف"><i class="fas fa-upload"></i></button>
-        </div>
-
-        <!-- الميكروفون -->
-        <div class="tool-group">
-            <button class="tool-btn" id="audioBtn" onclick="toggleAudio()" title="تشغيل الميكروفون"><i class="fas fa-microphone"></i></button>
-        </div>
-
-        <!-- إرسال امتحان -->
-        <div class="tool-group">
+            <button class="tool-btn" onclick="toggleAudio()" id="audioBtn" title="تشغيل الميكروفون"><i class="fas fa-microphone"></i></button>
             <button class="tool-btn" onclick="showExamForm()" style="background:#f39c12" title="إرسال امتحان"><i class="fas fa-file-alt"></i></button>
         </div>
-    </div>
 
-    <!-- ========== لوحة الملفات ========== -->
-    <div class="panel">
-        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-            <span><i class="fas fa-file"></i> الملفات المرسلة</span>
-        </div>
-        <div id="filesList" style="max-height: 80px; overflow-y: auto;"></div>
+        <!-- الملفات المرسلة (مدمجة في الشريط) -->
+        <div class="files-panel" id="filesPanel"></div>
     </div>
 
     <!-- Firebase & PeerJS -->
@@ -299,7 +264,7 @@
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
     <script>
-        // ================== إعدادات Firebase ==================
+        // ================== Firebase ==================
         const firebaseConfig = {
             apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
             authDomain: "myclaive.firebaseapp.com",
@@ -313,7 +278,7 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        // ================== الرسم (بدون تغيير) ==================
+        // ================== الرسم ==================
         const canvas = document.getElementById('teacherCanvas');
         const ctx = canvas.getContext('2d');
         const wrapper = document.getElementById('teacherWrapper');
@@ -357,7 +322,6 @@
             e.preventDefault();
             if (!drawing) return;
             const pos = getPos(e);
-            
             if (currentTool === 'eraser') {
                 ctx.globalCompositeOperation = 'destination-out';
                 ctx.strokeStyle = 'rgba(0,0,0,1)';
@@ -367,7 +331,6 @@
                 ctx.strokeStyle = currentColor;
                 ctx.lineWidth = currentSize;
             }
-
             ctx.lineTo(pos.x, pos.y);
             ctx.stroke();
             ctx.beginPath();
@@ -381,15 +344,10 @@
                 type: 'draw',
                 timestamp: Date.now()
             });
-
             lastX = pos.x; lastY = pos.y;
         }
 
-        function stopDraw() {
-            drawing = false;
-            ctx.beginPath();
-            ctx.globalCompositeOperation = 'source-over';
-        }
+        function stopDraw() { drawing = false; ctx.beginPath(); ctx.globalCompositeOperation = 'source-over'; }
 
         canvas.addEventListener('mousedown', startDraw);
         canvas.addEventListener('mousemove', draw);
@@ -400,60 +358,41 @@
         canvas.addEventListener('touchend', stopDraw);
 
         window.changeColor = (color, el) => {
-            currentColor = color;
-            currentTool = 'pen';
+            currentColor = color; currentTool = 'pen';
             document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
             document.getElementById('penBtn').classList.add('active');
             document.getElementById('eraserBtn').classList.remove('active');
         };
-
         window.changeSize = (size, el) => {
             currentSize = size;
             document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
         };
-
         window.setPen = () => {
             currentTool = 'pen';
             document.getElementById('penBtn').classList.add('active');
             document.getElementById('eraserBtn').classList.remove('active');
         };
-
         window.setEraser = () => {
             currentTool = 'eraser';
             document.getElementById('eraserBtn').classList.add('active');
             document.getElementById('penBtn').classList.remove('active');
         };
-
-        window.setTool = (tool) => {
-            currentTool = tool;
-            alert(`أداة "${tool}" قيد التطوير حالياً`);
-        };
-
+        window.setTool = (tool) => { currentTool = tool; alert(`أداة "${tool}" قيد التطوير`); };
         window.clearBoard = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             db.ref('teacherCommands').push({ type: 'clear' });
         };
-
         window.importFile = () => {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
+            const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*';
             input.onchange = (e) => {
-                const file = e.target.files[0];
-                const reader = new FileReader();
+                const file = e.target.files[0]; const reader = new FileReader();
                 reader.onload = (event) => {
                     const img = new Image();
                     img.onload = () => {
                         ctx.drawImage(img, 100, 100, 400, 300);
-                        db.ref('teacherDrawings').push({
-                            type: 'image',
-                            imageData: event.target.result,
-                            x: 100, y: 100,
-                            width: 400, height: 300,
-                            timestamp: Date.now()
-                        });
+                        db.ref('teacherDrawings').push({ type: 'image', imageData: event.target.result, x: 100, y: 100, width: 400, height: 300, timestamp: Date.now() });
                     };
                     img.src = event.target.result;
                 };
@@ -461,61 +400,35 @@
             };
             input.click();
         };
-
         canvas.addEventListener('click', (e) => {
             if (currentTool === 'text') {
-                const pos = getPos(e);
-                const text = prompt('أدخل النص:');
+                const pos = getPos(e); const text = prompt('أدخل النص:');
                 if (text) {
-                    ctx.font = '30px Arial';
-                    ctx.fillStyle = currentColor;
+                    ctx.font = '30px Arial'; ctx.fillStyle = currentColor;
                     ctx.fillText(text, pos.x, pos.y);
-                    db.ref('teacherDrawings').push({
-                        type: 'text',
-                        text: text,
-                        x: pos.x, y: pos.y,
-                        color: currentColor,
-                        fontSize: 30,
-                        timestamp: Date.now()
-                    });
+                    db.ref('teacherDrawings').push({ type: 'text', text, x: pos.x, y: pos.y, color: currentColor, fontSize: 30, timestamp: Date.now() });
                 }
             }
         });
 
         // ================== الصوت ==================
-        let localStream, peer;
-        let studentCalls = {};
-
+        let localStream, peer, studentCalls = {};
         peer = new Peer('teacher_' + Date.now());
-
-        peer.on('open', (id) => {
-            console.log('Teacher audio ID:', id);
-            db.ref('teacherAudioId').set(id);
-        });
-
-        peer.on('call', (call) => {
-            if (localStream) {
-                call.answer(localStream);
-            }
-        });
-
+        peer.on('open', (id) => { console.log('Teacher audio ID:', id); db.ref('teacherAudioId').set(id); });
+        peer.on('call', (call) => { if (localStream) call.answer(localStream); });
         async function startBroadcast() {
             if (!localStream) return;
             const acceptedSnap = await db.ref('acceptedStudents').once('value');
-            const accepted = acceptedSnap.val();
-            if (!accepted) return;
+            const accepted = acceptedSnap.val() || {};
             for (let studentId in accepted) {
                 const studentPeerId = await db.ref('studentPeerIds/' + studentId).once('value');
                 if (studentPeerId.exists()) {
                     const call = peer.call(studentPeerId.val(), localStream);
                     studentCalls[studentId] = call;
-                    call.on('close', () => {
-                        delete studentCalls[studentId];
-                    });
+                    call.on('close', () => { delete studentCalls[studentId]; });
                 }
             }
         }
-
         window.toggleAudio = async () => {
             const btn = document.getElementById('audioBtn');
             const indicator = document.getElementById('micIndicator');
@@ -524,12 +437,9 @@
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                     localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     btn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
-                    btn.classList.add('active');
-                    indicator.classList.add('active');
+                    btn.classList.add('active'); indicator.classList.add('active');
                     db.ref('teacherAudioActive').set(true);
-                    
                     await startBroadcast();
-                    
                     db.ref('acceptedStudents').on('child_added', async (snap) => {
                         if (localStream) {
                             const newStudentId = snap.key;
@@ -542,59 +452,39 @@
                             }, 1000);
                         }
                     });
-                    
                 } catch (err) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    btn.disabled = false; btn.innerHTML = '<i class="fas fa-microphone"></i>';
                     alert('لا يمكن الوصول للميكروفون');
                 }
             } else {
-                for (let id in studentCalls) {
-                    studentCalls[id].close();
-                }
+                for (let id in studentCalls) { studentCalls[id].close(); }
                 studentCalls = {};
                 localStream.getTracks().forEach(t => t.stop());
                 localStream = null;
                 btn.innerHTML = '<i class="fas fa-microphone"></i>';
-                btn.classList.remove('active');
-                indicator.classList.remove('active');
+                btn.classList.remove('active'); indicator.classList.remove('active');
                 db.ref('teacherAudioActive').set(false);
                 db.ref('acceptedStudents').off('child_added');
             }
         };
 
-        // ================== طلبات الانضمام (شريط الأزرار) ==================
-        const requestsBar = document.getElementById('requestsBar');
-
-        // دالة لإضافة طلب جديد كزر وميض
-        function addRequestToBar(reqId, studentName, studentPhone, studentId) {
-            const chip = document.createElement('div');
-            chip.className = 'request-chip';
-            chip.id = 'req_' + reqId;
-            chip.innerHTML = `
-                <i class="fas fa-user-graduate"></i>
-                <span>${studentName || 'طالب'}</span>
-                <button onclick="acceptStudent('${reqId}', '${studentId}')">قبول</button>
-            `;
-            requestsBar.appendChild(chip);
-        }
-
-        // مراقبة طلبات الانضمام
+        // ================== طلبات الانضمام (شريط علوي) ==================
+        const requestsContainer = document.getElementById('requestsContainer');
         db.ref('joinRequests').on('child_added', (snap) => {
             const req = snap.val();
             const reqId = snap.key;
-            addRequestToBar(reqId, req.studentName, req.studentPhone, req.studentId);
+            const chip = document.createElement('div');
+            chip.className = 'request-chip';
+            chip.id = 'req_' + reqId;
+            chip.innerHTML = `<span>${req.studentName || 'طالب'}</span><button onclick="acceptStudent('${reqId}', '${req.studentId}')">قبول</button>`;
+            requestsContainer.appendChild(chip);
         });
-
-        // قبول الطالب
         window.acceptStudent = (reqId, studentId) => {
             db.ref('acceptedStudents/' + studentId).set(true);
             db.ref('joinRequests/' + reqId).remove();
             const chip = document.getElementById('req_' + reqId);
             if (chip) chip.remove();
         };
-
-        // تحديث عداد الطلاب
         db.ref('acceptedStudents').on('value', (snap) => {
             const count = snap.val() ? Object.keys(snap.val()).length : 0;
             document.getElementById('onlineCount').innerText = count;
@@ -603,74 +493,55 @@
         // ================== رفع الملفات ==================
         window.uploadFile = () => {
             const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*,application/pdf';
+            input.type = 'file'; input.accept = 'image/*,application/pdf';
             input.onchange = async (e) => {
                 const file = e.target.files[0];
                 const storageRef = storage.ref('teacher_files/' + Date.now() + '_' + file.name);
                 await storageRef.put(file);
                 const url = await storageRef.getDownloadURL();
-                db.ref('teacherFiles').push({
-                    fileName: file.name,
-                    fileUrl: url,
-                    timestamp: Date.now()
-                });
+                db.ref('teacherFiles').push({ fileName: file.name, fileUrl: url, timestamp: Date.now() });
                 alert('تم رفع الملف وإرساله للطلاب');
             };
             input.click();
         };
-
         db.ref('teacherFiles').on('child_added', (snap) => {
             const file = snap.val();
-            const list = document.getElementById('filesList');
+            const panel = document.getElementById('filesPanel');
             const div = document.createElement('div');
             div.className = 'file-item';
             div.innerHTML = `<a href="${file.fileUrl}" target="_blank">📎 ${file.fileName}</a>`;
-            list.appendChild(div);
+            panel.appendChild(div);
         });
 
         // ================== الامتحانات ==================
         window.showExamForm = () => {
             const examType = prompt('نوع الامتحان:\n1- نص مع خيارات\n2- صورة');
             if (examType === '1') {
-                const question = prompt('أدخل نص السؤال:');
-                const options = prompt('أدخل الخيارات مفصولة بفاصلة (مثل: نعم,لا,ربما)');
+                const question = prompt('نص السؤال:');
+                const options = prompt('الخيارات مفصولة بفاصلة:');
                 if (question && options) {
-                    const optArray = options.split(',').map(s => s.trim());
-                    db.ref('currentExam').set({
-                        type: 'text',
-                        question,
-                        options: optArray,
-                        timestamp: Date.now()
-                    });
+                    db.ref('currentExam').set({ type: 'text', question, options: options.split(',').map(s => s.trim()), timestamp: Date.now() });
                 }
             } else if (examType === '2') {
                 const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'image/*';
+                input.type = 'file'; input.accept = 'image/*';
                 input.onchange = async (e) => {
                     const file = e.target.files[0];
                     const storageRef = storage.ref('exams/' + Date.now() + '_' + file.name);
                     await storageRef.put(file);
                     const url = await storageRef.getDownloadURL();
-                    db.ref('currentExam').set({
-                        type: 'image',
-                        imageUrl: url,
-                        timestamp: Date.now()
-                    });
+                    db.ref('currentExam').set({ type: 'image', imageUrl: url, timestamp: Date.now() });
                 };
                 input.click();
             }
         };
 
-        db.ref('submissions').on('child_added', (snap) => {
-            console.log('إجابة جديدة:', snap.val());
-        });
+        // إجابات الطلاب
+        db.ref('submissions').on('child_added', (snap) => { console.log('إجابة:', snap.val()); });
 
+        // أوامر المسح
         db.ref('teacherCommands').on('child_added', (snap) => {
-            if (snap.val().type === 'clear') {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
+            if (snap.val().type === 'clear') ctx.clearRect(0, 0, canvas.width, canvas.height);
         });
 
         canvas.addEventListener('contextmenu', e => e.preventDefault());
