@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>المدرس - MyClass2</title>
-    <!-- Font Awesome - 3 روابط لضمان الظهور -->
+    <!-- Font Awesome - 3 روابط -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.4.0/css/all.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
@@ -58,16 +58,17 @@
             background: #3e3e5e;
             border: none;
             color: white;
-            padding: 8px 12px;
+            width: 40px;
+            height: 40px;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 18px;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            justify-content: center;
             transition: 0.2s;
         }
-        .tool-btn i { font-size: 16px; }
+        .tool-btn i { font-size: 18px; }
         .tool-btn:hover { background: #ff9800; }
         .tool-btn.active { background: #ff9800; }
         .color-picker {
@@ -85,6 +86,32 @@
             cursor: pointer;
         }
         .color-btn.active { border-color: white; transform: scale(1.1); }
+        /* سليدر التحكم في السمك */
+        .size-slider {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #3e3e5e;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        .size-slider i { color: #ff9800; }
+        .size-slider input {
+            width: 100px;
+            height: 5px;
+            -webkit-appearance: none;
+            background: #666;
+            border-radius: 5px;
+            outline: none;
+        }
+        .size-slider input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #ff9800;
+            border-radius: 50%;
+            cursor: pointer;
+        }
         .students-panel {
             background: #2d2d44;
             padding: 10px;
@@ -132,47 +159,51 @@
 
     <canvas id="board"></canvas>
 
-    <!-- شريط الأدوات السفلي بـ 20+ زر -->
+    <!-- شريط الأدوات السفلي (أيقونات فقط) -->
     <div class="toolbar">
-        <!-- الأزرار الأساسية -->
-        <button class="tool-btn active" id="penBtn" onclick="setTool('pen')"><i class="fas fa-pencil-alt"></i> قلم</button>
-        <button class="tool-btn" id="eraserBtn" onclick="setTool('eraser')"><i class="fas fa-eraser"></i> ممحاة</button>
-        <button class="tool-btn" onclick="clearBoard()"><i class="fas fa-trash-alt"></i> مسح</button>
-        <button class="tool-btn" id="audioBtn" onclick="toggleAudio()"><i class="fas fa-microphone"></i> ميك</button>
+        <!-- قلم / ممحاة -->
+        <button class="tool-btn active" id="penBtn" onclick="setTool('pen')" title="قلم"><i class="fas fa-pencil-alt"></i></button>
+        <button class="tool-btn" id="eraserBtn" onclick="setTool('eraser')" title="ممحاة"><i class="fas fa-eraser"></i></button>
+        <button class="tool-btn" onclick="clearBoard()" title="مسح"><i class="fas fa-trash-alt"></i></button>
 
-        <!-- ألوان متعددة -->
+        <!-- ألوان متعددة (دائرية) -->
         <div class="color-picker">
-            <div class="color-btn active" style="background:#000;" onclick="setColor('#000',this)"></div>
-            <div class="color-btn" style="background:#f44336;" onclick="setColor('#f44336',this)"></div>
-            <div class="color-btn" style="background:#4caf50;" onclick="setColor('#4caf50',this)"></div>
-            <div class="color-btn" style="background:#2196f3;" onclick="setColor('#2196f3',this)"></div>
-            <div class="color-btn" style="background:#ff9800;" onclick="setColor('#ff9800',this)"></div>
-            <div class="color-btn" style="background:#9c27b0;" onclick="setColor('#9c27b0',this)"></div>
-            <div class="color-btn" style="background:#ffeb3b;" onclick="setColor('#ffeb3b',this)"></div>
-            <div class="color-btn" style="background:#795548;" onclick="setColor('#795548',this)"></div>
+            <div class="color-btn active" style="background:#000;" onclick="setColor('#000',this)" title="أسود"></div>
+            <div class="color-btn" style="background:#f44336;" onclick="setColor('#f44336',this)" title="أحمر"></div>
+            <div class="color-btn" style="background:#4caf50;" onclick="setColor('#4caf50',this)" title="أخضر"></div>
+            <div class="color-btn" style="background:#2196f3;" onclick="setColor('#2196f3',this)" title="أزرق"></div>
+            <div class="color-btn" style="background:#ff9800;" onclick="setColor('#ff9800',this)" title="برتقالي"></div>
+            <div class="color-btn" style="background:#9c27b0;" onclick="setColor('#9c27b0',this)" title="بنفسجي"></div>
+            <div class="color-btn" style="background:#ffeb3b;" onclick="setColor('#ffeb3b',this)" title="أصفر"></div>
+            <div class="color-btn" style="background:#795548;" onclick="setColor('#795548',this)" title="بني"></div>
         </div>
 
-        <!-- أحجام القلم -->
-        <button class="tool-btn" onclick="setSize(2)"><i class="fas fa-circle" style="font-size:10px;"></i> رفيع</button>
-        <button class="tool-btn active" onclick="setSize(5)"><i class="fas fa-circle" style="font-size:14px;"></i> وسط</button>
-        <button class="tool-btn" onclick="setSize(10)"><i class="fas fa-circle" style="font-size:18px;"></i> سميك</button>
+        <!-- سليدر التحكم في السمك -->
+        <div class="size-slider">
+            <i class="fas fa-circle" style="font-size:12px;"></i>
+            <input type="range" id="sizeSlider" min="1" max="30" value="5" oninput="setSize(this.value)">
+            <i class="fas fa-circle" style="font-size:20px;"></i>
+        </div>
 
-        <!-- أدوات إضافية -->
-        <button class="tool-btn" onclick="importImage()"><i class="fas fa-file-image"></i> صورة</button>
-        <button class="tool-btn" onclick="addText()"><i class="fas fa-font"></i> نص</button>
-        <button class="tool-btn" onclick="drawShape('rect')"><i class="far fa-square"></i> مستطيل</button>
-        <button class="tool-btn" onclick="drawShape('circle')"><i class="far fa-circle"></i> دائرة</button>
-        <button class="tool-btn" onclick="drawShape('line')"><i class="fas fa-slash"></i> خط</button>
-        <button class="tool-btn" onclick="drawShape('arrow')"><i class="fas fa-long-arrow-alt-left"></i> سهم</button>
-        <button class="tool-btn" onclick="zoomIn()"><i class="fas fa-search-plus"></i> تكبير</button>
-        <button class="tool-btn" onclick="zoomOut()"><i class="fas fa-search-minus"></i> تصغير</button>
-        <button class="tool-btn" onclick="saveBoard()"><i class="fas fa-download"></i> حفظ</button>
-        <button class="tool-btn" onclick="showExamForm()"><i class="fas fa-file-alt"></i> امتحان</button>
-        <button class="tool-btn" onclick="undo()"><i class="fas fa-undo"></i> تراجع</button>
-        <button class="tool-btn" onclick="redo()"><i class="fas fa-redo"></i> إعادة</button>
-        <button class="tool-btn" onclick="gridToggle()"><i class="fas fa-th"></i> شبكة</button>
-        <button class="tool-btn" onclick="lockBoard()"><i class="fas fa-lock"></i> قفل</button>
-        <button class="tool-btn" onclick="unlockBoard()"><i class="fas fa-lock-open"></i> فتح</button>
+        <!-- أدوات إضافية (بدون رسائل منبثقة) -->
+        <button class="tool-btn" onclick="drawShape('rect')" title="مستطيل"><i class="far fa-square"></i></button>
+        <button class="tool-btn" onclick="drawShape('circle')" title="دائرة"><i class="far fa-circle"></i></button>
+        <button class="tool-btn" onclick="drawShape('line')" title="خط"><i class="fas fa-slash"></i></button>
+        <button class="tool-btn" onclick="drawShape('arrow')" title="سهم"><i class="fas fa-long-arrow-alt-left"></i></button>
+        <button class="tool-btn" onclick="importImage()" title="صورة"><i class="fas fa-file-image"></i></button>
+        <button class="tool-btn" onclick="addText()" title="نص"><i class="fas fa-font"></i></button>
+        <button class="tool-btn" onclick="zoomIn()" title="تكبير"><i class="fas fa-search-plus"></i></button>
+        <button class="tool-btn" onclick="zoomOut()" title="تصغير"><i class="fas fa-search-minus"></i></button>
+        <button class="tool-btn" onclick="saveBoard()" title="حفظ"><i class="fas fa-download"></i></button>
+        <button class="tool-btn" onclick="showExamForm()" title="امتحان"><i class="fas fa-file-alt"></i></button>
+        <button class="tool-btn" onclick="undo()" title="تراجع"><i class="fas fa-undo"></i></button>
+        <button class="tool-btn" onclick="redo()" title="إعادة"><i class="fas fa-redo"></i></button>
+        <button class="tool-btn" onclick="gridToggle()" title="شبكة"><i class="fas fa-th"></i></button>
+        <button class="tool-btn" onclick="lockBoard()" title="قفل"><i class="fas fa-lock"></i></button>
+        <button class="tool-btn" onclick="unlockBoard()" title="فتح"><i class="fas fa-lock-open"></i></button>
+
+        <!-- ميكروفون -->
+        <button class="tool-btn" id="audioBtn" onclick="toggleAudio()" title="ميكروفون"><i class="fas fa-microphone"></i></button>
     </div>
 
     <div class="students-panel" id="studentsList">
@@ -219,7 +250,7 @@
         let currentSize = 5;
         let currentColor = '#000';
 
-        // ===== الحصول على إحداثيات الرسم =====
+        // ===== الحصول على إحداثيات الرسم بدقة =====
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -254,7 +285,7 @@
             
             if (currentTool === 'eraser') {
                 ctx.globalCompositeOperation = 'destination-out';
-                ctx.lineWidth = 30;
+                ctx.lineWidth = currentSize * 2; // ممحاة أكبر قليلاً
             } else {
                 ctx.globalCompositeOperation = 'source-over';
                 ctx.strokeStyle = currentColor;
@@ -271,7 +302,7 @@
                 x: pos.x, y: pos.y,
                 lastX: lastX, lastY: lastY,
                 color: currentTool === 'eraser' ? 'eraser' : currentColor,
-                size: currentTool === 'eraser' ? 30 : currentSize,
+                size: currentTool === 'eraser' ? currentSize * 2 : currentSize,
                 timestamp: Date.now()
             });
 
@@ -306,9 +337,7 @@
         };
 
         window.setSize = (size) => {
-            currentSize = size;
-            document.querySelectorAll('[onclick*="setSize"]').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            currentSize = parseInt(size);
         };
 
         window.clearBoard = () => {
@@ -316,19 +345,19 @@
             db.ref('teacherCommands').push({ type: 'clear', timestamp: Date.now() });
         };
 
-        // وظائف إضافية (يمكن تطويرها)
-        window.importImage = () => alert('وظيفة استيراد الصورة قيد التطوير');
-        window.addText = () => alert('وظيفة إضافة نص قيد التطوير');
-        window.drawShape = (shape) => alert('رسم شكل ' + shape + ' قيد التطوير');
-        window.zoomIn = () => alert('تكبير قيد التطوير');
-        window.zoomOut = () => alert('تصغير قيد التطوير');
-        window.saveBoard = () => alert('حفظ قيد التطوير');
-        window.showExamForm = () => alert('إرسال امتحان قيد التطوير');
-        window.undo = () => alert('تراجع قيد التطوير');
-        window.redo = () => alert('إعادة قيد التطوير');
-        window.gridToggle = () => alert('شبكة قيد التطوير');
-        window.lockBoard = () => alert('قفل السبورة قيد التطوير');
-        window.unlockBoard = () => alert('فتح السبورة قيد التطوير');
+        // وظائف إضافية (معطلة حالياً بدون رسائل منبثقة)
+        window.drawShape = (shape) => { /* يمكن تفعيلها لاحقاً */ };
+        window.importImage = () => {};
+        window.addText = () => {};
+        window.zoomIn = () => {};
+        window.zoomOut = () => {};
+        window.saveBoard = () => {};
+        window.showExamForm = () => {};
+        window.undo = () => {};
+        window.redo = () => {};
+        window.gridToggle = () => {};
+        window.lockBoard = () => {};
+        window.unlockBoard = () => {};
 
         // ===== نظام الموافقة على الطلاب =====
         const studentsList = document.getElementById('studentsList');
@@ -362,14 +391,20 @@
             db.ref('teacherAudioId').set(id);
         });
 
+        // استقبال مكالمات الطلاب (إذا أراد الطالب التحدث)
+        peer.on('call', (call) => {
+            if (localStream) {
+                call.answer(localStream);
+            }
+        });
+
         window.toggleAudio = async () => {
             const btn = document.getElementById('audioBtn');
             const indicator = document.getElementById('micIndicator');
             if (!localStream) {
                 try {
                     localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    btn.innerHTML = '<i class="fas fa-microphone-slash"></i> إيقاف ميك';
-                    btn.style.background = '#f44336';
+                    btn.classList.add('active');
                     indicator.classList.add('active');
                     db.ref('teacherAudioActive').set(true);
                 } catch (err) {
@@ -378,8 +413,7 @@
             } else {
                 localStream.getTracks().forEach(t => t.stop());
                 localStream = null;
-                btn.innerHTML = '<i class="fas fa-microphone"></i> ميك';
-                btn.style.background = '#3e3e5e';
+                btn.classList.remove('active');
                 indicator.classList.remove('active');
                 db.ref('teacherAudioActive').set(false);
             }
