@@ -4,33 +4,144 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>الطالب - MyClass2</title>
-    <!-- روابط Font Awesome مزدوجة -->
+    <!-- Font Awesome - 3 روابط -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.4.0/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
-        body { margin: 0; font-family: Arial; display: flex; flex-direction: column; height: 100vh; background: #333; color: white; }
-        header { background: #222; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
-        canvas { flex: 1; background: white; width: 100%; height: 100%; pointer-events: none; }
-        .login-box { background: #8B0000; padding: 20px; border-radius: 10px; width: 300px; margin: auto; text-align: center; }
-        .login-box input { width: 100%; padding: 8px; margin: 5px 0; border: none; border-radius: 5px; }
-        .login-box button { background: #f90; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .wait-msg { margin-top: 10px; color: #ff0; display: none; }
-        #mainContent { display: none; flex-direction: column; height: 100%; }
-        #teacherBoard { flex: 1; }
-        .toolbar { background: #444; padding: 8px; display: flex; gap: 8px; }
-        .toolbar button { display: flex; align-items: center; gap: 5px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: #1e1e2f;
+            color: white;
+        }
+        header {
+            background: #2d2d44;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #4caf50;
+        }
+        .logo i { color: #4caf50; margin-left: 8px; }
+        canvas {
+            flex: 1;
+            background: white;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* الطالب لا يستطيع الرسم */
+        }
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: #1e1e2f;
+        }
+        .login-box {
+            background: #8B0000;
+            padding: 30px;
+            border-radius: 20px;
+            width: 300px;
+            text-align: center;
+            border: 2px solid #ff9800;
+        }
+        .login-box h3 { margin-bottom: 20px; color: #fff; }
+        .login-box input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            background: #b22222;
+            color: white;
+            text-align: center;
+            font-size: 16px;
+        }
+        .login-box button {
+            background: #ff9800;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .login-box button:hover { background: #ffb347; }
+        .wait-msg {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            color: #ff0;
+            display: none;
+        }
+        .error-msg {
+            color: #ffaaaa;
+            margin-top: 10px;
+        }
+        #mainContent {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+        .toolbar {
+            background: #2d2d44;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            border-top: 2px solid #4caf50;
+            justify-content: center;
+        }
+        .tool-btn {
+            background: #3e3e5e;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+        .tool-btn i { font-size: 18px; }
+        .tool-btn:hover { background: #4caf50; }
+        .status-bar {
+            background: #2d2d44;
+            padding: 5px 15px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #444;
+        }
+        .audio-indicator {
+            color: #f44336;
+            display: none;
+            align-items: center;
+            gap: 5px;
+        }
+        .audio-indicator.active { display: flex; }
     </style>
 </head>
 <body>
-    <!-- شاشة الدخول (بطاقة واحدة) -->
-    <div id="loginScreen" style="display: flex; align-items: center; justify-content: center; height: 100%;">
+    <!-- شاشة الدخول -->
+    <div id="loginScreen" class="login-container">
         <div class="login-box">
             <h3><i class="fas fa-user-graduate"></i> تسجيل الدخول</h3>
-            <input type="text" id="studentName" placeholder="الاسم">
-            <input type="tel" id="studentPhone" placeholder="رقم التليفون">
-            <input type="text" id="studentSecret" placeholder="الرقم السري">
+            <input type="text" id="studentName" placeholder="الاسم" autocomplete="off">
+            <input type="tel" id="studentPhone" placeholder="رقم التليفون" autocomplete="off">
+            <input type="text" id="studentSecret" placeholder="الرقم السري" autocomplete="off">
             <button onclick="validateLogin()"><i class="fas fa-sign-in-alt"></i> دخول</button>
-            <div id="loginError" style="color: #ffc; margin-top: 5px;"></div>
+            <div class="error-msg" id="loginError"></div>
             <div class="wait-msg" id="waitMsg">
                 <i class="fas fa-spinner fa-spin"></i> في انتظار موافقة المدرس...
             </div>
@@ -40,15 +151,20 @@
     <!-- المحتوى الرئيسي بعد القبول -->
     <div id="mainContent">
         <header>
-            <span><i class="fas fa-user-graduate"></i> الطالب</span>
+            <div class="logo"><i class="fas fa-user-graduate"></i> MyClass2 - طالب</div>
             <span id="nameChip"></span>
         </header>
 
         <canvas id="teacherBoard"></canvas>
 
         <div class="toolbar">
-            <button id="handBtn" onclick="toggleHand()"><i class="fas fa-hand-paper"></i> رفع اليد</button>
-            <button id="micBtn" onclick="requestMic()"><i class="fas fa-microphone"></i> طلب ميكروفون</button>
+            <button class="tool-btn" id="handBtn" onclick="toggleHand()"><i class="fas fa-hand-paper"></i> رفع اليد</button>
+            <button class="tool-btn" id="micBtn" onclick="requestMic()"><i class="fas fa-microphone"></i> طلب ميكروفون</button>
+        </div>
+
+        <div class="status-bar">
+            <span><i class="fas fa-circle" style="color:#4caf50;"></i> متصل</span>
+            <span class="audio-indicator" id="teacherAudioIndicator"><i class="fas fa-volume-up"></i> المدرس يتحدث</span>
         </div>
     </div>
 
@@ -59,7 +175,6 @@
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
     <script>
-        // ===== Firebase =====
         firebase.initializeApp({
             apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
             authDomain: "myclaive.firebaseapp.com",
@@ -76,7 +191,7 @@
         let approved = false;
         let attemptCount = 0;
 
-        // ===== التحقق من الدخول (3 محاولات) =====
+        // ===== التحقق من الدخول =====
         window.validateLogin = () => {
             const name = document.getElementById('studentName').value.trim();
             const phone = document.getElementById('studentPhone').value.trim();
@@ -102,7 +217,6 @@
                 return;
             }
 
-            // نجاح
             studentName = name;
             studentId = 's' + Date.now() + '_' + Math.random().toString(36).substr(2,5);
 
@@ -113,7 +227,6 @@
             db.ref('studentData/' + studentId).set({ name, phone });
             db.ref('joinRequests/' + studentId).set({ studentId, studentName: name, studentPhone: phone, timestamp: Date.now() });
 
-            // مراقبة القبول
             db.ref('acceptedStudents/' + studentId).on('value', (snap) => {
                 if (snap.val() === true && !approved) {
                     approved = true;
@@ -125,16 +238,15 @@
             });
         };
 
-        // ===== بدء جلسة الطالب =====
         function startStudent() {
             const canvas = document.getElementById('teacherBoard');
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight - 100;
+            canvas.height = window.innerHeight - 140;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
 
-            // استقبال الرسم من المدرس
+            // استقبال الرسم الجديد فقط (الرسومات السابقة محذوفة)
             db.ref('teacherDrawings').on('child_added', (snap) => {
                 const d = snap.val();
                 if (d.color === 'eraser') {
@@ -150,7 +262,7 @@
                 ctx.lineTo(d.x, d.y);
                 ctx.stroke();
                 ctx.globalCompositeOperation = 'source-over';
-                snap.ref.remove();
+                snap.ref.remove(); // مهم: حذف بعد الرسم لمنع التراكم
             });
 
             db.ref('teacherCommands').on('child_added', (snap) => {
@@ -160,7 +272,7 @@
                 snap.ref.remove();
             });
 
-            // ===== الصوت (استقبال) =====
+            // الصوت
             const audio = document.getElementById('audioPlayer');
             let peer, call;
             peer = new Peer(studentId);
@@ -168,32 +280,31 @@
                 db.ref('studentPeerIds/' + studentId).set(id);
             });
             peer.on('call', (incomingCall) => {
-                incomingCall.answer(); // استقبال بدون إرسال صوت
+                incomingCall.answer();
                 incomingCall.on('stream', (remoteStream) => {
                     audio.srcObject = remoteStream;
                     audio.play().catch(() => {});
                 });
             });
 
-            // مراقبة حالة الميكروفون للمدرس (للإشارة)
             db.ref('teacherAudioActive').on('value', (snap) => {
-                // يمكن إضافة إشارة بصرية
+                const active = snap.val();
+                const ind = document.getElementById('teacherAudioIndicator');
+                if (active) ind.classList.add('active');
+                else ind.classList.remove('active');
             });
         }
 
-        // ===== رفع اليد =====
         window.toggleHand = () => {
             db.ref('handRaised/' + studentId).set({ raised: true });
             setTimeout(() => db.ref('handRaised/' + studentId).remove(), 5000);
         };
 
-        // ===== طلب الميكروفون =====
         window.requestMic = () => {
             db.ref('micRequests/' + studentId).set({ studentId, studentName, timestamp: Date.now() });
             alert('تم إرسال الطلب');
         };
 
-        // ===== تنظيف عند الخروج =====
         window.addEventListener('beforeunload', () => {
             if (studentId) {
                 db.ref('onlineStudents/' + studentId).remove();
