@@ -382,14 +382,22 @@
         db.ref('draw_t').on('child_added', snap => {
           const d = snap.val();
           if (!d || !d.points) return;
-          mainCtx.strokeStyle = d.color || '#000';
-          mainCtx.lineWidth = d.size || 4;
+          // تطبيق الرسم على canvas
+          if (d.color === null) { // ممحاة
+            mainCtx.globalCompositeOperation = 'destination-out';
+            mainCtx.lineWidth = d.size || 4;
+          } else {
+            mainCtx.globalCompositeOperation = 'source-over';
+            mainCtx.strokeStyle = d.color;
+            mainCtx.lineWidth = d.size || 4;
+          }
           mainCtx.beginPath();
           mainCtx.moveTo(d.points[0].x * mainCanvas.width, d.points[0].y * mainCanvas.height);
           for (let i = 1; i < d.points.length; i++) {
             mainCtx.lineTo(d.points[i].x * mainCanvas.width, d.points[i].y * mainCanvas.height);
           }
           mainCtx.stroke();
+          mainCtx.globalCompositeOperation = 'source-over';
           // تحديث lastImageData بعد الرسم
           lastImageData = mainCanvas.toDataURL();
         });
@@ -516,18 +524,22 @@
         points = [{ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height }];
         mainCtx.beginPath();
         mainCtx.moveTo(p.x, p.y);
+        mainCtx.lineCap = 'round';
+        mainCtx.lineJoin = 'round';
+        if (currentTool === 'eraser') {
+          mainCtx.globalCompositeOperation = 'destination-out';
+          mainCtx.lineWidth = currentSize * 5;
+        } else {
+          mainCtx.globalCompositeOperation = 'source-over';
+          mainCtx.strokeStyle = currentColor;
+          mainCtx.lineWidth = currentSize;
+        }
       }
 
       function draw(e) {
         e.preventDefault();
         if (!isDrawing || !approved) return;
         const p = getCanvasPoint(e);
-        if (currentTool === 'eraser') {
-          mainCtx.strokeStyle = '#fff';
-        } else {
-          mainCtx.strokeStyle = currentColor;
-        }
-        mainCtx.lineWidth = currentTool === 'eraser' ? currentSize * 5 : currentSize;
         mainCtx.lineTo(p.x, p.y);
         mainCtx.stroke();
         mainCtx.beginPath();
@@ -539,7 +551,7 @@
               db.ref('draw_st').push({
                 points: points,
                 color: currentTool === 'eraser' ? null : currentColor,
-                size: currentSize,
+                size: currentTool === 'eraser' ? currentSize * 5 : currentSize,
                 studentId: studentId,
                 ts: Date.now()
               });
@@ -557,7 +569,7 @@
           db.ref('draw_st').push({
             points: points,
             color: currentTool === 'eraser' ? null : currentColor,
-            size: currentSize,
+            size: currentTool === 'eraser' ? currentSize * 5 : currentSize,
             studentId: studentId,
             ts: Date.now()
           });
@@ -565,6 +577,7 @@
         }
         if (sendTimer) clearTimeout(sendTimer);
         sendTimer = null;
+        mainCtx.globalCompositeOperation = 'source-over';
         // تحديث lastImageData بعد الرسم
         lastImageData = mainCanvas.toDataURL();
       }
