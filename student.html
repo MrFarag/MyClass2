@@ -117,9 +117,11 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            transition: 0.2s;
         }
         .tool-btn i { font-size: 18px; }
         .tool-btn:hover { background: #4caf50; }
+        .tool-btn.active { background: #4caf50; }
         .status-bar {
             background: #2d2d44;
             padding: 5px 15px;
@@ -136,6 +138,13 @@
             gap: 5px;
         }
         .audio-indicator.active { display: flex; }
+        .mic-request-indicator {
+            color: #ff9800;
+            display: none;
+            align-items: center;
+            gap: 5px;
+        }
+        .mic-request-indicator.active { display: flex; }
     </style>
 </head>
 <body>
@@ -166,11 +175,13 @@
         <div class="toolbar">
             <button class="tool-btn" id="handBtn" onclick="toggleHand()" title="رفع اليد"><i class="fas fa-hand-paper"></i></button>
             <button class="tool-btn" id="uploadBtn" onclick="uploadImage()" title="رفع صورة"><i class="fas fa-upload"></i></button>
+            <button class="tool-btn" id="micRequestBtn" onclick="requestMic()" title="طلب التحدث"><i class="fas fa-microphone"></i></button>
         </div>
 
         <div class="status-bar">
             <span><i class="fas fa-circle" style="color:#4caf50;"></i> متصل</span>
             <span class="audio-indicator" id="teacherAudioIndicator"><i class="fas fa-volume-up"></i> المدرس يتحدث</span>
+            <span class="mic-request-indicator" id="micRequestIndicator"><i class="fas fa-hourglass-half"></i> بانتظار الموافقة</span>
         </div>
     </div>
 
@@ -278,7 +289,7 @@
                 snap.ref.remove();
             });
 
-            // ===== الصوت =====
+            // ===== الصوت (استقبال من المدرس) =====
             const audio = document.getElementById('audioPlayer');
             let peer, currentCall;
             peer = new Peer(studentId);
@@ -301,11 +312,15 @@
             });
         }
 
+        // ===== رفع اليد (تظل الأيقونة مفعلة ولا تختفي) =====
         window.toggleHand = () => {
             db.ref('handRaised/' + studentId).set({ raised: true });
-            setTimeout(() => db.ref('handRaised/' + studentId).remove(), 5000);
+            // لا نغير حالة الزر، فقط نرسل الطلب
+            // يمكن إظهار رسالة مؤقتة
+            alert('تم رفع اليد');
         };
 
+        // ===== رفع صورة (تظل الأيقونة مفعلة) =====
         window.uploadImage = () => {
             const input = document.createElement('input');
             input.type = 'file';
@@ -322,6 +337,22 @@
             };
             input.click();
         };
+
+        // ===== طلب الميكروفون (تظل الأيقونة مفعلة) =====
+        window.requestMic = () => {
+            db.ref('micRequests/' + studentId).set({ studentId, studentName, timestamp: Date.now() });
+            document.getElementById('micRequestIndicator').classList.add('active');
+            // لا نعطل الزر
+        };
+
+        // الاستماع لمنح الميكروفون
+        db.ref('micPermissions/' + studentId).on('value', (snap) => {
+            if (snap.val() && snap.val().allowed) {
+                alert('تم منحك الإذن بالتحدث!');
+                document.getElementById('micRequestIndicator').classList.remove('active');
+                // هنا يمكن تفعيل الميكروفون المحلي إذا أردنا
+            }
+        });
 
         window.addEventListener('beforeunload', () => {
             if (studentId) {
