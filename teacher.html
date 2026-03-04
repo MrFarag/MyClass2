@@ -139,10 +139,10 @@
       display: flex;
       gap: 8px;
       color: #ffaa00;
-      font-size: 14px;
+      font-size: 16px;
       flex-shrink: 0;
     }
-    .student-actions i { cursor: pointer; transition: 0.2s; }
+    .student-actions i { cursor: pointer; transition: 0.2s; width: 20px; text-align: center; }
     .student-actions i:hover { transform: scale(1.2); color: #fff; }
     .blink {
       animation: blink-animation 1s infinite;
@@ -452,6 +452,7 @@
       let studentImages = {};      // صور الطلاب
       let lastMainImage = null;    // آخر صورة رئيسية (لإعادة الرسم بعد تغيير الحجم)
       let lastStudentBoardData = {}; // آخر بيانات سبورة طالب (لكل طالب)
+      let micRequests = {};        // طلبات المايك (لتوميض الأيقونة)
 
       const mainCanvas = document.getElementById('mainBoardCanvas');
       const correctionCanvas = document.getElementById('correctionCanvas');
@@ -665,7 +666,7 @@
       };
 
       // ============================================================
-      // إدارة الطلاب
+      // إدارة الطلاب (بدون confirm أو toast)
       // ============================================================
       function setupListeners() {
         db.ref('joinRequests').on('child_added', snap => {
@@ -700,17 +701,26 @@
           updateStudentsList();
         });
 
+        // استقبال طلبات المايك - بدون confirm، فقط وميض الأيقونة
         db.ref('micRequests').on('child_added', snap => {
           const req = snap.val();
           if (req && students[req.studentId]) {
-            if (confirm(`الطالب ${req.studentName} يريد التحدث. هل تسمح؟`)) {
-              if (currentSpeaker) db.ref('micPermissions/' + currentSpeaker).remove();
-              currentSpeaker = req.studentId;
-              db.ref('micPermissions/' + req.studentId).set({ allowed: true });
-              db.ref('handRaised/' + req.studentId).remove();
-            }
-            snap.ref.remove();
+            micRequests[req.studentId] = true;
+            updateStudentsList(); // سيقوم بتحديث الأيقونة وإضافة وميض
+            // لا يوجد confirm، يبقى الطلب في micRequests حتى يتم منحه أو رفضه
           }
+        });
+
+        // عند منح الإذن أو رفضه (إزالة الطلب)
+        db.ref('micPermissions').on('value', snap => {
+          const perms = snap.val() || {};
+          // إذا تم منح الإذن، نزيل طلب المايك لذلك الطالب
+          Object.keys(micRequests).forEach(id => {
+            if (perms[id]) {
+              delete micRequests[id];
+            }
+          });
+          updateStudentsList();
         });
 
         // استقبال صور الطلاب
@@ -791,6 +801,10 @@
           const hasImage = studentImages[s.id] && studentImages[s.id].length > 0;
           const isHandRaised = s.handRaised;
           const isSpeaking = (currentSpeaker === s.id);
+          const hasMicRequest = micRequests[s.id]; // وميض إذا كان هناك طلب مايك
+          const micIconClass = isSpeaking ? 'fa-microphone-slash' : (hasMicRequest ? 'fa-microphone blink' : 'fa-microphone');
+          const micIconColor = isSpeaking ? '#22c55e' : (hasMicRequest ? '#f59e0b' : '#aaa');
+          const micTitle = isSpeaking ? 'إيقاف المايك' : (hasMicRequest ? 'طلب مايك - اضغط للمنح' : 'منح المايك');
           const statusIcon = isHandRaised ? '<i class="fas fa-hand-paper blink" style="color:#f59e0b;"></i>' : (isSpeaking ? '<i class="fas fa-microphone" style="color:#22c55e;"></i>' : '<i class="fas fa-headphones" style="color:#aaa;"></i>');
           const statusText = isHandRaised ? ' رفع اليد' : (isSpeaking ? ' يتحدث' : ' مستمع');
           html += `
@@ -801,8 +815,9 @@
                 <div class="student-status">${statusIcon} ${statusText}</div>
               </div>
               <div class="student-actions">
-                ${hasImage ? `<i class="fas fa-image" title="عرض الصورة" onclick="event.stopPropagation(); openCorrectionModal('${s.id}', '${s.name}')"></i>` : ''}
                 <i class="fas fa-eye" title="عرض السبورة" onclick="event.stopPropagation(); viewStudentBoard('${s.id}', '${s.name}')"></i>
+                ${hasImage ? `<i class="fas fa-image" title="عرض الصورة" onclick="event.stopPropagation(); openCorrectionModal('${s.id}', '${s.name}')"></i>` : ''}
+                <i class="${micIconClass}" style="color:${micIconColor};" title="${micTitle}" onclick="event.stopPropagation(); toggleStudentMic('${s.id}')"></i>
                 <i class="fas fa-door-closed" title="طرد" onclick="event.stopPropagation(); kickStudent('${s.id}')"></i>
               </div>
             </div>
@@ -833,6 +848,7 @@
           db.ref('micPermissions/' + id).remove();
         }
         delete students[id];
+        delete micRequests[id];
         db.ref('approvedStudents/' + id).remove();
         db.ref('onlineStudents/' + id).remove();
       };
@@ -850,6 +866,21 @@
           mainCtx.fillStyle = '#fff';
           mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
         }
+      };
+      window.toggleStudentMic = function(id) {
+        if (currentSpeaker === id) {
+          // إيقاف المايك
+          currentSpeaker = null;
+          db.ref('micPermissions/' + id).remove();
+        } else {
+          // منح المايك (أو قبول الطلب)
+          if (currentSpeaker) db.ref('micPermissions/' + currentSpeaker).remove();
+          currentSpeaker = id;
+          db.ref('micPermissions/' + id).set({ allowed: true });
+          db.ref('handRaised/' + id).remove();
+          delete micRequests[id];
+        }
+        updateStudentsList();
       };
 
       // ============================================================
@@ -888,10 +919,11 @@
       window.setCorrectionColor = function(color) { correctionColor = color; };
 
       // ============================================================
-      // الصوت
+      // الصوت (للمدرس)
       // ============================================================
       window.toggleMic = function() {
         document.getElementById('micBtn').classList.toggle('active');
+        // هنا يمكن إضافة منطق تشغيل/إيقاف مايك المدرس إذا أردت
       };
 
       // ============================================================
@@ -912,6 +944,7 @@
           students = {};
           waitingStudents = {};
           studentImages = {};
+          micRequests = {};
           currentSpeaker = null;
           switchToMainBoard();
           updateStudentsList();
