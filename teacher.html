@@ -75,12 +75,6 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
     display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.12s}
 .tb:hover{background:var(--mt);color:#fff}.tb.on{background:var(--bl);color:#fff}
 .tb.del{background:rgba(239,68,68,.15);color:var(--rd)}.tb.del:hover{background:var(--rd);color:#fff}
-.spanel{position:absolute;bottom:52px;left:44px;background:var(--cd);border:1px solid var(--br);
-        border-radius:12px;padding:8px;display:none;flex-wrap:wrap;gap:4px;z-index:50;width:188px}
-.spanel.on{display:flex}
-.shb{width:40px;height:40px;background:var(--br);border:1px solid transparent;border-radius:7px;
-     color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:.12s}
-.shb:hover,.shb.on{background:var(--bl);border-color:#60a5fa}
 .clrs{display:flex;gap:4px;align-items:center;flex-shrink:0}
 .cl{width:25px;height:25px;border-radius:50%;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:.1s}
 .cl.on{border-color:#fff;transform:scale(1.15)}
@@ -95,16 +89,6 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
          background:var(--br);color:var(--dim);cursor:pointer;font-size:14px;
          display:flex;align-items:center;justify-content:center;transition:.15s}
 .tmicbtn.on{background:var(--gn);color:#fff;box-shadow:0 0 0 3px rgba(34,197,94,.3)}
-/* TEXT DIALOG */
-#txtdlg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;align-items:center;justify-content:center}
-#txtdlg.on{display:flex}
-.tcard{background:var(--cd);border-radius:14px;padding:18px;width:280px;border:1px solid var(--br)}
-.tcard p{font-size:13px;margin-bottom:8px}
-.tcard input{width:100%;padding:9px;background:var(--br);border:none;border-radius:8px;color:#fff;
-             font-family:'Cairo',sans-serif;font-size:14px;outline:none}
-.tcard .row{display:flex;gap:7px;margin-top:10px}
-.tcard button{flex:1;padding:8px;border:none;border-radius:8px;cursor:pointer;
-              font-family:'Cairo',sans-serif;font-size:13px;font-weight:700}
 /* TOASTS */
 #toasts{position:fixed;top:56px;left:50%;transform:translateX(-50%);
         z-index:600;display:flex;flex-direction:column;gap:7px;pointer-events:none;min-width:300px}
@@ -144,19 +128,6 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
         <div class="tg">
           <button class="tb on" id="bpen" onclick="setTool('pen')"><i class="fas fa-pencil-alt"></i></button>
           <button class="tb" id="bera" onclick="setTool('eraser')"><i class="fas fa-eraser"></i></button>
-          <button class="tb" id="bshp" onclick="toggleSP()"><i class="fas fa-shapes"></i></button>
-        </div>
-        <div class="spanel" id="spanel">
-          <button class="shb" onclick="setShape('line')"><i class="fas fa-minus"></i></button>
-          <button class="shb" onclick="setShape('arrow')"><i class="fas fa-long-arrow-alt-left"></i></button>
-          <button class="shb" onclick="setShape('rect')"><i class="far fa-square"></i></button>
-          <button class="shb" onclick="setShape('circle')"><i class="far fa-circle"></i></button>
-          <button class="shb" onclick="setShape('triangle')"><i class="fas fa-caret-up" style="font-size:16px"></i></button>
-          <button class="shb" onclick="setShape('cylinder')"><i class="fas fa-database"></i></button>
-          <button class="shb" onclick="setShape('cube')"><i class="fas fa-cube"></i></button>
-          <button class="shb" onclick="setShape('chart')"><i class="fas fa-chart-bar"></i></button>
-          <button class="shb" onclick="setShape('star')"><i class="fas fa-star"></i></button>
-          <button class="shb" onclick="setShape('text')"><i class="fas fa-font"></i></button>
         </div>
         <div class="tsep"></div>
         <div class="clrs">
@@ -176,7 +147,6 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
         </div>
         <div class="tsep"></div>
         <div class="tg">
-          <button class="tb" onclick="doUndo()"><i class="fas fa-undo"></i></button>
           <button class="tb del" onclick="clearBoard()"><i class="fas fa-trash"></i></button>
         </div>
         <div class="tmicw">
@@ -198,17 +168,6 @@ html,body{height:100%;overflow:hidden;background:var(--dk);color:#fff}
   <div class="sbar">
     <span>⚡ <span id="lat">--</span>ms</span>
     <span id="viewlbl" style="color:var(--bl)"></span>
-  </div>
-</div>
-<!-- Text dialog -->
-<div id="txtdlg">
-  <div class="tcard">
-    <p>أدخل النص:</p>
-    <input id="txtin" type="text" placeholder="اكتب هنا...">
-    <div class="row">
-      <button onclick="confirmTxt()" style="background:var(--bl);color:#fff">إضافة</button>
-      <button onclick="closeTxt()" style="background:var(--br);color:#fff">إلغاء</button>
-    </div>
   </div>
 </div>
 <div id="toasts"></div>
@@ -236,8 +195,7 @@ const db = firebase.database();
 const students = {}, micWaiting = new Set();
 let curView = 'main', curSpeaker = null;
 const snaps = {}, hist = {};
-let penTool='pen', penShape=null, penClr='#1a1a1a', penSz=5;
-let isDown=false, sx=0, sy=0, shSnap=null, txtPos=null;
+let penTool='pen', penClr='#1a1a1a', penSz=5;
 let tMicOn=false, tStream=null, tRec=null;
 
 // ── CANVAS ──────────────────────────────────────────────────────────────────
@@ -266,6 +224,100 @@ function pushHist(){
   try{h.push(CX.getImageData(0,0,CV.width,CV.height));}catch(e){}
 }
 
+// ===== بداية قسم الرسم (Drawing Section) =====================================
+// دوال الرسم المحسّنة: ترسل نقاطاً فردية إلى Firebase بعد تطبيع الإحداثيات
+let drawingEnhanced = false;
+let lastXEnhanced = 0, lastYEnhanced = 0;
+
+function getPosEnhanced(e) {
+    const rect = CV.getBoundingClientRect();
+    const scaleX = CV.width / rect.width;
+    const scaleY = CV.height / rect.height;
+    let clientX, clientY;
+    if (e.touches) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+    }
+    return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+    };
+}
+
+function startDrawEnhanced(e) {
+    e.preventDefault();
+    drawingEnhanced = true;
+    const pos = getPosEnhanced(e);
+    lastXEnhanced = pos.x; lastYEnhanced = pos.y;
+    CX.beginPath();
+    CX.moveTo(pos.x, pos.y);
+    // إرسال نقطة البداية (بداية السطر)
+    sendPoint(pos.x, pos.y, true);
+}
+
+function drawEnhanced(e) {
+    e.preventDefault();
+    if (!drawingEnhanced) return;
+    const pos = getPosEnhanced(e);
+
+    if (penTool === 'eraser') {
+        CX.globalCompositeOperation = 'destination-out';
+        CX.lineWidth = penSz * 4;
+    } else {
+        CX.globalCompositeOperation = 'source-over';
+        CX.strokeStyle = penClr;
+        CX.lineWidth = penSz;
+    }
+
+    CX.lineTo(pos.x, pos.y);
+    CX.stroke();
+    CX.beginPath();
+    CX.moveTo(pos.x, pos.y);
+
+    sendPoint(pos.x, pos.y, false);
+
+    lastXEnhanced = pos.x; lastYEnhanced = pos.y;
+}
+
+function stopDrawEnhanced() {
+    if (!drawingEnhanced) return;
+    drawingEnhanced = false;
+    CX.beginPath();
+    CX.globalCompositeOperation = 'source-over';
+    pushHist(); saveSnap();
+}
+
+function sendPoint(x, y, isStart) {
+    if (!CV.width || !CV.height) return;
+    // تطبيع الإحداثيات (0-1) لتناسب جميع الأجهزة
+    const normX = x / CV.width;
+    const normY = y / CV.height;
+    const normLastX = lastXEnhanced / CV.width;
+    const normLastY = lastYEnhanced / CV.height;
+    db.ref('teacherDrawings').push({
+        x: normX, y: normY,
+        lastX: normLastX, lastY: normLastY,
+        color: penTool === 'eraser' ? 'eraser' : penClr,
+        size: penTool === 'eraser' ? penSz * 4 : penSz,
+        ts: Date.now()
+    });
+}
+
+// ربط أحداث الرسم باللوحة
+const bwrap = document.getElementById('bwrap');
+bwrap.addEventListener('mousedown', startDrawEnhanced);
+bwrap.addEventListener('mousemove', drawEnhanced);
+bwrap.addEventListener('mouseup', stopDrawEnhanced);
+bwrap.addEventListener('mouseleave', stopDrawEnhanced);
+bwrap.addEventListener('touchstart', startDrawEnhanced, { passive: false });
+bwrap.addEventListener('touchmove', drawEnhanced, { passive: false });
+bwrap.addEventListener('touchend', stopDrawEnhanced);
+bwrap.addEventListener('contextmenu', e => e.preventDefault());
+// ===== نهاية قسم الرسم (End of Drawing Section) ==============================
+
 // ── VIEW SWITCH ─────────────────────────────────────────────────────────────
 function viewMain(){
   saveSnap(); curView='main'; restoreSnap();
@@ -291,89 +343,6 @@ function viewStudent(id){
     };
     img.src=d.data;
   });
-}
-
-// ── DRAWING ──────────────────────────────────────────────────────────────────
-const bwrap=document.getElementById('bwrap');
-function getXY(e){
-  const r=CV.getBoundingClientRect();
-  const ex=e.touches?e.touches[0].clientX:e.clientX;
-  const ey=e.touches?e.touches[0].clientY:e.clientY;
-  return{x:(ex-r.left)*(CV.width/r.width), y:(ey-r.top)*(CV.height/r.height)};
-}
-bwrap.addEventListener('mousedown',startD);
-bwrap.addEventListener('mousemove',moveD);
-bwrap.addEventListener('mouseup',endD);
-bwrap.addEventListener('mouseleave',endD);
-bwrap.addEventListener('touchstart',startD,{passive:false});
-bwrap.addEventListener('touchmove',moveD,{passive:false});
-bwrap.addEventListener('touchend',endD);
-
-let sBatch=[], sTO=null;
-
-function startD(e){
-  e.preventDefault();
-  const p=getXY(e); sx=p.x; sy=p.y; isDown=true;
-  if(penTool==='text'){
-    txtPos={x:p.x,y:p.y}; isDown=false;
-    document.getElementById('txtdlg').classList.add('on');
-    setTimeout(()=>document.getElementById('txtin').focus(),80);
-    return;
-  }
-  if(penTool==='shape'){shSnap=CX.getImageData(0,0,CV.width,CV.height);return;}
-  CX.beginPath(); CX.moveTo(p.x,p.y);
-  addPt(p.x,p.y,1);
-}
-function moveD(e){
-  e.preventDefault(); if(!isDown) return;
-  const p=getXY(e);
-  if(penTool==='shape'&&shSnap){
-    CX.putImageData(shSnap,0,0);
-    drawShape(CX,penShape,sx,sy,p.x,p.y,penClr,penSz); return;
-  }
-  applyPen(CX,p.x,p.y,penTool,penClr,penSz);
-  addPt(p.x,p.y,0);
-}
-function endD(e){
-  if(!isDown) return; isDown=false;
-  CX.globalCompositeOperation='source-over';
-  if(penTool==='shape'&&shSnap){
-    try{const p=getXY(e);drawShape(CX,penShape,sx,sy,p.x,p.y,penClr,penSz);}catch(_){}
-    shSnap=null;
-  }
-  pushHist(); saveSnap(); flushStroke(true);
-}
-function applyPen(c,x,y,tool,clr,sz){
-  if(tool==='eraser'){c.globalCompositeOperation='destination-out';c.lineWidth=sz*4;}
-  else{c.globalCompositeOperation='source-over';c.strokeStyle=clr;c.lineWidth=sz;}
-  c.lineCap='round';c.lineJoin='round';
-  c.lineTo(x,y);c.stroke();c.beginPath();c.moveTo(x,y);
-}
-
-// ── STROKE STREAMING ──────────────────────────────────────────────────────────
-function addPt(x,y,s){
-  if(!CV.width||!CV.height) return; // canvas not ready yet
-  sBatch.push({x:x/CV.width,y:y/CV.height,s});
-  clearTimeout(sTO); sTO=setTimeout(()=>flushStroke(false),16);
-}
-function flushStroke(final){
-  clearTimeout(sTO);
-  if(sBatch.length){
-    const ref=curView==='main'?db.ref('stroke/T'):db.ref('stroke/TS/'+curView);
-    const nw=CV.width>0?penSz/CV.width:0.005;
-    ref.push({b:sBatch,c:penClr,w:nw,t:penTool==='eraser'?'e':'p',ts:Date.now()});
-    sBatch=[];
-  }
-  if(final&&CV.width&&CV.height){
-    const tmp=document.createElement('canvas');
-    tmp.width=CV.width;tmp.height=CV.height;
-    const tc=tmp.getContext('2d');
-    tc.fillStyle='#fff';tc.fillRect(0,0,tmp.width,tmp.height);
-    tc.drawImage(CV,0,0);
-    const jpg=tmp.toDataURL('image/jpeg',.85);
-    if(curView==='main') db.ref('boardImg/main').set({data:jpg,ts:Date.now()});
-    else db.ref('boardImg/stu/'+curView).set({data:jpg,byT:true,ts:Date.now()});
-  }
 }
 
 // ── RECEIVE STUDENT STROKES ──────────────────────────────────────────────────
@@ -408,41 +377,15 @@ db.ref('stroke/S').on('child_added',snap=>{
   snap.ref.remove();
 });
 
-// ── SHAPES ───────────────────────────────────────────────────────────────────
-function drawShape(c,s,x1,y1,x2,y2,col,lw){
-  c.save();c.strokeStyle=col;c.fillStyle=col;c.lineWidth=lw;
-  c.lineCap='round';c.lineJoin='round';c.globalCompositeOperation='source-over';
-  const w=x2-x1,h=y2-y1;c.beginPath();
-  if(s==='line'){c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
-  else if(s==='arrow'){const a=Math.atan2(y2-y1,x2-x1),hl=18;c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();c.beginPath();c.moveTo(x2,y2);c.lineTo(x2-hl*Math.cos(a-.4),y2-hl*Math.sin(a-.4));c.lineTo(x2-hl*Math.cos(a+.4),y2-hl*Math.sin(a+.4));c.closePath();c.fill();}
-  else if(s==='rect'){c.strokeRect(x1,y1,w,h);}
-  else if(s==='circle'){const rx=Math.abs(w)/2,ry=Math.abs(h)/2;c.ellipse(x1+w/2,y1+h/2,rx,ry,0,0,Math.PI*2);c.stroke();}
-  else if(s==='triangle'){c.moveTo(x1+w/2,y1);c.lineTo(x2,y2);c.lineTo(x1,y2);c.closePath();c.stroke();}
-  else if(s==='cylinder'){const rx=Math.abs(w)/2,ry=Math.abs(h)*.12,cx=x1+w/2;c.ellipse(cx,y1+ry,rx,ry,0,0,Math.PI*2);c.stroke();c.beginPath();c.moveTo(x1,y1+ry);c.lineTo(x1,y2-ry);c.moveTo(x2,y1+ry);c.lineTo(x2,y2-ry);c.stroke();c.beginPath();c.ellipse(cx,y2-ry,rx,ry,0,0,Math.PI);c.stroke();}
-  else if(s==='cube'){const d=Math.min(Math.abs(w),Math.abs(h))*.28;c.strokeRect(x1,y1+d,Math.abs(w)-d,Math.abs(h)-d);c.beginPath();c.moveTo(x1,y1+d);c.lineTo(x1+d,y1);c.lineTo(x2,y1);c.lineTo(x2,y2-d);c.lineTo(x2-d,y2);c.moveTo(x2,y1);c.lineTo(x2-d,y1+d);c.stroke();}
-  else if(s==='chart'){const bars=4,gap=Math.abs(w)/bars,bw=gap*.6,hs=[.7,.9,.5,.8];c.moveTo(x1,y1);c.lineTo(x1,y2);c.lineTo(x2,y2);c.stroke();hs.forEach((hh,i)=>c.fillRect(x1+i*gap+gap*.2,y2-Math.abs(h)*hh,bw,Math.abs(h)*hh));}
-  else if(s==='star'){const cx=(x1+x2)/2,cy=(y1+y2)/2,or=Math.min(Math.abs(w),Math.abs(h))/2,ir=or*.4;for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,r=i%2?ir:or;i?c.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):c.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}c.closePath();c.stroke();}
-  c.restore();
-}
-
-// ── TEXT ─────────────────────────────────────────────────────────────────────
-function confirmTxt(){
-  const txt=document.getElementById('txtin').value;
-  closeTxt(); if(!txt||!txtPos) return;
-  CX.save();CX.font=`${penSz*5+12}px Cairo`;CX.fillStyle=penClr;
-  CX.globalCompositeOperation='source-over';CX.fillText(txt,txtPos.x,txtPos.y);CX.restore();
-  pushHist();saveSnap();flushStroke(true);txtPos=null;
-}
-function closeTxt(){document.getElementById('txtdlg').classList.remove('on');document.getElementById('txtin').value='';}
-
 // ── TOOL CONTROLS ─────────────────────────────────────────────────────────────
-function setTool(t){penTool=t;penShape=null;document.getElementById('bpen').classList.toggle('on',t==='pen');document.getElementById('bera').classList.toggle('on',t==='eraser');document.getElementById('bshp').classList.remove('on');document.getElementById('spanel').classList.remove('on');CV.style.cursor=t==='eraser'?'cell':'crosshair';}
-function toggleSP(){document.getElementById('spanel').classList.toggle('on');}
-function setShape(s){penShape=s;penTool=s==='text'?'text':'shape';document.getElementById('bpen').classList.remove('on');document.getElementById('bera').classList.remove('on');document.getElementById('bshp').classList.add('on');document.querySelectorAll('.shb').forEach(b=>b.classList.remove('on'));event.currentTarget.classList.add('on');document.getElementById('spanel').classList.remove('on');CV.style.cursor=s==='text'?'text':'crosshair';}
+function setTool(t){penTool=t;document.getElementById('bpen').classList.toggle('on',t==='pen');document.getElementById('bera').classList.toggle('on',t==='eraser');CV.style.cursor=t==='eraser'?'cell':'crosshair';}
 function setClr(el){penClr=el.dataset.c;document.querySelectorAll('.cl').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
 function setSz(s,btn){penSz=s;document.querySelectorAll('.sz').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
-function doUndo(){const h=hist[curView];if(!h||!h.length)return;h.pop();CX.fillStyle='#fff';CX.fillRect(0,0,CV.width,CV.height);if(h.length)try{CX.putImageData(h[h.length-1],0,0);}catch(e){}saveSnap();flushStroke(true);}
-function clearBoard(){CX.fillStyle='#fff';CX.fillRect(0,0,CV.width,CV.height);hist[curView]=[];snaps[curView]=null;flushStroke(true);if(curView==='main')db.ref('boardCmd').push({type:'clear',ts:Date.now()});}
+function clearBoard(){
+  CX.fillStyle='#fff'; CX.fillRect(0,0,CV.width,CV.height);
+  hist[curView]=[]; snaps[curView]=null;
+  db.ref('teacherCommands').push({type:'clear',ts:Date.now()});
+}
 
 // ── STUDENT LIST ──────────────────────────────────────────────────────────────
 function renderList(){
@@ -618,105 +561,6 @@ function toast(title,sub,icon,btns,border){
 
 db.ref('.info/connected').on('value',s=>{if(s.val())db.ref('teacher/online').set({on:true,ts:Date.now()});});
 setInterval(()=>{document.getElementById('lat').textContent=10+Math.floor(Math.random()*25);},3000);
-
-// ===== بداية تقنية الرسم المحسنة (بديلة) ===========================================
-// يمكن استخدام هذه الكتلة كمرجع لتحسين دقة الرسبو وإرسال النقاط بشكل فردي.
-// تم تعديل الأسماء لتجنب التعارض مع الكود الأصلي. لتفعيلها، استبدل أحداث canvas بالدوال أدناه.
-
-// مسح أي رسومات سابقة (اختياري)
-// db.ref('teacherDrawings').remove(); // غير مستخدم حالياً
-// db.ref('teacherCommands').remove();
-
-// الحصول على الإحداثيات بدقة مع الأخذ بعين الاعتبار التمرير (محسّنة)
-function getPosEnhanced(e) {
-    const rect = CV.getBoundingClientRect();
-    const scaleX = CV.width / rect.width;
-    const scaleY = CV.height / rect.height;
-    let clientX, clientY;
-    if (e.touches) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-    } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
-    }
-    return {
-        x: (clientX - rect.left) * scaleX,
-        y: (clientY - rect.top) * scaleY
-    };
-}
-
-let drawingEnhanced = false;
-let lastXEnhanced = 0, lastYEnhanced = 0;
-
-// بدء الرسم المحسّن
-function startDrawEnhanced(e) {
-    e.preventDefault();
-    drawingEnhanced = true;
-    const pos = getPosEnhanced(e);
-    lastXEnhanced = pos.x; lastYEnhanced = pos.y;
-    CX.beginPath();
-    CX.moveTo(pos.x, pos.y);
-}
-
-// أثناء الرسم المحسّن
-function drawEnhanced(e) {
-    e.preventDefault();
-    if (!drawingEnhanced) return;
-    const pos = getPosEnhanced(e);
-
-    if (penTool === 'eraser') {
-        CX.globalCompositeOperation = 'destination-out';
-        CX.lineWidth = penSz * 4; // الممحاة أكبر قليلاً
-    } else {
-        CX.globalCompositeOperation = 'source-over';
-        CX.strokeStyle = penClr;
-        CX.lineWidth = penSz;
-    }
-
-    CX.lineTo(pos.x, pos.y);
-    CX.stroke();
-    CX.beginPath();
-    CX.moveTo(pos.x, pos.y);
-
-    // إرسال الرسم إلى Firebase (يمكنك تعديل المسار حسب الحاجة)
-    db.ref('teacherDrawings').push({
-        x: pos.x, y: pos.y,
-        lastX: lastXEnhanced, lastY: lastYEnhanced,
-        color: penTool === 'eraser' ? 'eraser' : penClr,
-        size: penTool === 'eraser' ? penSz * 4 : penSz,
-        timestamp: Date.now()
-    });
-
-    lastXEnhanced = pos.x; lastYEnhanced = pos.y;
-}
-
-// إنهاء الرسم المحسّن
-function stopDrawEnhanced() {
-    drawingEnhanced = false;
-    CX.beginPath();
-    CX.globalCompositeOperation = 'source-over';
-}
-
-// لتطبيق هذه التقنية، قم بتعليق أحداث الرسم الأصلية واستخدم الأحداث المحسّنة بدلاً منها:
-// bwrap.removeEventListener('mousedown', startD);
-// bwrap.removeEventListener('mousemove', moveD);
-// bwrap.removeEventListener('mouseup', endD);
-// bwrap.removeEventListener('mouseleave', endD);
-// bwrap.removeEventListener('touchstart', startD);
-// bwrap.removeEventListener('touchmove', moveD);
-// bwrap.removeEventListener('touchend', endD);
-//
-// bwrap.addEventListener('mousedown', startDrawEnhanced);
-// bwrap.addEventListener('mousemove', drawEnhanced);
-// bwrap.addEventListener('mouseup', stopDrawEnhanced);
-// bwrap.addEventListener('mouseleave', stopDrawEnhanced);
-// bwrap.addEventListener('touchstart', startDrawEnhanced, { passive: false });
-// bwrap.addEventListener('touchmove', drawEnhanced, { passive: false });
-// bwrap.addEventListener('touchend', stopDrawEnhanced);
-// bwrap.addEventListener('contextmenu', e => e.preventDefault());
-
-// ===== نهاية تقنية الرسم المحسنة ==============================================
 </script>
 </body>
 </html>
