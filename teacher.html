@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>المدرس - MyClass2</title>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -41,7 +40,6 @@
             font-size: 14px;
             font-weight: bold;
         }
-        /* مؤشر الميكروفون للمدرس */
         .mic-status {
             width: 40px;
             height: 40px;
@@ -59,7 +57,6 @@
         }
         .mic-status i { font-size: 20px; }
 
-        /* زر طلب الانضمام النابض */
         .request-preview {
             background: #ff9800;
             color: #1e1e2f;
@@ -72,7 +69,7 @@
             gap: 8px;
             animation: pulse 1s infinite;
             cursor: default;
-            max-width: 200px;
+            max-width: 250px;
         }
         .request-preview .student-name-short {
             background: rgba(0,0,0,0.2);
@@ -81,7 +78,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 80px;
+            max-width: 100px;
             cursor: default;
         }
         .request-preview .student-name-short:hover {
@@ -209,7 +206,6 @@
                 <i class="fas fa-microphone"></i>
             </div>
             <span class="online-count" id="onlineCount">0 طالب</span>
-            <!-- زر طلب الانضمام النابض (يظهر عند وجود طلبات) -->
             <div class="request-preview" id="requestPreview" style="display:none;">
                 <div class="student-name-short" id="studentNameShort" title="">...</div>
                 <div class="request-actions">
@@ -267,9 +263,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
     <script>
-        // ========== Firebase Config ==========
         const firebaseConfig = {
             apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
             authDomain: "myclaive.firebaseapp.com",
@@ -283,11 +279,9 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        // مسح الرسومات القديمة
         db.ref('teacherDrawings').remove();
         db.ref('teacherCommands').remove();
 
-        // ========== عناصر الرسم ==========
         const canvas = document.getElementById('board');
         const ctx = canvas.getContext('2d');
         ctx.lineCap = 'round';
@@ -394,7 +388,6 @@
             db.ref('teacherCommands').push({ type: 'clear', timestamp: Date.now() });
         };
 
-        // وظائف إضافية غير مفعلة
         window.drawShape = () => {};
         window.importImage = () => {};
         window.addText = () => {};
@@ -408,14 +401,13 @@
         window.lockBoard = () => {};
         window.unlockBoard = () => {};
 
-        // ========== نظام طلبات الانضمام (زر نابض مع اسم مختصر) ==========
+        // ===== طلبات الانضمام =====
         const requestPreview = document.getElementById('requestPreview');
         const studentNameShort = document.getElementById('studentNameShort');
-        let requestsArray = []; // مصفوفة لتخزين الطلبات بالترتيب
+        let requestsArray = [];
 
         function getShortName(fullName) {
-            if (fullName.length <= 8) return fullName;
-            return fullName.substring(0, 5) + '...';
+            return fullName.length <= 8 ? fullName : fullName.substring(0, 5) + '...';
         }
 
         function updateRequestPreview() {
@@ -425,23 +417,19 @@
             }
             requestPreview.style.display = 'flex';
             const first = requestsArray[0];
-            const short = getShortName(first.studentName);
-            studentNameShort.innerText = short;
-            studentNameShort.title = first.studentName; // الاسم الكامل يظهر عند hover
+            studentNameShort.innerText = getShortName(first.studentName);
+            studentNameShort.title = first.studentName;
         }
 
-        // قبول أول طلب
         window.acceptCurrentRequest = () => {
             if (requestsArray.length === 0) return;
             const first = requestsArray[0];
             db.ref('acceptedStudents/' + first.studentId).set(true);
             db.ref('joinRequests/' + first.key).remove();
-            // إزالة من المصفوفة
             requestsArray.shift();
             updateRequestPreview();
         };
 
-        // رفض أول طلب
         window.rejectCurrentRequest = () => {
             if (requestsArray.length === 0) return;
             const first = requestsArray[0];
@@ -450,21 +438,16 @@
             updateRequestPreview();
         };
 
-        // منح الميكروفون (مع القبول أيضًا)
         window.grantMicToCurrentRequest = () => {
             if (requestsArray.length === 0) return;
             const first = requestsArray[0];
-            // قبول الطالب أولاً
             db.ref('acceptedStudents/' + first.studentId).set(true);
-            // منح الميكروفون
             db.ref('micPermissions/' + first.studentId).set({ allowed: true });
-            // حذف الطلب
             db.ref('joinRequests/' + first.key).remove();
             requestsArray.shift();
             updateRequestPreview();
         };
 
-        // الاستماع لطلبات الانضمام
         db.ref('joinRequests').on('child_added', (snap) => {
             const req = snap.val();
             req.key = snap.key;
@@ -477,58 +460,79 @@
             updateRequestPreview();
         });
 
-        // تحديث عدد الطلاب المقبولين
         db.ref('acceptedStudents').on('value', (snap) => {
             const count = snap.val() ? Object.keys(snap.val()).length : 0;
             document.getElementById('onlineCount').innerText = count + ' طالب';
         });
 
-        // ========== نظام الصوت (محسّن) ==========
-        let audioStream, mediaRecorder;
-        const micButton = document.getElementById('micButton');
+        // ===== الصوت =====
+        let localStream, peer;
+        let calls = {};
+
+        peer = new Peer('teacher_' + Date.now());
+
+        peer.on('open', (id) => {
+            db.ref('teacherAudioId').set(id);
+        });
+
+        peer.on('call', (call) => {
+            if (localStream) {
+                call.answer(localStream);
+            }
+        });
 
         window.toggleAudio = async () => {
-            if (!audioStream) {
+            const btn = document.getElementById('micButton');
+            if (!localStream) {
                 try {
-                    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    micButton.classList.add('active');
-                    mediaRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm' });
-                    mediaRecorder.ondataavailable = (e) => {
-                        if (e.data.size > 0) {
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                                db.ref('audioChunks').push({
-                                    data: reader.result,
-                                    timestamp: Date.now()
-                                });
-                            };
-                            reader.readAsDataURL(e.data);
+                    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    btn.classList.add('active');
+                    db.ref('teacherAudioActive').set(true);
+
+                    const acceptedSnap = await db.ref('acceptedStudents').once('value');
+                    const accepted = acceptedSnap.val() || {};
+                    for (let studentId in accepted) {
+                        const studentPeerId = await db.ref('studentPeerIds/' + studentId).once('value');
+                        if (studentPeerId.exists()) {
+                            const call = peer.call(studentPeerId.val(), localStream);
+                            calls[studentId] = call;
                         }
-                    };
-                    mediaRecorder.start(1000); // قطع كل ثانية
-                    db.ref('audioActive').set(true);
+                    }
+
+                    db.ref('acceptedStudents').on('child_added', async (snap) => {
+                        if (localStream) {
+                            const newStudentId = snap.key;
+                            const studentPeerId = await db.ref('studentPeerIds/' + newStudentId).once('value');
+                            if (studentPeerId.exists()) {
+                                const call = peer.call(studentPeerId.val(), localStream);
+                                calls[newStudentId] = call;
+                            }
+                        }
+                    });
+
                 } catch (err) {
                     alert('لا يمكن الوصول للميكروفون');
                 }
             } else {
-                if (mediaRecorder) mediaRecorder.stop();
-                audioStream.getTracks().forEach(t => t.stop());
-                audioStream = null;
-                micButton.classList.remove('active');
-                db.ref('audioActive').set(false);
+                for (let id in calls) {
+                    calls[id].close();
+                }
+                calls = {};
+                localStream.getTracks().forEach(t => t.stop());
+                localStream = null;
+                btn.classList.remove('active');
+                db.ref('teacherAudioActive').set(false);
+                db.ref('acceptedStudents').off('child_added');
             }
         };
 
-        // استقبال طلبات الميكروفون من الطلاب
         db.ref('micRequests').on('child_added', (snap) => {
-            const req = snap.val();
-            // هنا يمكن إشعار المدرس (اختياري) ولكننا نفضل الصمت
             snap.ref.remove();
         });
 
         window.addEventListener('beforeunload', () => {
             db.ref('teacher/online').remove();
-            if (audioStream) audioStream.getTracks().forEach(t => t.stop());
+            if (localStream) localStream.getTracks().forEach(t => t.stop());
         });
         db.ref('teacher/online').set({ online: true });
     </script>
