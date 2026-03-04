@@ -23,22 +23,12 @@
             align-items: center;
             border-bottom: 3px solid #ff9800;
             flex-shrink: 0;
-            gap: 10px;
-            flex-wrap: wrap;
         }
         .logo i { color: #ff9800; margin-left: 8px; }
         .header-right {
             display: flex;
             align-items: center;
             gap: 15px;
-            flex-wrap: wrap;
-        }
-        .online-count {
-            background: #4caf50;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
         }
         .mic-status {
             width: 40px;
@@ -204,6 +194,71 @@
             border-radius: 50%;
             cursor: pointer;
         }
+
+        /* قائمة الطلاب (مع أيقونات متراصة) */
+        .students-panel {
+            background: #2d2d44;
+            padding: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            border-top: 1px solid #444;
+            flex-shrink: 0;
+        }
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #3e3e5e;
+            padding: 5px 10px;
+            margin: 3px 0;
+            border-radius: 5px;
+        }
+        .student-item .student-name {
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+        .student-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .student-btn {
+            background: rgba(0,0,0,0.3);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .student-btn.accept:hover { background: #4caf50; }
+        .student-btn.reject:hover { background: #f44336; }
+        .student-btn.mic:hover { background: #2196f3; }
+
+        /* الشريط السفلي (عداد الطلاب) */
+        .bottom-status {
+            background: transparent;
+            padding: 5px 15px;
+            text-align: left;
+            font-size: 14px;
+            color: #fff;
+            border-top: 1px solid #444;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .student-counter {
+            font-weight: bold;
+            color: #4caf50;
+        }
     </style>
 </head>
 <body>
@@ -213,8 +268,6 @@
             <div class="mic-status" id="micButton" onclick="toggleAudio()" title="تشغيل/إيقاف الميكروفون">
                 <i class="fas fa-microphone"></i>
             </div>
-            <span class="online-count" id="onlineCount">0 طالب</span>
-            <!-- زر الطلب يظهر دائماً -->
             <div class="request-preview" id="requestPreview">
                 <div class="student-name-short" id="studentNameShort" title="لا يوجد طلبات">🔔</div>
                 <div class="request-actions">
@@ -267,6 +320,17 @@
         <button class="tool-btn" onclick="gridToggle()" title="شبكة"><i class="fas fa-th"></i></button>
         <button class="tool-btn" onclick="lockBoard()" title="قفل"><i class="fas fa-lock"></i></button>
         <button class="tool-btn" onclick="unlockBoard()" title="فتح"><i class="fas fa-lock-open"></i></button>
+    </div>
+
+    <!-- قائمة الطلاب (مع أيقونات) -->
+    <div class="students-panel" id="studentsList">
+        <!-- سيتم تعبئتها ديناميكياً -->
+    </div>
+
+    <!-- الشريط السفلي (عداد الطلاب) -->
+    <div class="bottom-status">
+        <span class="student-counter" id="onlineCountBottom">0 طالب</span>
+        <span id="extraInfo"></span>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -410,84 +474,181 @@
         window.lockBoard = () => {};
         window.unlockBoard = () => {};
 
-        // ===== طلبات الانضمام (الزر يبقى ظاهراً دائماً) =====
+        // ===== طلبات الانضمام والميكروفون (زر الطلب النابض) =====
         const requestPreview = document.getElementById('requestPreview');
         const studentNameShort = document.getElementById('studentNameShort');
         const acceptBtn = document.getElementById('acceptBtn');
         const rejectBtn = document.getElementById('rejectBtn');
         const micGrantBtn = document.getElementById('micGrantBtn');
-        let requestsArray = [];
+        let requestsArray = []; // طلبات الانضمام
+        let micRequestsArray = []; // طلبات الميكروفون
 
         function getShortName(fullName) {
             return fullName.length <= 8 ? fullName : fullName.substring(0, 5) + '...';
         }
 
         function updateRequestPreview() {
-            if (requestsArray.length === 0) {
-                // لا يوجد طلبات: عرض أيقونة عادية بدون نبض
-                studentNameShort.innerText = '🔔';
-                studentNameShort.title = 'لا يوجد طلبات';
-                requestPreview.classList.remove('pulse');
-                // تعطيل الأزرار
-                acceptBtn.classList.add('disabled');
-                rejectBtn.classList.add('disabled');
-                micGrantBtn.classList.add('disabled');
+            // الأولوية لطلبات الميكروفون (تظهر قبل طلبات الانضمام)
+            if (micRequestsArray.length > 0) {
+                const req = micRequestsArray[0];
+                studentNameShort.innerText = getShortName(req.studentName) + ' 🎤';
+                studentNameShort.title = req.studentName + ' يطلب الميكروفون';
+                requestPreview.classList.add('pulse');
+                acceptBtn.classList.remove('disabled');
+                rejectBtn.classList.remove('disabled');
+                micGrantBtn.classList.add('disabled'); // لا حاجة لمنح الميك من هنا
                 return;
             }
-            // يوجد طلبات: عرض أول طالب
-            requestPreview.classList.add('pulse');
-            const first = requestsArray[0];
-            studentNameShort.innerText = getShortName(first.studentName);
-            studentNameShort.title = first.studentName;
-            acceptBtn.classList.remove('disabled');
-            rejectBtn.classList.remove('disabled');
-            micGrantBtn.classList.remove('disabled');
+            if (requestsArray.length > 0) {
+                const first = requestsArray[0];
+                studentNameShort.innerText = getShortName(first.studentName);
+                studentNameShort.title = first.studentName + ' يطلب الانضمام';
+                requestPreview.classList.add('pulse');
+                acceptBtn.classList.remove('disabled');
+                rejectBtn.classList.remove('disabled');
+                micGrantBtn.classList.remove('disabled');
+                return;
+            }
+            // لا توجد طلبات
+            studentNameShort.innerText = '🔔';
+            studentNameShort.title = 'لا يوجد طلبات';
+            requestPreview.classList.remove('pulse');
+            acceptBtn.classList.add('disabled');
+            rejectBtn.classList.add('disabled');
+            micGrantBtn.classList.add('disabled');
         }
 
+        // قبول طلب الانضمام الحالي
         window.acceptCurrentRequest = () => {
-            if (requestsArray.length === 0) return;
-            const first = requestsArray[0];
-            db.ref('acceptedStudents/' + first.studentId).set(true);
-            db.ref('joinRequests/' + first.key).remove();
-            // لا نحذف الطلب من المصفوفة هنا، سيتم حذفه تلقائياً عبر child_removed
-            // ولكننا نريد إزالته فوراً للواجهة؟
-            // الأفضل: نترك child_removed يعالج الحذف
+            if (micRequestsArray.length > 0) {
+                // قبول طلب ميكروفون (نمنح الميك)
+                const req = micRequestsArray[0];
+                db.ref('micPermissions/' + req.studentId).set({ allowed: true });
+                db.ref('micRequests/' + req.key).remove();
+                micRequestsArray.shift();
+            } else if (requestsArray.length > 0) {
+                const first = requestsArray[0];
+                db.ref('acceptedStudents/' + first.studentId).set(true);
+                db.ref('joinRequests/' + first.key).remove();
+                requestsArray.shift();
+            }
+            updateRequestPreview();
         };
 
+        // رفض الطلب الحالي
         window.rejectCurrentRequest = () => {
-            if (requestsArray.length === 0) return;
-            const first = requestsArray[0];
-            db.ref('joinRequests/' + first.key).remove();
+            if (micRequestsArray.length > 0) {
+                const req = micRequestsArray[0];
+                db.ref('micRequests/' + req.key).remove();
+                micRequestsArray.shift();
+            } else if (requestsArray.length > 0) {
+                const first = requestsArray[0];
+                db.ref('joinRequests/' + first.key).remove();
+                requestsArray.shift();
+            }
+            updateRequestPreview();
         };
 
+        // منح الميكروفون لطلب الانضمام (يقبل الطالب ويمنحه الميك)
         window.grantMicToCurrentRequest = () => {
             if (requestsArray.length === 0) return;
             const first = requestsArray[0];
             db.ref('acceptedStudents/' + first.studentId).set(true);
             db.ref('micPermissions/' + first.studentId).set({ allowed: true });
             db.ref('joinRequests/' + first.key).remove();
+            requestsArray.shift();
+            updateRequestPreview();
         };
 
+        // الاستماع لطلبات الانضمام
         db.ref('joinRequests').on('child_added', (snap) => {
             const req = snap.val();
             req.key = snap.key;
             requestsArray.push(req);
             updateRequestPreview();
         });
-
         db.ref('joinRequests').on('child_removed', (snap) => {
             requestsArray = requestsArray.filter(r => r.key !== snap.key);
             updateRequestPreview();
         });
 
-        db.ref('acceptedStudents').on('value', (snap) => {
-            const count = snap.val() ? Object.keys(snap.val()).length : 0;
-            document.getElementById('onlineCount').innerText = count + ' طالب';
+        // الاستماع لطلبات الميكروفون
+        db.ref('micRequests').on('child_added', (snap) => {
+            const req = snap.val();
+            req.key = snap.key;
+            micRequestsArray.push(req);
+            updateRequestPreview();
+        });
+        db.ref('micRequests').on('child_removed', (snap) => {
+            micRequestsArray = micRequestsArray.filter(r => r.key !== snap.key);
+            updateRequestPreview();
         });
 
-        // ===== الصوت عبر PeerJS (محسّن الجودة) =====
+        // ===== عرض قائمة الطلاب المقبولين =====
+        const studentsList = document.getElementById('studentsList');
+        let acceptedStudents = {};
+
+        function renderStudentsList() {
+            let html = '';
+            for (let id in acceptedStudents) {
+                const student = acceptedStudents[id];
+                html += `
+                    <div class="student-item">
+                        <span class="student-name" title="${student.name}">${student.name}</span>
+                        <div class="student-actions">
+                            <button class="student-btn mic" onclick="grantMicToStudent('${id}')" title="منح الميكروفون"><i class="fas fa-microphone"></i></button>
+                            <button class="student-btn reject" onclick="kickStudent('${id}')" title="طرد"><i class="fas fa-user-times"></i></button>
+                        </div>
+                    </div>
+                `;
+            }
+            if (html === '') {
+                html = '<div style="text-align:center; padding:10px;">لا يوجد طلاب بعد</div>';
+            }
+            studentsList.innerHTML = html;
+        }
+
+        window.grantMicToStudent = (id) => {
+            db.ref('micPermissions/' + id).set({ allowed: true });
+        };
+
+        window.kickStudent = (id) => {
+            if (confirm('طرد هذا الطالب؟')) {
+                db.ref('acceptedStudents/' + id).remove();
+                db.ref('onlineStudents/' + id).remove();
+                db.ref('micPermissions/' + id).remove();
+                db.ref('kicked/' + id).set({ ts: Date.now() });
+            }
+        };
+
+        db.ref('acceptedStudents').on('value', (snap) => {
+            const data = snap.val() || {};
+            acceptedStudents = {};
+            for (let id in data) {
+                // نحتاج اسم الطالب من studentData
+                db.ref('studentData/' + id).once('value', (s) => {
+                    const name = s.val() ? s.val().name : 'طالب';
+                    acceptedStudents[id] = { name, id };
+                    renderStudentsList();
+                });
+            }
+            const count = Object.keys(data).length;
+            document.getElementById('onlineCountBottom').innerText = count + ' طالب';
+            renderStudentsList(); // مؤقت لحين تحميل الأسماء
+        });
+
+        // تحديث الأسماء عندما تتغير studentData
+        db.ref('studentData').on('child_added', (snap) => {
+            const data = snap.val();
+            if (acceptedStudents[snap.key]) {
+                acceptedStudents[snap.key].name = data.name;
+                renderStudentsList();
+            }
+        });
+
+        // ===== الصوت عبر PeerJS =====
         let localStream, peer;
-        let calls = {}; // تخزين المكالمات النشطة
+        let calls = {};
 
         peer = new Peer('teacher_' + Date.now());
 
@@ -495,7 +656,6 @@
             db.ref('teacherAudioId').set(id);
         });
 
-        // استقبال المكالمات من الطلاب (إذا أراد الطالب التحدث) - اختياري
         peer.on('call', (call) => {
             if (localStream) {
                 call.answer(localStream);
@@ -506,7 +666,6 @@
             const btn = document.getElementById('micButton');
             if (!localStream) {
                 try {
-                    // إعدادات صوت عالية الجودة
                     localStream = await navigator.mediaDevices.getUserMedia({
                         audio: {
                             echoCancellation: true,
@@ -519,7 +678,6 @@
                     btn.classList.add('active');
                     db.ref('teacherAudioActive').set(true);
 
-                    // الاتصال بجميع الطلاب المقبولين حالياً
                     const acceptedSnap = await db.ref('acceptedStudents').once('value');
                     const accepted = acceptedSnap.val() || {};
                     for (let studentId in accepted) {
@@ -530,11 +688,9 @@
                         }
                     }
 
-                    // الاستماع للطلاب الجدد الذين يتم قبولهم لاحقاً
                     db.ref('acceptedStudents').on('child_added', async (snap) => {
                         if (localStream) {
                             const newStudentId = snap.key;
-                            // ننتظر قليلاً حتى يسجل الطالب peerId
                             setTimeout(async () => {
                                 const studentPeerId = await db.ref('studentPeerIds/' + newStudentId).once('value');
                                 if (studentPeerId.exists()) {
@@ -549,7 +705,6 @@
                     alert('لا يمكن الوصول للميكروفون');
                 }
             } else {
-                // إيقاف البث
                 for (let id in calls) {
                     calls[id].close();
                 }
@@ -561,11 +716,6 @@
                 db.ref('acceptedStudents').off('child_added');
             }
         };
-
-        db.ref('micRequests').on('child_added', (snap) => {
-            // يمكن إشعار المدرس هنا إذا أردت، لكننا نفضل الصمت
-            snap.ref.remove();
-        });
 
         window.addEventListener('beforeunload', () => {
             db.ref('teacher/online').remove();
