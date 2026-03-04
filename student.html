@@ -62,49 +62,7 @@
       gap: 8px;
     }
 
-    /* لوحة الطلاب */
-    .students-panel {
-      width: 260px;
-      background: #1e3228;
-      border-radius: 24px;
-      padding: 12px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      border: 1px solid #3a5a40;
-    }
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      color: #ffaa00;
-    }
-    .student-item {
-      background: #1a2e25;
-      border-radius: 40px;
-      padding: 8px 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border: 1px solid #2a4a30;
-    }
-    .student-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #ffaa00;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-    }
-    .student-info { flex: 1; }
-    .student-name { font-weight: 700; font-size: 13px; }
-    .student-status { font-size: 10px; color: #ccc; display: flex; align-items: center; gap: 4px; }
-
-    /* منطقة السبورة */
+    /* منطقة السبورة (تمتد على كل المساحة) */
     .board-area {
       flex: 1;
       display: flex;
@@ -236,16 +194,7 @@
   </div>
 
   <div class="main-layout">
-    <!-- لوحة الطلاب -->
-    <div class="students-panel">
-      <div class="panel-header">
-        <span><i class="fas fa-users"></i> المشاركون</span>
-        <span id="studentsCountPanel">0</span>
-      </div>
-      <div id="participantsList"></div>
-    </div>
-
-    <!-- السبورة -->
+    <!-- السبورة فقط (لا يوجد قائمة مشتركين) -->
     <div class="board-area">
       <div class="board-header">
         <div class="current-board-title">سبورة المدرس</div>
@@ -373,16 +322,19 @@
         }
       });
 
-      function setupListeners() {
-        // ============================================================
-        // ===== بداية قسم استقبال الرسم المحسّن (الطالب) =====
-        // Improved Drawing Reception Section (Student)
-        // ============================================================
-        // رسم المدرس (مع تحسين الجودة)
-        db.ref('draw_t').on('child_added', snap => {
-          const d = snap.val();
-          if (!d || !d.points) return;
-          // تطبيق الرسم على canvas
+      // ============================================================
+      // تحسين استقبال الرسم: استخدام requestAnimationFrame لتجميع التحديثات
+      // ============================================================
+      let pendingDraws = []; // مصفوفة لتخزين دفعات الرسم الواردة
+      let rafScheduled = false;
+
+      function processPendingDraws() {
+        if (pendingDraws.length === 0) {
+          rafScheduled = false;
+          return;
+        }
+        // تطبيق جميع الدفعات المعلقة على اللوحة
+        pendingDraws.forEach(d => {
           if (d.color === null) { // ممحاة
             mainCtx.globalCompositeOperation = 'destination-out';
             mainCtx.lineWidth = d.size || 4;
@@ -397,9 +349,33 @@
             mainCtx.lineTo(d.points[i].x * mainCanvas.width, d.points[i].y * mainCanvas.height);
           }
           mainCtx.stroke();
-          mainCtx.globalCompositeOperation = 'source-over';
-          // تحديث lastImageData بعد الرسم
-          lastImageData = mainCanvas.toDataURL();
+        });
+        mainCtx.globalCompositeOperation = 'source-over';
+        lastImageData = mainCanvas.toDataURL();
+        pendingDraws = [];
+        rafScheduled = false;
+      }
+
+      function scheduleDraw() {
+        if (!rafScheduled) {
+          rafScheduled = true;
+          requestAnimationFrame(processPendingDraws);
+        }
+      }
+
+      function setupListeners() {
+        // ============================================================
+        // ===== بداية قسم استقبال الرسم المحسّن (الطالب) =====
+        // Improved Drawing Reception Section (Student)
+        // ============================================================
+        // رسم المدرس (مع تحسين الجودة)
+        db.ref('draw_t').on('child_added', snap => {
+          const d = snap.val();
+          if (!d || !d.points) return;
+          // إضافة الدفعة إلى قائمة الانتظار وجدولة الرسم
+          pendingDraws.push(d);
+          scheduleDraw();
+          snap.ref.remove(); // حذف البيانات بعد استلامها
         });
 
         // صورة السبورة الرئيسية
@@ -448,53 +424,6 @@
         db.ref('micPermissions/' + studentId).on('value', snap => {
           if (snap.val()) startMic();
         });
-
-        // تحديث قائمة المشاركين
-        db.ref('onlineStudents').on('value', snap => {
-          updateParticipantsList(snap.val() || {});
-        });
-      }
-
-      // تحديث قائمة المشاركين
-      function updateParticipantsList(online) {
-        const listDiv = document.getElementById('participantsList');
-        let html = '';
-        html += `
-          <div class="student-item">
-            <div class="student-avatar" style="background:#ffaa00;">م</div>
-            <div class="student-info">
-              <div class="student-name">المدرس</div>
-              <div class="student-status"><i class="fas fa-chalkboard-teacher"></i> يشرح</div>
-            </div>
-          </div>
-        `;
-        Object.values(online).forEach(s => {
-          if (s.name && s.name !== studentName) {
-            html += `
-              <div class="student-item">
-                <div class="student-avatar">${s.name.charAt(0)}</div>
-                <div class="student-info">
-                  <div class="student-name">${s.name}</div>
-                  <div class="student-status"><i class="fas fa-headphones"></i> مستمع</div>
-                </div>
-              </div>
-            `;
-          }
-        });
-        if (studentName && approved) {
-          html += `
-            <div class="student-item">
-              <div class="student-avatar" style="background:#ffaa00;">${studentName.charAt(0)}</div>
-              <div class="student-info">
-                <div class="student-name">${studentName} (أنت)</div>
-                <div class="student-status"><i class="fas fa-user"></i> متصل</div>
-              </div>
-            </div>
-          `;
-        }
-        listDiv.innerHTML = html;
-        document.getElementById('studentsCount').textContent = Object.keys(online).length + 1;
-        document.getElementById('studentsCountPanel').textContent = Object.keys(online).length + 1;
       }
 
       // ============================================================
@@ -558,7 +487,7 @@
               points = [];
             }
             sendTimer = null;
-          }, 20);
+          }, 16); // 16ms ≈ 60fps
         }
       }
 
