@@ -2,152 +2,166 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>MyClass2 - الطالب</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
-    html,body{height:100%;background:#0f1e35;color:#fff;overflow:hidden}
+    html,body{width:100%;height:100%;background:#0f1e35;color:#fff;overflow:hidden;display:flex;flex-direction:column;}
 
-    .top-bar{height:60px;background:linear-gradient(90deg,#071524,#102040);border-bottom:2px solid #00aaff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;overflow-x:auto;gap:12px}
-    .teacher-name{font-size:16px;font-weight:900;color:#00aaff;white-space:nowrap}
-    .teacher-desc{font-size:11px;color:#ccc}
-    .teacher-phone{font-size:13px;color:#00aaff;direction:ltr;white-space:nowrap}
-    .top-center{display:flex;align-items:center;gap:14px;background:rgba(0,0,0,.3);padding:4px 16px;border-radius:30px;flex-shrink:0}
-    .top-center span{font-size:12px;display:flex;align-items:center;gap:4px;white-space:nowrap}
-    .top-center i{color:#00aaff}
+    .top-bar{height:46px;min-height:46px;background:linear-gradient(90deg,#071524,#102040);border-bottom:2px solid #00aaff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;gap:8px;flex-shrink:0;}
+    .brand{display:flex;align-items:center;gap:8px;}
+    .brand-name{font-size:14px;font-weight:900;color:#00aaff;white-space:nowrap;direction:ltr;}
+    .wa-btn{width:32px;height:32px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;}
+    .wa-btn i{color:#fff;font-size:17px;}
+    .stats{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.3);padding:3px 12px;border-radius:30px;}
+    .stats span{font-size:11px;display:flex;align-items:center;gap:3px;color:#ccc;white-space:nowrap;}
+    .stats i{color:#00aaff;}
+    .phone{font-size:11px;color:#00aaff;direction:ltr;white-space:nowrap;}
 
-    .app-body{display:flex;flex:1;overflow:hidden;height:calc(100vh - 60px - 72px)}
+    .tabs-bar{height:42px;min-height:42px;background:#071524;border-bottom:2px solid #1e4080;display:flex;flex-shrink:0;}
+    .tab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:700;color:#556;cursor:pointer;border-bottom:3px solid transparent;transition:.2s;user-select:none;}
+    .tab i{font-size:15px;}
+    .tab.active{color:#00aaff;border-bottom-color:#00aaff;background:rgba(0,170,255,.06);}
+    .badge{background:#e53935;color:#fff;border-radius:50%;width:15px;height:15px;font-size:9px;display:inline-flex;align-items:center;justify-content:center;margin-right:3px;}
 
-    .students-panel{width:240px;min-width:180px;background:#122040;padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;border-left:1px solid #1e4080;flex-shrink:0}
-    @media(max-width:800px){.students-panel{width:160px;min-width:120px}}
-    .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;color:#00aaff;font-weight:700;font-size:13px}
-    .student-item{background:#0f1e35;border-radius:40px;padding:7px 10px;display:flex;align-items:center;gap:8px;border:1px solid #1e4080}
-    .student-avatar{width:32px;height:32px;border-radius:50%;background:#00aaff;display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;flex-shrink:0;font-size:13px}
-    .student-info{flex:1;min-width:0}
-    .student-name{font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .student-status{font-size:10px;color:#ccc;display:flex;align-items:center;gap:3px}
+    /* المفتاح: كل تاب يأخذ باقي الارتفاع */
+    .tab-pane{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden;}
+    .tab-pane.on{display:flex;}
 
-    .board-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-    .board-header{height:42px;background:#122040;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1e4080;flex-shrink:0}
-    .board-title{font-weight:700;color:#00aaff;font-size:13px}
-    .board-controls{display:flex;align-items:center;gap:10px}
-    .board-controls i{color:#00aaff;cursor:pointer;font-size:15px;transition:.2s}
-    .board-controls i:hover{color:#fff;transform:scale(1.15)}
-    .zoom-btn{background:#1e3a60;border:none;color:#00aaff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:.2s}
-    .zoom-btn:hover{background:#2a5080;color:#fff}
-    #zoomVal{font-size:11px;color:#aaa;min-width:36px;text-align:center}
+    .bh{height:38px;min-height:38px;background:#0a1828;padding:0 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1e4080;flex-shrink:0;}
+    .bh-title{font-weight:700;color:#00aaff;font-size:12px;}
+    .bh-ctrl{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+    .zb{background:#1e3a60;border:none;color:#00aaff;min-width:26px;height:26px;padding:0 5px;border-radius:7px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;white-space:nowrap;}
+    .zb:hover{background:#2a5080;color:#fff;}
+    .zv{font-size:10px;color:#aaa;min-width:32px;text-align:center;}
+    .ci{color:#00aaff;cursor:pointer;font-size:14px;transition:.2s;}
+    .ci:hover{color:#fff;}
 
-    .board-scroll{flex:1;overflow:auto;background:#222;position:relative;display:flex;align-items:flex-start;justify-content:flex-start}
-    .board-scroll.center-mode{align-items:center;justify-content:center}
-    #mainCanvas{display:block;cursor:crosshair;touch-action:none;background:#fff;transform-origin:top left}
+    /* السبورة — تملأ كل الفراغ */
+    .board-wrap{flex:1;min-height:0;min-width:0;overflow:auto;background:#1a1a2e;display:flex;}
+    canvas{display:block;background:#fff;touch-action:none;flex-shrink:0;}
 
-    .bottom-bar{height:72px;background:#071524;border-top:2px solid #00aaff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;overflow-x:auto;gap:10px}
-    .toolbar-tools{display:flex;gap:12px;background:#0f1e35;padding:7px 16px;border-radius:50px;border:1px solid #1e4080;align-items:center;flex-shrink:0}
-    .tool-item{display:flex;flex-direction:column;align-items:center;color:#aaa;cursor:pointer;font-size:10px;transition:.2s;white-space:nowrap}
-    .tool-item i{font-size:22px}
-    .tool-item.active{color:#00aaff}
-    .color-picker{display:flex;gap:4px;background:#122040;padding:5px 8px;border-radius:40px;align-items:center}
-    .color-dot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.2s}
-    .color-dot:hover{transform:scale(1.15)}
-    .color-dot.active{border-color:#fff;transform:scale(1.2)}
-    .toolbar-actions{display:flex;gap:10px;flex-shrink:0}
-    .action-circle{width:48px;height:48px;border-radius:50%;border:none;background:#1e3a60;color:#fff;font-size:20px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center}
-    .action-circle:hover{filter:brightness(1.25);transform:scale(1.06)}
-    .btn-mic.active{background:#00aaff;color:#000}
-    .btn-hand.active{background:#f59e0b;animation:blink 1s infinite}
-    .image-upload input{display:none}
-    .image-upload label{background:#00aaff;color:#000;padding:5px 14px;border-radius:30px;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:700;font-size:12px;white-space:nowrap}
+    .bot{height:64px;min-height:64px;background:#071524;border-top:2px solid #00aaff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;flex-shrink:0;overflow-x:auto;gap:6px;}
+    .tools-row{display:flex;gap:8px;background:#0f1e35;padding:5px 12px;border-radius:50px;border:1px solid #1e4080;align-items:center;flex-shrink:0;}
+    .ti{display:flex;flex-direction:column;align-items:center;color:#556;cursor:pointer;font-size:9px;transition:.2s;}
+    .ti i{font-size:20px;}
+    .ti.on{color:#00aaff;}
+    .dots{display:flex;gap:3px;background:#122040;padding:4px 8px;border-radius:40px;align-items:center;}
+    .dot{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.2s;flex-shrink:0;}
+    .dot.on{border-color:#fff;transform:scale(1.2);}
+    .acts{display:flex;gap:7px;flex-shrink:0;}
+    .ab{width:44px;height:44px;border-radius:50%;border:none;background:#1e3a60;color:#fff;font-size:18px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;}
+    .ab.mic-on{background:#00aaff;color:#000;}
+    .ab.hand-on{background:#f59e0b;animation:blink 1s infinite;}
+    .ulbl{background:#00aaff;color:#000;padding:5px 10px;border-radius:30px;cursor:pointer;display:flex;align-items:center;gap:4px;font-weight:700;font-size:11px;white-space:nowrap;}
+    input[type=file]{display:none;}
 
-    /* Overlay انتظار الموافقة */
-    #waitOverlay{position:fixed;inset:0;background:rgba(7,21,36,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;padding:20px;text-align:center}
-    #waitOverlay.hidden{display:none}
-    .wait-icon{font-size:64px;color:#00aaff;animation:blink 1.5s infinite}
-    .wait-text{font-size:20px;font-weight:900;color:#fff}
-    .wait-sub{font-size:13px;color:#aaa}
+    .ov{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:14px;padding:20px;text-align:center;}
+    #ovWait{background:rgba(7,21,36,.97);}
+    #ovWait.h{display:none;}
+    #ovMic{background:rgba(7,21,36,.96);}
+    #ovMic.h{display:none;}
+    .ov-ico{font-size:56px;color:#00aaff;animation:blink 1.5s infinite;}
+    .ov-ico2{font-size:56px;color:#00aaff;}
+    .ov-h{font-size:19px;font-weight:900;color:#fff;}
+    .ov-p{font-size:12px;color:#ccc;max-width:340px;line-height:1.8;}
+    .ov-btn{background:#00aaff;color:#000;border:none;padding:11px 32px;border-radius:50px;font-size:14px;font-weight:900;cursor:pointer;font-family:'Cairo',sans-serif;display:flex;align-items:center;gap:7px;}
+    .ov-skip{background:transparent;color:#777;border:1px solid #444;padding:7px 22px;border-radius:50px;font-size:11px;cursor:pointer;font-family:'Cairo',sans-serif;}
 
-    /* Overlay إذن المايك */
-    #micOverlay{position:fixed;inset:0;background:rgba(7,21,36,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;gap:16px;padding:20px;text-align:center}
-    #micOverlay.hidden{display:none}
-    .mic-icon{font-size:64px;color:#00aaff}
-    .mic-title{font-size:20px;font-weight:900;color:#fff}
-    .mic-sub{font-size:13px;color:#ccc;max-width:380px;line-height:1.7}
-    .mic-btn{background:#00aaff;color:#000;border:none;padding:13px 36px;border-radius:50px;font-size:15px;font-weight:900;cursor:pointer;font-family:'Cairo',sans-serif;transition:.2s;display:flex;align-items:center;gap:8px}
-    .mic-btn:hover{background:#33bbff;transform:scale(1.04)}
-    .mic-skip{background:transparent;color:#888;border:1px solid #444;padding:9px 28px;border-radius:50px;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif}
-    .mic-skip:hover{border-color:#999;color:#ccc}
+    .toast{position:fixed;top:54px;left:50%;transform:translateX(-50%);padding:8px 20px;border-radius:24px;font-size:13px;font-weight:700;z-index:8000;box-shadow:0 4px 20px rgba(0,0,0,.5);pointer-events:none;white-space:nowrap;}
+    .toast.g{background:#4CAF50;color:#fff;}
+    .toast.a{background:#ffaa00;color:#000;}
 
     @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-    .blink{animation:blink 1s infinite}
   </style>
 </head>
 <body>
 
-<!-- Overlay إذن المايك — يظهر أول ما تفتح الصفحة -->
-<div id="micOverlay">
-  <div class="mic-icon"><i class="fas fa-microphone"></i></div>
-  <div class="mic-title">إذن استخدام المايك</div>
-  <div class="mic-sub">عند السماح لك بالكلام من المدرس، سيحتاج التطبيق إلى الميكروفون.<br>اضغط "السماح" الآن حتى يعمل بدون مشاكل لاحقاً.</div>
-  <button class="mic-btn" onclick="grantMic()"><i class="fas fa-microphone"></i> السماح بالمايك</button>
-  <button class="mic-skip" onclick="skipMic()">تخطي — لن أحتاج الكلام</button>
+<div id="ovWait" class="ov">
+  <div class="ov-ico"><i class="fas fa-hourglass-half"></i></div>
+  <div class="ov-h">بانتظار موافقة المدرس...</div>
+  <div class="ov-p" id="ovWaitName"></div>
 </div>
 
-<!-- Overlay انتظار موافقة المدرس -->
-<div id="waitOverlay" class="hidden">
-  <div class="wait-icon"><i class="fas fa-hourglass-half"></i></div>
-  <div class="wait-text">بانتظار موافقة المدرس...</div>
-  <div class="wait-sub" id="waitName"></div>
+<div id="ovMic" class="ov h">
+  <div class="ov-ico2"><i class="fas fa-microphone"></i></div>
+  <div class="ov-h">تفعيل الميكروفون</div>
+  <div class="ov-p">اضغط "السماح" لتتمكن من التحدث عندما يأذن لك المدرس.</div>
+  <button class="ov-btn" onclick="grantMic()"><i class="fas fa-microphone"></i> السماح</button>
+  <button class="ov-skip" onclick="skipMic()">تخطي الآن</button>
 </div>
 
 <div class="top-bar">
-  <div><div class="teacher-name">Mr_Farag_Kohail</div><div class="teacher-desc">منصة الفيزياء</div></div>
-  <div class="top-center">
-    <span><i class="fas fa-circle" style="color:#4CAF50"></i> مباشر</span>
-    <span><i class="fas fa-users"></i> <span id="studentsCount">0</span></span>
-    <span><i class="fas fa-wifi"></i> <span id="latency">--</span></span>
+  <div class="brand">
+    <a class="wa-btn" href="https://wa.me/201141010981" target="_blank"><i class="fab fa-whatsapp"></i></a>
+    <span class="brand-name">Mr. Farag Kohail | Physics</span>
   </div>
-  <div class="teacher-phone">01141010981</div>
+  <div class="stats">
+    <span><i class="fas fa-circle" style="color:#4CAF50"></i>مباشر</span>
+    <span><i class="fas fa-users"></i><span id="cnt">0</span></span>
+    <span><i class="fas fa-wifi"></i><span id="lat">--</span></span>
+  </div>
+  <span class="phone">01141010981</span>
 </div>
 
-<div class="app-body">
-  <div class="students-panel">
-    <div class="panel-header"><span><i class="fas fa-users"></i> المشاركون</span><span id="studentsCountPanel">0</span></div>
-    <div id="participantsList"></div>
+<div class="tabs-bar">
+  <div class="tab active" id="tabT" onclick="goTab('T')">
+    <i class="fas fa-chalkboard-teacher"></i>سبورة المدرس
   </div>
-  <div class="board-area">
-    <div class="board-header">
-      <div class="board-title" id="boardTitle">سبورة المدرس</div>
-      <div class="board-controls">
-        <button class="zoom-btn" onclick="zoom(-0.1)" title="تصغير"><i class="fas fa-minus"></i></button>
-        <span id="zoomVal">100%</span>
-        <button class="zoom-btn" onclick="zoom(0.1)" title="تكبير"><i class="fas fa-plus"></i></button>
-        <button class="zoom-btn" onclick="resetZoom()" style="width:auto;padding:0 8px;font-size:11px">مناسب</button>
-        <i class="fas fa-download" title="حفظ" onclick="saveBoard()"></i>
-        <i class="fas fa-expand" title="ملء الشاشة" onclick="toggleFullscreen()"></i>
-      </div>
-    </div>
-    <div class="board-scroll" id="boardScroll">
-      <canvas id="mainCanvas"></canvas>
-    </div>
+  <div class="tab" id="tabS" onclick="goTab('S')">
+    <i class="fas fa-user-edit"></i>سبورتي
   </div>
 </div>
 
-<div class="bottom-bar">
-  <div class="toolbar-tools">
-    <div class="tool-item active" onclick="setTool('pen')" id="toolPen"><i class="fas fa-pen-nib"></i><span>قلم</span></div>
-    <div class="tool-item" onclick="setTool('eraser')" id="toolEraser"><i class="fas fa-eraser"></i><span>ممحاة</span></div>
-    <div class="color-picker">
-      <div class="color-dot active" style="background:#000" onclick="setColor('#000',this)"></div>
-      <div class="color-dot" style="background:#e53935" onclick="setColor('#e53935',this)"></div>
-      <div class="color-dot" style="background:#1e88e5" onclick="setColor('#1e88e5',this)"></div>
-      <div class="color-dot" style="background:#43a047" onclick="setColor('#43a047',this)"></div>
+<!-- تاب المدرس -->
+<div class="tab-pane on" id="paneT">
+  <div class="bh">
+    <span class="bh-title"><i class="fas fa-chalkboard-teacher"></i> سبورة المدرس</span>
+    <div class="bh-ctrl">
+      <button class="zb" onclick="Z('T',-0.15)"><i class="fas fa-minus"></i></button>
+      <span class="zv" id="zvT">—</span>
+      <button class="zb" onclick="Z('T',0.15)"><i class="fas fa-plus"></i></button>
+      <button class="zb" onclick="fit('T')">ملاءمة</button>
+      <i class="ci fas fa-expand" onclick="goFS()"></i>
     </div>
-    <div class="image-upload"><label for="sImg"><i class="fas fa-image"></i> رفع الواجب</label><input type="file" id="sImg" accept="image/*" onchange="uploadHomework(this)"></div>
   </div>
-  <div class="toolbar-actions">
-    <button class="action-circle btn-mic" id="micBtn" title="طلب المايك" onclick="toggleMic()"><i class="fas fa-microphone-slash"></i></button>
-    <button class="action-circle btn-hand" id="handBtn" title="رفع اليد" onclick="toggleHand()"><i class="fas fa-hand-paper"></i></button>
+  <div class="board-wrap" id="wrapT"><canvas id="cT"></canvas></div>
+</div>
+
+<!-- تاب الطالب -->
+<div class="tab-pane" id="paneS">
+  <div class="bh">
+    <span class="bh-title"><i class="fas fa-user-edit"></i> سبورتي الخاصة</span>
+    <div class="bh-ctrl">
+      <button class="zb" onclick="Z('S',-0.15)"><i class="fas fa-minus"></i></button>
+      <span class="zv" id="zvS">—</span>
+      <button class="zb" onclick="Z('S',0.15)"><i class="fas fa-plus"></i></button>
+      <button class="zb" onclick="fit('S')">ملاءمة</button>
+      <i class="ci fas fa-trash-alt" onclick="clearS()" title="مسح"></i>
+      <i class="ci fas fa-download" onclick="saveS()" title="حفظ"></i>
+    </div>
+  </div>
+  <div class="board-wrap" id="wrapS"><canvas id="cS"></canvas></div>
+</div>
+
+<div class="bot">
+  <div class="tools-row">
+    <div class="ti on" id="tiPen" onclick="setTool('pen')"><i class="fas fa-pen-nib"></i><span>قلم</span></div>
+    <div class="ti"    id="tiEra" onclick="setTool('eraser')"><i class="fas fa-eraser"></i><span>ممحاة</span></div>
+    <div class="dots">
+      <div class="dot on"  style="background:#000"    onclick="setClr('#000',this)"></div>
+      <div class="dot"     style="background:#e53935" onclick="setClr('#e53935',this)"></div>
+      <div class="dot"     style="background:#1e88e5" onclick="setClr('#1e88e5',this)"></div>
+      <div class="dot"     style="background:#43a047" onclick="setClr('#43a047',this)"></div>
+      <div class="dot"     style="background:#fb8c00" onclick="setClr('#fb8c00',this)"></div>
+    </div>
+    <label class="ulbl"><i class="fas fa-image"></i>واجب<input type="file" accept="image/*" onchange="uploadHW(this)"></label>
+  </div>
+  <div class="acts">
+    <button class="ab" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone-slash"></i></button>
+    <button class="ab" id="handBtn" onclick="toggleHand()"><i class="fas fa-hand-paper"></i></button>
   </div>
 </div>
 
@@ -156,251 +170,318 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
 (function(){
-  // ══════ Firebase ══════
   firebase.initializeApp({
     apiKey:"AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
     databaseURL:"https://myclaive-default-rtdb.firebaseio.com"
   });
-  const db=firebase.database();
+  const db = firebase.database();
 
-  // ══════ Canvas — أبعاد ثابتة 1280×720 ══════
-  const CANVAS_W=1280,CANVAS_H=720;
-  const mc=document.getElementById('mainCanvas');
-  const mx=mc.getContext('2d');
-  mc.width=CANVAS_W;mc.height=CANVAS_H;
-  function initCtx(ctx){ctx.lineCap='round';ctx.lineJoin='round';}
-  initCtx(mx);mx.fillStyle='#fff';mx.fillRect(0,0,CANVAS_W,CANVAS_H);
+  /* ── Canvas ثابت الأبعاد ── */
+  const CW=1280, CH=720;
+  const cT=document.getElementById('cT'), xT=cT.getContext('2d');
+  const cS=document.getElementById('cS'), xS=cS.getContext('2d');
+  cT.width=CW; cT.height=CH;
+  cS.width=CW; cS.height=CH;
+  function ic(ctx){ctx.lineCap='round';ctx.lineJoin='round';}
+  ic(xT); xT.fillStyle='#fff'; xT.fillRect(0,0,CW,CH);
+  ic(xS); xS.fillStyle='#fff'; xS.fillRect(0,0,CW,CH);
 
-  // ══════ Zoom ══════
-  let currentZoom=1;
-  const scroll=document.getElementById('boardScroll');
-  function applyZoom(z){
-    currentZoom=Math.max(0.3,Math.min(3,z));
-    mc.style.width=(CANVAS_W*currentZoom)+'px';
-    mc.style.height=(CANVAS_H*currentZoom)+'px';
-    document.getElementById('zoomVal').textContent=Math.round(currentZoom*100)+'%';
-    if(CANVAS_W*currentZoom<scroll.clientWidth&&CANVAS_H*currentZoom<scroll.clientHeight)scroll.classList.add('center-mode');
-    else scroll.classList.remove('center-mode');
-  }
-  window.zoom=d=>applyZoom(currentZoom+d);
-  window.resetZoom=()=>{const zw=scroll.clientWidth/CANVAS_W,zh=scroll.clientHeight/CANVAS_H;applyZoom(Math.min(zw,zh)*0.97);};
-  setTimeout(resetZoom,120);
-  window.addEventListener('resize',()=>setTimeout(resetZoom,100));
+  /* ── Scale: CSS فقط، لا تغيير أبعاد Canvas ── */
+  const sc={T:1, S:1};
 
-  function getXY(e){
-    const r=mc.getBoundingClientRect(),t=e.touches?e.touches[0]:e;
-    return{x:(t.clientX-r.left)/currentZoom,y:(t.clientY-r.top)/currentZoom};
+  function applyScale(id, s){
+    s = Math.min(5, Math.max(0.15, s));
+    sc[id]=s;
+    const cv = id==='T'?cT:cS;
+    const wr = document.getElementById('wrap'+id);
+    const W=CW*s, H=CH*s;
+    cv.style.width  = W+'px';
+    cv.style.height = H+'px';
+    // center إذا أصغر من الحاوية، وإلا اتركه يبدأ من الأعلى/اليسار
+    wr.style.alignItems     = H < wr.clientHeight ? 'center' : 'flex-start';
+    wr.style.justifyContent = W < wr.clientWidth  ? 'center' : 'flex-start';
+    document.getElementById('zv'+id).textContent = Math.round(s*100)+'%';
   }
 
-  // ══════ حالة ══════
-  let studentId='s'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
-  let studentName='',approved=false,handRaised=false;
-  let currentTool='pen',currentColor='#000',currentSize=4;
-  let isDrawing=false,strokeId=0,points=[],sendTimer=null;
-  let micGranted=false,micOn=false,tPc=null,sPc=null,sStream=null;
-  let lastImg=null,tDrawLP=null,tDrawLS=null;
-
-  // ══════ إذن المايك Overlay ══════
-  window.grantMic=async()=>{
-    try{
-      const s=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
-      s.getTracks().forEach(t=>t.stop());
-      micGranted=true;
-    }catch(err){
-      alert('لم يُمنح الإذن.\nتأكد من إذن المتصفح.\n'+err.message);
+  function fitId(id){
+    const wr = document.getElementById('wrap'+id);
+    // clientWidth/Height يكون صحيحاً فقط عندما العنصر مرئي (display:flex)
+    // إذا كان مخفياً نحسب من الشاشة
+    let W = wr.clientWidth, H = wr.clientHeight;
+    if(!W || !H){
+      W = window.innerWidth;
+      H = window.innerHeight - 46 - 42 - 38 - 64; // top+tabs+boardheader+bot
     }
-    document.getElementById('micOverlay').classList.add('hidden');
-    joinClass();
-  };
-  window.skipMic=()=>{
-    document.getElementById('micOverlay').classList.add('hidden');
-    joinClass();
+    applyScale(id, Math.min(W/CW, H/CH)*0.98);
+  }
+
+  window.Z   = (id,d) => applyScale(id, sc[id]+d);
+  window.fit  = id => fitId(id);
+
+  /* أول تحميل */
+  setTimeout(()=>{ fitId('T'); fitId('S'); }, 200);
+  window.addEventListener('resize', ()=>setTimeout(()=>{ fitId('T'); fitId('S'); },100));
+
+  /* ── تابات ── */
+  let activeTab='T';
+  window.goTab = function(t){
+    if(activeTab===t) return;
+    activeTab=t;
+    document.getElementById('pane'+activeTab.replace(t,'')==='paneT'?'T':'S');
+    ['T','S'].forEach(x=>{
+      document.getElementById('tab'+x).classList.toggle('active',x===t);
+      document.getElementById('pane'+x).classList.toggle('on',x===t);
+    });
+    if(t==='S'){
+      const tb=document.getElementById('tabS');
+      const b=tb.querySelector('.badge'); if(b)b.remove();
+    }
+    // fit بعد ما يظهر العنصر
+    setTimeout(()=>fitId(t), 80);
   };
 
-  // ══════ طلب الانضمام ══════
-  function joinClass(){
-    let name=prompt('أدخل اسمك:');
-    if(!name||!name.trim()) name='طالب'+Math.floor(Math.random()*1000);
-    studentName=name.trim();
-    document.getElementById('waitOverlay').classList.remove('hidden');
-    document.getElementById('waitName').textContent='اسمك: '+studentName;
-    db.ref('joinRequests/'+studentId).set({id:studentId,name:studentName,ts:Date.now()});
-    db.ref('approvedStudents/'+studentId).on('value',snap=>{
-      if(snap.exists()&&!approved){
-        approved=true;
-        document.getElementById('waitOverlay').classList.add('hidden');
-        db.ref('onlineStudents/'+studentId).set({name:studentName,online:true});
-        db.ref('joinRequests/'+studentId).remove();
-        db.ref('onlineStudents/'+studentId).onDisconnect().remove();
-        setupListeners();
-        connectTeacherAudio();
+  function badge(){
+    const tb=document.getElementById('tabS');
+    if(!tb.querySelector('.badge')){
+      const b=document.createElement('span');
+      b.className='badge'; b.textContent='!'; tb.appendChild(b);
+    }
+  }
+
+  /* ── حالة ── */
+  const myId='s'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+  let myName='', approved=false, handRaised=false;
+  let tool='pen', clr='#000', sz=4;
+  let drawing=false, strokeId=0, pts=[], ptimer=null;
+  let micOn=false, tPc=null, sPc=null, sStream=null;
+  let tLP=null, tLS=null;
+
+  /* ── انضمام ── */
+  (function join(){
+    let n=prompt('أدخل اسمك:');
+    if(!n||!n.trim()) n='طالب'+(~~(Math.random()*9000)+1000);
+    myName=n.trim();
+    document.getElementById('ovWaitName').textContent='مرحباً '+myName;
+    db.ref('joinRequests/'+myId).set({id:myId,name:myName,ts:Date.now()});
+    db.ref('approvedStudents/'+myId).on('value',snap=>{
+      if(!snap.exists()||approved) return;
+      approved=true;
+      document.getElementById('ovWait').classList.add('h');
+      db.ref('onlineStudents/'+myId).set({name:myName,online:true});
+      db.ref('joinRequests/'+myId).remove();
+      db.ref('onlineStudents/'+myId).onDisconnect().remove();
+      document.getElementById('ovMic').classList.remove('h');
+    });
+  })();
+
+  /* ── إذن مايك ── */
+  window.grantMic=async function(){
+    try{ const s=await navigator.mediaDevices.getUserMedia({audio:true,video:false}); s.getTracks().forEach(t=>t.stop()); }
+    catch(e){ alert('تعذر الإذن:\n'+e.message); }
+    document.getElementById('ovMic').classList.add('h'); go();
+  };
+  window.skipMic=function(){ document.getElementById('ovMic').classList.add('h'); go(); };
+
+  function go(){ listen(); connectAudio(); }
+
+  /* ── Toast ── */
+  function toast(msg,type){
+    const el=document.createElement('div');
+    el.className='toast '+type; el.textContent=msg;
+    document.body.appendChild(el);
+    setTimeout(()=>{ el.style.transition='opacity .5s'; el.style.opacity='0'; setTimeout(()=>el.remove(),500); },4000);
+  }
+
+  /* ── تحميل صورة في canvas ── */
+  function loadImg(ctx,src,w,h){
+    const img=new Image();
+    img.onload=()=>{ ctx.clearRect(0,0,w,h); ctx.drawImage(img,0,0,w,h); };
+    img.src=src;
+  }
+
+  /* ── مستمعو Firebase ── */
+  function listen(){
+
+    /* رسم المدرس */
+    db.ref('draw_t').on('child_added',snap=>{
+      const d=snap.val(); if(!d||!d.pts||!d.pts.length) return;
+      const p=d.pts,c=d.c,s=d.s||4,id=d.sid;
+      ic(xT);
+      xT.strokeStyle=c===null?'#fff':c;
+      xT.lineWidth  =c===null?s*5:s;
+      xT.beginPath();
+      if(tLP&&id&&id===tLS) xT.moveTo(tLP.x,tLP.y);
+      else                  xT.moveTo(p[0].x*CW,p[0].y*CH);
+      p.forEach(pt=>xT.lineTo(pt.x*CW,pt.y*CH));
+      xT.stroke();
+      const last=p[p.length-1];
+      tLP={x:last.x*CW,y:last.y*CH}; tLS=id;
+    });
+
+    /* صورة سبورة المدرس */
+    db.ref('boardImg').on('value',snap=>{
+      const d=snap.val(); if(!d||!d.data) return;
+      tLP=null; tLS=null;
+      loadImg(xT,d.data,CW,CH);
+    });
+
+    /* تصحيح المدرس → سبورة الطالب */
+    db.ref('correctedImg/'+myId).on('value',snap=>{
+      const d=snap.val(); if(!d||!d.data) return;
+      loadImg(xS,d.data,CW,CH);
+      toast('✅ وصل تصحيح المدرس!','g');
+      badge();
+      goTab('S');
+    });
+
+    /* أوامر */
+    db.ref('boardCmd').on('child_added',snap=>{
+      const cmd=snap.val(); if(!cmd) return;
+      if(cmd.type==='clear'){
+        xT.fillStyle='#fff'; xT.fillRect(0,0,CW,CH); tLP=null; tLS=null;
+      }
+      if(cmd.type==='teacher_returned_main'){
+        xS.fillStyle='#fff'; xS.fillRect(0,0,CW,CH);
+        if(activeTab==='S') goTab('T');
+      }
+      if(cmd.type==='show_student_board'){
+        if(cmd.studentId===myId) return;
+        loadImg(xT,cmd.data,CW,CH);
+        toast('📋 المدرس يعرض سبورة: '+cmd.studentName,'a');
+        goTab('T');
       }
     });
+
+    /* عدد المتصلين */
+    db.ref('onlineStudents').on('value',snap=>{
+      document.getElementById('cnt').textContent=Object.keys(snap.val()||{}).length;
+    });
   }
 
-  // ══════ بعد الموافقة ══════
-  function setupListeners(){
-    // رسم المدرس — سلس
-    db.ref('draw_t').on('child_added',snap=>{
-      const d=snap.val();if(!d||!d.pts||!d.pts.length) return;
-      const pts=d.pts,c=d.c,s=d.s||4,sid=d.sid;
-      initCtx(mx);
-      mx.strokeStyle=c===null?'#fff':c;
-      mx.lineWidth=c===null?s*5:s;
-      mx.beginPath();
-      if(tDrawLP&&sid&&sid===tDrawLS) mx.moveTo(tDrawLP.x,tDrawLP.y);
-      else mx.moveTo(pts[0].x*CANVAS_W,pts[0].y*CANVAS_H);
-      pts.forEach(p=>mx.lineTo(p.x*CANVAS_W,p.y*CANVAS_H));
-      mx.stroke();
-      const last=pts[pts.length-1];
-      tDrawLP={x:last.x*CANVAS_W,y:last.y*CANVAS_H};tDrawLS=sid;
-      lastImg=mc.toDataURL();
-    });
-
-    // صورة السبورة الرئيسية
-    db.ref('boardImg').on('value',snap=>{
-      const d=snap.val();if(!d||!d.data) return;
-      lastImg=d.data;tDrawLP=null;tDrawLS=null;
-      const img=new Image();img.onload=()=>{mx.clearRect(0,0,CANVAS_W,CANVAS_H);mx.drawImage(img,0,0,CANVAS_W,CANVAS_H);};img.src=d.data;
-    });
-
-    // الصورة المصححة
-    db.ref('correctedImg/'+studentId).on('value',snap=>{
-      const d=snap.val();if(!d||!d.data) return;
-      lastImg=d.data;tDrawLP=null;tDrawLS=null;
-      const img=new Image();img.onload=()=>{mx.clearRect(0,0,CANVAS_W,CANVAS_H);mx.drawImage(img,0,0,CANVAS_W,CANVAS_H);};img.src=d.data;
-    });
-
-    // مسح السبورة
-    db.ref('boardCmd').on('child_added',snap=>{
-      const cmd=snap.val();if(cmd&&cmd.type==='clear'){mx.fillStyle='#fff';mx.fillRect(0,0,CANVAS_W,CANVAS_H);lastImg=null;tDrawLP=null;tDrawLS=null;}
-    });
-
-    // قائمة المشاركين
-    db.ref('onlineStudents').on('value',snap=>renderParticipants(snap.val()||{}));
+  /* ── إحداثيات الرسم ── */
+  function xy(e){
+    const r=cS.getBoundingClientRect(),t=e.touches?e.touches[0]:e;
+    // getBoundingClientRect يعكس الحجم الـ CSS (بعد scale)
+    // نحوّل للأبعاد الحقيقية للـ canvas
+    return { x:(t.clientX-r.left)*(CW/r.width), y:(t.clientY-r.top)*(CH/r.height) };
   }
 
-  function renderParticipants(online){
-    let h=`<div class="student-item">
-      <div class="student-avatar" style="background:#ffaa00;color:#000">م</div>
-      <div class="student-info"><div class="student-name">المدرس</div><div class="student-status"><i class="fas fa-chalkboard-teacher"></i> يشرح</div></div>
-    </div>`;
-    Object.values(online).forEach(s=>{
-      const me=s.name===studentName;
-      h+=`<div class="student-item">
-        <div class="student-avatar" style="background:${me?'#00aaff':'#1e4080'};color:#000">${s.name[0]}</div>
-        <div class="student-info"><div class="student-name">${s.name}${me?' (أنت)':''}</div><div class="student-status"><i class="fas fa-${me?'user':'headphones'}"></i> ${me?'متصل':'مستمع'}</div></div>
-      </div>`;
-    });
-    document.getElementById('participantsList').innerHTML=h;
-    const cnt=Object.keys(online).length;
-    document.getElementById('studentsCount').textContent=cnt;
-    document.getElementById('studentsCountPanel').textContent=cnt;
+  /* ── رسم ── */
+  cS.addEventListener('mousedown', e=>startD(e));
+  cS.addEventListener('mousemove', e=>moveD(e));
+  cS.addEventListener('mouseup',   ()=>stopD());
+  cS.addEventListener('mouseleave',()=>stopD());
+  cS.addEventListener('touchstart',e=>startD(e),{passive:false});
+  cS.addEventListener('touchmove', e=>moveD(e), {passive:false});
+  cS.addEventListener('touchend',  ()=>stopD());
+
+  function startD(e){
+    e.preventDefault(); if(!approved)return;
+    drawing=true; strokeId=Date.now(); pts=[];
+    const p=xy(e); ic(xS); xS.beginPath(); xS.moveTo(p.x,p.y);
+    pts.push({x:p.x/CW,y:p.y/CH});
+  }
+  function moveD(e){
+    e.preventDefault(); if(!drawing||!approved)return;
+    const p=xy(e);
+    xS.strokeStyle=tool==='eraser'?'#fff':clr;
+    xS.lineWidth  =tool==='eraser'?sz*5:sz;
+    xS.lineTo(p.x,p.y); xS.stroke(); xS.beginPath(); xS.moveTo(p.x,p.y);
+    pts.push({x:p.x/CW,y:p.y/CH});
+    if(!ptimer) ptimer=setTimeout(flush,20);
+  }
+  function flush(){
+    ptimer=null; if(!pts.length)return;
+    db.ref('draw_st').push({pts:pts.slice(),c:tool==='eraser'?null:clr,s:sz,studentId:myId,sid:strokeId,ts:Date.now()});
+    pts=[];
+  }
+  function stopD(){
+    if(!drawing||!approved)return; drawing=false;
+    if(ptimer){clearTimeout(ptimer);ptimer=null;} flush();
+    db.ref('boardImg_stu/'+myId).set({data:cS.toDataURL('image/jpeg',0.8),ts:Date.now()});
   }
 
-  // ══════ رسم الطالب ══════
-  mc.addEventListener('mousedown',startDraw);mc.addEventListener('mousemove',moveDraw);mc.addEventListener('mouseup',stopDraw);mc.addEventListener('mouseleave',stopDraw);
-  mc.addEventListener('touchstart',startDraw,{passive:false});mc.addEventListener('touchmove',moveDraw,{passive:false});mc.addEventListener('touchend',stopDraw);
+  /* ── أدوات ── */
+  window.setTool=t=>{ tool=t; document.getElementById('tiPen').classList.toggle('on',t==='pen'); document.getElementById('tiEra').classList.toggle('on',t==='eraser'); };
+  window.setClr=(c,el)=>{ clr=c; document.querySelectorAll('.dot').forEach(d=>d.classList.remove('on')); el.classList.add('on'); };
+  window.clearS=()=>{ xS.fillStyle='#fff'; xS.fillRect(0,0,CW,CH); };
+  window.saveS =()=>{ const a=document.createElement('a'); a.download='my-board.png'; a.href=cS.toDataURL(); a.click(); };
+  window.goFS  =()=>{ document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); };
 
-  function startDraw(e){e.preventDefault();if(!approved)return;isDrawing=true;strokeId=Date.now();points=[];const p=getXY(e);initCtx(mx);mx.beginPath();mx.moveTo(p.x,p.y);points.push({x:p.x/CANVAS_W,y:p.y/CANVAS_H});}
-  function moveDraw(e){
-    e.preventDefault();if(!isDrawing||!approved)return;
-    const p=getXY(e);
-    mx.strokeStyle=currentTool==='eraser'?'#fff':currentColor;
-    mx.lineWidth=currentTool==='eraser'?currentSize*5:currentSize;
-    mx.lineTo(p.x,p.y);mx.stroke();mx.beginPath();mx.moveTo(p.x,p.y);
-    points.push({x:p.x/CANVAS_W,y:p.y/CANVAS_H});
-    if(!sendTimer)sendTimer=setTimeout(flush,20);
-  }
-  function flush(){sendTimer=null;if(!points.length)return;db.ref('draw_st').push({pts:points.slice(),c:currentTool==='eraser'?null:currentColor,s:currentSize,studentId,sid:strokeId,ts:Date.now()});points=[];}
-  function stopDraw(){
-    if(!isDrawing||!approved)return;isDrawing=false;
-    if(sendTimer){clearTimeout(sendTimer);sendTimer=null;}
-    flush();
-    db.ref('boardImg_stu/'+studentId).set({data:mc.toDataURL('image/jpeg',0.8),ts:Date.now()});
-  }
-
-  // ══════ أدوات ══════
-  window.setTool=t=>{currentTool=t;document.getElementById('toolPen').classList.toggle('active',t==='pen');document.getElementById('toolEraser').classList.toggle('active',t==='eraser');};
-  window.setColor=(c,el)=>{currentColor=c;document.querySelectorAll('.toolbar-tools .color-dot').forEach(d=>d.classList.remove('active'));el.classList.add('active');};
-  window.saveBoard=()=>{const a=document.createElement('a');a.download='myboard.png';a.href=mc.toDataURL();a.click();};
-  window.toggleFullscreen=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();};
-  window.uploadHomework=function(input){
+  window.uploadHW=function(input){
     if(!input.files[0]||!approved)return;
     const r=new FileReader();
-    r.onload=e=>{
-      const img=new Image();
-      img.onload=()=>{
-        const ir=img.width/img.height,cr=CANVAS_W/CANVAS_H;
-        let dw,dh;
-        if(ir>cr){dw=CANVAS_W;dh=CANVAS_W/ir;}else{dh=CANVAS_H;dw=CANVAS_H*ir;}
-        mx.fillStyle='#fff';mx.fillRect(0,0,CANVAS_W,CANVAS_H);
-        mx.drawImage(img,(CANVAS_W-dw)/2,(CANVAS_H-dh)/2,dw,dh);
-        const dataUrl=mc.toDataURL('image/jpeg',0.85);
-        lastImg=dataUrl;
-        db.ref('studentImages').push({studentId,studentName,data:dataUrl,ts:Date.now()});
-        db.ref('boardImg_stu/'+studentId).set({data:dataUrl,ts:Date.now()});
-      };
-      img.src=e.target.result;
-    };
-    r.readAsDataURL(input.files[0]);input.value='';
+    r.onload=e=>{ const img=new Image(); img.onload=()=>{
+      const ir=img.width/img.height,cr=CW/CH; let dw,dh;
+      if(ir>cr){dw=CW;dh=CW/ir;}else{dh=CH;dw=CH*ir;}
+      xS.fillStyle='#fff'; xS.fillRect(0,0,CW,CH);
+      xS.drawImage(img,(CW-dw)/2,(CH-dh)/2,dw,dh);
+      const url=cS.toDataURL('image/jpeg',0.85);
+      db.ref('studentImages').push({studentId:myId,studentName:myName,data:url,ts:Date.now()});
+      db.ref('boardImg_stu/'+myId).set({data:url,ts:Date.now()});
+      goTab('S');
+    }; img.src=e.target.result; };
+    r.readAsDataURL(input.files[0]); input.value='';
   };
 
-  // ══════ رفع اليد ══════
+  /* ── يد ── */
   window.toggleHand=()=>{
-    if(!approved)return;handRaised=!handRaised;
-    document.getElementById('handBtn').classList.toggle('active',handRaised);
-    handRaised?db.ref('handRaised/'+studentId).set(true):db.ref('handRaised/'+studentId).remove();
+    if(!approved)return; handRaised=!handRaised;
+    document.getElementById('handBtn').classList.toggle('hand-on',handRaised);
+    handRaised?db.ref('handRaised/'+myId).set(true):db.ref('handRaised/'+myId).remove();
   };
 
-  // ══════ المايك — WebRTC ══════
+  /* ── WebRTC صوت المدرس ── */
   const RTC={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
-
-  function connectTeacherAudio(){
-    db.ref('rtc/join_notify').push(studentId);
-    db.ref('rtc/t2s_offer/'+studentId).on('value',async snap=>{
-      const offer=snap.val();if(!offer||tPc)return;
+  function connectAudio(){
+    db.ref('rtc/join_notify').push(myId);
+    db.ref('rtc/t2s_offer/'+myId).on('value',async snap=>{
+      const off=snap.val(); if(!off||tPc)return;
       tPc=new RTCPeerConnection(RTC);
       tPc.ontrack=e=>{const a=document.getElementById('audioEl');a.srcObject=e.streams[0];a.play().catch(()=>{});};
-      tPc.onicecandidate=e=>{if(e.candidate)db.ref('rtc/s2t_ice/'+studentId).push(e.candidate.toJSON());};
-      db.ref('rtc/t2s_ice/'+studentId).on('child_added',async snap2=>{const ice=snap2.val();if(ice){try{await tPc.addIceCandidate(new RTCIceCandidate(ice));}catch(e){}snap2.ref.remove();}});
-      await tPc.setRemoteDescription(new RTCSessionDescription(offer));
-      const ans=await tPc.createAnswer();await tPc.setLocalDescription(ans);
-      db.ref('rtc/s2t_answer/'+studentId).set({sdp:ans.sdp,type:ans.type});
+      tPc.onicecandidate=e=>{if(e.candidate)db.ref('rtc/s2t_ice/'+myId).push(e.candidate.toJSON());};
+      db.ref('rtc/t2s_ice/'+myId).on('child_added',async s2=>{const ice=s2.val();if(ice){try{await tPc.addIceCandidate(new RTCIceCandidate(ice));}catch(e){}s2.ref.remove();}});
+      await tPc.setRemoteDescription(new RTCSessionDescription(off));
+      const ans=await tPc.createAnswer(); await tPc.setLocalDescription(ans);
+      db.ref('rtc/s2t_answer/'+myId).set({sdp:ans.sdp,type:ans.type});
     });
   }
 
+  /* ── WebRTC صوت الطالب ── */
   window.toggleMic=async()=>{
     if(!approved)return;
     const btn=document.getElementById('micBtn');
     if(!micOn){
       try{
         sStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
-        micOn=true;btn.classList.add('active');btn.innerHTML='<i class="fas fa-microphone"></i>';btn.title='إيقاف المايك';
-        db.ref('micRequests/'+studentId).set({studentId,studentName,ts:Date.now()});
-        db.ref('micPermissions/'+studentId).on('value',async snap=>{
+        micOn=true; btn.classList.add('mic-on'); btn.innerHTML='<i class="fas fa-microphone"></i>';
+        db.ref('micRequests/'+myId).set({studentId:myId,studentName:myName,ts:Date.now()});
+        db.ref('micPermissions/'+myId).on('value',async snap=>{
           if(!snap.val()?.allowed||sPc)return;
           sPc=new RTCPeerConnection(RTC);
           sStream.getTracks().forEach(t=>sPc.addTrack(t,sStream));
-          sPc.onicecandidate=e=>{if(e.candidate)db.ref('rtc/s2t_stu_ice/'+studentId).push(e.candidate.toJSON());};
-          db.ref('rtc/t2s_stu_ice/'+studentId).on('child_added',async snap2=>{const ice=snap2.val();if(ice){try{await sPc.addIceCandidate(new RTCIceCandidate(ice));}catch(e){}snap2.ref.remove();}});
-          db.ref('rtc/t2s_stu_answer/'+studentId).on('value',async snap2=>{const ans=snap2.val();if(ans&&sPc.signalingState==='have-local-offer')await sPc.setRemoteDescription(new RTCSessionDescription(ans)).catch(()=>{});});
-          const offer=await sPc.createOffer();await sPc.setLocalDescription(offer);
-          db.ref('rtc/s2t_stu_offer/'+studentId).set({sdp:offer.sdp,type:offer.type});
+          sPc.onicecandidate=e=>{if(e.candidate)db.ref('rtc/s2t_stu_ice/'+myId).push(e.candidate.toJSON());};
+          db.ref('rtc/t2s_stu_ice/'+myId).on('child_added',async s2=>{const ice=s2.val();if(ice){try{await sPc.addIceCandidate(new RTCIceCandidate(ice));}catch(e){}s2.ref.remove();}});
+          db.ref('rtc/t2s_stu_answer/'+myId).on('value',async s2=>{const ans=s2.val();if(ans&&sPc.signalingState==='have-local-offer')await sPc.setRemoteDescription(new RTCSessionDescription(ans)).catch(()=>{});});
+          const off=await sPc.createOffer(); await sPc.setLocalDescription(off);
+          db.ref('rtc/s2t_stu_offer/'+myId).set({sdp:off.sdp,type:off.type});
         });
-      }catch(err){alert('تعذر تشغيل المايك:\n'+err.message);}
+      }catch(err){alert('تعذر المايك:\n'+err.message);}
     }else{
-      micOn=false;btn.classList.remove('active');btn.innerHTML='<i class="fas fa-microphone-slash"></i>';btn.title='طلب المايك';
+      micOn=false; btn.classList.remove('mic-on'); btn.innerHTML='<i class="fas fa-microphone-slash"></i>';
       if(sStream){sStream.getTracks().forEach(t=>t.stop());sStream=null;}
       if(sPc){sPc.close();sPc=null;}
-      db.ref('micPermissions/'+studentId).remove();
-      db.ref('rtc/s2t_stu_offer/'+studentId).remove();
-      db.ref('rtc/s2t_stu_ice/'+studentId).remove();
+      db.ref('micPermissions/'+myId).remove();
+      db.ref('rtc/s2t_stu_offer/'+myId).remove();
+      db.ref('rtc/s2t_stu_ice/'+myId).remove();
     }
   };
 
-  // Latency
-  setInterval(()=>{const t=Date.now();db.ref('ping_s').set(t);setTimeout(()=>db.ref('ping_s').once('value',()=>{document.getElementById('latency').textContent=(Date.now()-t)+'ms';}),600);},6000);
+  /* Latency */
+  setInterval(()=>{
+    const t=Date.now(); db.ref('ping_s').set(t);
+    setTimeout(()=>db.ref('ping_s').once('value',()=>{ document.getElementById('lat').textContent=(Date.now()-t)+'ms'; }),600);
+  },6000);
 })();
 </script>
 </body>
