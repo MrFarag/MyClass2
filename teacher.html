@@ -409,9 +409,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script>
     (function() {
-      // ============================================================
-      // تهيئة Firebase ومسح جميع البيانات القديمة لبدء جلسة نظيفة
-      // ============================================================
       firebase.initializeApp({
         apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
         databaseURL: "https://myclaive-default-rtdb.firebaseio.com"
@@ -444,7 +441,6 @@
       let currentColor = '#000000';
       let currentSize = 4;
       let isDrawing = false;
-      let lastX = 0, lastY = 0;
       let students = {};          // الطلاب المعتمدون
       let waitingStudents = {};    // طلبات الانضمام
       let currentSpeaker = null;
@@ -525,7 +521,6 @@
         e.preventDefault();
         isDrawing = true;
         const p = getCanvasPoint(e, mainCanvas);
-        lastX = p.x; lastY = p.y;
         points = [{ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height }];
         mainCtx.beginPath();
         mainCtx.moveTo(p.x, p.y);
@@ -563,7 +558,7 @@
               points = [];
             }
             sendTimer = null;
-          }, 20);
+          }, 16); // 16ms ≈ 60fps
         }
       }
 
@@ -707,7 +702,6 @@
           if (req && students[req.studentId]) {
             micRequests[req.studentId] = true;
             updateStudentsList(); // سيقوم بتحديث الأيقونة وإضافة وميض
-            // لا يوجد confirm، يبقى الطلب في micRequests حتى يتم منحه أو رفضه
           }
         });
 
