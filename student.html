@@ -62,7 +62,49 @@
       gap: 8px;
     }
 
-    /* منطقة السبورة (تمتد على كل المساحة) */
+    /* لوحة الطلاب */
+    .students-panel {
+      width: 260px;
+      background: #1e3228;
+      border-radius: 24px;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border: 1px solid #3a5a40;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      color: #ffaa00;
+    }
+    .student-item {
+      background: #1a2e25;
+      border-radius: 40px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #2a4a30;
+    }
+    .student-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #ffaa00;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+    }
+    .student-info { flex: 1; }
+    .student-name { font-weight: 700; font-size: 13px; }
+    .student-status { font-size: 10px; color: #ccc; display: flex; align-items: center; gap: 4px; }
+
+    /* منطقة السبورة */
     .board-area {
       flex: 1;
       display: flex;
@@ -145,17 +187,6 @@
       border: 2px solid transparent;
     }
     .color-dot.active { border-color: #fff; }
-    .image-upload input { display: none; }
-    .image-upload label {
-      background: #ffaa00;
-      color: #000;
-      padding: 6px 16px;
-      border-radius: 30px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
     .toolbar-actions {
       display: flex;
       gap: 12px;
@@ -172,6 +203,17 @@
     }
     .btn-mic.active { background: #ffaa00; color: #000; }
     .btn-hand.active { background: #f59e0b; animation: blink-animation 1s infinite; }
+    .image-upload input { display: none; }
+    .image-upload label {
+      background: #ffaa00;
+      color: #000;
+      padding: 6px 16px;
+      border-radius: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     @keyframes blink-animation {
       0% { opacity: 1; }
       50% { opacity: 0.4; }
@@ -194,7 +236,16 @@
   </div>
 
   <div class="main-layout">
-    <!-- السبورة فقط (لا يوجد قائمة مشتركين) -->
+    <!-- لوحة الطلاب -->
+    <div class="students-panel">
+      <div class="panel-header">
+        <span><i class="fas fa-users"></i> المشاركون</span>
+        <span id="studentsCountPanel">0</span>
+      </div>
+      <div id="participantsList"></div>
+    </div>
+
+    <!-- السبورة -->
     <div class="board-area">
       <div class="board-header">
         <div class="current-board-title">سبورة المدرس</div>
@@ -254,6 +305,7 @@
       let currentColor = '#000000';
       let currentSize = 4;
       let isDrawing = false;
+      let lastX = 0, lastY = 0;
       let micPermission = false;
       let speaking = false;
       let mediaStream = null;
@@ -321,60 +373,21 @@
         }
       });
 
-      // ============================================================
-      // تحسين استقبال الرسم: استخدام requestAnimationFrame لتجميع التحديثات
-      // ============================================================
-      let pendingDraws = []; // مصفوفة لتخزين دفعات الرسم الواردة
-      let rafScheduled = false;
-
-      function processPendingDraws() {
-        if (pendingDraws.length === 0) {
-          rafScheduled = false;
-          return;
-        }
-        // تطبيق جميع الدفعات المعلقة على اللوحة
-        pendingDraws.forEach(d => {
-          if (d.color === null) { // ممحاة
-            mainCtx.globalCompositeOperation = 'destination-out';
-            mainCtx.lineWidth = d.size || 4;
-          } else {
-            mainCtx.globalCompositeOperation = 'source-over';
-            mainCtx.strokeStyle = d.color;
-            mainCtx.lineWidth = d.size || 4;
-          }
+      function setupListeners() {
+        // رسم المدرس (مع تحسين الجودة)
+        db.ref('draw_t').on('child_added', snap => {
+          const d = snap.val();
+          if (!d || !d.points) return;
+          mainCtx.strokeStyle = d.color || '#000';
+          mainCtx.lineWidth = d.size || 4;
           mainCtx.beginPath();
           mainCtx.moveTo(d.points[0].x * mainCanvas.width, d.points[0].y * mainCanvas.height);
           for (let i = 1; i < d.points.length; i++) {
             mainCtx.lineTo(d.points[i].x * mainCanvas.width, d.points[i].y * mainCanvas.height);
           }
           mainCtx.stroke();
-        });
-        mainCtx.globalCompositeOperation = 'source-over';
-        lastImageData = mainCanvas.toDataURL();
-        pendingDraws = [];
-        rafScheduled = false;
-      }
-
-      function scheduleDraw() {
-        if (!rafScheduled) {
-          rafScheduled = true;
-          requestAnimationFrame(processPendingDraws);
-        }
-      }
-
-      function setupListeners() {
-        // ============================================================
-        // ===== بداية قسم استقبال الرسم المحسّن (الطالب) =====
-        // Improved Drawing Reception Section (Student)
-        // ============================================================
-        // رسم المدرس (مع تحسين الجودة)
-        db.ref('draw_t').on('child_added', snap => {
-          const d = snap.val();
-          if (!d || !d.points) return;
-          // إضافة الدفعة إلى قائمة الانتظار وجدولة الرسم
-          pendingDraws.push(d);
-          scheduleDraw();
-          snap.ref.remove(); // حذف البيانات بعد استلامها
+          // تحديث lastImageData بعد الرسم
+          lastImageData = mainCanvas.toDataURL();
         });
 
         // صورة السبورة الرئيسية
@@ -416,18 +429,62 @@
           }
           snap.ref.remove();
         });
-        // ===== نهاية قسم استقبال الرسم المحسّن =====
-        // ============================================================
 
         // إذن المايك
         db.ref('micPermissions/' + studentId).on('value', snap => {
           if (snap.val()) startMic();
         });
+
+        // تحديث قائمة المشاركين
+        db.ref('onlineStudents').on('value', snap => {
+          updateParticipantsList(snap.val() || {});
+        });
+      }
+
+      // تحديث قائمة المشاركين
+      function updateParticipantsList(online) {
+        const listDiv = document.getElementById('participantsList');
+        let html = '';
+        html += `
+          <div class="student-item">
+            <div class="student-avatar" style="background:#ffaa00;">م</div>
+            <div class="student-info">
+              <div class="student-name">المدرس</div>
+              <div class="student-status"><i class="fas fa-chalkboard-teacher"></i> يشرح</div>
+            </div>
+          </div>
+        `;
+        Object.values(online).forEach(s => {
+          if (s.name && s.name !== studentName) {
+            html += `
+              <div class="student-item">
+                <div class="student-avatar">${s.name.charAt(0)}</div>
+                <div class="student-info">
+                  <div class="student-name">${s.name}</div>
+                  <div class="student-status"><i class="fas fa-headphones"></i> مستمع</div>
+                </div>
+              </div>
+            `;
+          }
+        });
+        if (studentName && approved) {
+          html += `
+            <div class="student-item">
+              <div class="student-avatar" style="background:#ffaa00;">${studentName.charAt(0)}</div>
+              <div class="student-info">
+                <div class="student-name">${studentName} (أنت)</div>
+                <div class="student-status"><i class="fas fa-user"></i> متصل</div>
+              </div>
+            </div>
+          `;
+        }
+        listDiv.innerHTML = html;
+        document.getElementById('studentsCount').textContent = Object.keys(online).length + 1;
+        document.getElementById('studentsCountPanel').textContent = Object.keys(online).length + 1;
       }
 
       // ============================================================
-      // ===== بداية قسم الرسم الخاص بالطالب (إرسال) =====
-      // Improved Student Drawing Section (Sending)
+      // رسم الطالب (مع تحسين الجودة)
       // ============================================================
       function getCanvasPoint(e) {
         const rect = mainCanvas.getBoundingClientRect();
@@ -448,25 +505,18 @@
         if (!approved) return;
         isDrawing = true;
         const p = getCanvasPoint(e);
+        lastX = p.x; lastY = p.y;
         points = [{ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height }];
         mainCtx.beginPath();
         mainCtx.moveTo(p.x, p.y);
-        mainCtx.lineCap = 'round';
-        mainCtx.lineJoin = 'round';
-        if (currentTool === 'eraser') {
-          mainCtx.globalCompositeOperation = 'destination-out';
-          mainCtx.lineWidth = currentSize * 5;
-        } else {
-          mainCtx.globalCompositeOperation = 'source-over';
-          mainCtx.strokeStyle = currentColor;
-          mainCtx.lineWidth = currentSize;
-        }
       }
 
       function draw(e) {
         e.preventDefault();
         if (!isDrawing || !approved) return;
         const p = getCanvasPoint(e);
+        mainCtx.strokeStyle = currentTool === 'eraser' ? '#fff' : currentColor;
+        mainCtx.lineWidth = currentTool === 'eraser' ? currentSize * 5 : currentSize;
         mainCtx.lineTo(p.x, p.y);
         mainCtx.stroke();
         mainCtx.beginPath();
@@ -478,14 +528,14 @@
               db.ref('draw_st').push({
                 points: points,
                 color: currentTool === 'eraser' ? null : currentColor,
-                size: currentTool === 'eraser' ? currentSize * 5 : currentSize,
+                size: currentSize,
                 studentId: studentId,
                 ts: Date.now()
               });
               points = [];
             }
             sendTimer = null;
-          }, 16); // 16ms ≈ 60fps
+          }, 20);
         }
       }
 
@@ -496,7 +546,7 @@
           db.ref('draw_st').push({
             points: points,
             color: currentTool === 'eraser' ? null : currentColor,
-            size: currentTool === 'eraser' ? currentSize * 5 : currentSize,
+            size: currentSize,
             studentId: studentId,
             ts: Date.now()
           });
@@ -504,7 +554,6 @@
         }
         if (sendTimer) clearTimeout(sendTimer);
         sendTimer = null;
-        mainCtx.globalCompositeOperation = 'source-over';
         // تحديث lastImageData بعد الرسم
         lastImageData = mainCanvas.toDataURL();
       }
@@ -516,8 +565,6 @@
       mainCanvas.addEventListener('touchstart', startDraw, { passive: false });
       mainCanvas.addEventListener('touchmove', draw, { passive: false });
       mainCanvas.addEventListener('touchend', stopDraw);
-      // ===== نهاية قسم الرسم الخاص بالطالب =====
-      // ============================================================
 
       // ============================================================
       // أدوات الرسم
