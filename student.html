@@ -254,7 +254,6 @@
       let currentColor = '#000000';
       let currentSize = 4;
       let isDrawing = false;
-      let lastX = 0, lastY = 0;
       let micPermission = false;
       let speaking = false;
       let mediaStream = null;
@@ -449,7 +448,6 @@
         if (!approved) return;
         isDrawing = true;
         const p = getCanvasPoint(e);
-        lastX = p.x; lastY = p.y;
         points = [{ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height }];
         mainCtx.beginPath();
         mainCtx.moveTo(p.x, p.y);
