@@ -2,73 +2,110 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MyClass2 - المدرس</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-    body { background: #1a2e25; color: #fff; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-    .top-bar { height: 70px; background: linear-gradient(90deg,#0f2a1f,#1e3a2a); border-bottom: 2px solid #ffaa00; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
-    .teacher-name { font-size: 18px; font-weight: 900; color: #ffaa00; }
-    .teacher-desc { font-size: 12px; color: #ccc; }
-    .teacher-phone { font-size: 14px; color: #ffaa00; direction: ltr; }
-    .top-center { display: flex; align-items: center; gap: 20px; background: rgba(0,0,0,0.3); padding: 4px 20px; border-radius: 30px; }
-    .top-center span { font-size: 13px; display: flex; align-items: center; gap: 5px; }
-    .top-center i { color: #ffaa00; }
-    .main-layout { flex: 1; display: flex; overflow: hidden; padding: 8px; gap: 8px; }
-    .students-panel { width: 280px; background: #1e3228; border-radius: 24px; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; border: 1px solid #3a5a40; order: 1; }
-    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; color: #ffaa00; font-weight: 700; }
-    .student-item { background: #1a2e25; border-radius: 40px; padding: 8px 12px; display: flex; align-items: center; gap: 10px; border: 1px solid #2a4a30; transition: 0.2s; }
-    .student-avatar { width: 36px; height: 36px; border-radius: 50%; background: #ffaa00; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #000; flex-shrink: 0; font-size: 15px; }
-    .student-info { flex: 1; min-width: 0; }
-    .student-name { font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .student-status { font-size: 10px; color: #ccc; display: flex; align-items: center; gap: 4px; }
-    .student-actions { display: flex; gap: 8px; color: #ffaa00; font-size: 15px; flex-shrink: 0; }
-    .student-actions i { cursor: pointer; transition: 0.2s; }
-    .student-actions i:hover { transform: scale(1.2); color: #fff; }
-    .board-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; order: 2; }
-    .board-header { height: 44px; background: #1e3228; border-radius: 20px 20px 0 0; padding: 0 15px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #2a4a30; border-bottom: none; }
-    .board-header-right { display: flex; align-items: center; gap: 18px; }
-    .board-header-right i { color: #ffaa00; cursor: pointer; font-size: 17px; transition: 0.2s; }
-    .board-header-right i:hover { color: #fff; transform: scale(1.15); }
-    .current-board-title { font-weight: 700; color: #ffaa00; }
-    .main-board { flex: 1; background: #1e3228; border-radius: 0 0 20px 20px; border: 1px solid #2a4a30; overflow: hidden; }
-    .main-board canvas { width: 100%; height: 100%; display: block; background: #fff; touch-action: none; cursor: crosshair; }
-    .icon-sidebar { width: 70px; background: #1e3228; border-radius: 24px; display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; border: 1px solid #3a5a40; order: 3; }
-    .nav-item { width: 50px; height: 50px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; color: #aaa; font-size: 10px; }
-    .nav-item i { font-size: 22px; }
-    .nav-item.active { background: #ffaa00; color: #000; }
-    .bottom-bar { height: 80px; background: #0f2a1f; border-top: 2px solid #ffaa00; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
-    .toolbar-tools { display: flex; gap: 16px; background: #1a2e25; padding: 8px 20px; border-radius: 50px; border: 1px solid #3a5a40; align-items: center; }
-    .tool-item { display: flex; flex-direction: column; align-items: center; color: #aaa; cursor: pointer; font-size: 10px; transition: 0.2s; }
-    .tool-item i { font-size: 24px; }
-    .tool-item.active { color: #ffaa00; }
-    .color-picker { display: flex; gap: 5px; background: #1e3228; padding: 5px 10px; border-radius: 40px; align-items: center; }
-    .color-dot { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-    .color-dot:hover { transform: scale(1.15); }
-    .color-dot.active { border-color: #fff; transform: scale(1.2); }
-    .toolbar-actions { display: flex; gap: 12px; }
-    .action-circle { width: 52px; height: 52px; border-radius: 50%; border: none; background: #2a4a35; color: #fff; font-size: 22px; cursor: pointer; transition: 0.2s; }
-    .action-circle:hover { filter: brightness(1.25); transform: scale(1.05); }
-    .btn-mic.active { background: #ffaa00; color: #000; }
-    .btn-end { background: #b71c1c; }
-    .image-upload input { display: none; }
-    .image-upload label { background: #ffaa00; color: #000; padding: 6px 16px; border-radius: 30px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; }
-    .modal { position: fixed; top:0;left:0;right:0;bottom:0; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; z-index: 2000; }
-    .modal.active { display: flex; }
-    .modal-content { background: #1e3228; width: 92%; height: 92%; border-radius: 28px; display: flex; flex-direction: column; border: 2px solid #ffaa00; }
-    .modal-header { padding: 14px 20px; background: #0f2a1f; display: flex; justify-content: space-between; align-items: center; border-radius: 26px 26px 0 0; }
-    .modal-body { flex: 1; background: #fff; overflow: hidden; }
-    .modal-body canvas { width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: none; }
-    .modal-footer { padding: 10px 20px; background: #0f2a1f; display: flex; gap: 12px; align-items: center; border-radius: 0 0 26px 26px; }
-    @keyframes blink { 0%,100%{opacity:1}50%{opacity:0.3} }
-    .blink { animation: blink 1s infinite; }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
+    html,body{height:100%;background:#1a2e25;color:#fff;overflow:hidden}
+
+    /* ── شريط أعلى ── */
+    .top-bar{height:60px;background:linear-gradient(90deg,#0f2a1f,#1e3a2a);border-bottom:2px solid #ffaa00;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;overflow-x:auto;gap:12px}
+    .teacher-name{font-size:16px;font-weight:900;color:#ffaa00;white-space:nowrap}
+    .teacher-desc{font-size:11px;color:#ccc}
+    .top-center{display:flex;align-items:center;gap:14px;background:rgba(0,0,0,.3);padding:4px 16px;border-radius:30px;flex-shrink:0}
+    .top-center span{font-size:12px;display:flex;align-items:center;gap:4px;white-space:nowrap}
+    .top-center i{color:#ffaa00}
+    .teacher-phone{font-size:13px;color:#ffaa00;direction:ltr;white-space:nowrap}
+
+    /* ── تخطيط رئيسي ── */
+    .app-body{display:flex;flex:1;overflow:hidden;height:calc(100vh - 60px - 72px)}
+
+    /* ── لوحة الطلاب ── */
+    .students-panel{width:260px;min-width:220px;background:#1e3228;border-radius:0 0 0 0;padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;border-left:1px solid #3a5a40;flex-shrink:0}
+    @media(max-width:900px){.students-panel{width:200px;min-width:160px}}
+    .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;color:#ffaa00;font-weight:700;font-size:13px}
+    .student-item{background:#1a2e25;border-radius:40px;padding:7px 10px;display:flex;align-items:center;gap:8px;border:1px solid #2a4a30;transition:.2s}
+    .student-avatar{width:34px;height:34px;border-radius:50%;background:#ffaa00;display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;flex-shrink:0;font-size:14px}
+    .student-info{flex:1;min-width:0}
+    .student-name{font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .student-status{font-size:10px;color:#ccc;display:flex;align-items:center;gap:3px}
+    .student-actions{display:flex;gap:7px;color:#ffaa00;font-size:14px;flex-shrink:0}
+    .student-actions i{cursor:pointer;transition:.2s}
+    .student-actions i:hover{transform:scale(1.2);color:#fff}
+
+    /* ── منطقة السبورة ── */
+    .board-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+    .board-header{height:42px;background:#1e3228;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2a4a30;flex-shrink:0}
+    .board-title{font-weight:700;color:#ffaa00;font-size:13px}
+    .board-controls{display:flex;align-items:center;gap:10px}
+    .board-controls i{color:#ffaa00;cursor:pointer;font-size:15px;transition:.2s}
+    .board-controls i:hover{color:#fff;transform:scale(1.15)}
+    .zoom-btn{background:#2a4a35;border:none;color:#ffaa00;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:.2s}
+    .zoom-btn:hover{background:#3a6a45;color:#fff}
+    #zoomVal{font-size:11px;color:#aaa;min-width:36px;text-align:center}
+
+    /* Canvas wrapper — يتيح الـ scroll عند zoom */
+    .board-scroll{flex:1;overflow:auto;background:#333;position:relative;display:flex;align-items:flex-start;justify-content:flex-start}
+    .board-scroll.center-mode{align-items:center;justify-content:center}
+    #mainBoardCanvas{display:block;cursor:crosshair;touch-action:none;background:#fff;transform-origin:top left}
+
+    /* ── شريط أدوات سفلي ── */
+    .bottom-bar{height:72px;background:#0f2a1f;border-top:2px solid #ffaa00;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;overflow-x:auto;gap:10px}
+    .toolbar-tools{display:flex;gap:12px;background:#1a2e25;padding:7px 16px;border-radius:50px;border:1px solid #3a5a40;align-items:center;flex-shrink:0}
+    .tool-item{display:flex;flex-direction:column;align-items:center;color:#aaa;cursor:pointer;font-size:10px;transition:.2s;white-space:nowrap}
+    .tool-item i{font-size:22px}
+    .tool-item.active{color:#ffaa00}
+    .color-picker{display:flex;gap:4px;background:#1e3228;padding:5px 8px;border-radius:40px;align-items:center}
+    .color-dot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.2s}
+    .color-dot:hover{transform:scale(1.15)}
+    .color-dot.active{border-color:#fff;transform:scale(1.2)}
+    .toolbar-actions{display:flex;gap:10px;flex-shrink:0}
+    .action-circle{width:48px;height:48px;border-radius:50%;border:none;background:#2a4a35;color:#fff;font-size:20px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center}
+    .action-circle:hover{filter:brightness(1.25);transform:scale(1.06)}
+    .btn-mic.active{background:#ffaa00;color:#000}
+    .btn-end{background:#b71c1c}
+    .image-upload input{display:none}
+    .image-upload label{background:#ffaa00;color:#000;padding:5px 14px;border-radius:30px;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:700;font-size:12px;white-space:nowrap}
+
+    /* ── نافذة التصحيح ── */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:2000}
+    .modal.active{display:flex}
+    .modal-content{background:#1e3228;width:92%;height:92%;border-radius:24px;display:flex;flex-direction:column;border:2px solid #ffaa00}
+    .modal-header{padding:12px 18px;background:#0f2a1f;display:flex;justify-content:space-between;align-items:center;border-radius:22px 22px 0 0}
+    .modal-body{flex:1;background:#fff;overflow:hidden}
+    .modal-body canvas{width:100%;height:100%;display:block;cursor:crosshair;touch-action:none}
+    .modal-footer{padding:9px 18px;background:#0f2a1f;display:flex;gap:10px;align-items:center;border-radius:0 0 22px 22px}
+
+    /* ── overlay إذن المايك ── */
+    #micOverlay{position:fixed;inset:0;background:rgba(0,0,0,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:18px;padding:20px;text-align:center}
+    #micOverlay.hidden{display:none}
+    .mic-icon{font-size:72px;color:#ffaa00;margin-bottom:8px}
+    .mic-title{font-size:22px;font-weight:900;color:#fff}
+    .mic-sub{font-size:14px;color:#ccc;max-width:400px;line-height:1.7}
+    .mic-btn{background:#ffaa00;color:#000;border:none;padding:14px 40px;border-radius:50px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Cairo',sans-serif;transition:.2s;display:flex;align-items:center;gap:10px}
+    .mic-btn:hover{background:#ffc133;transform:scale(1.04)}
+    .mic-skip{background:transparent;color:#888;border:1px solid #555;padding:10px 30px;border-radius:50px;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif;margin-top:4px}
+    .mic-skip:hover{border-color:#aaa;color:#ccc}
+
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+    .blink{animation:blink 1s infinite}
   </style>
 </head>
 <body>
+
+<!-- ── Overlay إذن المايك ── -->
+<div id="micOverlay">
+  <div class="mic-icon"><i class="fas fa-microphone"></i></div>
+  <div class="mic-title">إذن استخدام المايك</div>
+  <div class="mic-sub">لكي يسمعك الطلاب، يحتاج التطبيق إلى إذن استخدام الميكروفون.<br>سيطلب منك المتصفح تأكيد الإذن.</div>
+  <button class="mic-btn" onclick="requestMicPermission()"><i class="fas fa-microphone"></i> السماح بالمايك</button>
+  <button class="mic-skip" onclick="skipMic()">تخطي — لن أستخدم المايك الآن</button>
+</div>
+
 <div class="top-bar">
-  <div><div class="teacher-name">Mr_Farag_Kohail</div><div class="teacher-desc">منصة الفيزياء للثانوية العامة</div></div>
+  <div><div class="teacher-name">Mr_Farag_Kohail</div><div class="teacher-desc">منصة الفيزياء</div></div>
   <div class="top-center">
     <span><i class="fas fa-circle" style="color:#4CAF50"></i> مباشر</span>
     <span><i class="fas fa-users"></i> <span id="studentsCount">0</span></span>
@@ -77,31 +114,31 @@
   <div class="teacher-phone">01141010981</div>
 </div>
 
-<div class="main-layout">
+<div class="app-body">
+  <!-- لوحة الطلاب -->
   <div class="students-panel">
     <div class="panel-header"><span><i class="fas fa-users"></i> المشاركون</span><span id="studentsCountPanel">0</span></div>
-    <div id="studentsList"><div style="color:#aaa;text-align:center;padding:20px;font-size:13px;">لا يوجد طلاب</div></div>
+    <div id="studentsList"><div style="color:#aaa;text-align:center;padding:16px;font-size:12px">لا يوجد طلاب</div></div>
   </div>
 
+  <!-- السبورة -->
   <div class="board-area">
     <div class="board-header">
-      <div class="current-board-title" id="currentBoardTitle">السبورة الرئيسية</div>
-      <div class="board-header-right">
+      <div class="board-title" id="currentBoardTitle">السبورة الرئيسية</div>
+      <div class="board-controls">
+        <button class="zoom-btn" onclick="zoom(-0.1)" title="تصغير"><i class="fas fa-minus"></i></button>
+        <span id="zoomVal">100%</span>
+        <button class="zoom-btn" onclick="zoom(0.1)" title="تكبير"><i class="fas fa-plus"></i></button>
+        <button class="zoom-btn" onclick="resetZoom()" title="الحجم الأصلي" style="width:auto;padding:0 8px;font-size:11px">مناسب</button>
         <i class="fas fa-home" title="السبورة الرئيسية" onclick="switchToMainBoard()"></i>
         <i class="fas fa-trash-alt" title="مسح" onclick="clearBoard()"></i>
         <i class="fas fa-download" title="حفظ" onclick="saveBoard()"></i>
         <i class="fas fa-expand" title="ملء الشاشة" onclick="toggleFullscreen()"></i>
       </div>
     </div>
-    <div class="main-board"><canvas id="mainBoardCanvas"></canvas></div>
-  </div>
-
-  <div class="icon-sidebar">
-    <div class="nav-item active"><i class="fas fa-home"></i><span>الرئيسية</span></div>
-    <div class="nav-item"><i class="fas fa-door-open"></i><span>فصول</span></div>
-    <div class="nav-item"><i class="fas fa-chart-bar"></i><span>الدرجات</span></div>
-    <div class="nav-item"><i class="fas fa-calendar-alt"></i><span>الجدول</span></div>
-    <div class="nav-item" style="margin-top:auto"><i class="fas fa-cog"></i><span>إعدادات</span></div>
+    <div class="board-scroll" id="boardScroll">
+      <canvas id="mainBoardCanvas"></canvas>
+    </div>
   </div>
 </div>
 
@@ -120,9 +157,9 @@
     <div class="image-upload"><label for="tImg"><i class="fas fa-image"></i> رفع صورة</label><input type="file" id="tImg" accept="image/*" onchange="uploadImg(this)"></div>
   </div>
   <div class="toolbar-actions">
-    <button class="action-circle btn-mic" id="micBtn" title="تشغيل المايك" onclick="toggleMic()"><i class="fas fa-microphone-slash"></i></button>
+    <button class="action-circle btn-mic" id="micBtn" title="المايك" onclick="toggleMic()"><i class="fas fa-microphone-slash"></i></button>
     <button class="action-circle" title="تصفير" onclick="resetAll()" style="background:#2a4a35"><i class="fas fa-broom"></i></button>
-    <button class="action-circle btn-end" title="إنهاء الحصة" onclick="endClass()"><i class="fas fa-power-off"></i></button>
+    <button class="action-circle btn-end" title="إنهاء" onclick="endClass()"><i class="fas fa-power-off"></i></button>
   </div>
 </div>
 
@@ -131,15 +168,15 @@
   <div class="modal-content">
     <div class="modal-header">
       <span id="corrTitle" style="font-weight:700;color:#ffaa00">تصحيح الواجب</span>
-      <div style="display:flex;gap:10px">
-        <button class="action-circle" onclick="sendCorrection()" style="background:#4CAF50" title="إرسال"><i class="fas fa-paper-plane"></i></button>
-        <button class="action-circle btn-end" onclick="closeCorr()" title="إغلاق"><i class="fas fa-times"></i></button>
+      <div style="display:flex;gap:8px">
+        <button class="action-circle" onclick="sendCorrection()" style="background:#4CAF50;width:42px;height:42px" title="إرسال"><i class="fas fa-paper-plane"></i></button>
+        <button class="action-circle btn-end" onclick="closeCorr()" style="width:42px;height:42px" title="إغلاق"><i class="fas fa-times"></i></button>
       </div>
     </div>
     <div class="modal-body"><canvas id="corrCanvas"></canvas></div>
     <div class="modal-footer">
-      <button class="action-circle" onclick="corrTool='pen'" style="background:#ffaa00" title="قلم"><i class="fas fa-pen-nib"></i></button>
-      <button class="action-circle" onclick="corrTool='eraser'" style="background:#555" title="ممحاة"><i class="fas fa-eraser"></i></button>
+      <button class="action-circle" onclick="corrTool='pen'" style="background:#ffaa00;width:40px;height:40px"><i class="fas fa-pen-nib"></i></button>
+      <button class="action-circle" onclick="corrTool='eraser'" style="background:#555;width:40px;height:40px"><i class="fas fa-eraser"></i></button>
       <div class="color-picker">
         <div class="color-dot active" style="background:#e53935" onclick="corrColor='#e53935';setCorrDot(this)"></div>
         <div class="color-dot" style="background:#1e88e5" onclick="corrColor='#1e88e5';setCorrDot(this)"></div>
@@ -151,182 +188,182 @@
 </div>
 
 <audio id="audioEl" autoplay style="display:none"></audio>
-
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
 (function(){
-  // ══════════════════════════════════════════════════════
-  //  Firebase
-  // ══════════════════════════════════════════════════════
+  // ══════ Firebase ══════
   firebase.initializeApp({
-    apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
-    databaseURL: "https://myclaive-default-rtdb.firebaseio.com"
+    apiKey:"AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
+    databaseURL:"https://myclaive-default-rtdb.firebaseio.com"
   });
-  const db = firebase.database();
+  const db=firebase.database();
 
-  // ══════════════════════════════════════════════════════
-  //  Canvas إعداد
-  // ══════════════════════════════════════════════════════
-  const mc = document.getElementById('mainBoardCanvas');
-  const mx = mc.getContext('2d');
+  // ══════ مسح جلسات سابقة عند الفتح ══════
+  const CLEAN_KEYS=['joinRequests','approvedStudents','onlineStudents','handRaised',
+    'micRequests','micPermissions','studentImages','draw_t','draw_st',
+    'boardCmd','boardImg','boardImg_stu','correctedImg','rtc'];
+  Promise.all(CLEAN_KEYS.map(k=>db.ref(k).remove())).then(()=>console.log('جلسة نظيفة ✓'));
 
-  function initCtx(ctx) { ctx.lineCap='round'; ctx.lineJoin='round'; }
+  // ══════ Canvas — أبعاد ثابتة 1280×720 ══════
+  const CANVAS_W=1280, CANVAS_H=720;
+  const mc=document.getElementById('mainBoardCanvas');
+  const mx=mc.getContext('2d');
+  mc.width=CANVAS_W; mc.height=CANVAS_H;
+  function initCtx(ctx){ctx.lineCap='round';ctx.lineJoin='round';}
   initCtx(mx);
+  mx.fillStyle='#fff'; mx.fillRect(0,0,CANVAS_W,CANVAS_H);
 
-  let savedDataUrl = null;
-  function resizeMC() {
-    const p = mc.parentElement;
-    const prev = (mc.width > 0 && mc.height > 0) ? mc.toDataURL() : null;
-    mc.width = p.clientWidth; mc.height = p.clientHeight;
-    initCtx(mx);
-    mx.fillStyle='#fff'; mx.fillRect(0,0,mc.width,mc.height);
-    if (prev) { const i=new Image(); i.onload=()=>mx.drawImage(i,0,0,mc.width,mc.height); i.src=prev; }
+  // ══════ Zoom ══════
+  let currentZoom=1.0;
+  const scroll=document.getElementById('boardScroll');
+
+  function applyZoom(z){
+    currentZoom=Math.max(0.3,Math.min(3,z));
+    mc.style.width=(CANVAS_W*currentZoom)+'px';
+    mc.style.height=(CANVAS_H*currentZoom)+'px';
+    document.getElementById('zoomVal').textContent=Math.round(currentZoom*100)+'%';
+    // center mode حين يكون صغير
+    if(CANVAS_W*currentZoom < scroll.clientWidth && CANVAS_H*currentZoom < scroll.clientHeight){
+      scroll.classList.add('center-mode');
+    } else {
+      scroll.classList.remove('center-mode');
+    }
   }
-  window.addEventListener('resize', ()=>setTimeout(resizeMC,100));
-  setTimeout(resizeMC,100);
+  window.zoom=function(d){applyZoom(currentZoom+d);}
+  window.resetZoom=function(){
+    const zw=scroll.clientWidth/CANVAS_W, zh=scroll.clientHeight/CANVAS_H;
+    applyZoom(Math.min(zw,zh)*0.97);
+  }
+  setTimeout(resetZoom,120);
+  window.addEventListener('resize',()=>setTimeout(resetZoom,100));
 
-  // ══════════════════════════════════════════════════════
-  //  حالة التطبيق
-  // ══════════════════════════════════════════════════════
-  let currentTool='pen', currentColor='#000', currentSize=4;
-  let isDrawing=false, strokeId=0;
-  let points=[], sendTimer=null;
-  let students={}, waiting={}, images={};
-  let currentSpeaker=null, currentBoard='main';
-  let lastMainImg=null, lastStuImg={};
-
-  // ══════════════════════════════════════════════════════
-  //  رسم المدرس
-  // ══════════════════════════════════════════════════════
+  // حساب نقطة الرسم مع الـ zoom
   function getXY(e,canvas){
     const r=canvas.getBoundingClientRect();
     const t=e.touches?e.touches[0]:e;
-    return { x:(t.clientX-r.left)*(canvas.width/r.width), y:(t.clientY-r.top)*(canvas.height/r.height) };
+    // r.width = CANVAS_W * zoom, لذا نقسم على zoom
+    return {
+      x:(t.clientX-r.left)/currentZoom,
+      y:(t.clientY-r.top)/currentZoom
+    };
   }
 
-  mc.addEventListener('mousedown', startDraw);
-  mc.addEventListener('mousemove', moveDraw);
-  mc.addEventListener('mouseup', stopDraw);
-  mc.addEventListener('mouseleave', stopDraw);
-  mc.addEventListener('touchstart', startDraw, {passive:false});
-  mc.addEventListener('touchmove', moveDraw, {passive:false});
-  mc.addEventListener('touchend', stopDraw);
+  // ══════ حالة ══════
+  let currentTool='pen',currentColor='#000',currentSize=4;
+  let isDrawing=false,strokeId=0,points=[],sendTimer=null;
+  let students={},waiting={},images={};
+  let currentSpeaker=null,currentBoard='main';
+  let lastMainImg=null,lastStuImg={};
 
-  function startDraw(e) {
+  // ══════ رسم المدرس ══════
+  mc.addEventListener('mousedown',startDraw);
+  mc.addEventListener('mousemove',moveDraw);
+  mc.addEventListener('mouseup',stopDraw);
+  mc.addEventListener('mouseleave',stopDraw);
+  mc.addEventListener('touchstart',startDraw,{passive:false});
+  mc.addEventListener('touchmove',moveDraw,{passive:false});
+  mc.addEventListener('touchend',stopDraw);
+
+  function startDraw(e){
     e.preventDefault();
     isDrawing=true; strokeId=Date.now(); points=[];
     const p=getXY(e,mc);
     initCtx(mx); mx.beginPath(); mx.moveTo(p.x,p.y);
-    points.push({x:p.x/mc.width, y:p.y/mc.height});
+    points.push({x:p.x/CANVAS_W,y:p.y/CANVAS_H});
   }
-  function moveDraw(e) {
+  function moveDraw(e){
     e.preventDefault(); if(!isDrawing) return;
     const p=getXY(e,mc);
-    mx.strokeStyle = currentTool==='eraser'?'#fff':currentColor;
-    mx.lineWidth = currentTool==='eraser'?currentSize*5:currentSize;
+    mx.strokeStyle=currentTool==='eraser'?'#fff':currentColor;
+    mx.lineWidth=currentTool==='eraser'?currentSize*5:currentSize;
     mx.lineTo(p.x,p.y); mx.stroke(); mx.beginPath(); mx.moveTo(p.x,p.y);
-    points.push({x:p.x/mc.width, y:p.y/mc.height});
+    points.push({x:p.x/CANVAS_W,y:p.y/CANVAS_H});
     if(!sendTimer) sendTimer=setTimeout(flush,20);
   }
-  function flush() {
+  function flush(){
     sendTimer=null; if(!points.length) return;
-    db.ref('draw_t').push({pts:points.slice(), c:currentTool==='eraser'?null:currentColor, s:currentSize, sid:strokeId, ts:Date.now()});
+    db.ref('draw_t').push({pts:points.slice(),c:currentTool==='eraser'?null:currentColor,s:currentSize,sid:strokeId,ts:Date.now()});
     points=[];
   }
-  function stopDraw() {
+  function stopDraw(){
     if(!isDrawing) return; isDrawing=false;
     if(sendTimer){clearTimeout(sendTimer);sendTimer=null;}
     flush();
-    lastMainImg = mc.toDataURL();
+    lastMainImg=mc.toDataURL('image/jpeg',0.85);
   }
 
-  // ══════════════════════════════════════════════════════
-  //  استقبال رسم الطالب (عند مشاهدة سبورته)
-  // ══════════════════════════════════════════════════════
-  const stuLP={}, stuLS={};
-  db.ref('draw_st').on('child_added', snap=>{
+  // ══════ استقبال رسم الطالب ══════
+  const stuLP={},stuLS={};
+  db.ref('draw_st').on('child_added',snap=>{
     const d=snap.val();
-    if(!d||!d.pts||!d.studentId) return;
-    if(currentBoard!==d.studentId) return;
-    drawBatch(mx,mc,d,stuLP,stuLS,d.studentId);
+    if(!d||!d.pts||!d.studentId||currentBoard!==d.studentId) return;
+    drawBatch(mx,d,stuLP,stuLS,d.studentId);
   });
-
-  function drawBatch(ctx,canvas,d,lp,ls,key){
-    const pts=d.pts, c=d.c, s=d.s||4, sid=d.sid;
+  function drawBatch(ctx,d,lp,ls,key){
+    const pts=d.pts,c=d.c,s=d.s||4,sid=d.sid;
     if(!pts||!pts.length) return;
     initCtx(ctx);
     ctx.strokeStyle=c===null?'#fff':c;
     ctx.lineWidth=c===null?s*5:s;
     ctx.beginPath();
-    if(lp[key] && sid && sid===ls[key]) {
-      ctx.moveTo(lp[key].x, lp[key].y);
-    } else {
-      ctx.moveTo(pts[0].x*canvas.width, pts[0].y*canvas.height);
-    }
-    pts.forEach(p=>ctx.lineTo(p.x*canvas.width, p.y*canvas.height));
+    if(lp[key]&&sid&&sid===ls[key]) ctx.moveTo(lp[key].x,lp[key].y);
+    else ctx.moveTo(pts[0].x*CANVAS_W,pts[0].y*CANVAS_H);
+    pts.forEach(p=>ctx.lineTo(p.x*CANVAS_W,p.y*CANVAS_H));
     ctx.stroke();
     const last=pts[pts.length-1];
-    lp[key]={x:last.x*canvas.width, y:last.y*canvas.height};
+    lp[key]={x:last.x*CANVAS_W,y:last.y*CANVAS_H};
     ls[key]=sid;
   }
 
-  // ══════════════════════════════════════════════════════
-  //  أدوات الرسم
-  // ══════════════════════════════════════════════════════
-  window.setTool=function(t){ currentTool=t; document.getElementById('toolPen').classList.toggle('active',t==='pen'); document.getElementById('toolEraser').classList.toggle('active',t==='eraser'); };
-  window.setColor=function(c,el){ currentColor=c; document.querySelectorAll('.toolbar-tools .color-dot').forEach(d=>d.classList.remove('active')); el.classList.add('active'); };
-  window.clearBoard=function(){ mx.fillStyle='#fff'; mx.fillRect(0,0,mc.width,mc.height); db.ref('boardCmd').push({type:'clear',ts:Date.now()}); lastMainImg=null; };
-  window.saveBoard=function(){ const a=document.createElement('a'); a.download='board.png'; a.href=mc.toDataURL(); a.click(); };
-  window.toggleFullscreen=function(){ document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(); };
+  // ══════ أدوات ══════
+  window.setTool=t=>{currentTool=t;document.getElementById('toolPen').classList.toggle('active',t==='pen');document.getElementById('toolEraser').classList.toggle('active',t==='eraser');};
+  window.setColor=(c,el)=>{currentColor=c;document.querySelectorAll('.toolbar-tools .color-dot').forEach(d=>d.classList.remove('active'));el.classList.add('active');};
+  window.clearBoard=()=>{mx.fillStyle='#fff';mx.fillRect(0,0,CANVAS_W,CANVAS_H);db.ref('boardCmd').push({type:'clear',ts:Date.now()});lastMainImg=null;};
+  window.saveBoard=()=>{const a=document.createElement('a');a.download='board.png';a.href=mc.toDataURL();a.click();};
+  window.toggleFullscreen=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();};
   window.uploadImg=function(input){
     if(!input.files[0]) return;
-    const reader=new FileReader();
-    reader.onload=e=>{
+    const r=new FileReader();
+    r.onload=e=>{
       const img=new Image();
       img.onload=()=>{
-        const cw=mc.width,ch=mc.height,r=img.width/img.height,cr=cw/ch;
+        const ir=img.width/img.height,cr=CANVAS_W/CANVAS_H;
         let dw,dh;
-        if(r>cr){dw=cw;dh=cw/r;}else{dh=ch;dw=ch*r;}
-        mx.fillStyle='#fff'; mx.fillRect(0,0,cw,ch);
-        mx.drawImage(img,(cw-dw)/2,(ch-dh)/2,dw,dh);
+        if(ir>cr){dw=CANVAS_W;dh=CANVAS_W/ir;}else{dh=CANVAS_H;dw=CANVAS_H*ir;}
+        mx.fillStyle='#fff';mx.fillRect(0,0,CANVAS_W,CANVAS_H);
+        mx.drawImage(img,(CANVAS_W-dw)/2,(CANVAS_H-dh)/2,dw,dh);
         const dataUrl=mc.toDataURL('image/jpeg',0.85);
         lastMainImg=dataUrl;
         db.ref('boardImg').set({data:dataUrl,ts:Date.now()});
       };
       img.src=e.target.result;
     };
-    reader.readAsDataURL(input.files[0]);
+    r.readAsDataURL(input.files[0]);
     input.value='';
   };
 
-  // ══════════════════════════════════════════════════════
-  //  السبورات
-  // ══════════════════════════════════════════════════════
-  window.switchToMainBoard=function(){
+  // ══════ السبورات ══════
+  window.switchToMainBoard=()=>{
     currentBoard='main';
     document.getElementById('currentBoardTitle').textContent='السبورة الرئيسية';
-    mx.fillStyle='#fff'; mx.fillRect(0,0,mc.width,mc.height);
-    if(lastMainImg){ const i=new Image(); i.onload=()=>mx.drawImage(i,0,0,mc.width,mc.height); i.src=lastMainImg; }
+    mx.fillStyle='#fff';mx.fillRect(0,0,CANVAS_W,CANVAS_H);
+    if(lastMainImg){const i=new Image();i.onload=()=>mx.drawImage(i,0,0,CANVAS_W,CANVAS_H);i.src=lastMainImg;}
   };
-  window.viewStudentBoard=function(sid,name){
+  window.viewStudentBoard=(sid,name)=>{
     currentBoard=sid;
     document.getElementById('currentBoardTitle').textContent='سبورة '+name;
-    mx.fillStyle='#fff'; mx.fillRect(0,0,mc.width,mc.height);
-    if(lastStuImg[sid]){ const i=new Image(); i.onload=()=>mx.drawImage(i,0,0,mc.width,mc.height); i.src=lastStuImg[sid]; }
+    mx.fillStyle='#fff';mx.fillRect(0,0,CANVAS_W,CANVAS_H);
+    if(lastStuImg[sid]){const i=new Image();i.onload=()=>mx.drawImage(i,0,0,CANVAS_W,CANVAS_H);i.src=lastStuImg[sid];}
   };
-
-  // صور سبورة الطالب المحفوظة
-  db.ref('boardImg_stu').on('child_changed', snap=>{ const d=snap.val(); if(d) loadStuBoardImg(snap.key,d); });
-  db.ref('boardImg_stu').on('child_added', snap=>{ const d=snap.val(); if(d) loadStuBoardImg(snap.key,d); });
-  function loadStuBoardImg(sid,d){
+  db.ref('boardImg_stu').on('child_added',snap=>{const d=snap.val();if(d)loadStuImg(snap.key,d);});
+  db.ref('boardImg_stu').on('child_changed',snap=>{const d=snap.val();if(d)loadStuImg(snap.key,d);});
+  function loadStuImg(sid,d){
     lastStuImg[sid]=d.data;
-    if(currentBoard===sid){ const i=new Image(); i.onload=()=>{ mx.clearRect(0,0,mc.width,mc.height); mx.drawImage(i,0,0,mc.width,mc.height); }; i.src=d.data; }
+    if(currentBoard===sid){const i=new Image();i.onload=()=>{mx.clearRect(0,0,CANVAS_W,CANVAS_H);mx.drawImage(i,0,0,CANVAS_W,CANVAS_H);};i.src=d.data;}
   }
 
-  // ══════════════════════════════════════════════════════
-  //  إدارة الطلاب
-  // ══════════════════════════════════════════════════════
+  // ══════ إدارة الطلاب ══════
   function render(){
     const c=document.getElementById('studentsList');
     let h='';
@@ -342,204 +379,161 @@
     Object.values(students).forEach(s=>{
       if(!s.online) return;
       const hasImg=images[s.id]&&images[s.id].length>0;
-      const spk=currentSpeaker===s.id;
-      const hand=s.handRaised;
+      const spk=currentSpeaker===s.id,hand=s.handRaised;
       const ico=hand?'<i class="fas fa-hand-paper blink" style="color:#f59e0b"></i>':spk?'<i class="fas fa-microphone" style="color:#22c55e"></i>':'<i class="fas fa-headphones" style="color:#aaa"></i>';
-      const txt=hand?'رفع اليد':spk?'يتحدث':'مستمع';
       h+=`<div class="student-item">
         <div class="student-avatar" style="background:${hand?'#f59e0b':'#ffaa00'}">${s.name[0]}</div>
-        <div class="student-info"><div class="student-name">${s.name}</div><div class="student-status">${ico} ${txt}</div></div>
+        <div class="student-info"><div class="student-name">${s.name}</div><div class="student-status">${ico} ${hand?'رفع اليد':spk?'يتحدث':'مستمع'}</div></div>
         <div class="student-actions">
           ${hasImg?`<i class="fas fa-image" title="تصحيح" onclick="openCorr('${s.id}','${s.name}')"></i>`:''}
           <i class="fas fa-eye" title="عرض السبورة" onclick="viewStudentBoard('${s.id}','${s.name}')"></i>
-          ${spk?`<i class="fas fa-microphone-slash" style="color:#e53935" title="كتم" onclick="revokeMic('${s.id}')"></i>`:''}
-          <i class="fas fa-sign-out-alt" style="color:#b71c1c" title="طرد" onclick="kickS('${s.id}')"></i>
+          ${spk?`<i class="fas fa-microphone-slash" style="color:#e53935" onclick="revokeMic('${s.id}')"></i>`:''}
+          <i class="fas fa-sign-out-alt" style="color:#b71c1c" onclick="kickS('${s.id}')"></i>
         </div></div>`;
     });
-    c.innerHTML=h||'<div style="color:#aaa;text-align:center;padding:20px;font-size:13px">لا يوجد طلاب</div>';
+    c.innerHTML=h||'<div style="color:#aaa;text-align:center;padding:14px;font-size:12px">لا يوجد طلاب</div>';
     const cnt=Object.values(students).filter(s=>s.online).length;
     document.getElementById('studentsCount').textContent=cnt;
     document.getElementById('studentsCountPanel').textContent=cnt;
   }
 
-  db.ref('joinRequests').on('child_added', snap=>{ const s=snap.val(); if(s){waiting[s.id]=s; render();} });
-  db.ref('joinRequests').on('child_removed', snap=>{ const s=snap.val(); if(s){delete waiting[s.id]; render();} });
-  db.ref('approvedStudents').on('value', snap=>{ students=snap.val()||{}; render(); });
-  db.ref('onlineStudents').on('value', snap=>{
+  db.ref('joinRequests').on('child_added',snap=>{const s=snap.val();if(s){waiting[s.id]=s;render();}});
+  db.ref('joinRequests').on('child_removed',snap=>{const s=snap.val();if(s){delete waiting[s.id];render();}});
+  db.ref('approvedStudents').on('value',snap=>{students=snap.val()||{};render();});
+  db.ref('onlineStudents').on('value',snap=>{
     const o=snap.val()||{};
-    Object.keys(students).forEach(id=>{ if(students[id]) students[id].online=!!o[id]; });
+    Object.keys(students).forEach(id=>{if(students[id])students[id].online=!!o[id];});
     render();
   });
-  db.ref('handRaised').on('value', snap=>{
+  db.ref('handRaised').on('value',snap=>{
     const h=snap.val()||{};
-    Object.keys(students).forEach(id=>{ if(students[id]) students[id].handRaised=!!h[id]; });
+    Object.keys(students).forEach(id=>{if(students[id])students[id].handRaised=!!h[id];});
     render();
   });
-  db.ref('micRequests').on('child_added', snap=>{
-    const req=snap.val(); if(!req) return;
+  db.ref('micRequests').on('child_added',snap=>{
+    const req=snap.val();if(!req) return;
     const name=(students[req.studentId]&&students[req.studentId].name)||req.studentName||'طالب';
-    if(confirm(`الطالب "${name}" يريد التحدث. هل تسمح؟`)){
+    if(confirm(`"${name}" يريد التحدث. هل تسمح؟`)){
       if(currentSpeaker) db.ref('micPermissions/'+currentSpeaker).remove();
       currentSpeaker=req.studentId;
       db.ref('micPermissions/'+req.studentId).set({allowed:true,ts:Date.now()});
       db.ref('handRaised/'+req.studentId).remove();
     }
-    snap.ref.remove(); render();
+    snap.ref.remove();render();
   });
-  db.ref('studentImages').on('child_added', snap=>{
-    const img=snap.val(); if(!img||!img.studentId) return;
-    if(!images[img.studentId]) images[img.studentId]=[];
-    images[img.studentId].push(img); render();
+  db.ref('studentImages').on('child_added',snap=>{
+    const img=snap.val();if(!img||!img.studentId) return;
+    if(!images[img.studentId])images[img.studentId]=[];
+    images[img.studentId].push(img);render();
   });
 
-  window.approveS=function(id){
-    const s=waiting[id]; if(!s) return;
-    delete waiting[id];
-    db.ref('approvedStudents/'+id).set({id,name:s.name});
-    db.ref('joinRequests/'+id).remove();
-    render();
-  };
-  window.rejectS=function(id){ delete waiting[id]; db.ref('joinRequests/'+id).remove(); render(); };
-  window.kickS=function(id){
-    if(currentSpeaker===id){currentSpeaker=null;db.ref('micPermissions/'+id).remove();}
-    delete students[id];
-    db.ref('approvedStudents/'+id).remove();
-    db.ref('onlineStudents/'+id).remove();
-    render();
-  };
-  window.revokeMic=function(id){
-    currentSpeaker=null; db.ref('micPermissions/'+id).remove(); render();
-  };
+  window.approveS=id=>{const s=waiting[id];if(!s) return;delete waiting[id];db.ref('approvedStudents/'+id).set({id,name:s.name});db.ref('joinRequests/'+id).remove();render();};
+  window.rejectS=id=>{delete waiting[id];db.ref('joinRequests/'+id).remove();render();};
+  window.kickS=id=>{if(currentSpeaker===id){currentSpeaker=null;db.ref('micPermissions/'+id).remove();}delete students[id];db.ref('approvedStudents/'+id).remove();db.ref('onlineStudents/'+id).remove();render();};
+  window.revokeMic=id=>{currentSpeaker=null;db.ref('micPermissions/'+id).remove();render();};
 
-  // ══════════════════════════════════════════════════════
-  //  نافذة التصحيح
-  // ══════════════════════════════════════════════════════
-  const cc=document.getElementById('corrCanvas');
-  const cx=cc.getContext('2d');
+  // ══════ نافذة التصحيح ══════
+  const cc=document.getElementById('corrCanvas'),cx=cc.getContext('2d');
   initCtx(cx);
-  let corrTool='pen', corrColor='#e53935', corrDrawing=false, corrStuId=null;
-
-  window.openCorr=function(sid,name){
-    const imgs=images[sid]; if(!imgs||!imgs.length) return;
+  let corrTool='pen',corrColor='#e53935',corrDrw=false,corrStuId=null;
+  window.openCorr=(sid,name)=>{
+    const imgs=images[sid];if(!imgs||!imgs.length) return;
     corrStuId=sid;
     document.getElementById('corrTitle').textContent='تصحيح واجب '+name;
     document.getElementById('corrModal').classList.add('active');
     setTimeout(()=>{
-      const p=cc.parentElement;
-      cc.width=p.clientWidth; cc.height=p.clientHeight;
-      initCtx(cx); cx.fillStyle='#fff'; cx.fillRect(0,0,cc.width,cc.height);
-      const img=new Image();
-      img.onload=()=>cx.drawImage(img,0,0,cc.width,cc.height);
-      img.src=imgs[imgs.length-1].data;
+      const p=cc.parentElement;cc.width=p.clientWidth;cc.height=p.clientHeight;
+      initCtx(cx);cx.fillStyle='#fff';cx.fillRect(0,0,cc.width,cc.height);
+      const img=new Image();img.onload=()=>cx.drawImage(img,0,0,cc.width,cc.height);img.src=imgs[imgs.length-1].data;
     },60);
   };
   window.closeCorr=()=>document.getElementById('corrModal').classList.remove('active');
-  window.sendCorrection=function(){
-    if(!corrStuId) return;
-    db.ref('correctedImg/'+corrStuId).set({data:cc.toDataURL('image/jpeg',0.85),ts:Date.now()});
-    alert('✅ تم إرسال التصحيح للطالب');
-    closeCorr();
-  };
-  window.setCorrDot=function(el){ document.querySelectorAll('#corrModal .color-dot').forEach(d=>d.classList.remove('active')); el.classList.add('active'); };
+  window.sendCorrection=()=>{if(!corrStuId) return;db.ref('correctedImg/'+corrStuId).set({data:cc.toDataURL('image/jpeg',0.85),ts:Date.now()});alert('✅ تم إرسال التصحيح');closeCorr();};
+  window.setCorrDot=el=>{document.querySelectorAll('#corrModal .color-dot').forEach(d=>d.classList.remove('active'));el.classList.add('active');};
+  function corrXY(e){const r=cc.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*(cc.width/r.width),y:(t.clientY-r.top)*(cc.height/r.height)};}
+  cc.addEventListener('mousedown',e=>{corrDrw=true;const p=corrXY(e);initCtx(cx);cx.beginPath();cx.moveTo(p.x,p.y);});
+  cc.addEventListener('mousemove',e=>{if(!corrDrw) return;const p=corrXY(e);cx.strokeStyle=corrTool==='eraser'?'#fff':corrColor;cx.lineWidth=corrTool==='eraser'?20:4;cx.lineTo(p.x,p.y);cx.stroke();cx.beginPath();cx.moveTo(p.x,p.y);});
+  cc.addEventListener('mouseup',()=>corrDrw=false);cc.addEventListener('mouseleave',()=>corrDrw=false);
+  cc.addEventListener('touchstart',e=>{e.preventDefault();corrDrw=true;const p=corrXY(e);initCtx(cx);cx.beginPath();cx.moveTo(p.x,p.y);},{passive:false});
+  cc.addEventListener('touchmove',e=>{e.preventDefault();if(!corrDrw) return;const p=corrXY(e);cx.strokeStyle=corrTool==='eraser'?'#fff':corrColor;cx.lineWidth=corrTool==='eraser'?20:4;cx.lineTo(p.x,p.y);cx.stroke();cx.beginPath();cx.moveTo(p.x,p.y);},{passive:false});
+  cc.addEventListener('touchend',()=>corrDrw=false);
 
-  function corrXY(e){ return getXY(e,cc); }
-  cc.addEventListener('mousedown', e=>{corrDrawing=true;const p=corrXY(e);initCtx(cx);cx.beginPath();cx.moveTo(p.x,p.y);});
-  cc.addEventListener('mousemove', e=>{if(!corrDrawing)return;const p=corrXY(e);cx.strokeStyle=corrTool==='eraser'?'#fff':corrColor;cx.lineWidth=corrTool==='eraser'?20:4;cx.lineTo(p.x,p.y);cx.stroke();cx.beginPath();cx.moveTo(p.x,p.y);});
-  cc.addEventListener('mouseup',()=>corrDrawing=false);
-  cc.addEventListener('mouseleave',()=>corrDrawing=false);
-  cc.addEventListener('touchstart',e=>{e.preventDefault();corrDrawing=true;const p=corrXY(e);initCtx(cx);cx.beginPath();cx.moveTo(p.x,p.y);},{passive:false});
-  cc.addEventListener('touchmove',e=>{e.preventDefault();if(!corrDrawing)return;const p=corrXY(e);cx.strokeStyle=corrTool==='eraser'?'#fff':corrColor;cx.lineWidth=corrTool==='eraser'?20:4;cx.lineTo(p.x,p.y);cx.stroke();cx.beginPath();cx.moveTo(p.x,p.y);},{passive:false});
-  cc.addEventListener('touchend',()=>corrDrawing=false);
-
-  // ══════════════════════════════════════════════════════
-  //  المايك - WebRTC
-  // ══════════════════════════════════════════════════════
+  // ══════ المايك — WebRTC ══════
   const RTC={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
-  let tStream=null, micOn=false;
-  const peers={}; // sid->RTCPeerConnection (teacher->student)
-  let stuPc=null; // student->teacher
+  let tStream=null,micOn=false;
+  const peers={};
+  let stuPc=null;
+
+  // Overlay إذن المايك
+  window.requestMicPermission=async()=>{
+    try{
+      const s=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+      s.getTracks().forEach(t=>t.stop()); // نحرر مباشرة، المدرس سيشغله عند الضغط
+      document.getElementById('micOverlay').classList.add('hidden');
+    }catch(err){
+      alert('لم يُمنح إذن المايك.\nتأكد من إذن المتصفح ثم أعد المحاولة.\n'+err.message);
+    }
+  };
+  window.skipMic=()=>document.getElementById('micOverlay').classList.add('hidden');
 
   async function callStudent(sid){
     if(peers[sid]) return;
-    const pc=new RTCPeerConnection(RTC);
-    peers[sid]=pc;
+    const pc=new RTCPeerConnection(RTC);peers[sid]=pc;
     if(tStream) tStream.getTracks().forEach(t=>pc.addTrack(t,tStream));
-    pc.onicecandidate=e=>{ if(e.candidate) db.ref('rtc/t2s_ice/'+sid).push(e.candidate.toJSON()); };
-    pc.onconnectionstatechange=()=>{ if(['failed','closed','disconnected'].includes(pc.connectionState)){pc.close();delete peers[sid];} };
-    const offer=await pc.createOffer();
-    await pc.setLocalDescription(offer);
+    pc.onicecandidate=e=>{if(e.candidate)db.ref('rtc/t2s_ice/'+sid).push(e.candidate.toJSON());};
+    pc.onconnectionstatechange=()=>{if(['failed','closed','disconnected'].includes(pc.connectionState)){pc.close();delete peers[sid];}};
+    const offer=await pc.createOffer();await pc.setLocalDescription(offer);
     db.ref('rtc/t2s_offer/'+sid).set({sdp:offer.sdp,type:offer.type});
-    db.ref('rtc/s2t_answer/'+sid).on('value',async snap=>{
-      const a=snap.val();
-      if(a&&pc.signalingState==='have-local-offer') await pc.setRemoteDescription(new RTCSessionDescription(a)).catch(()=>{});
-    });
-    db.ref('rtc/s2t_ice/'+sid).on('child_added',async snap=>{
-      const ice=snap.val(); if(ice){try{await pc.addIceCandidate(new RTCIceCandidate(ice));}catch(e){} snap.ref.remove();}
-    });
+    db.ref('rtc/s2t_answer/'+sid).on('value',async snap=>{const a=snap.val();if(a&&pc.signalingState==='have-local-offer')await pc.setRemoteDescription(new RTCSessionDescription(a)).catch(()=>{});});
+    db.ref('rtc/s2t_ice/'+sid).on('child_added',async snap=>{const ice=snap.val();if(ice){try{await pc.addIceCandidate(new RTCIceCandidate(ice));}catch(e){}snap.ref.remove();}});
   }
 
-  window.toggleMic=async function(){
+  window.toggleMic=async()=>{
     const btn=document.getElementById('micBtn');
     if(!micOn){
       try{
         tStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
-        micOn=true; btn.classList.add('active'); btn.innerHTML='<i class="fas fa-microphone"></i>'; btn.title='إيقاف المايك';
-        Object.keys(students).forEach(sid=>{ if(students[sid]&&students[sid].online) callStudent(sid); });
-        db.ref('rtc/join_notify').on('child_added',snap=>{ const sid=snap.val(); if(sid&&micOn) callStudent(sid); snap.ref.remove(); });
-      }catch(err){ alert('تعذر تشغيل المايك:\n'+err.message); }
+        micOn=true;btn.classList.add('active');btn.innerHTML='<i class="fas fa-microphone"></i>';btn.title='إيقاف المايك';
+        Object.keys(students).forEach(sid=>{if(students[sid]&&students[sid].online)callStudent(sid);});
+        db.ref('rtc/join_notify').on('child_added',snap=>{const sid=snap.val();if(sid&&micOn)callStudent(sid);snap.ref.remove();});
+      }catch(err){alert('تعذر تشغيل المايك:\n'+err.message);}
     }else{
-      micOn=false; btn.classList.remove('active'); btn.innerHTML='<i class="fas fa-microphone-slash"></i>'; btn.title='تشغيل المايك';
+      micOn=false;btn.classList.remove('active');btn.innerHTML='<i class="fas fa-microphone-slash"></i>';btn.title='تشغيل المايك';
       if(tStream){tStream.getTracks().forEach(t=>t.stop());tStream=null;}
-      Object.values(peers).forEach(pc=>pc.close()); Object.keys(peers).forEach(k=>delete peers[k]);
-      db.ref('rtc/t2s_offer').remove(); db.ref('rtc/t2s_ice').remove();
+      Object.values(peers).forEach(pc=>pc.close());Object.keys(peers).forEach(k=>delete peers[k]);
+      db.ref('rtc/t2s_offer').remove();db.ref('rtc/t2s_ice').remove();
     }
   };
 
-  // استقبال صوت الطالب المصرح له
-  db.ref('micPermissions').on('child_added', async snap=>{
-    const sid=snap.key; if(!snap.val()?.allowed) return;
+  db.ref('micPermissions').on('child_added',async snap=>{
+    const sid=snap.key;if(!snap.val()?.allowed) return;
     if(stuPc){stuPc.close();stuPc=null;}
-    const pc=new RTCPeerConnection(RTC); stuPc=pc;
-    pc.ontrack=e=>{ const a=document.getElementById('audioEl'); a.srcObject=e.streams[0]; a.play().catch(()=>{}); };
-    pc.onicecandidate=e=>{ if(e.candidate) db.ref('rtc/t2s_stu_ice/'+sid).push(e.candidate.toJSON()); };
-
-    // انتظر offer من الطالب
+    const pc=new RTCPeerConnection(RTC);stuPc=pc;
+    pc.ontrack=e=>{const a=document.getElementById('audioEl');a.srcObject=e.streams[0];a.play().catch(()=>{});};
+    pc.onicecandidate=e=>{if(e.candidate)db.ref('rtc/t2s_stu_ice/'+sid).push(e.candidate.toJSON());};
     db.ref('rtc/s2t_stu_offer/'+sid).on('value',async snap2=>{
-      const offer=snap2.val(); if(!offer||pc.signalingState!=='stable') return;
+      const offer=snap2.val();if(!offer||pc.signalingState!=='stable') return;
       await pc.setRemoteDescription(new RTCSessionDescription(offer));
-      const ans=await pc.createAnswer();
-      await pc.setLocalDescription(ans);
+      const ans=await pc.createAnswer();await pc.setLocalDescription(ans);
       db.ref('rtc/t2s_stu_answer/'+sid).set({sdp:ans.sdp,type:ans.type});
     });
-    db.ref('rtc/s2t_stu_ice/'+sid).on('child_added',async snap2=>{
-      const ice=snap2.val(); if(ice){try{await pc.addIceCandidate(new RTCIceCandidate(ice));}catch(e){} snap2.ref.remove();}
-    });
+    db.ref('rtc/s2t_stu_ice/'+sid).on('child_added',async snap2=>{const ice=snap2.val();if(ice){try{await pc.addIceCandidate(new RTCIceCandidate(ice));}catch(e){}snap2.ref.remove();}});
   });
-  db.ref('micPermissions').on('child_removed',()=>{
-    if(stuPc){stuPc.close();stuPc=null;}
-    const a=document.getElementById('audioEl'); a.srcObject=null;
-  });
+  db.ref('micPermissions').on('child_removed',()=>{if(stuPc){stuPc.close();stuPc=null;}const a=document.getElementById('audioEl');a.srcObject=null;});
 
-  // ══════════════════════════════════════════════════════
-  //  إنهاء / تصفير
-  // ══════════════════════════════════════════════════════
-  window.endClass=function(){ if(confirm('إنهاء الحصة؟')) window.location.reload(); };
-  window.resetAll=function(){
-    if(!confirm('سيتم حذف جميع بيانات الجلسة. متأكد؟')) return;
+  // ══════ إنهاء / تصفير ══════
+  window.endClass=()=>{if(confirm('إنهاء الحصة؟'))window.location.reload();};
+  window.resetAll=()=>{
+    if(!confirm('حذف جميع بيانات الجلسة؟')) return;
     if(tStream){tStream.getTracks().forEach(t=>t.stop());tStream=null;}
     Object.values(peers).forEach(pc=>pc.close());
-    ['joinRequests','approvedStudents','onlineStudents','handRaised','micRequests','micPermissions',
-     'studentImages','draw_t','draw_st','boardCmd','boardImg','boardImg_stu','correctedImg','rtc'].forEach(k=>db.ref(k).remove());
-    students={}; waiting={}; images={}; currentSpeaker=null; currentBoard='main';
-    switchToMainBoard(); render();
+    CLEAN_KEYS.forEach(k=>db.ref(k).remove());
+    students={};waiting={};images={};currentSpeaker=null;currentBoard='main';
+    switchToMainBoard();render();
   };
 
-  // Latency ping
-  setInterval(()=>{
-    const t=Date.now();
-    db.ref('ping_t').set(t);
-    setTimeout(()=>{ db.ref('ping_t').once('value',()=>{ document.getElementById('latency').textContent=(Date.now()-t)+'ms'; }); },500);
-  },5000);
+  // Latency
+  setInterval(()=>{const t=Date.now();db.ref('ping_t').set(t);setTimeout(()=>db.ref('ping_t').once('value',()=>{document.getElementById('latency').textContent=(Date.now()-t)+'ms';}),600);},6000);
 })();
 </script>
 </body>
