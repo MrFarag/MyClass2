@@ -139,10 +139,10 @@
       display: flex;
       gap: 8px;
       color: #ffaa00;
-      font-size: 16px;
+      font-size: 14px;
       flex-shrink: 0;
     }
-    .student-actions i { cursor: pointer; transition: 0.2s; width: 20px; text-align: center; }
+    .student-actions i { cursor: pointer; transition: 0.2s; }
     .student-actions i:hover { transform: scale(1.2); color: #fff; }
     .blink {
       animation: blink-animation 1s infinite;
@@ -409,6 +409,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script>
     (function() {
+      // ============================================================
+      // تهيئة Firebase ومسح جميع البيانات القديمة لبدء جلسة نظيفة
+      // ============================================================
       firebase.initializeApp({
         apiKey: "AIzaSyB7E4NsGQbCehVSQ3Kj97yExRZwpHzTOl8",
         databaseURL: "https://myclaive-default-rtdb.firebaseio.com"
@@ -449,7 +452,6 @@
       let studentImages = {};      // صور الطلاب
       let lastMainImage = null;    // آخر صورة رئيسية (لإعادة الرسم بعد تغيير الحجم)
       let lastStudentBoardData = {}; // آخر بيانات سبورة طالب (لكل طالب)
-      let micRequests = {};        // طلبات المايك (لتوميض الأيقونة)
 
       const mainCanvas = document.getElementById('mainBoardCanvas');
       const correctionCanvas = document.getElementById('correctionCanvas');
@@ -501,8 +503,7 @@
       setTimeout(resizeAndRedraw, 100);
 
       // ============================================================
-      // ===== بداية قسم الرسم الفوري (المدرس) =====
-      // Real-time Drawing Section (Teacher)
+      // دوال الرسم على السبورة الرئيسية (مع تحسين الجودة)
       // ============================================================
       function getCanvasPoint(e, canvas) {
         const rect = canvas.getBoundingClientRect();
@@ -516,62 +517,60 @@
         };
       }
 
+      let points = [], sendTimer = null;
+
       function startDraw(e) {
         e.preventDefault();
         isDrawing = true;
         const p = getCanvasPoint(e, mainCanvas);
         lastX = p.x; lastY = p.y;
+        points = [{ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height }];
         mainCtx.beginPath();
         mainCtx.moveTo(p.x, p.y);
-        // تعيين خصائص الرسم
-        mainCtx.lineCap = 'round';
-        mainCtx.lineJoin = 'round';
-        if (currentTool === 'eraser') {
-          mainCtx.globalCompositeOperation = 'destination-out';
-          mainCtx.lineWidth = currentSize * 5;
-        } else {
-          mainCtx.globalCompositeOperation = 'source-over';
-          mainCtx.strokeStyle = currentColor;
-          mainCtx.lineWidth = currentSize;
-        }
-        // إرسال نقطة البداية
-        sendPoint(p.x, p.y, true);
       }
 
       function draw(e) {
         e.preventDefault();
         if (!isDrawing) return;
         const p = getCanvasPoint(e, mainCanvas);
+        mainCtx.strokeStyle = currentTool === 'eraser' ? '#fff' : currentColor;
+        mainCtx.lineWidth = currentTool === 'eraser' ? currentSize * 5 : currentSize;
         mainCtx.lineTo(p.x, p.y);
         mainCtx.stroke();
         mainCtx.beginPath();
         mainCtx.moveTo(p.x, p.y);
-        // إرسال النقطة الحالية
-        sendPoint(p.x, p.y, false);
-        lastX = p.x; lastY = p.y;
+        points.push({ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height });
+        if (!sendTimer) {
+          sendTimer = setTimeout(() => {
+            if (points.length) {
+              db.ref('draw_t').push({
+                points: points,
+                color: currentTool === 'eraser' ? null : currentColor,
+                size: currentSize,
+                ts: Date.now()
+              });
+              points = [];
+            }
+            sendTimer = null;
+          }, 20); // إرسال أسرع لخطوط أكثر سلاسة
+        }
       }
 
       function stopDraw() {
         if (isDrawing) {
           isDrawing = false;
-          mainCtx.globalCompositeOperation = 'source-over'; // إعادة الوضع الطبيعي
-          // تحديث الصورة المحفوظة بعد الرسم
-          lastMainImage = mainCanvas.toDataURL();
+          if (points.length) {
+            db.ref('draw_t').push({
+              points: points,
+              color: currentTool === 'eraser' ? null : currentColor,
+              size: currentSize,
+              ts: Date.now()
+            });
+            points = [];
+          }
+          if (sendTimer) clearTimeout(sendTimer);
+          sendTimer = null;
         }
-      }
-
-      function sendPoint(x, y, isStart) {
-        if (!mainCanvas.width) return;
-        db.ref('draw_t').push({
-          x: x / mainCanvas.width,
-          y: y / mainCanvas.height,
-          lastX: lastX / mainCanvas.width,
-          lastY: lastY / mainCanvas.height,
-          color: currentTool === 'eraser' ? null : currentColor,
-          size: currentTool === 'eraser' ? currentSize * 5 : currentSize,
-          isStart: isStart,
-          ts: Date.now()
-        });
       }
 
       mainCanvas.addEventListener('mousedown', startDraw);
@@ -581,9 +580,6 @@
       mainCanvas.addEventListener('touchstart', startDraw, { passive: false });
       mainCanvas.addEventListener('touchmove', draw, { passive: false });
       mainCanvas.addEventListener('touchend', stopDraw);
-
-      // ===== نهاية قسم الرسم الفوري =====
-      // ============================================================
 
       // ============================================================
       // أدوات الرسم
@@ -653,7 +649,7 @@
       };
 
       // ============================================================
-      // إدارة الطلاب (بدون confirm أو toast)
+      // إدارة الطلاب
       // ============================================================
       function setupListeners() {
         db.ref('joinRequests').on('child_added', snap => {
@@ -688,25 +684,17 @@
           updateStudentsList();
         });
 
-        // استقبال طلبات المايك - بدون confirm، فقط وميض الأيقونة
         db.ref('micRequests').on('child_added', snap => {
           const req = snap.val();
           if (req && students[req.studentId]) {
-            micRequests[req.studentId] = true;
-            updateStudentsList(); // سيقوم بتحديث الأيقونة وإضافة وميض
-          }
-        });
-
-        // عند منح الإذن أو رفضه (إزالة الطلب)
-        db.ref('micPermissions').on('value', snap => {
-          const perms = snap.val() || {};
-          // إذا تم منح الإذن، نزيل طلب المايك لذلك الطالب
-          Object.keys(micRequests).forEach(id => {
-            if (perms[id]) {
-              delete micRequests[id];
+            if (confirm(`الطالب ${req.studentName} يريد التحدث. هل تسمح؟`)) {
+              if (currentSpeaker) db.ref('micPermissions/' + currentSpeaker).remove();
+              currentSpeaker = req.studentId;
+              db.ref('micPermissions/' + req.studentId).set({ allowed: true });
+              db.ref('handRaised/' + req.studentId).remove();
             }
-          });
-          updateStudentsList();
+            snap.ref.remove();
+          }
         });
 
         // استقبال صور الطلاب
@@ -722,24 +710,17 @@
         // استقبال رسم الطلاب (إذا كنا نشاهد سبورة طالب)
         db.ref('draw_st').on('child_added', snap => {
           const d = snap.val();
-          if (!d || !d.x || !d.y || !d.lastX || !d.lastY || !d.studentId) return;
+          if (!d || !d.points || !d.studentId) return;
           if (currentBoard === d.studentId) {
-            // تطبيق الرسم على canvas
-            if (d.color === null) { // ممحاة
-              mainCtx.globalCompositeOperation = 'destination-out';
-              mainCtx.lineWidth = d.size || 4;
-            } else {
-              mainCtx.globalCompositeOperation = 'source-over';
-              mainCtx.strokeStyle = d.color;
-              mainCtx.lineWidth = d.size || 4;
-            }
+            mainCtx.strokeStyle = d.color || '#000';
+            mainCtx.lineWidth = d.size || 4;
             mainCtx.beginPath();
-            mainCtx.moveTo(d.lastX * mainCanvas.width, d.lastY * mainCanvas.height);
-            mainCtx.lineTo(d.x * mainCanvas.width, d.y * mainCanvas.height);
+            mainCtx.moveTo(d.points[0].x * mainCanvas.width, d.points[0].y * mainCanvas.height);
+            for (let i = 1; i < d.points.length; i++) {
+              mainCtx.lineTo(d.points[i].x * mainCanvas.width, d.points[i].y * mainCanvas.height);
+            }
             mainCtx.stroke();
-            mainCtx.globalCompositeOperation = 'source-over';
           }
-          snap.ref.remove();
         });
 
         // استقبال صورة سبورة طالب (مثل الصورة المصححة)
@@ -786,10 +767,6 @@
           const hasImage = studentImages[s.id] && studentImages[s.id].length > 0;
           const isHandRaised = s.handRaised;
           const isSpeaking = (currentSpeaker === s.id);
-          const hasMicRequest = micRequests[s.id]; // وميض إذا كان هناك طلب مايك
-          const micIconClass = isSpeaking ? 'fa-microphone-slash' : (hasMicRequest ? 'fa-microphone blink' : 'fa-microphone');
-          const micIconColor = isSpeaking ? '#22c55e' : (hasMicRequest ? '#f59e0b' : '#aaa');
-          const micTitle = isSpeaking ? 'إيقاف المايك' : (hasMicRequest ? 'طلب مايك - اضغط للمنح' : 'منح المايك');
           const statusIcon = isHandRaised ? '<i class="fas fa-hand-paper blink" style="color:#f59e0b;"></i>' : (isSpeaking ? '<i class="fas fa-microphone" style="color:#22c55e;"></i>' : '<i class="fas fa-headphones" style="color:#aaa;"></i>');
           const statusText = isHandRaised ? ' رفع اليد' : (isSpeaking ? ' يتحدث' : ' مستمع');
           html += `
@@ -800,9 +777,8 @@
                 <div class="student-status">${statusIcon} ${statusText}</div>
               </div>
               <div class="student-actions">
-                <i class="fas fa-eye" title="عرض السبورة" onclick="event.stopPropagation(); viewStudentBoard('${s.id}', '${s.name}')"></i>
                 ${hasImage ? `<i class="fas fa-image" title="عرض الصورة" onclick="event.stopPropagation(); openCorrectionModal('${s.id}', '${s.name}')"></i>` : ''}
-                <i class="${micIconClass}" style="color:${micIconColor};" title="${micTitle}" onclick="event.stopPropagation(); toggleStudentMic('${s.id}')"></i>
+                <i class="fas fa-eye" title="عرض السبورة" onclick="event.stopPropagation(); viewStudentBoard('${s.id}', '${s.name}')"></i>
                 <i class="fas fa-door-closed" title="طرد" onclick="event.stopPropagation(); kickStudent('${s.id}')"></i>
               </div>
             </div>
@@ -833,7 +809,6 @@
           db.ref('micPermissions/' + id).remove();
         }
         delete students[id];
-        delete micRequests[id];
         db.ref('approvedStudents/' + id).remove();
         db.ref('onlineStudents/' + id).remove();
       };
@@ -851,21 +826,6 @@
           mainCtx.fillStyle = '#fff';
           mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
         }
-      };
-      window.toggleStudentMic = function(id) {
-        if (currentSpeaker === id) {
-          // إيقاف المايك
-          currentSpeaker = null;
-          db.ref('micPermissions/' + id).remove();
-        } else {
-          // منح المايك (أو قبول الطلب)
-          if (currentSpeaker) db.ref('micPermissions/' + currentSpeaker).remove();
-          currentSpeaker = id;
-          db.ref('micPermissions/' + id).set({ allowed: true });
-          db.ref('handRaised/' + id).remove();
-          delete micRequests[id];
-        }
-        updateStudentsList();
       };
 
       // ============================================================
@@ -904,11 +864,10 @@
       window.setCorrectionColor = function(color) { correctionColor = color; };
 
       // ============================================================
-      // الصوت (للمدرس)
+      // الصوت
       // ============================================================
       window.toggleMic = function() {
         document.getElementById('micBtn').classList.toggle('active');
-        // هنا يمكن إضافة منطق تشغيل/إيقاف مايك المدرس إذا أردت
       };
 
       // ============================================================
@@ -929,7 +888,6 @@
           students = {};
           waitingStudents = {};
           studentImages = {};
-          micRequests = {};
           currentSpeaker = null;
           switchToMainBoard();
           updateStudentsList();
