@@ -250,7 +250,9 @@
       color: #fff;
       font-size: 22px;
       cursor: pointer;
+      transition: 0.2s;
     }
+    .action-circle:hover { filter: brightness(1.2); transform: scale(1.05); }
     .btn-mic.active { background: #ffaa00; color: #000; }
     .btn-end { background: #b71c1c; }
     .btn-reset { background: #ffaa00; color: #000; }
@@ -371,7 +373,7 @@
       </div>
     </div>
     <div class="toolbar-actions">
-      <button class="action-circle btn-mic" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
+      <button class="action-circle btn-mic" id="micBtn" title="تشغيل المايك" onclick="toggleMic()"><i class="fas fa-microphone"></i></button>
       <button class="action-circle btn-screen" onclick="alert('قريباً')"><i class="fas fa-desktop"></i></button>
       <button class="action-circle btn-reset" onclick="resetAllData()"><i class="fas fa-broom"></i></button>
       <button class="action-circle btn-end" onclick="endClass()"><i class="fas fa-power-off"></i></button>
@@ -517,14 +519,17 @@
         };
       }
 
-      let points = [], sendTimer = null;
+      let points = [], sendTimer = null, strokeId = 0;
 
       function startDraw(e) {
         e.preventDefault();
         isDrawing = true;
+        strokeId = Date.now();
         const p = getCanvasPoint(e, mainCanvas);
         lastX = p.x; lastY = p.y;
         points = [{ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height }];
+        mainCtx.lineCap = 'round';
+        mainCtx.lineJoin = 'round';
         mainCtx.beginPath();
         mainCtx.moveTo(p.x, p.y);
       }
@@ -547,12 +552,13 @@
                 points: points,
                 color: currentTool === 'eraser' ? null : currentColor,
                 size: currentSize,
+                sid: strokeId,
                 ts: Date.now()
               });
               points = [];
             }
             sendTimer = null;
-          }, 20); // إرسال أسرع لخطوط أكثر سلاسة
+          }, 20);
         }
       }
 
@@ -564,6 +570,7 @@
               points: points,
               color: currentTool === 'eraser' ? null : currentColor,
               size: currentSize,
+              sid: strokeId,
               ts: Date.now()
             });
             points = [];
@@ -608,8 +615,25 @@
         reader.onload = (e) => {
           const img = new Image();
           img.onload = () => {
-            mainCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
-            const dataUrl = e.target.result;
+            // الحفاظ على نسبة أبعاد الصورة
+            const canvasW = mainCanvas.width;
+            const canvasH = mainCanvas.height;
+            const imgRatio = img.width / img.height;
+            const canvasRatio = canvasW / canvasH;
+            let drawW, drawH, drawX, drawY;
+            if (imgRatio > canvasRatio) {
+              drawW = canvasW;
+              drawH = canvasW / imgRatio;
+            } else {
+              drawH = canvasH;
+              drawW = canvasH * imgRatio;
+            }
+            drawX = (canvasW - drawW) / 2;
+            drawY = (canvasH - drawH) / 2;
+            mainCtx.fillStyle = '#fff';
+            mainCtx.fillRect(0, 0, canvasW, canvasH);
+            mainCtx.drawImage(img, drawX, drawY, drawW, drawH);
+            const dataUrl = mainCanvas.toDataURL('image/jpeg', 0.85);
             lastMainImage = dataUrl;
             db.ref('boardImg/main').set({ data: dataUrl, ts: Date.now() });
           };
@@ -707,20 +731,41 @@
           }
         });
 
-        // استقبال رسم الطلاب (إذا كنا نشاهد سبورة طالب)
+        // استقبال رسم الطلاب - مع ربط النقاط بشكل سلس باستخدام strokeId
+        const stuLastPoint = {};
+        const stuLastSid = {};
+
         db.ref('draw_st').on('child_added', snap => {
           const d = snap.val();
-          if (!d || !d.points || !d.studentId) return;
-          if (currentBoard === d.studentId) {
-            mainCtx.strokeStyle = d.color || '#000';
-            mainCtx.lineWidth = d.size || 4;
-            mainCtx.beginPath();
-            mainCtx.moveTo(d.points[0].x * mainCanvas.width, d.points[0].y * mainCanvas.height);
-            for (let i = 1; i < d.points.length; i++) {
-              mainCtx.lineTo(d.points[i].x * mainCanvas.width, d.points[i].y * mainCanvas.height);
-            }
-            mainCtx.stroke();
+          if (!d || !d.points || !d.studentId || d.points.length === 0) return;
+          if (currentBoard !== d.studentId) return;
+
+          const sid = d.studentId;
+          const color = d.color;
+          const size = d.size || 4;
+          const pts = d.points;
+          const strokeSid = d.sid || null;
+
+          mainCtx.strokeStyle = color === null ? '#fff' : color;
+          mainCtx.lineWidth = color === null ? size * 5 : size;
+          mainCtx.lineCap = 'round';
+          mainCtx.lineJoin = 'round';
+          mainCtx.beginPath();
+
+          if (stuLastPoint[sid] && strokeSid && strokeSid === stuLastSid[sid]) {
+            mainCtx.moveTo(stuLastPoint[sid].x, stuLastPoint[sid].y);
+          } else {
+            mainCtx.moveTo(pts[0].x * mainCanvas.width, pts[0].y * mainCanvas.height);
           }
+
+          for (let i = 0; i < pts.length; i++) {
+            mainCtx.lineTo(pts[i].x * mainCanvas.width, pts[i].y * mainCanvas.height);
+          }
+          mainCtx.stroke();
+
+          const last = pts[pts.length - 1];
+          stuLastPoint[sid] = { x: last.x * mainCanvas.width, y: last.y * mainCanvas.height };
+          stuLastSid[sid] = strokeSid;
         });
 
         // استقبال صورة سبورة طالب (مثل الصورة المصححة)
@@ -864,11 +909,131 @@
       window.setCorrectionColor = function(color) { correctionColor = color; };
 
       // ============================================================
-      // الصوت
+      // الصوت - WebRTC للمدرس
       // ============================================================
-      window.toggleMic = function() {
-        document.getElementById('micBtn').classList.toggle('active');
+      let teacherStream = null;
+      let micActive = false;
+      const teacherPeers = {}; // studentId -> RTCPeerConnection
+
+      const RTC_CONFIG = {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
       };
+
+      async function createTeacherPeer(studentId) {
+        if (teacherPeers[studentId]) return;
+        const pc = new RTCPeerConnection(RTC_CONFIG);
+        teacherPeers[studentId] = pc;
+
+        // أضف تراك المايك
+        if (teacherStream) {
+          teacherStream.getTracks().forEach(t => pc.addTrack(t, teacherStream));
+        }
+
+        pc.onicecandidate = (e) => {
+          if (e.candidate) {
+            db.ref(`webrtc/teacher_to_stu/${studentId}/ice`).push(e.candidate.toJSON());
+          }
+        };
+
+        pc.onconnectionstatechange = () => {
+          if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+            delete teacherPeers[studentId];
+          }
+        };
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        await db.ref(`webrtc/teacher_to_stu/${studentId}/offer`).set({ sdp: offer.sdp, type: offer.type });
+
+        // استقبال answer من الطالب
+        db.ref(`webrtc/teacher_to_stu/${studentId}/answer`).on('value', async snap => {
+          const ans = snap.val();
+          if (ans && pc.signalingState === 'have-local-offer') {
+            await pc.setRemoteDescription(new RTCSessionDescription(ans));
+          }
+        });
+
+        // استقبال ICE من الطالب
+        db.ref(`webrtc/stu_to_teacher/${studentId}/ice`).on('child_added', async snap => {
+          const ice = snap.val();
+          if (ice) {
+            try { await pc.addIceCandidate(new RTCIceCandidate(ice)); } catch(e) {}
+          }
+        });
+      }
+
+      window.toggleMic = async function() {
+        const btn = document.getElementById('micBtn');
+        if (!micActive) {
+          try {
+            teacherStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            micActive = true;
+            btn.classList.add('active');
+            btn.title = 'إيقاف المايك';
+            // اتصال بجميع الطلاب الحاليين
+            Object.keys(students).forEach(sid => {
+              if (students[sid] && students[sid].online) createTeacherPeer(sid);
+            });
+            // مراقبة الطلاب الجدد
+            db.ref('webrtc/requestPeer').on('child_added', snap => {
+              const sid = snap.val();
+              if (sid && micActive) createTeacherPeer(sid);
+              snap.ref.remove();
+            });
+          } catch (err) {
+            alert('تعذر الوصول للمايك. تأكد من إذن المتصفح للموقع.');
+          }
+        } else {
+          micActive = false;
+          btn.classList.remove('active');
+          btn.title = 'تشغيل المايك';
+          if (teacherStream) teacherStream.getTracks().forEach(t => t.stop());
+          teacherStream = null;
+          Object.values(teacherPeers).forEach(pc => pc.close());
+          Object.keys(teacherPeers).forEach(k => delete teacherPeers[k]);
+          db.ref('webrtc').remove();
+        }
+      };
+
+      // ============================================================
+      // الصوت من الطالب المصرح له - WebRTC استقبال
+      // ============================================================
+      let studentPeerIncoming = null;
+
+      function listenForStudentAudio(studentId) {
+        if (studentPeerIncoming) { studentPeerIncoming.close(); studentPeerIncoming = null; }
+        const pc = new RTCPeerConnection(RTC_CONFIG);
+        studentPeerIncoming = pc;
+
+        pc.ontrack = (e) => {
+          const audio = document.getElementById('audioPlayer');
+          audio.srcObject = e.streams[0];
+          audio.play().catch(() => {});
+        };
+
+        pc.onicecandidate = (e) => {
+          if (e.candidate) {
+            db.ref(`webrtc/stu_to_teacher/${studentId}/ice`).push(e.candidate.toJSON());
+          }
+        };
+
+        db.ref(`webrtc/stu_offer/${studentId}`).on('value', async snap => {
+          const offer = snap.val();
+          if (!offer) return;
+          await pc.setRemoteDescription(new RTCSessionDescription(offer));
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          db.ref(`webrtc/stu_answer/${studentId}`).set({ sdp: answer.sdp, type: answer.type });
+        });
+
+        db.ref(`webrtc/stu_ice/${studentId}`).on('child_added', async snap => {
+          const ice = snap.val();
+          if (ice) try { await pc.addIceCandidate(new RTCIceCandidate(ice)); } catch(e) {}
+        });
+      }
 
       // ============================================================
       // إنهاء الجلسة وتصفير
@@ -896,6 +1061,15 @@
 
       // بدء الاستماع
       setupListeners();
+
+      // مراقبة منح إذن المايك للطالب - استقبال صوته عبر WebRTC
+      db.ref('micPermissions').on('child_added', snap => {
+        const studentId = snap.key;
+        if (snap.val() && snap.val().allowed) listenForStudentAudio(studentId);
+      });
+      db.ref('micPermissions').on('child_removed', snap => {
+        if (studentPeerIncoming) { studentPeerIncoming.close(); studentPeerIncoming = null; }
+      });
 
       // محاكاة زمن الاستجابة
       setInterval(() => {
