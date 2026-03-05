@@ -441,6 +441,7 @@
       let currentColor = '#000000';
       let currentSize = 4;
       let isDrawing = false;
+      let lastX = 0, lastY = 0;
       let students = {};          // الطلاب المعتمدون
       let waitingStudents = {};    // طلبات الانضمام
       let currentSpeaker = null;
@@ -500,8 +501,8 @@
       setTimeout(resizeAndRedraw, 100);
 
       // ============================================================
-      // ===== بداية قسم الرسم المحسّن (المدرس) =====
-      // Improved Drawing Section (Teacher)
+      // ===== بداية قسم الرسم الفوري (المدرس) =====
+      // Real-time Drawing Section (Teacher)
       // ============================================================
       function getCanvasPoint(e, canvas) {
         const rect = canvas.getBoundingClientRect();
@@ -515,13 +516,11 @@
         };
       }
 
-      let points = [], sendTimer = null;
-
       function startDraw(e) {
         e.preventDefault();
         isDrawing = true;
         const p = getCanvasPoint(e, mainCanvas);
-        points = [{ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height }];
+        lastX = p.x; lastY = p.y;
         mainCtx.beginPath();
         mainCtx.moveTo(p.x, p.y);
         // تعيين خصائص الرسم
@@ -535,6 +534,8 @@
           mainCtx.strokeStyle = currentColor;
           mainCtx.lineWidth = currentSize;
         }
+        // إرسال نقطة البداية
+        sendPoint(p.x, p.y, true);
       }
 
       function draw(e) {
@@ -545,41 +546,32 @@
         mainCtx.stroke();
         mainCtx.beginPath();
         mainCtx.moveTo(p.x, p.y);
-        points.push({ x: p.x / mainCanvas.width, y: p.y / mainCanvas.height });
-        if (!sendTimer) {
-          sendTimer = setTimeout(() => {
-            if (points.length) {
-              db.ref('draw_t').push({
-                points: points,
-                color: currentTool === 'eraser' ? null : currentColor,
-                size: currentTool === 'eraser' ? currentSize * 5 : currentSize,
-                ts: Date.now()
-              });
-              points = [];
-            }
-            sendTimer = null;
-          }, 16); // 16ms ≈ 60fps
-        }
+        // إرسال النقطة الحالية
+        sendPoint(p.x, p.y, false);
+        lastX = p.x; lastY = p.y;
       }
 
       function stopDraw() {
         if (isDrawing) {
           isDrawing = false;
-          if (points.length) {
-            db.ref('draw_t').push({
-              points: points,
-              color: currentTool === 'eraser' ? null : currentColor,
-              size: currentTool === 'eraser' ? currentSize * 5 : currentSize,
-              ts: Date.now()
-            });
-            points = [];
-          }
-          if (sendTimer) clearTimeout(sendTimer);
-          sendTimer = null;
           mainCtx.globalCompositeOperation = 'source-over'; // إعادة الوضع الطبيعي
           // تحديث الصورة المحفوظة بعد الرسم
           lastMainImage = mainCanvas.toDataURL();
         }
+      }
+
+      function sendPoint(x, y, isStart) {
+        if (!mainCanvas.width) return;
+        db.ref('draw_t').push({
+          x: x / mainCanvas.width,
+          y: y / mainCanvas.height,
+          lastX: lastX / mainCanvas.width,
+          lastY: lastY / mainCanvas.height,
+          color: currentTool === 'eraser' ? null : currentColor,
+          size: currentTool === 'eraser' ? currentSize * 5 : currentSize,
+          isStart: isStart,
+          ts: Date.now()
+        });
       }
 
       mainCanvas.addEventListener('mousedown', startDraw);
@@ -590,7 +582,7 @@
       mainCanvas.addEventListener('touchmove', draw, { passive: false });
       mainCanvas.addEventListener('touchend', stopDraw);
 
-      // ===== نهاية قسم الرسم المحسّن =====
+      // ===== نهاية قسم الرسم الفوري =====
       // ============================================================
 
       // ============================================================
@@ -730,7 +722,7 @@
         // استقبال رسم الطلاب (إذا كنا نشاهد سبورة طالب)
         db.ref('draw_st').on('child_added', snap => {
           const d = snap.val();
-          if (!d || !d.points || !d.studentId) return;
+          if (!d || !d.x || !d.y || !d.lastX || !d.lastY || !d.studentId) return;
           if (currentBoard === d.studentId) {
             // تطبيق الرسم على canvas
             if (d.color === null) { // ممحاة
@@ -742,13 +734,12 @@
               mainCtx.lineWidth = d.size || 4;
             }
             mainCtx.beginPath();
-            mainCtx.moveTo(d.points[0].x * mainCanvas.width, d.points[0].y * mainCanvas.height);
-            for (let i = 1; i < d.points.length; i++) {
-              mainCtx.lineTo(d.points[i].x * mainCanvas.width, d.points[i].y * mainCanvas.height);
-            }
+            mainCtx.moveTo(d.lastX * mainCanvas.width, d.lastY * mainCanvas.height);
+            mainCtx.lineTo(d.x * mainCanvas.width, d.y * mainCanvas.height);
             mainCtx.stroke();
             mainCtx.globalCompositeOperation = 'source-over';
           }
+          snap.ref.remove();
         });
 
         // استقبال صورة سبورة طالب (مثل الصورة المصححة)
