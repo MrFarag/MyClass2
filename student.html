@@ -20,7 +20,10 @@
     <div class="wa-field"><span>+20</span><input type="text" id="studentPhone" placeholder="رقم الواتس (1012345678)"></div>
     <input type="password" id="studentSecret" class="entry-field" placeholder="الرقم السري">
     <div id="secretErr" class="entry-err">❌ الرقم السري غير صحيح</div>
-    <button id="entryBtn" class="entry-btn" onclick="submitEntry()"><i class="fas fa-sign-in-alt"></i> ENROLL TODAY</button>
+    <div class="entry-btns">
+      <button id="entryBtn" class="entry-btn" onclick="submitEntry()"><i class="fas fa-sign-in-alt"></i> تسجيل</button>
+      <button class="entry-btn entry-btn-quick" onclick="quickEntry()"><i class="fas fa-bolt"></i> دخول سريع</button>
+    </div>
     <div id="waitMsg" style="display:none;margin-top:10px;color:#ffaa00;font-size:13px;font-weight:700">
       <i class="fas fa-hourglass-half"></i> بانتظار موافقة المدرس...
     </div>
@@ -120,6 +123,9 @@
 
 <!-- شريط الأدوات السفلي -->
 <div class="bot" id="botS" style="display:none">
+  <button class="teacher-board-btn" onclick="goTab('T')" title="سبورة المدرس">
+    <i class="fas fa-chalkboard-teacher"></i><span>المدرس</span>
+  </button>
   <div class="tools-row">
     <div class="ti on" id="tiPen"   onclick="setTool('pen')"><i class="fas fa-pen-nib"></i><span>قلم</span></div>
 

@@ -121,6 +121,18 @@
   // =============================================
   // شاشة الدخول
   // =============================================
+  // دخول سريع: اسم مؤقت بدون رقم سري
+  window.quickEntry = function(){
+    const nameEl = document.getElementById('studentName');
+    const name = nameEl.value.trim();
+    if(!name){ nameEl.focus(); nameEl.style.borderColor='#e53935'; return; }
+    nameEl.style.borderColor='';
+    // استخدام اسم الطالب بدون تحقق من الرقم السري
+    document.getElementById('studentSecret').value = SECRET;
+    document.getElementById('studentPhone').value = document.getElementById('studentPhone').value||'0000000000';
+    submitEntry();
+  };
+
   window.submitEntry = function(){
     const name  = document.getElementById('studentName').value.trim();
     const phone = document.getElementById('studentPhone').value.trim();
@@ -185,15 +197,24 @@
     // رسم المدرس على سبورته الرئيسية
     db.ref('draw_t').on('child_added', snap=>{
       const d=snap.val(); if(!d||!d.pts||!d.pts.length) return;
-      const p=d.pts, c=d.c, s=d.s||4, id=d.sid;
+      const p=d.pts, c=d.c, sz2=d.s||4, id=d.sid;
+      const isEra = d.era===true || c===null; // era flag أو c===null = استيكة
       ic(xT);
-      xT.strokeStyle = c===null ? '#fff' : c;
-      xT.lineWidth   = c===null ? s*5   : s;
+      if(isEra){
+        xT.globalCompositeOperation='destination-out';
+        xT.strokeStyle='rgba(0,0,0,1)';
+        xT.lineWidth=sz2;
+      } else {
+        xT.globalCompositeOperation='source-over';
+        xT.strokeStyle=c;
+        xT.lineWidth=sz2;
+      }
       xT.beginPath();
       if(tLP&&id&&id===tLS) xT.moveTo(tLP.x,tLP.y);
       else                  xT.moveTo(p[0].x*CW,p[0].y*CH);
       p.forEach(pt=>xT.lineTo(pt.x*CW,pt.y*CH));
       xT.stroke();
+      xT.globalCompositeOperation='source-over';
       const last=p[p.length-1];
       tLP={x:last.x*CW,y:last.y*CH}; tLS=id;
     });
@@ -573,7 +594,17 @@
     db.ref('rtc/t2s_stu_answer/'+myId).off();
 
     sPc = new RTCPeerConnection(RTCConfig);
-    sStream.getTracks().forEach(tr=>sPc.addTrack(tr,sStream));
+    sStream.getTracks().forEach(tr=>{
+      const sender = sPc.addTrack(tr,sStream);
+      // تحسين معدل البث وتقليل الكمون
+      if(sender.setParameters){
+        const params = sender.getParameters();
+        if(!params.encodings) params.encodings=[{}];
+        params.encodings[0].maxBitrate = 64000; // 64kbps كافي للصوت
+        params.encodings[0].priority = 'high';
+        sender.setParameters(params).catch(()=>{});
+      }
+    });
 
     sPc.onicecandidate = e=>{
       if(e.candidate) db.ref('rtc/s2t_stu_ice/'+myId).push(e.candidate.toJSON());
@@ -590,9 +621,8 @@
         await sPc.setRemoteDescription(new RTCSessionDescription(ans)).catch(()=>{});
     });
 
-    const off = await sPc.createOffer();
+    const off = await sPc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
     await sPc.setLocalDescription(off);
-    // تأخير صغير ليعطي teacher وقتاً لاستقبال الحذف وتجهيز listener جديد
     await new Promise(r=>setTimeout(r,200));
     db.ref('rtc/s2t_stu_offer/'+myId).set({sdp:off.sdp, type:off.type, ts:Date.now()});
   }
@@ -616,7 +646,16 @@
     if(!micOn){
       try{
         sStream = await navigator.mediaDevices.getUserMedia({
-          audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,sampleRate:48000,channelCount:1},
+          audio:{
+            echoCancellation:true,
+            noiseSuppression:true,
+            autoGainControl:true,
+            sampleRate:48000,
+            channelCount:1,
+            latency:0,
+            googHighpassFilter:true,
+            googNoiseReduction:true
+          },
           video:false
         });
         micOn=true;

@@ -343,12 +343,11 @@
   function render(){
     let h='';
     Object.values(waiting).forEach(s=>{
-      h+=`<div class="si" style="border-color:#f39c12">
-        <div class="av" style="background:#f39c12">${s.name[0]}</div>
-        <div class="sinfo"><div class="sname">${s.name}</div><div class="sstatus"><i class="fas fa-clock blink"></i> انتظار</div></div>
+      h+=`<div class="si si-wait">
+        <div class="scard-name" title="${s.name}">${s.name}</div>
         <div class="sact">
-          <i class="fas fa-check-circle" style="color:#4CAF50" onclick="approveS('${s.id}')"></i>
-          <i class="fas fa-times-circle" style="color:#b71c1c" onclick="rejectS('${s.id}')"></i>
+          <i class="fas fa-check-circle" style="color:#4CAF50" title="قبول" onclick="approveS('${s.id}')"></i>
+          <i class="fas fa-times-circle" style="color:#b71c1c" title="رفض" onclick="rejectS('${s.id}')"></i>
         </div></div>`;
     });
     Object.values(students).forEach(s=>{
@@ -357,14 +356,15 @@
       const hasImg=!!lastStuImg[s.id];
       const ico=hand?'<i class="fas fa-hand-paper blink" style="color:#f59e0b"></i>':spk?'<i class="fas fa-microphone" style="color:#22c55e"></i>':'<i class="fas fa-headphones" style="color:#aaa"></i>';
       h+=`<div class="si">
-        <div class="av" style="background:${hand?'#f59e0b':'#ffaa00'}">${s.name[0]}</div>
-        <div class="sinfo"><div class="sname">${s.name}</div><div class="sstatus">${ico} ${hand?'يد':spk?'يتحدث':'مستمع'}</div></div>
+        <div class="scard-name" title="${s.name}">${s.name}</div>
+        <div class="scard-status">${ico}</div>
         <div class="sact">
+          ${s.wantsMic&&!spk?`<i class="fas fa-microphone sact-mic-req" title="اضغط للسماح بالمايك" onclick="allowMic('${s.id}')"></i>`:''}
+          ${spk?`<i class="fas fa-microphone-slash" style="color:#e53935" title="إلغاء المايك" onclick="revokeMic('${s.id}')"></i>`:''}
           ${images[s.id]?.length?`<i class="fas fa-image" title="معاينة الواجب" onclick="openCorr('${s.id}','${s.name}')"></i>`:''}
           <i class="fas fa-eye" title="سبورته" onclick="viewStudentBoard('${s.id}','${s.name}')"></i>
           ${hasImg?`<i class="fas fa-share-alt" style="color:#4CAF50" title="مشاركة للكل" onclick="shareBoard('${s.id}','${s.name}')"></i>`:''}
-          ${s.wantsMic&&!spk?`<i class="fas fa-microphone" style="color:#22c55e;animation:blink 1s infinite" title="اضغط للسماح بالمايك" onclick="allowMic('${s.id}')"></i>`:''}          ${spk?`<i class="fas fa-microphone-slash" style="color:#e53935" onclick="revokeMic('${s.id}')"></i>`:''}
-          <i class="fas fa-sign-out-alt" style="color:#b71c1c" onclick="kickS('${s.id}')"></i>
+          <i class="fas fa-sign-out-alt" style="color:#b71c1c" title="طرد" onclick="kickS('${s.id}')"></i>
         </div></div>`;
     });
     document.getElementById('sList').innerHTML=h||'<div style="color:#aaa;text-align:center;padding:12px;font-size:11px">لا يوجد طلاب</div>';
@@ -500,8 +500,35 @@
     if(stuIceRef[sid]) db.ref('rtc/s2t_stu_ice/'+sid).off('child_added', stuIceRef[sid]);
     const pc=new RTCPeerConnection(RTCConfig); stuPc=pc;
     pc.ontrack=e=>{
-      const a=document.getElementById('audioEl');
-      a.srcObject=e.streams[0]; a.play().catch(()=>{});
+      try{
+        // استخدام AudioContext لتحسين جودة الصوت وإلغاء التقطع
+        if(!window._audioCtx || window._audioCtx.state==='closed'){
+          window._audioCtx = new (window.AudioContext||window.webkitAudioContext)({sampleRate:48000,latencyHint:'interactive'});
+        }
+        if(window._audioCtx.state==='suspended') window._audioCtx.resume();
+        const stream = e.streams[0];
+        const src = window._audioCtx.createMediaStreamSource(stream);
+        const dst = window._audioCtx.createMediaStreamDestination();
+        // مرشح لتعزيز الصوت
+        const gain = window._audioCtx.createGain();
+        gain.gain.value = 1.4;
+        src.connect(gain); gain.connect(dst);
+        // تشغيل عبر AudioContext
+        const a = document.getElementById('audioEl');
+        a.srcObject = dst.stream;
+        a.play().catch(()=>{ a.srcObject=stream; a.play().catch(()=>{}); });
+      } catch(err){
+        // fallback مباشر
+        const a = document.getElementById('audioEl');
+        a.srcObject = e.streams[0]; a.play().catch(()=>{});
+      }
+      // تقليل jitter buffer
+      try{
+        pc.getReceivers().forEach(r=>{
+          if(r.track?.kind==='audio' && r.jitterBufferTarget!==undefined)
+            r.jitterBufferTarget=80;
+        });
+      }catch(e){}
     };
     pc.onicecandidate=e=>{if(e.candidate) db.ref('rtc/t2s_stu_ice/'+sid).push(e.candidate.toJSON());};
     stuIceRef[sid] = async s2=>{
