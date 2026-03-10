@@ -84,11 +84,13 @@
     activeTab = t;
     ['T','S'].forEach(x=>{
       document.getElementById('pane'+x).classList.toggle('on', x===t);
-      document.getElementById('sb'+x).classList.toggle('active', x===t);
+      const sbEl=document.getElementById('sb'+x); if(sbEl) sbEl.classList.toggle('active', x===t);
     });
     document.getElementById('botS').style.display = t==='S' ? 'flex' : 'none';
-    if(t==='S') document.getElementById('sbBadgeS').classList.remove('on');
+    if(t==='S'){ const b=document.getElementById('sbBadgeS'); if(b) b.classList.remove('on'); }
     setTimeout(()=>fitId(t), 80);
+    // أخبر المدرس بأي سبورة الطالب يشاهد
+    if(approved && myId) db.ref('boardView/'+myId).set(t);
   };
 
   function badge(){ document.getElementById('sbBadgeS').classList.add('on'); }
@@ -127,9 +129,9 @@
     const name = nameEl.value.trim();
     if(!name){ nameEl.focus(); nameEl.style.borderColor='#e53935'; return; }
     nameEl.style.borderColor='';
-    // استخدام اسم الطالب بدون تحقق من الرقم السري
     document.getElementById('studentSecret').value = SECRET;
-    document.getElementById('studentPhone').value = document.getElementById('studentPhone').value||'0000000000';
+    const ph = document.getElementById('studentPhone');
+    if(!ph.value.trim()) ph.value = '0000000000';
     submitEntry();
   };
 
@@ -147,11 +149,8 @@
     errEl.style.display='none';
     myName=name; myPhone=phone;
 
-    document.getElementById('entryBtn').style.display='none';
-    document.getElementById('studentName').style.display='none';
-    document.getElementById('studentPhone').parentElement.style.display='none';
-    document.getElementById('studentSecret').style.display='none';
-    document.getElementById('waitMsg').style.display='block';
+    document.getElementById('formPart').style.display='none';
+    document.getElementById('waitPart').style.display='block';
 
     db.ref('joinRequests/'+myId).set({id:myId,name:myName,phone:myPhone,ts:Date.now()})
       .then(()=>{
@@ -159,11 +158,8 @@
       })
       .catch(err=>{
         alert('خطأ في الاتصال: '+err.message);
-        document.getElementById('entryBtn').style.display='block';
-        document.getElementById('studentName').style.display='block';
-        document.getElementById('studentPhone').parentElement.style.display='flex';
-        document.getElementById('studentSecret').style.display='block';
-        document.getElementById('waitMsg').style.display='none';
+        document.getElementById('formPart').style.display='block';
+        document.getElementById('waitPart').style.display='none';
       });
 
     db.ref('approvedStudents/'+myId).on('value', snap=>{
@@ -178,7 +174,7 @@
     });
   };
 
-  function go(){ listen(); connectAudio(); setupDataChannelReceiver(); watchMicPermission(); }
+  function go(){ listen(); connectAudio(); setupDataChannelReceiver(); watchMicPermission(); db.ref('boardView/'+myId).set('T'); }
 
   // =============================================
   // Toast
@@ -196,7 +192,32 @@
   function listen(){
     // رسم المدرس على سبورته الرئيسية
     db.ref('draw_t').on('child_added', snap=>{
-      const d=snap.val(); if(!d||!d.pts||!d.pts.length) return;
+      const d=snap.val(); if(!d) return;
+      if(d.shape){ renderShapeOnCtx(xT, d); return; }
+      if(!d.pts||!d.pts.length) return;
+      if(d.hl){
+        // فسفوري على سبورة المدرس
+        if(!window._hlTSnap || d.sid!==window._hlTSid){
+          window._hlTSnap=document.createElement('canvas');
+          window._hlTSnap.width=CW; window._hlTSnap.height=CH;
+          window._hlTSnap.getContext('2d').drawImage(cT,0,0);
+          window._hlTSid=d.sid;
+        }
+        xT.clearRect(0,0,CW,CH);
+        xT.drawImage(window._hlTSnap,0,0);
+        ic(xT);
+        xT.save();
+        xT.globalAlpha=0.38;
+        xT.strokeStyle=d.c||'#ffff00';
+        xT.lineWidth=d.s||20;
+        xT.beginPath();
+        xT.moveTo(d.pts[0].x*CW,d.pts[0].y*CH);
+        d.pts.forEach(p=>xT.lineTo(p.x*CW,p.y*CH));
+        xT.stroke();
+        xT.restore();
+        xT.globalAlpha=1.0;
+        return;
+      }
       const p=d.pts, c=d.c, sz2=d.s||4, id=d.sid;
       const isEra = d.era===true || c===null; // era flag أو c===null = استيكة
       ic(xT);
@@ -230,7 +251,9 @@
 
     // رسم المدرس على سبورة الطالب (Firebase fallback)
     db.ref('teacher_draw_on_student').child(myId).on('child_added', snap=>{
-      const d=snap.val(); if(!d||!d.pts||!d.pts.length) return;
+      const d=snap.val(); if(!d) return;
+      // shape لا تملك pts — applyTeacherStroke تتعامل معهما
+      if(!d.shape && (!d.pts||!d.pts.length)) return;
       applyTeacherStroke(d, teacherLastPoints);
     });
 
@@ -262,6 +285,10 @@
         toast('📋 المدرس يعرض سبورة: '+cmd.studentName,'a');
         goTab('T');
       }
+      // المدرس يحوّل تبويب طالب محدد (أو الكل)
+      if(cmd.type==='goto_tab' && cmd.tab){
+        if(!cmd.targetId || cmd.targetId===myId) goTab(cmd.tab);
+      }
     });
 
     // عدد الطلاب
@@ -276,7 +303,44 @@
   // دالة موحدة لتطبيق ضربة المدرس على سبورة الطالب
   // تتعامل مع القلم والاستيكة (era = تمسح الرسم، eraBG = تمسح الصورة)
   const teacherLastPoints={};
+  function renderShapeOnCtx(ctx,d){
+    ctx.save();
+    ctx.strokeStyle=d.c||'#000'; ctx.lineWidth=d.s||4;
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    const x1=d.x1*CW,y1=d.y1*CH,x2=d.x2*CW,y2=d.y2*CH;
+    ctx.beginPath();
+    if(d.shape==='line'){
+      ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    } else if(d.shape==='arrow'){
+      ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      const ang=Math.atan2(y2-y1,x2-x1), hs=Math.max(12,(d.s||4)*3);
+      ctx.beginPath();
+      ctx.moveTo(x2,y2);
+      ctx.lineTo(x2-hs*Math.cos(ang-.4),y2-hs*Math.sin(ang-.4));
+      ctx.lineTo(x2-hs*Math.cos(ang+.4),y2-hs*Math.sin(ang+.4));
+      ctx.closePath(); ctx.fillStyle=d.c||'#000'; ctx.fill();
+    } else if(d.shape==='rect'){
+      ctx.strokeRect(Math.min(x1,x2),Math.min(y1,y2),Math.abs(x2-x1),Math.abs(y2-y1));
+    } else if(d.shape==='circle'){
+      const rx=Math.abs(x2-x1)/2,ry=Math.abs(y2-y1)/2;
+      ctx.ellipse(Math.min(x1,x2)+rx,Math.min(y1,y2)+ry,rx,ry,0,0,Math.PI*2); ctx.stroke();
+    } else if(d.shape==='tri'){
+      const mx2=(x1+x2)/2;
+      ctx.moveTo(mx2,Math.min(y1,y2));
+      ctx.lineTo(Math.min(x1,x2),Math.max(y1,y2));
+      ctx.lineTo(Math.max(x1,x2),Math.max(y1,y2));
+      ctx.closePath(); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   function applyTeacherStroke(d, lpMap){
+    // أشكال هندسية
+    if(d.shape){
+      renderShapeOnCtx(xS, d);
+      lastMyBoardImg=mergedSnapshot();
+      return;
+    }
     const pts=d.pts, c=d.c, s=d.s||4, sid=d.sid;
     const isEra   = d.era   === true;
     const isEraBG = d.eraBG === true;
@@ -295,6 +359,32 @@
       xSBG.globalCompositeOperation='source-over';
       const last=pts[pts.length-1];
       if(sid) lpMap[sid+'_bg']={x:last.x*CW,y:last.y*CH};
+    } else if(d.hl){
+      // فسفوري: يُرسم كاملاً من أول نقطة بشفافية ثابتة
+      // نستخدم hlTeacherSnap لتجنب تراكم alpha
+      if(!window._hlTeacherSnap || d.sid !== window._hlTeacherSid){
+        // أول flush لهذا الـ stroke: احفظ snapshot
+        window._hlTeacherSnap = document.createElement('canvas');
+        window._hlTeacherSnap.width=CW; window._hlTeacherSnap.height=CH;
+        window._hlTeacherSnap.getContext('2d').drawImage(cSBG,0,0);
+        window._hlTeacherSnap.getContext('2d').drawImage(cS,0,0);
+        window._hlTeacherSid = d.sid;
+      }
+      // أعد الرسم من snapshot + كل pts
+      xS.clearRect(0,0,CW,CH);
+      xS.drawImage(window._hlTeacherSnap,0,0);
+      ic(xS);
+      xS.save();
+      xS.globalAlpha=0.38;
+      xS.strokeStyle=c||'#ffff00';
+      xS.lineWidth=s;
+      xS.beginPath();
+      xS.moveTo(pts[0].x*CW,pts[0].y*CH);
+      pts.forEach(p=>xS.lineTo(p.x*CW,p.y*CH));
+      xS.stroke();
+      xS.restore();
+      xS.globalAlpha=1.0;
+      lastMyBoardImg=mergedSnapshot();
     } else {
       // قلم عادي أو استيكة الرسم
       ic(xS);
@@ -386,29 +476,42 @@
   cS.addEventListener('touchmove', e=>moveD(e), {passive:false});
   cS.addEventListener('touchend',  ()=>stopD());
 
+  // canvas مؤقت للفسفوري (يُرسم كاملاً بدون تراكم alpha)
+  let hlCanvas=null, hlCtx=null, hlSnap=null;
+
   function startD(e){
     e.preventDefault(); if(!approved) return;
     drawing=true; strokeId=Date.now(); pts=[];
     const p=xy(e);
     ic(xS);
-    // إعداد composite حسب الأداة
     if(tool==='eraser'){
       xS.globalCompositeOperation='destination-out';
       xS.strokeStyle='rgba(0,0,0,1)';
+      xS.globalAlpha=1.0;
     } else if(tool==='eraserBG'){
       xSBG.globalCompositeOperation='destination-out';
+    } else if(tool==='highlight'){
+      // احفظ snapshot قبل البدء
+      hlSnap = document.createElement('canvas');
+      hlSnap.width=CW; hlSnap.height=CH;
+      hlSnap.getContext('2d').drawImage(cS,0,0);
+      xS.globalCompositeOperation='source-over';
+      xS.globalAlpha=1.0;
     } else {
       xS.globalCompositeOperation='source-over';
       xS.strokeStyle=clr;
+      xS.globalAlpha=1.0;
     }
-    xS.beginPath(); xS.moveTo(p.x,p.y);
+    if(tool!=='highlight'){
+      xS.beginPath(); xS.moveTo(p.x,p.y);
+    }
     pts.push({x:p.x/CW, y:p.y/CH});
   }
 
   function moveD(e){
     e.preventDefault(); if(!drawing||!approved) return;
     const p=xy(e);
-    const lw=tool==='eraser'||tool==='eraserBG' ? sz*5 : sz;
+    const lw=tool==='eraser'||tool==='eraserBG' ? sz*5 : tool==='highlight' ? sz*4 : sz;
     if(tool==='eraserBG'){
       // تمسح من طبقة الصورة مباشرة
       ic(xSBG);
@@ -416,6 +519,25 @@
       xSBG.strokeStyle='rgba(0,0,0,1)';
       xSBG.lineWidth=lw;
       xSBG.lineTo(p.x,p.y); xSBG.stroke(); xSBG.beginPath(); xSBG.moveTo(p.x,p.y);
+    } else if(tool==='highlight'){
+      // أضف النقطة أولاً ثم ارسم الخط كاملاً من snapshot
+      pts.push({x:p.x/CW, y:p.y/CH});
+      if(hlSnap && pts.length>=2){
+        xS.clearRect(0,0,CW,CH);
+        xS.drawImage(hlSnap,0,0);
+        xS.save();
+        xS.globalAlpha=0.38;
+        xS.strokeStyle=clr;
+        xS.lineWidth=sz*5;
+        xS.lineCap='round'; xS.lineJoin='round';
+        xS.beginPath();
+        xS.moveTo(pts[0].x*CW, pts[0].y*CH);
+        for(let i=1;i<pts.length;i++) xS.lineTo(pts[i].x*CW, pts[i].y*CH);
+        xS.stroke();
+        xS.restore();
+      }
+      if(!ptimer) ptimer=setTimeout(flush,30);
+      return; // لا تضف مرة أخرى في الأسفل
     } else {
       xS.lineWidth=lw;
       xS.lineTo(p.x,p.y); xS.stroke(); xS.beginPath(); xS.moveTo(p.x,p.y);
@@ -428,27 +550,46 @@
     ptimer=null; if(!pts.length) return;
     const isEra   = tool==='eraser';
     const isEraBG = tool==='eraserBG';
+    const isHL    = tool==='highlight';
     db.ref('draw_st').push({
       pts:  pts.slice(),
       c:    (isEra||isEraBG) ? null : clr,
-      s:    (isEra||isEraBG) ? sz*5 : sz,
-      era:  isEra,    // استيكة الرسم فقط
-      eraBG:isEraBG,  // استيكة الصورة
+      s:    (isEra||isEraBG) ? sz*5 : isHL ? sz*5 : sz,
+      era:  isEra,
+      eraBG:isEraBG,
+      hl:   isHL,
       studentId: myId,
       sid:  strokeId,
       ts:   Date.now()
     });
-    pts=[];
+    // للفسفوري: لا نصفّر pts — الرسم يحتاج كل النقاط من البداية
+    if(!isHL) pts=[];
   }
 
   function stopD(){
     if(!drawing||!approved) return;
     drawing=false;
+    // تثبيت الفسفوري النهائي قبل flush
+    if(tool==='highlight' && hlSnap && pts.length>=1){
+      xS.clearRect(0,0,CW,CH);
+      xS.drawImage(hlSnap,0,0);
+      xS.save();
+      xS.globalAlpha=0.38;
+      xS.strokeStyle=clr;
+      xS.lineWidth=sz*5;
+      xS.lineCap='round'; xS.lineJoin='round';
+      xS.beginPath();
+      xS.moveTo(pts[0].x*CW, pts[0].y*CH);
+      pts.forEach(pt=>xS.lineTo(pt.x*CW, pt.y*CH));
+      xS.stroke();
+      xS.restore();
+      hlSnap=null;
+    }
+    xS.globalAlpha=1.0;
+    xSBG.globalAlpha=1.0;
     if(ptimer){clearTimeout(ptimer);ptimer=null;} flush();
     xS.globalCompositeOperation='source-over';
     xSBG.globalCompositeOperation='source-over';
-    // ✅ تحديث boardImg_stu بعد كل stroke
-    // يضمن أن المدرس يرى الصورة + كل الرسم عند المعاينة
     lastMyBoardImg = mergedSnapshot();
     db.ref('boardImg_stu/'+myId).set({data:lastMyBoardImg, ts:Date.now()});
   }
@@ -460,7 +601,7 @@
   window.setTool = t => {
     tool=t;
     document.querySelectorAll('.ti').forEach(el=>el.classList.remove('on'));
-    const map={pen:'tiPen',eraser:'tiEra',eraserBG:'tiEraBG',
+    const map={pen:'tiPen',eraser:'tiEra',eraserBG:'tiEraBG',highlight:'tiHL',
                line:'tiLine',rect:'tiRect',circ:'tiCirc',arr:'tiArr',txt:'tiTxt'};
     if(map[t]){const el=document.getElementById(map[t]);if(el)el.classList.add('on');}
     if(t==='eraser')     cS.style.cursor='cell';
@@ -628,50 +769,60 @@
   }
 
   // ---- مراقبة الإذن بشكل دائم (تُسجَّل مرة عند go()) ----
+  // حالات المايك: idle | requesting | allowed
+  function setMicState(state){
+    const btn  = document.getElementById('micBtn');
+    const icon = document.getElementById('micIcon');
+    const lbl  = document.getElementById('micLabel');
+    if(!btn) return;
+    btn.className='sb-btn'; // إعادة ضبط
+    if(state==='idle'){
+      icon.className='fas fa-microphone-slash';
+      lbl.textContent='مايك';
+      // لا animation
+    } else if(state==='requesting'){
+      icon.className='fas fa-microphone';
+      lbl.textContent='طلب...';
+      btn.classList.add('mic-requesting'); // ينبض بالأحمر
+    } else if(state==='allowed'){
+      icon.className='fas fa-microphone';
+      lbl.textContent='يُسمع';
+      btn.classList.add('mic-allowed'); // ثابت أخضر
+    }
+  }
+
   function watchMicPermission(){
     db.ref('micPermissions/'+myId).on('value', async snap=>{
-      if(snap.val()?.allowed && micOn && sStream){
-        await startMicRTC();
-      } else if(!snap.val() && sPc){
-        sPc.close(); sPc=null;
+      const allowed = snap.val()?.allowed;
+      if(allowed){
+        setMicState('allowed');
+        if(micOn && sStream) await startMicRTC();
+      } else {
+        if(micOn) setMicState('requesting');
+        else      setMicState('idle');
+        if(sPc){ sPc.close(); sPc=null; }
       }
     });
   }
 
   window.toggleMic = async ()=>{
     if(!approved) return;
-    const btn  = document.getElementById('micBtn');
-    const icon = document.getElementById('micIcon');
-    const lbl  = document.getElementById('micLabel');
     if(!micOn){
       try{
         sStream = await navigator.mediaDevices.getUserMedia({
-          audio:{
-            echoCancellation:true,
-            noiseSuppression:true,
-            autoGainControl:true,
-            sampleRate:48000,
-            channelCount:1,
-            latency:0,
-            googHighpassFilter:true,
-            googNoiseReduction:true
-          },
+          audio:{echoCancellation:true,noiseSuppression:true,
+                 autoGainControl:true,sampleRate:48000,channelCount:1},
           video:false
         });
         micOn=true;
-        if(btn)  btn.classList.add('mic-on');
-        if(icon) icon.className='fas fa-microphone';
-        if(lbl)  lbl.textContent='مايك 🔴';
-        // احذف القديم ثم أضف جديداً لضمان إطلاق child_added و child_changed
+        setMicState('requesting'); // ينبض بالأحمر حتى يوافق المدرس
         db.ref('micRequests/'+myId).remove().then(()=>{
           db.ref('micRequests/'+myId).set({studentId:myId,studentName:myName,ts:Date.now()});
         });
       }catch(err){ alert('تعذر المايك:\n'+err.message); }
     } else {
       micOn=false;
-      if(btn)  btn.classList.remove('mic-on');
-      if(icon) icon.className='fas fa-microphone-slash';
-      if(lbl)  lbl.textContent='مايك';
+      setMicState('idle');
       if(sStream){sStream.getTracks().forEach(tr=>tr.stop());sStream=null;}
       if(sPc){sPc.close();sPc=null;}
       db.ref('micRequests/'+myId).remove();

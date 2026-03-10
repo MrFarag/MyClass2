@@ -59,6 +59,17 @@
   <div class="tools">
     <div class="ti on" id="tiPen" onclick="setTool('pen')"><i class="fas fa-pen-nib"></i><span>قلم</span></div>
     <div class="ti"    id="tiEra" onclick="setTool('eraser')"><i class="fas fa-eraser"></i><span>ممحاة</span></div>
+    <div class="ti"    id="tiHL"  onclick="setTool('highlight')" title="قلم فسفوري">
+      <i class="fas fa-highlighter" style="color:#ffff00;text-shadow:0 0 6px #ffff00"></i><span>نيون</span>
+    </div>
+    <div class="ti-sep"></div>
+    <!-- الأشكال الهندسية -->
+    <div class="ti" id="tiLine"   onclick="setTool('line')"   title="خط مستقيم"><i class="fas fa-slash"></i><span>خط</span></div>
+    <div class="ti" id="tiArrow"  onclick="setTool('arrow')"  title="سهم"><i class="fas fa-arrow-right"></i><span>سهم</span></div>
+    <div class="ti" id="tiRect"   onclick="setTool('rect')"   title="مستطيل"><i class="far fa-square"></i><span>مستطيل</span></div>
+    <div class="ti" id="tiCircle" onclick="setTool('circle')" title="دائرة"><i class="far fa-circle"></i><span>دائرة</span></div>
+    <div class="ti" id="tiTri"    onclick="setTool('tri')"    title="مثلث"><i class="fas fa-caret-up" style="font-size:18px"></i><span>مثلث</span></div>
+    <div class="ti-sep"></div>
     <div class="dots">
       <div class="dot on"  style="background:#000"    onclick="setClr('#000',this)"></div>
       <div class="dot"     style="background:#e53935" onclick="setClr('#e53935',this)"></div>
@@ -66,8 +77,16 @@
       <div class="dot"     style="background:#43a047" onclick="setClr('#43a047',this)"></div>
       <div class="dot"     style="background:#fb8c00" onclick="setClr('#fb8c00',this)"></div>
       <div class="dot"     style="background:#8e24aa" onclick="setClr('#8e24aa',this)"></div>
+      <div class="dot"     style="background:#fff;border:2px solid #555" onclick="setClr('#fff',this)"></div>
+      <!-- فسفوري -->
+      <div class="dot dot-neon" style="background:#39ff14" onclick="setClr('#39ff14',this)" title="فسفوري أخضر"></div>
+      <div class="dot dot-neon" style="background:#ffff00" onclick="setClr('#ffff00',this)" title="فسفوري أصفر"></div>
+      <div class="dot dot-neon" style="background:#ff69b4" onclick="setClr('#ff69b4',this)" title="فسفوري وردي"></div>
+      <div class="dot dot-neon" style="background:#00ffff" onclick="setClr('#00ffff',this)" title="فسفوري سماوي"></div>
     </div>
-    <label class="ulbl"><i class="fas fa-image"></i>رفع صورة<input type="file" accept="image/*" onchange="uploadImg(this)"></label>
+    <div class="ti-sep"></div>
+    <button class="zb zb-clear" onclick="clearB()" title="مسح السبورة"><i class="fas fa-eraser"></i> Clear</button>
+    <label class="ulbl"><i class="fas fa-image"></i>صورة<input type="file" accept="image/*" onchange="uploadImg(this)"></label>
   </div>
   <div class="acts">
     <button class="home-fab" id="homeFab" onclick="mainBoard()" title="الرئيسية">

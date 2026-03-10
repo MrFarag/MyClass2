@@ -10,70 +10,103 @@
 </head>
 <body>
 
-<!-- شاشة الدخول -->
+<!-- ═══════════════════════════════════════════
+     شاشة الدخول (تختفي بعد الموافقة)
+═══════════════════════════════════════════ -->
 <div id="entryScreen" class="entry-screen">
   <div class="entry-card">
+
     <div class="entry-logo">⚛️ MASTER PHYSICS</div>
     <div class="entry-sub">WITH MR. FARAG | ONLINE LESSONS</div>
-    <div style="margin:10px 0 4px;color:#ffaa00;font-size:12px"><i class="fas fa-user-graduate"></i> أدخل بياناتك للانضمام</div>
-    <input type="text" id="studentName" class="entry-field" placeholder="الاسم الثلاثي">
-    <div class="wa-field"><span>+20</span><input type="text" id="studentPhone" placeholder="رقم الواتس (1012345678)"></div>
-    <input type="password" id="studentSecret" class="entry-field" placeholder="الرقم السري">
-    <div id="secretErr" class="entry-err">❌ الرقم السري غير صحيح</div>
-    <div class="entry-btns">
-      <button id="entryBtn" class="entry-btn" onclick="submitEntry()"><i class="fas fa-sign-in-alt"></i> تسجيل</button>
-      <button class="entry-btn entry-btn-quick" onclick="quickEntry()"><i class="fas fa-bolt"></i> دخول سريع</button>
+
+    <!-- ── الجزء الأول: نموذج التسجيل ── -->
+    <div id="formPart">
+      <input type="text"     id="studentName"   class="entry-field" placeholder="الاسم الثلاثي">
+      <div class="wa-field">
+        <span>+20</span>
+        <input type="text" id="studentPhone" placeholder="رقم الواتس (1012345678)">
+      </div>
+      <input type="password" id="studentSecret" class="entry-field" placeholder="الرقم السري">
+      <div id="secretErr" class="entry-err">❌ الرقم السري غير صحيح</div>
+
+      <!-- زران جنباً لجنب -->
+      <div class="entry-btns">
+        <button id="entryBtn" class="entry-btn" onclick="submitEntry()">
+          <i class="fas fa-sign-in-alt"></i> تسجيل
+        </button>
+        <button class="entry-btn entry-btn-quick" onclick="quickEntry()">
+          <i class="fas fa-bolt"></i> دخول سريع
+        </button>
+      </div>
     </div>
-    <div id="waitMsg" style="display:none;margin-top:10px;color:#ffaa00;font-size:13px;font-weight:700">
-      <i class="fas fa-hourglass-half"></i> بانتظار موافقة المدرس...
+
+    <!-- ── الجزء الثاني: شاشة الانتظار (تظهر بعد الضغط) ── -->
+    <div id="waitPart" style="display:none">
+      <!-- عبارة بسم الله دوارة -->
+      <div class="entry-marquee-wrap">
+        <div class="entry-marquee">
+          بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ &nbsp;✦&nbsp;
+          رَبِّ زِدْنِي عِلْمًا &nbsp;✦&nbsp;
+          العلم نور والجهل ظلام &nbsp;✦&nbsp;
+          من جدَّ وجد ومن زرع حصد &nbsp;✦&nbsp;
+          اطلب العلم من المهد إلى اللحد &nbsp;✦&nbsp;
+          بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ &nbsp;✦&nbsp;
+          رَبِّ زِدْنِي عِلْمًا &nbsp;✦&nbsp;
+          العلم نور والجهل ظلام &nbsp;✦&nbsp;
+          من جدَّ وجد ومن زرع حصد &nbsp;✦&nbsp;
+        </div>
+      </div>
+      <div class="wait-msg">
+        <i class="fas fa-hourglass-half blink"></i>
+        بانتظار موافقة المدرس...
+      </div>
     </div>
-    <div style="margin-top:12px;font-size:10px;color:#7799cc"><i class="fab fa-whatsapp" style="color:#25D366"></i> @MrFaragPhysics</div>
+
+    <div style="margin-top:12px;font-size:10px;color:#7799cc">
+      <i class="fab fa-whatsapp" style="color:#25D366"></i> @MrFaragPhysics
+    </div>
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════════
+     الواجهة الرئيسية
+═══════════════════════════════════════════ -->
 
 <!-- الشريط العلوي -->
 <div class="top-bar">
   <div class="brand">
     <a class="wa-btn" href="https://wa.me/201141010981" target="_blank"><i class="fab fa-whatsapp"></i></a>
-    <span class="brand-name">Mr. Farag Kohail | Physics</span>
+    <span class="brand-name">Mr. Farag | Physics</span>
   </div>
   <div class="stats">
     <span><i class="fas fa-circle" style="color:#4CAF50"></i>مباشر</span>
     <span><i class="fas fa-users"></i><span id="cnt">0</span></span>
     <span><i class="fas fa-wifi"></i><span id="lat">--</span></span>
-    <span id="fbStatus" style="font-size:10px"></span>
   </div>
-  <div class="session-time"><i class="fas fa-clock"></i> <span id="sessionTimer">00:00:00</span></div>
-  <span class="phone">01141010981</span>
+  <div class="session-time"><i class="fas fa-clock"></i> <span id="sessionTimer">00:00</span></div>
 </div>
 
-<!-- المحتوى الرئيسي -->
+<!-- المنطقة الرئيسية -->
 <div class="main-area">
 
-  <!-- الشريط الجانبي -->
+  <!-- ── الشريط الجانبي الأيمن ── -->
   <div class="sidebar">
-    <div class="sb-btn active" id="sbT" onclick="goTab('T')" title="سبورة المدرس">
-      <i class="fas fa-chalkboard-teacher"></i><span>المدرس</span>
-    </div>
-    <div class="sb-btn" id="sbS" onclick="goTab('S')" title="سبورتي">
-      <i class="fas fa-user-edit"></i><span>سبورتي</span>
-      <div class="sb-badge" id="sbBadgeS">!</div>
-    </div>
-    <div class="sb-sep"></div>
     <label class="sb-btn" id="sbHW" title="رفع واجب">
       <i class="fas fa-file-upload"></i><span>واجب</span>
       <input type="file" id="hwFile" accept="image/*" onchange="uploadHW(this)">
     </label>
     <div class="sb-sep"></div>
     <div class="sb-btn" id="micBtn" onclick="toggleMic()" title="مايك">
-      <i class="fas fa-microphone-slash" id="micIcon"></i><span id="micLabel">مايك</span>
+      <i class="fas fa-microphone-slash" id="micIcon"></i>
+      <span id="micLabel">مايك</span>
     </div>
+    <div class="sb-sep"></div>
     <div class="sb-btn" id="handBtn" onclick="toggleHand()" title="رفع اليد">
       <i class="fas fa-hand-paper"></i><span>يد</span>
     </div>
   </div>
 
-  <!-- منطقة المحتوى -->
+  <!-- ── منطقة المحتوى ── -->
   <div class="content-area">
 
     <!-- سبورة المدرس -->
@@ -81,9 +114,9 @@
       <div class="bh">
         <span class="bh-title"><i class="fas fa-chalkboard-teacher"></i> سبورة المدرس</span>
         <div class="bh-ctrl">
-          <button class="zb" onclick="Z('T',-.1)"><i class="fas fa-minus"></i></button>
+          <button class="zb" onclick="Z('T',-.15)"><i class="fas fa-minus"></i></button>
           <span class="zv" id="zvT">100%</span>
-          <button class="zb" onclick="Z('T',.1)"><i class="fas fa-plus"></i></button>
+          <button class="zb" onclick="Z('T',.15)"><i class="fas fa-plus"></i></button>
           <button class="zb" onclick="fit('T')">ملاءمة</button>
           <i class="ci fas fa-expand" onclick="goFS()"></i>
         </div>
@@ -96,50 +129,42 @@
     <!-- سبورة الطالب -->
     <div class="tab-pane" id="paneS">
       <div class="bh">
-        <span class="bh-title"><i class="fas fa-user-edit"></i> سبورتي الخاصة</span>
+        <span class="bh-title"><i class="fas fa-user-edit"></i> سبورتي</span>
         <div class="bh-ctrl">
-          <button class="zb" onclick="Z('S',-.1)"><i class="fas fa-minus"></i></button>
+          <button class="zb" onclick="Z('S',-.15)"><i class="fas fa-minus"></i></button>
           <span class="zv" id="zvS">100%</span>
-          <button class="zb" onclick="Z('S',.1)"><i class="fas fa-plus"></i></button>
+          <button class="zb" onclick="Z('S',.15)"><i class="fas fa-plus"></i></button>
           <button class="zb" onclick="fit('S')">ملاءمة</button>
-          <button class="zb" onclick="clearS()" title="مسح الرسم فقط"><i class="fas fa-eraser"></i> رسم</button>
-          <button class="zb" onclick="clearAll()" title="مسح الكل"><i class="fas fa-trash-alt"></i> كل</button>
+          <button class="zb zb-clear" onclick="clearS()"><i class="fas fa-eraser"></i> Clear</button>
+          <button class="zb zb-del"   onclick="clearAll()"><i class="fas fa-trash-alt"></i></button>
           <i class="ci fas fa-download" onclick="saveS()"></i>
         </div>
       </div>
-      <!-- الحاوية النسبية للطبقتين -->
       <div class="board-wrap" id="wrapS">
         <div class="canvas-stack">
-          <!-- طبقة الصورة (خلف) -->
           <canvas id="cSBG"></canvas>
-          <!-- طبقة الرسم (أمام) -->
           <canvas id="cS"></canvas>
         </div>
       </div>
     </div>
 
-  </div>
-</div>
+  </div><!-- /content-area -->
+</div><!-- /main-area -->
 
-<!-- شريط الأدوات السفلي -->
+<!-- ── شريط أدوات الرسم (يظهر في سبورة الطالب فقط) ── -->
 <div class="bot" id="botS" style="display:none">
   <button class="teacher-board-btn" onclick="goTab('T')" title="سبورة المدرس">
     <i class="fas fa-chalkboard-teacher"></i><span>المدرس</span>
   </button>
   <div class="tools-row">
-    <div class="ti on" id="tiPen"   onclick="setTool('pen')"><i class="fas fa-pen-nib"></i><span>قلم</span></div>
-
-    <!-- استيكة الرسم: تمسح ما رسمته أنت فقط -->
-    <div class="ti"    id="tiEra"   onclick="setTool('eraser')" title="تمسح الرسم فقط">
-      <i class="fas fa-eraser"></i><span>ممحاة</span>
+    <div class="ti on" id="tiPen"   onclick="setTool('pen')">   <i class="fas fa-pen-nib"></i><span>قلم</span></div>
+    <div class="ti"    id="tiEra"   onclick="setTool('eraser')"><i class="fas fa-eraser"></i><span>ممحاة</span></div>
+    <div class="ti"    id="tiHL"    onclick="setTool('highlight')" title="قلم فسفوري">
+      <i class="fas fa-highlighter" style="color:#ffff00;text-shadow:0 0 6px #ffff00"></i><span>نيون</span>
     </div>
-
-    <!-- استيكة الصورة: تمسح جزء من الصورة المرفوعة -->
-    <div class="ti"    id="tiEraBG" onclick="setTool('eraserBG')" title="تمسح الصورة">
-      <span style="font-size:15px;line-height:1">🖼️<i class="fas fa-times" style="font-size:10px;color:#e53935;vertical-align:top"></i></span>
-      <span>محو صورة</span>
+    <div class="ti"    id="tiEraBG" onclick="setTool('eraserBG')" title="محو صورة">
+      <span style="font-size:14px">🖼️</span><span>صورة</span>
     </div>
-
     <div class="sep"></div>
     <div class="dots">
       <div class="dot on"  style="background:#000"    onclick="setClr('#000',this)"></div>
@@ -147,19 +172,22 @@
       <div class="dot"     style="background:#1e88e5" onclick="setClr('#1e88e5',this)"></div>
       <div class="dot"     style="background:#43a047" onclick="setClr('#43a047',this)"></div>
       <div class="dot"     style="background:#fb8c00" onclick="setClr('#fb8c00',this)"></div>
-      <div class="dot"     style="background:#fff;border:1px solid #aaa" onclick="setClr('#fff',this)"></div>
+      <div class="dot"     style="background:#fff;border:1px solid #555" onclick="setClr('#fff',this)"></div>
+      <div class="dot dot-neon" style="background:#39ff14" onclick="setClr('#39ff14',this)" title="فسفوري أخضر"></div>
+      <div class="dot dot-neon" style="background:#ffff00" onclick="setClr('#ffff00',this)" title="فسفوري أصفر"></div>
+      <div class="dot dot-neon" style="background:#ff69b4" onclick="setClr('#ff69b4',this)" title="فسفوري وردي"></div>
+      <div class="dot dot-neon" style="background:#00ffff" onclick="setClr('#00ffff',this)" title="فسفوري سماوي"></div>
     </div>
     <div class="sep"></div>
     <div class="sz-row">
       <button class="sz-btn" onclick="adjSz(-1)">−</button>
-      <span class="sz-val" id="szV">4</span>
+      <span   class="sz-val" id="szV">4</span>
       <button class="sz-btn" onclick="adjSz(1)">+</button>
     </div>
   </div>
 </div>
 
 <audio id="audioEl" autoplay style="display:none"></audio>
-
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="student.js"></script>

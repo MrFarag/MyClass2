@@ -17,17 +17,51 @@ html,body{width:100%;height:100%;background:#0f1e35;color:#fff;overflow:hidden;d
 .main-area{display:flex;flex:1;min-height:0;overflow:hidden}
 
 /* الشريط الجانبي */
-.sidebar{width:62px;min-width:62px;background:#071524;border-left:2px solid #1e4080;display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:6px;flex-shrink:0;overflow-y:auto}
-.sb-btn{width:50px;height:50px;border-radius:14px;background:#0f2040;border:2px solid #1e4080;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:.18s;color:#4a6080;gap:2px;position:relative;flex-shrink:0;text-decoration:none}
-.sb-btn i{font-size:18px;line-height:1;display:block;text-align:center;width:100%}
-.sb-btn span{font-size:8px;font-weight:700;white-space:nowrap;line-height:1;display:block;text-align:center}
-.sb-btn.active{background:#00aaff;border-color:#00aaff;color:#000}
-.sb-btn.hand-on{background:#f59e0b;border-color:#f59e0b;color:#000;animation:blink 1s infinite}
-.sb-btn.mic-on{background:#00aaff;border-color:#00aaff;color:#000}
-.sb-btn:hover:not(.active){background:#1a3060;border-color:#2a5090;color:#aaa}
-.sb-btn input[type=file]{display:none}
-.sb-sep{width:40px;height:1px;background:#1e4080;flex-shrink:0}
-.sb-badge{position:absolute;top:-5px;right:-5px;background:#e53935;color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;display:none;align-items:center;justify-content:center;font-weight:900}
+/* ── الشريط الجانبي: عمودي على اليمين مثل المدرس تماماً ── */
+.sidebar{
+  width:66px;min-width:66px;
+  background:#071524;
+  border-left:2px solid #1e4080;
+  display:flex;flex-direction:column;
+  align-items:center;
+  padding:8px 0;gap:6px;
+  flex-shrink:0;overflow-y:auto;
+  order:0;
+}
+.sb-btn{
+  width:58px;height:58px;
+  border-radius:16px;background:#0f2040;
+  border:2px solid #1e4080;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  cursor:pointer;transition:.18s;
+  color:#4a6080;gap:2px;
+  position:relative;flex-shrink:0;
+  text-decoration:none;
+}
+.sb-btn i{font-size:22px;line-height:1;display:block;text-align:center;width:100%;}
+.sb-btn span{font-size:9px;font-weight:700;white-space:nowrap;line-height:1;display:block;text-align:center;}
+.sb-btn.active{background:#00aaff;border-color:#00aaff;color:#000;}
+.sb-btn.hand-on{background:#f59e0b;border-color:#f59e0b;color:#000;animation:blink 1s infinite;}
+.sb-btn.mic-on{background:#22c55e;border-color:#22c55e;color:#000;}
+/* طلب مايك: ينبض بالأحمر */
+.sb-btn.mic-requesting{
+  background:#2a0808;border-color:#e53935;color:#e53935;
+  animation:mic-pulse-red .7s ease-in-out infinite;
+}
+/* مايك مسموح: ثابت أخضر */
+.sb-btn.mic-allowed{
+  background:#0a2a12;border-color:#22c55e;color:#22c55e;
+  box-shadow:0 0 8px rgba(34,197,94,.5);
+}
+@keyframes mic-pulse-red{
+  0%,100%{box-shadow:0 0 4px rgba(229,57,53,.4);border-color:#e53935;}
+  50%{box-shadow:0 0 14px rgba(229,57,53,.9);border-color:#ff6b6b;color:#ff6b6b;}
+}
+.sb-btn:hover:not(.active){background:#1a3060;border-color:#2a5090;color:#aaa;}
+.sb-btn input[type=file]{display:none;}
+.sb-sep{width:36px;height:1px;background:#1e4080;flex-shrink:0;}
+.sb-badge{position:absolute;top:-4px;right:-4px;background:#e53935;color:#fff;border-radius:50%;width:15px;height:15px;font-size:9px;display:none;align-items:center;justify-content:center;font-weight:900;}
 .sb-badge.on{display:flex}
 
 /* منطقة المحتوى */
@@ -148,3 +182,79 @@ html,body{width:100%;height:100%;background:#0f1e35;color:#fff;overflow:hidden;d
 }
 .teacher-board-btn i{font-size:18px;line-height:1;}
 .teacher-board-btn:hover{filter:brightness(1.15);transform:translateY(-1px);}
+
+/* ── عبارة دوارة ── */
+.entry-marquee-wrap{overflow:hidden;width:100%;margin:8px 0;}
+.entry-marquee{
+  display:inline-block;white-space:nowrap;
+  font-size:16px;font-weight:900;
+  color:#00d4ff;
+  text-shadow:0 0 8px rgba(0,212,255,.6);
+  animation:marquee 18s linear infinite;
+  padding-right:100%;
+}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+
+.zb-clear{background:#b71c1c!important;color:#fff!important;font-weight:700;}
+.zb-clear:hover{background:#e53935!important;}
+.zb-clear-all{background:#7b1fa2!important;color:#fff!important;}
+
+/* شاشة الانتظار */
+.wait-msg{
+  color:#ffaa00;font-size:14px;font-weight:700;
+  margin:10px 0;display:flex;align-items:center;
+  justify-content:center;gap:8px;
+}
+/* عبارة دوارة */
+.entry-marquee-wrap{
+  overflow:hidden;width:100%;margin:10px 0;
+  border-radius:8px;
+  background:linear-gradient(90deg,rgba(0,170,255,.08),rgba(0,212,255,.12),rgba(0,170,255,.08));
+  padding:6px 0;
+}
+.entry-marquee{
+  display:inline-block;white-space:nowrap;
+  font-size:16px;font-weight:900;
+  color:#00d4ff;
+  text-shadow:0 0 10px rgba(0,212,255,.7);
+  animation:marquee 20s linear infinite;
+  padding-right:100%;
+}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+/* أزرار الدخول جنباً لجنب */
+.entry-btns{display:flex;gap:8px;margin-top:12px;}
+.entry-btns .entry-btn{margin-top:0;flex:1;}
+.entry-btn-quick{background:linear-gradient(135deg,#1e88e5,#1565c0)!important;color:#fff!important;}
+.entry-btn-quick:hover{filter:brightness(1.1);}
+/* زر Clear */
+.zb-clear{background:#c0392b!important;color:#fff!important;font-weight:700;}
+.zb-clear:hover{background:#e74c3c!important;}
+.zb-del{background:#7b1fa2!important;color:#fff!important;}
+
+/* ── موبايل ── */
+@media(max-width:600px){
+  .top-bar{padding:0 6px;gap:4px;}
+  .brand-name{font-size:11px;}
+  .session-time{display:none;}
+  .sidebar{width:56px;min-width:56px;}
+  .sb-btn{width:48px;height:48px;border-radius:12px;}
+  .sb-btn i{font-size:20px;}
+  .sb-btn span{font-size:7px;}
+  .bh{padding:0 6px;}
+  .bh-ctrl{gap:3px;}
+  .zb{min-width:22px;height:22px;font-size:10px;}
+  .bot{padding:0 4px;gap:4px;}
+  .tools-row{gap:6px;}
+  .ti i{font-size:18px;}
+  .dot{width:18px;height:18px;}
+}
+
+/* ── ألوان نيون فسفورية ── */
+.dot-neon{
+  box-shadow:0 0 6px currentColor;
+  position:relative;
+}
+.dot-neon::after{
+  content:'✨';position:absolute;top:-8px;right:-2px;
+  font-size:7px;line-height:1;pointer-events:none;
+}

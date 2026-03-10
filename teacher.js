@@ -7,7 +7,7 @@
 
   const KEYS=['joinRequests','approvedStudents','onlineStudents','handRaised',
     'micRequests','micPermissions','studentImages','draw_t','draw_st',
-    'boardCmd','boardImg','boardImg_stu','correctedImg','rtc','teacher_draw_on_student'];
+    'boardCmd','boardImg','boardImg_stu','correctedImg','rtc','teacher_draw_on_student','boardView'];
   Promise.all(KEYS.map(k=>db.ref(k).remove())).then(()=>console.log('✓ جلسة نظيفة'));
 
   const CW=1280, CH=720;
@@ -69,6 +69,9 @@
 
   let tool='pen',clr='#000',sz=4;
   let drawing=false,strokeId=0,pts=[],ptimer=null;
+  let shapeStart=null;
+  let shapePreview=null;
+  let hlSnap=null; // snapshot للفسفوري
   let students={},waiting={},images={};
   let currentSpeaker=null, currentBoard='main';
   let lastMainImg=null;
@@ -85,31 +88,123 @@
   mc.addEventListener('touchmove', e=>moveD(e), {passive:false});
   mc.addEventListener('touchend',  ()=>stopD());
 
+  const SHAPE_LIST=['line','arrow','rect','circle','tri'];
+  function isShape(){ return SHAPE_LIST.includes(tool); }
+
   function startD(e){
     e.preventDefault(); drawing=true; strokeId=Date.now(); pts=[];
     const p=xy(e);
+    if(isShape()){
+      shapeStart={x:p.x,y:p.y};
+      // احفظ snapshot للمعاينة
+      shapePreview = document.createElement('canvas');
+      shapePreview.width=CW; shapePreview.height=CH;
+      const ctx=shapePreview.getContext('2d');
+      if(currentBoard==='main') ctx.drawImage(mc,0,0);
+      else { ctx.drawImage(mcBG,0,0); ctx.drawImage(mcDraw,0,0); }
+      return;
+    }
+    // snapshot للفسفوري
+    if(tool==='highlight'){
+      hlSnap = document.createElement('canvas');
+      hlSnap.width=CW; hlSnap.height=CH;
+      const hc=hlSnap.getContext('2d');
+      if(currentBoard==='main') hc.drawImage(mc,0,0);
+      else { hc.drawImage(mcBG,0,0); hc.drawImage(mcDraw,0,0); }
+    }
     if(currentBoard==='main'){
       ic(mx); mx.globalCompositeOperation='source-over';
-      mx.beginPath(); mx.moveTo(p.x,p.y);
+      if(tool!=='highlight') { mx.beginPath(); mx.moveTo(p.x,p.y); }
     } else {
       ic(mxD); mxD.globalCompositeOperation='source-over';
-      mxD.beginPath(); mxD.moveTo(p.x,p.y);
+      if(tool!=='highlight') { mxD.beginPath(); mxD.moveTo(p.x,p.y); }
     }
     pts.push({x:p.x/CW,y:p.y/CH});
   }
+  function drawShapePreview(x2,y2){
+    // أعد الـ canvas للحالة قبل الشكل
+    const ctx = currentBoard==='main' ? mx : null;
+    if(currentBoard==='main'){
+      mx.globalCompositeOperation='source-over';
+      mx.clearRect(0,0,CW,CH); mx.drawImage(shapePreview,0,0);
+      renderShape(mx,shapeStart.x,shapeStart.y,x2,y2);
+    } else {
+      mxD.globalCompositeOperation='source-over';
+      mxD.clearRect(0,0,CW,CH); mxD.drawImage(shapePreview,0,0);
+      // shapePreview للـ mxD فقط
+      renderShape(mxD,shapeStart.x,shapeStart.y,x2,y2);
+      compositeTeacher();
+    }
+  }
+
+  function renderShape(ctx,x1,y1,x2,y2){
+    ctx.save();
+    ctx.strokeStyle=clr; ctx.lineWidth=sz;
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.beginPath();
+    if(tool==='line'){
+      ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    } else if(tool==='arrow'){
+      ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      const angle=Math.atan2(y2-y1,x2-x1);
+      const hs=Math.max(12,sz*3);
+      ctx.beginPath();
+      ctx.moveTo(x2,y2);
+      ctx.lineTo(x2-hs*Math.cos(angle-0.4),y2-hs*Math.sin(angle-0.4));
+      ctx.lineTo(x2-hs*Math.cos(angle+0.4),y2-hs*Math.sin(angle+0.4));
+      ctx.closePath(); ctx.fillStyle=clr; ctx.fill();
+    } else if(tool==='rect'){
+      ctx.strokeRect(Math.min(x1,x2),Math.min(y1,y2),Math.abs(x2-x1),Math.abs(y2-y1));
+    } else if(tool==='circle'){
+      const rx=Math.abs(x2-x1)/2, ry=Math.abs(y2-y1)/2;
+      ctx.ellipse(Math.min(x1,x2)+rx,Math.min(y1,y2)+ry,rx,ry,0,0,Math.PI*2);
+      ctx.stroke();
+    } else if(tool==='tri'){
+      const mx2=(x1+x2)/2;
+      ctx.moveTo(mx2,Math.min(y1,y2));
+      ctx.lineTo(Math.min(x1,x2),Math.max(y1,y2));
+      ctx.lineTo(Math.max(x1,x2),Math.max(y1,y2));
+      ctx.closePath(); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   function moveD(e){
     e.preventDefault(); if(!drawing)return;
     const p=xy(e);
     const isEra = tool==='eraser';
-    if(currentBoard==='main'){
+    if(isShape()){ if(shapeStart){ drawShapePreview(p.x,p.y); pts=[{x:p.x/CW,y:p.y/CH}]; } return; }
+    const isHL = tool==='highlight';
+    if(isHL){
+      // أضف النقطة أولاً ثم ارسم من snapshot
+      pts.push({x:p.x/CW,y:p.y/CH});
+      if(hlSnap && pts.length>=2){
+        const tgt = currentBoard==='main' ? mx : mxD;
+        tgt.clearRect(0,0,CW,CH);
+        tgt.drawImage(hlSnap,0,0);
+        tgt.save();
+        tgt.globalAlpha=0.38;
+        tgt.strokeStyle=clr;
+        tgt.lineWidth=sz*5;
+        tgt.lineCap='round'; tgt.lineJoin='round';
+        tgt.beginPath();
+        tgt.moveTo(pts[0].x*CW,pts[0].y*CH);
+        for(let i=1;i<pts.length;i++) tgt.lineTo(pts[i].x*CW,pts[i].y*CH);
+        tgt.stroke();
+        tgt.restore();
+        if(currentBoard!=='main') compositeTeacher();
+      }
+      if(!ptimer) ptimer=setTimeout(flush,10);
+      return;
+    } else if(currentBoard==='main'){
       mx.globalCompositeOperation='source-over';
+      mx.globalAlpha=1.0;
       mx.strokeStyle = isEra ? '#fff' : clr;
       mx.lineWidth   = isEra ? sz*5 : sz;
       mx.lineTo(p.x,p.y); mx.stroke(); mx.beginPath(); mx.moveTo(p.x,p.y);
     } else {
       const lw = isEra ? sz*5 : sz;
       if(isEra){
-        // الاستيكة تمسح الرسم فقط (mxD) - الصورة الخلفية (mxBG) لا تُمس
         mxD.lineCap='round'; mxD.lineJoin='round';
         mxD.globalCompositeOperation='destination-out';
         mxD.strokeStyle='rgba(0,0,0,1)';
@@ -133,11 +228,13 @@
   function flush(){
     ptimer=null; if(!pts.length)return;
     const isEra = tool==='eraser';
+    const isHL  = tool==='highlight';
     const data = {
       pts:  pts.slice(),
       c:    isEra ? null : clr,
-      s:    isEra ? sz*5 : sz,
-      era:  isEra,   // علم الاستيكة — الطالب يستقبله ويطبق destination-out
+      s:    isEra ? sz*5 : isHL ? sz*5 : sz,
+      era:  isEra,
+      hl:   isHL,
       sid:  strokeId,
       ts:   Date.now()
     };
@@ -146,16 +243,48 @@
     } else {
       db.ref('draw_t').push(data);
     }
-    pts=[];
+    // للفسفوري: لا نصفّر pts — الرسم يحتاج كل النقاط من البداية
+    if(!isHL) pts=[];
   }
   function stopD(){
     if(!drawing)return; drawing=false;
+    // تثبيت الفسفوري
+    if(tool==='highlight' && hlSnap && pts.length>=1){
+      const tgt = currentBoard==='main' ? mx : mxD;
+      tgt.clearRect(0,0,CW,CH);
+      tgt.drawImage(hlSnap,0,0);
+      tgt.save();
+      tgt.globalAlpha=0.38;
+      tgt.strokeStyle=clr;
+      tgt.lineWidth=sz*5;
+      tgt.lineCap='round'; tgt.lineJoin='round';
+      tgt.beginPath();
+      tgt.moveTo(pts[0].x*CW,pts[0].y*CH);
+      pts.forEach(pt=>tgt.lineTo(pt.x*CW,pt.y*CH));
+      tgt.stroke();
+      tgt.restore();
+      hlSnap=null;
+      if(currentBoard==='main') lastMainImg=mc.toDataURL('image/jpeg',0.85);
+      return;
+    }
+    if(isShape() && shapeStart){
+      // لا نرسل pts للأشكال - نرسل بيانات الشكل مباشرة
+      const endP=pts[pts.length-1]||{x:shapeStart.x/CW,y:shapeStart.y/CH};
+      const data={
+        shape:tool, x1:shapeStart.x/CW, y1:shapeStart.y/CH,
+        x2:endP.x, y2:endP.y,
+        c:clr, s:sz, sid:strokeId, ts:Date.now()
+      };
+      if(currentBoard!=='main') db.ref('teacher_draw_on_student/'+currentBoard).push(data);
+      else { db.ref('draw_t').push(data); lastMainImg=mc.toDataURL('image/jpeg',0.85); }
+      shapeStart=null; shapePreview=null;
+      mxD.globalCompositeOperation='source-over';
+      return;
+    }
     if(ptimer){clearTimeout(ptimer);ptimer=null;} flush();
     mxD.globalCompositeOperation='source-over';
     mx.globalCompositeOperation='source-over';
-    if(currentBoard==='main'){
-      lastMainImg=mc.toDataURL('image/jpeg',0.85);
-    }
+    if(currentBoard==='main') lastMainImg=mc.toDataURL('image/jpeg',0.85);
   }
 
   /* ===== WebRTC DataChannel (للرسم المباشر — اختياري) ===== */
@@ -260,7 +389,12 @@
   });
 
   /* ===== أدوات الرسم ===== */
-  window.setTool=t=>{tool=t;document.getElementById('tiPen').classList.toggle('on',t==='pen');document.getElementById('tiEra').classList.toggle('on',t==='eraser');};
+  const SHAPE_TOOLS=['pen','eraser','highlight','line','arrow','rect','circle','tri'];
+  const SHAPE_IDS={pen:'tiPen',eraser:'tiEra',highlight:'tiHL',line:'tiLine',arrow:'tiArrow',rect:'tiRect',circle:'tiCircle',tri:'tiTri'};
+  window.setTool=t=>{
+    tool=t;
+    SHAPE_TOOLS.forEach(k=>{ const el=document.getElementById(SHAPE_IDS[k]); if(el) el.classList.toggle('on',k===t); });
+  };
   window.setClr=(c,el)=>{clr=c;document.querySelectorAll('.dot').forEach(d=>d.classList.remove('on'));el.classList.add('on');};
   window.clearB=()=>{mx.fillStyle='#fff';mx.fillRect(0,0,CW,CH);db.ref('boardCmd').push({type:'clear',ts:Date.now()});lastMainImg=null;};
   window.saveB =()=>{const a=document.createElement('a');a.download='board.png';a.href=mc.toDataURL();a.click();};
@@ -322,6 +456,9 @@
       compositeTeacher();
     }, 150);
   };
+  window.sendTab=(sid,tab)=>{
+    db.ref('boardCmd').push({type:'goto_tab', tab, targetId:sid, ts:Date.now()});
+  };
   window.shareBoard=(sid,name)=>{
     if(!lastStuImg[sid]){alert('لا توجد صورة بعد.');return;}
     db.ref('boardCmd').push({type:'show_student_board',studentId:sid,studentName:name,data:lastStuImg[sid],ts:Date.now()});
@@ -329,6 +466,9 @@
 
   db.ref('boardImg_stu').on('child_added',  snap=>{const d=snap.val();if(d)updateStu(snap.key,d);});
   db.ref('boardImg_stu').on('child_changed',snap=>{const d=snap.val();if(d)updateStu(snap.key,d);});
+  // تتبع أي سبورة يشاهدها الطالب
+  db.ref('boardView').on('child_added',  snap=>{if(students[snap.key]){students[snap.key].boardView=snap.val();render();}});
+  db.ref('boardView').on('child_changed',snap=>{if(students[snap.key]){students[snap.key].boardView=snap.val();render();}});
   function updateStu(sid,d){
     lastStuImg[sid]=d.data;
     if(currentBoard===sid){
@@ -354,14 +494,20 @@
       if(!s.online)return;
       const spk=currentSpeaker===s.id,hand=s.handRaised;
       const hasImg=!!lastStuImg[s.id];
-      const ico=hand?'<i class="fas fa-hand-paper blink" style="color:#f59e0b"></i>':spk?'<i class="fas fa-microphone" style="color:#22c55e"></i>':'<i class="fas fa-headphones" style="color:#aaa"></i>';
+      const bv = s.boardView||'T'; // T=سبورة المدرس  S=سبورة الطالب
+      // أيقونة الحالة (مايك/يد/سماعة) ضمن نفس صف الأكشن
+      const stIco = hand
+        ? `<i class="fas fa-hand-paper blink" style="color:#f59e0b" title="رافع اليد"></i>`
+        : spk
+          ? `<i class="fas fa-microphone" style="color:#22c55e" title="يتحدث"></i>`
+          : `<i class="fas fa-headphones" style="color:#666" title="يستمع"></i>`;
       h+=`<div class="si">
         <div class="scard-name" title="${s.name}">${s.name}</div>
-        <div class="scard-status">${ico}</div>
         <div class="sact">
-          ${s.wantsMic&&!spk?`<i class="fas fa-microphone sact-mic-req" title="اضغط للسماح بالمايك" onclick="allowMic('${s.id}')"></i>`:''}
+          ${stIco}
+          ${s.wantsMic&&!spk?`<i class="fas fa-microphone sact-mic-req" title="السماح بالمايك" onclick="allowMic('${s.id}')"></i>`:''}
           ${spk?`<i class="fas fa-microphone-slash" style="color:#e53935" title="إلغاء المايك" onclick="revokeMic('${s.id}')"></i>`:''}
-          ${images[s.id]?.length?`<i class="fas fa-image" title="معاينة الواجب" onclick="openCorr('${s.id}','${s.name}')"></i>`:''}
+          ${images[s.id]?.length?`<i class="fas fa-image" title="الواجب" onclick="openCorr('${s.id}','${s.name}')"></i>`:''}
           <i class="fas fa-eye" title="سبورته" onclick="viewStudentBoard('${s.id}','${s.name}')"></i>
           ${hasImg?`<i class="fas fa-share-alt" style="color:#4CAF50" title="مشاركة للكل" onclick="shareBoard('${s.id}','${s.name}')"></i>`:''}
           <i class="fas fa-sign-out-alt" style="color:#b71c1c" title="طرد" onclick="kickS('${s.id}')"></i>
@@ -403,6 +549,9 @@
   window.allowMic = id => {
     if(currentSpeaker && currentSpeaker!==id) db.ref('micPermissions/'+currentSpeaker).remove();
     currentSpeaker=id;
+    // نمسح الـ offer القديم لضمان إطلاق child_added من جديد
+    db.ref('rtc/s2t_stu_offer/'+id).remove();
+    db.ref('rtc/t2s_stu_answer/'+id).remove();
     db.ref('micPermissions/'+id).set({allowed:true, ts:Date.now()});
     db.ref('handRaised/'+id).remove();
     db.ref('micRequests/'+id).remove();
@@ -490,65 +639,65 @@
     }
   };
 
-  // ---- استقبال صوت الطالب ----
-  const stuIceRef = {}; // لتجنب تراكم listeners على ICE
+  // ── استقبال صوت الطالب ──
+  const stuPcMap = {}; // RTCPeerConnection لكل طالب
 
   async function answerStuOffer(sid, off){
-    if(!off||!off.sdp) return;
-    if(stuPc){stuPc.close();stuPc=null;}
-    // إزالة listener قديم على ICE
-    if(stuIceRef[sid]) db.ref('rtc/s2t_stu_ice/'+sid).off('child_added', stuIceRef[sid]);
-    const pc=new RTCPeerConnection(RTCConfig); stuPc=pc;
-    pc.ontrack=e=>{
-      try{
-        // استخدام AudioContext لتحسين جودة الصوت وإلغاء التقطع
-        if(!window._audioCtx || window._audioCtx.state==='closed'){
-          window._audioCtx = new (window.AudioContext||window.webkitAudioContext)({sampleRate:48000,latencyHint:'interactive'});
-        }
-        if(window._audioCtx.state==='suspended') window._audioCtx.resume();
-        const stream = e.streams[0];
-        const src = window._audioCtx.createMediaStreamSource(stream);
-        const dst = window._audioCtx.createMediaStreamDestination();
-        // مرشح لتعزيز الصوت
-        const gain = window._audioCtx.createGain();
-        gain.gain.value = 1.4;
-        src.connect(gain); gain.connect(dst);
-        // تشغيل عبر AudioContext
-        const a = document.getElementById('audioEl');
-        a.srcObject = dst.stream;
-        a.play().catch(()=>{ a.srcObject=stream; a.play().catch(()=>{}); });
-      } catch(err){
-        // fallback مباشر
-        const a = document.getElementById('audioEl');
-        a.srcObject = e.streams[0]; a.play().catch(()=>{});
-      }
-      // تقليل jitter buffer
+    if(!off || !off.sdp) return;
+    // أغلق اتصالاً قديماً
+    if(stuPcMap[sid]){ try{ stuPcMap[sid].close(); }catch(e){} delete stuPcMap[sid]; }
+    db.ref('rtc/s2t_stu_ice/'+sid).off(); // ألغِ listeners ICE القديمة
+
+    const pc = new RTCPeerConnection(RTCConfig);
+    stuPcMap[sid] = pc;
+    stuPc = pc;
+
+    pc.ontrack = e=>{
+      const a = document.getElementById('audioEl');
+      a.srcObject = e.streams[0];
+      a.play().catch(()=>{});
+      // تقليل التقطع
       try{
         pc.getReceivers().forEach(r=>{
           if(r.track?.kind==='audio' && r.jitterBufferTarget!==undefined)
             r.jitterBufferTarget=80;
         });
-      }catch(e){}
+      }catch(_){}
     };
-    pc.onicecandidate=e=>{if(e.candidate) db.ref('rtc/t2s_stu_ice/'+sid).push(e.candidate.toJSON());};
-    stuIceRef[sid] = async s2=>{
-      const ice=s2.val();
-      if(ice){try{await pc.addIceCandidate(new RTCIceCandidate(ice));}catch(e){} s2.ref.remove();}
+
+    pc.onicecandidate = e=>{
+      if(e.candidate) db.ref('rtc/t2s_stu_ice/'+sid).push(e.candidate.toJSON());
     };
-    db.ref('rtc/s2t_stu_ice/'+sid).on('child_added', stuIceRef[sid]);
+
+    // استقبال ICE من الطالب
+    db.ref('rtc/s2t_stu_ice/'+sid).on('child_added', async s2=>{
+      const ice = s2.val();
+      if(ice && pc.remoteDescription){
+        try{ await pc.addIceCandidate(new RTCIceCandidate(ice)); }catch(_){}
+        s2.ref.remove();
+      }
+    });
+
     try{
       await pc.setRemoteDescription(new RTCSessionDescription(off));
-      const ans=await pc.createAnswer();
+      const ans = await pc.createAnswer();
       await pc.setLocalDescription(ans);
-      db.ref('rtc/t2s_stu_answer/'+sid).set({sdp:ans.sdp,type:ans.type});
-    }catch(err){ console.warn('stuPc answer err:',err); }
+      await db.ref('rtc/t2s_stu_answer/'+sid).set({sdp:ans.sdp, type:ans.type});
+    } catch(err){ console.warn('answerStuOffer:', err); }
   }
 
-  db.ref('rtc/s2t_stu_offer').on('child_added',   snap=>answerStuOffer(snap.key, snap.val()));
-  db.ref('rtc/s2t_stu_offer').on('child_changed',  snap=>answerStuOffer(snap.key, snap.val()));
-  db.ref('micPermissions').on('child_removed',()=>{
-    if(stuPc){stuPc.close();stuPc=null;}
-    document.getElementById('audioEl').srcObject=null;
+  // استمع على child_added و child_changed معاً
+  db.ref('rtc/s2t_stu_offer').on('child_added',   s=>{ if(s.val()?.sdp) answerStuOffer(s.key, s.val()); });
+  db.ref('rtc/s2t_stu_offer').on('child_changed',  s=>{ if(s.val()?.sdp) answerStuOffer(s.key, s.val()); });
+
+  db.ref('micPermissions').on('child_removed', snap=>{
+    const sid = snap.key;
+    if(stuPcMap[sid]){ try{ stuPcMap[sid].close(); }catch(_){} delete stuPcMap[sid]; }
+    if(!Object.keys(stuPcMap).length){
+      stuPc = null;
+      const a = document.getElementById('audioEl');
+      a.srcObject = null;
+    }
   });
 
   window.endClass=()=>{if(confirm('إنهاء الحصة؟'))window.location.reload();};
