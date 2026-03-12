@@ -1,157 +1,878 @@
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
-html,body{width:100%;height:100%;background:#1a2e25;color:#fff;overflow:hidden;display:flex;flex-direction:column;}
-.top-bar{height:46px;min-height:46px;background:linear-gradient(90deg,#0f2a1f,#1e3a2a);border-bottom:2px solid #ffaa00;display:flex;align-items:center;justify-content:space-between;padding:0 12px;gap:8px;flex-shrink:0;}
-.brand{display:flex;align-items:center;gap:8px;}
-.brand-name{font-size:14px;font-weight:900;color:#ffaa00;white-space:nowrap;direction:ltr;}
-.wa-btn{width:32px;height:32px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;}
-.wa-btn i{color:#fff;font-size:17px;}
-.stats{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.3);padding:3px 12px;border-radius:30px;}
-.stats span{font-size:11px;display:flex;align-items:center;gap:3px;color:#ccc;white-space:nowrap;}
-.stats i{color:#ffaa00;}
-.phone{font-size:11px;color:#ffaa00;direction:ltr;white-space:nowrap;}
-.body{display:flex;flex:1;min-height:0;overflow:hidden;}
-.panel{width:160px;max-width:220px;background:#1e3228;display:flex;flex-direction:column;border-left:1px solid #3a5a40;flex-shrink:0;overflow:hidden;}
-.panel-h{height:38px;min-height:38px;background:#162a1e;display:flex;align-items:center;justify-content:space-between;padding:0 12px;color:#ffaa00;font-weight:700;font-size:12px;flex-shrink:0;border-bottom:1px solid #2a4a30;}
-.panel-list{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px;}
-.av{display:none;}
-.sinfo{flex:1;min-width:0;}
-.sname{font-weight:700;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sstatus{font-size:10px;color:#aaa;display:flex;align-items:center;gap:3px;}
+/* ================================================ */
+/* [001] إعادة تعيين الأنماط الأساسية (Reset)       */
+/* ================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Cairo', sans-serif;
+}
 
-/* بطاقة الطالب - مستطيل أنيق */
-.si{
-  background:linear-gradient(135deg,#1a3228,#162a20);
-  border-radius:10px;
-  padding:4px 6px 5px;
-  display:flex; flex-direction:column;
-  align-items:stretch; gap:3px;
-  border:1px solid #2a4a30;
-  box-shadow:0 2px 6px rgba(0,0,0,.3);
-  transition:.15s;
-  min-height:0; position:relative;
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #1a2e25;
+  color: #fff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
-.si:hover{ border-color:#ffaa00; box-shadow:0 2px 10px rgba(255,170,0,.2); }
-.si-wait{ border-color:#f39c12 !important; background:linear-gradient(135deg,#2a2010,#1f1a08) !important; }
 
-/* صف العنوان: لمبتان + الاسم */
-.si-top{
-  display:flex; align-items:center; gap:4px;
+/* ================================================ */
+/* [002] الشريط العلوي (Top Bar)                    */
+/* ================================================ */
+.top-bar {
+  height: 46px;
+  min-height: 46px;
+  background: linear-gradient(90deg, #0f2a1f, #1e3a2a);
+  border-bottom: 2px solid #ffaa00;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  gap: 8px;
+  flex-shrink: 0;
 }
-/* اسم الطالب */
-.scard-name{
-  font-weight:800; font-size:11px; color:#fff;
-  flex:1; min-width:0;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  line-height:1.4; cursor:default;
-}
-/* اللمبتان في أقصى اليسار فوق بعض */
-.bv-lamps{
-  display:flex; flex-direction:column;
-  gap:2px; flex-shrink:0;
-}
-.bv-lamp{
-  width:14px; height:14px;
-  border-radius:50%;
-  background:#1a1a1a;
-  border:1px solid #333;
-  font-size:7px; font-weight:900;
-  color:#444;
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; transition:.2s;
-  line-height:1;
-}
-/* مُنوَّرة */
-.bv-lamp.bv-on{
-  background:radial-gradient(circle at 35% 35%, #fff 0%, #ffee44 40%, #ff9900 100%);
-  border-color:#ffcc00;
-  color:#7a4000;
-  box-shadow:0 0 5px rgba(255,200,0,.8), 0 0 10px rgba(255,150,0,.4);
-}
-.bv-lamp:hover{ filter:brightness(1.3); transform:scale(1.15); }
 
-/* أيقونات الأكشن - سطر واحد مع أيقونة الحالة في نفس الصف */
-.sact{
-  display:flex; flex-wrap:nowrap;
-  justify-content:flex-start; align-items:center;
-  gap:5px; color:#ffaa00; font-size:12px;
-  width:100%; overflow:hidden;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.sact i{ cursor:pointer; transition:.18s; flex-shrink:0; }
-.sact i:hover{ transform:scale(1.25); color:#fff; }
-.sact-mic-req{ color:#22c55e !important; animation:blink 1s infinite; }
-@media(max-width:800px){.panel{width:180px;min-width:150px;}}
-.board-col{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
-.bh{height:40px;min-height:40px;background:#1e3228;padding:0 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2a4a30;flex-shrink:0;}
-.bh-title{font-weight:700;color:#ffaa00;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
-.bh-ctrl{display:flex;align-items:center;gap:5px;flex-shrink:0;}
-.zb{background:#2a4a35;border:none;color:#ffaa00;min-width:26px;height:26px;padding:0 5px;border-radius:7px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;white-space:nowrap;}
-.zb:hover{background:#3a6a45;color:#fff;}
-.zv{font-size:10px;color:#aaa;min-width:32px;text-align:center;}
-.ci{color:#ffaa00;cursor:pointer;font-size:14px;transition:.2s;flex-shrink:0;}
-.ci:hover{color:#fff;}
-.board-wrap{flex:1;min-height:0;min-width:0;overflow:auto;background:#2a2a2a;display:flex;direction:ltr;align-items:flex-start;justify-content:flex-start;}
-canvas#mc{display:block;background:#fff;cursor:crosshair;touch-action:none;flex-shrink:0;}
-.bot{height:68px;min-height:68px;background:#0f2a1f;border-top:2px solid #ffaa00;display:flex;align-items:center;justify-content:space-between;padding:0 8px;flex-shrink:0;overflow-x:auto;gap:6px;scrollbar-width:none;}
-.tools{display:flex;gap:6px;background:#1a2e25;padding:5px 10px;border-radius:50px;border:1px solid #3a5a40;align-items:center;flex-shrink:0;overflow-x:auto;max-width:calc(100vw - 220px);scrollbar-width:none;}
-.ti{display:flex;flex-direction:column;align-items:center;color:#aaa;cursor:pointer;font-size:10px;transition:.2s;}
-.ti i{font-size:22px;}
-.ti.on{color:#ffaa00;}
-.dots{display:flex;gap:3px;background:#1e3228;padding:4px 8px;border-radius:40px;align-items:center;}
-.dot{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.2s;flex-shrink:0;}
-.dot.on{border-color:#fff;transform:scale(1.2);}
-.acts{display:flex;gap:8px;flex-shrink:0;}
-.ab{width:46px;height:46px;border-radius:50%;border:none;background:#2a4a35;color:#fff;font-size:19px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;}
-.ab:hover{filter:brightness(1.25);transform:scale(1.05);}
-.ab.mic-on{background:#ffaa00;color:#000;}
-.ab.red{background:#b71c1c;}
-.ulbl{background:#ffaa00;color:#000;padding:5px 12px;border-radius:30px;cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:700;font-size:11px;white-space:nowrap;}
-input[type=file]{display:none;}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.93);display:none;align-items:center;justify-content:center;z-index:2000;}
-.modal.on{display:flex;}
-.mc{background:#1e3228;width:94%;height:92%;border-radius:20px;display:flex;flex-direction:column;border:2px solid #ffaa00;overflow:hidden;}
-.mh{padding:10px 16px;background:#0f2a1f;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
-.mh-title{font-weight:700;color:#ffaa00;font-size:14px;}
-.mb{flex:1;background:#f0f0f0;overflow:auto;display:flex;align-items:center;justify-content:center;min-height:0;}
-.mb img{max-width:100%;max-height:100%;object-fit:contain;display:block;}
-.mf{padding:8px 16px;background:#0f2a1f;display:flex;gap:8px;align-items:center;flex-shrink:0;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.blink{animation:blink 1s infinite}
-/* زر الرئيسية الواضح */
-.home-btn{ display:none; }
 
-/* زر Home - في الـ bot بجانب المايك، مخفي افتراضياً */
-.home-fab{
-  display:none;
-  align-items:center; gap:6px;
-  background:linear-gradient(135deg,#2563eb,#1d4ed8);
-  color:#fff; border:none; border-radius:12px;
-  padding:0 14px; height:40px; font-size:13px;
-  font-family:Cairo,sans-serif;
-  cursor:pointer; font-weight:700; transition:.2s;
-  box-shadow:0 3px 8px rgba(37,99,235,.45);
-  flex-shrink:0; white-space:nowrap;
+.brand-name {
+  font-size: 14px;
+  font-weight: 900;
+  color: #ffaa00;
+  white-space: nowrap;
+  direction: ltr;
 }
-.home-fab.visible{ display:flex; }
-.home-fab:hover{
-  background:linear-gradient(135deg,#1d4ed8,#1e40af);
-  transform:translateY(-1px);
-  box-shadow:0 5px 14px rgba(37,99,235,.6);
-}
-.home-fab i{ font-size:17px; }
-.home-fab span{ font-size:13px; }
 
-.ti-sep{width:1px;height:36px;background:#2a4a35;flex-shrink:0;margin:0 4px;}
-.zb-clear{background:#b71c1c!important;color:#fff!important;font-weight:700;border-radius:20px!important;padding:0 10px!important;}
-.zb-clear:hover{background:#e53935!important;}
-.bot::-webkit-scrollbar{display:none;}
-.tools::-webkit-scrollbar{display:none;}
-
-/* ── ألوان نيون فسفورية ── */
-.dot-neon{
-  box-shadow:0 0 6px currentColor;
-  position:relative;
+.wa-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #25D366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  flex-shrink: 0;
 }
-.dot-neon::after{
-  content:'✨';position:absolute;top:-8px;right:-2px;
-  font-size:7px;line-height:1;pointer-events:none;
+
+.wa-btn i {
+  color: #fff;
+  font-size: 17px;
+}
+
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, .3);
+  padding: 3px 12px;
+  border-radius: 30px;
+}
+
+.stats span {
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #ccc;
+  white-space: nowrap;
+}
+
+.stats i {
+  color: #ffaa00;
+}
+
+.phone {
+  font-size: 11px;
+  color: #ffaa00;
+  direction: ltr;
+  white-space: nowrap;
+}
+
+/* ================================================ */
+/* [003] أزرار وضع الحصة (Mode Buttons)             */
+/* ================================================ */
+.mode-btns {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.mode-btn {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 2px solid transparent;
+  font-family: Cairo, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #1a2a1a;
+  color: #aaa;
+}
+
+.mode-btn.on.mode-explain {
+  background: #0a2a12;
+  border-color: #22c55e;
+  color: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, .4);
+}
+
+.mode-btn.on.mode-exam {
+  background: #2a1a0a;
+  border-color: #f59e0b;
+  color: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, .4);
+}
+
+.mode-btn:not(.on):hover {
+  border-color: #555;
+  color: #ccc;
+}
+
+/* ================================================ */
+/* [004] تخطيط الجسم الرئيسي (Body Layout)          */
+/* ================================================ */
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ================================================ */
+/* [005] اللوحة اليسرى: الشرائح (Slides Panel)      */
+/* ================================================ */
+.slides-panel {
+  width: 140px;                /* تم التعديل من 120px إلى 140px ليتساوى مع لوحة الطلاب */
+  min-width: 140px;
+  background: #0d2018;
+  border-right: 2px solid #2a5a35; /* في RTL الحدود الداخلية تكون على اليمين */
+  border-left: none;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+  order: 10;                   /* لجعلها في أقصى اليسار في الترتيب المرئي RTL */
+}
+
+.slides-header {
+  height: 38px;
+  min-height: 38px;
+  background: #0a1a12;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  color: #ffaa00;
+  font-weight: 700;
+  font-size: 11px;
+  border-bottom: 1px solid #2a5a35;
+  flex-shrink: 0;
+}
+
+.slide-upload-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #2a5a35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #ffaa00;
+  font-size: 13px;
+  transition: .2s;
+}
+
+.slide-upload-btn:hover {
+  background: #3a7a45;
+  color: #fff;
+}
+
+.slide-upload-btn input {
+  display: none;
+}
+
+.slides-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  scrollbar-width: thin;
+  scrollbar-color: #2a5a35 transparent;
+}
+
+.slide-item {
+  position: relative;
+  border-radius: 8px;
+  border: 2px solid #2a5a35;
+  overflow: hidden;
+  cursor: pointer;
+  transition: .18s;
+  background: #1a3020;
+  flex-shrink: 0;
+  aspect-ratio: 16 / 9;
+}
+
+.slide-item:hover {
+  border-color: #ffaa00;
+  transform: scale(1.02);
+}
+
+.slide-item.active {
+  border-color: #ffaa00;
+  box-shadow: 0 0 8px rgba(255, 170, 0, .5);
+}
+
+.slide-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.slide-num {
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
+  background: rgba(0, 0, 0, .7);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.slide-del {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  background: rgba(183, 28, 28, .85);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  width: 16px;
+  height: 16px;
+  font-size: 9px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.slide-item:hover .slide-del {
+  display: flex;
+}
+
+/* زر إضافة شريحة جديدة */
+.slide-add {
+  border-radius: 8px;
+  border: 2px dashed #2a5a35;
+  background: transparent;
+  cursor: pointer;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
+  color: #2a5a35;
+  font-size: 11px;
+  transition: .2s;
+  flex-shrink: 0;
+}
+
+.slide-add:hover {
+  border-color: #ffaa00;
+  color: #ffaa00;
+}
+
+.slide-add i {
+  font-size: 20px;
+}
+
+.slides-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.slides-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.slides-list::-webkit-scrollbar-thumb {
+  background: #2a5a35;
+  border-radius: 4px;
+}
+
+/* ================================================ */
+/* [006] اللوحة اليمنى: قائمة الطلاب (Students Panel)*/
+/* ================================================ */
+.panel {
+  width: 140px;                /* تم التعديل من 155px إلى 140px ليتساوى مع لوحة الشرائح */
+  min-width: 140px;
+  background: #1e3228;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #3a5a40;  /* في RTL الحدود الخارجية */
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.panel-h {
+  height: 38px;
+  min-height: 38px;
+  background: #162a1e;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  color: #ffaa00;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #2a4a30;
+}
+
+.panel-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* بطاقة الطالب */
+.si {
+  background: linear-gradient(135deg, #1a3228, #162a20);
+  border-radius: 10px;
+  padding: 4px 6px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  border: 1px solid #2a4a30;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+  transition: .15s;
+  min-height: 0;
+}
+
+.si:hover {
+  border-color: #ffaa00;
+  box-shadow: 0 2px 10px rgba(255, 170, 0, .2);
+}
+
+.si-wait {
+  border-color: #f39c12 !important;
+  background: linear-gradient(135deg, #2a2010, #1f1a08) !important;
+}
+
+.scard-name {
+  font-weight: 800;
+  font-size: 11px;
+  color: #fff;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  cursor: default;
+}
+
+.sact {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
+  color: #ffaa00;
+  font-size: 12px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.sact i {
+  cursor: pointer;
+  transition: .18s;
+  flex-shrink: 0;
+}
+
+.sact i:hover {
+  transform: scale(1.25);
+  color: #fff;
+}
+
+.sact-mic-req {
+  color: #22c55e !important;
+  animation: blink 1s infinite;
+}
+
+/* ================================================ */
+/* [007] العمود الأيمن: منطقة السبورة (Board Column) */
+/* ================================================ */
+.board-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.bh {
+  height: 40px;
+  min-height: 40px;
+  background: #1e3228;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #2a4a30;
+  flex-shrink: 0;
+}
+
+.bh-title {
+  font-weight: 700;
+  color: #ffaa00;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.bh-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.zb {
+  background: #2a4a35;
+  border: none;
+  color: #ffaa00;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 5px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.zb:hover {
+  background: #3a6a45;
+  color: #fff;
+}
+
+.zv {
+  font-size: 10px;
+  color: #aaa;
+  min-width: 32px;
+  text-align: center;
+}
+
+.ci {
+  color: #ffaa00;
+  cursor: pointer;
+  font-size: 14px;
+  transition: .2s;
+  flex-shrink: 0;
+}
+
+.ci:hover {
+  color: #fff;
+}
+
+.board-wrap {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  background: #2a2a2a;
+  display: flex;
+  direction: ltr;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+canvas#mc {
+  display: block;
+  background: #fff;
+  cursor: crosshair;
+  touch-action: none;
+  flex-shrink: 0;
+}
+
+/* ================================================ */
+/* [008] الشريط السفلي (أدوات الرسم)                */
+/* ================================================ */
+.bot {
+  height: 56px;
+  min-height: 56px;
+  background: #0f2a1f;
+  border-top: 2px solid #ffaa00;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  flex-shrink: 0;
+  overflow-x: auto;
+  gap: 6px;
+  scrollbar-width: none;
+}
+
+.bot::-webkit-scrollbar {
+  display: none;
+}
+
+.tools {
+  display: flex;
+  gap: 4px;
+  background: #1a2e25;
+  padding: 0 10px;
+  border-radius: 50px;
+  border: 1px solid #3a5a40;
+  align-items: center;
+  flex-shrink: 0;
+  overflow-x: auto;
+  max-width: calc(100vw - 200px);
+  scrollbar-width: none;
+  height: 50px;
+}
+
+.tools::-webkit-scrollbar {
+  display: none;
+}
+
+.ti {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 9px;
+  transition: .2s;
+  padding: 0 5px;
+  border-radius: 8px;
+  height: 44px;
+  justify-content: center;
+  gap: 2px;
+}
+
+.ti i {
+  font-size: 19px;
+  line-height: 1;
+}
+
+.ti.on {
+  color: #ffaa00;
+  background: rgba(255, 170, 0, .1);
+}
+
+.ti-sep {
+  width: 1px;
+  height: 30px;
+  background: #2a4a35;
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+
+.dots {
+  display: flex;
+  gap: 3px;
+  background: #1e3228;
+  padding: 0 8px;
+  border-radius: 40px;
+  align-items: center;
+  height: 44px;
+}
+
+.dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: .2s;
+  flex-shrink: 0;
+}
+
+.dot.on {
+  border-color: #fff;
+  transform: scale(1.2);
+}
+
+/* ألوان نيون */
+.dot-neon {
+  box-shadow: 0 0 6px currentColor;
+  position: relative;
+}
+
+.dot-neon::after {
+  content: '✨';
+  position: absolute;
+  top: -8px;
+  right: -2px;
+  font-size: 7px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* تحكم حجم الأداة */
+.sz-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 44px;
+}
+
+.sz-btn {
+  background: #2a4a35;
+  border: none;
+  color: #ffaa00;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sz-btn:hover {
+  background: #3a6a45;
+  color: #fff;
+}
+
+.sz-val {
+  font-size: 12px;
+  color: #aaa;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* ================================================ */
+/* [009] أزرار الخلفيات السفلية (Bg Dots) - معدلة   */
+/* ================================================ */
+.bg-dots-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;                     /* زيادة الفجوة قليلاً */
+  flex-shrink: 0;
+}
+
+.bg-label {
+  font-size: 8px;
+  color: #888;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.bg-dot {
+  width: 32px;                  /* زيادة العرض من 20px إلى 32px */
+  height: 28px;                  /* ارتفاع ثابت أكبر */
+  border-radius: 8px;            /* حواف دائرية (مستطيل بحواف دائرية) */
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: .2s;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+  /* إضافة تأثير خفيف لجعلها تشبه الأزرار الأخرى */
+  background: #1e3228;           /* لون خلفية احتياطي سيتم تغطيته بلون الخلفية المحدد من inline style */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.bg-dot:hover {
+  transform: scale(1.1);         /* تكبير خفيف عند التحويم */
+  border-color: #ffaa00;
+  box-shadow: 0 0 8px rgba(255,170,0,0.5);
+}
+
+.bg-dot.on {
+  border-color: #ffaa00;
+  box-shadow: 0 0 5px rgba(255,170,0,0.8);
+}
+
+/* ================================================ */
+/* [010] أزرار إضافية وأيقونات مميزة                */
+/* ================================================ */
+.zb-clear {
+  background: #b71c1c !important;
+  color: #fff !important;
+  font-weight: 700;
+  border-radius: 20px !important;
+  padding: 0 10px !important;
+}
+
+.zb-clear:hover {
+  background: #e53935 !important;
+}
+
+.ulbl {
+  background: #ffaa00;
+  color: #000;
+  padding: 5px 12px;
+  border-radius: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+input[type=file] {
+  display: none;
+}
+
+/* ================================================ */
+/* [011] أزرار الإجراءات اليمنى (Actions)           */
+/* ================================================ */
+.acts {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.ab {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  background: #2a4a35;
+  color: #fff;
+  font-size: 19px;
+  cursor: pointer;
+  transition: .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ab:hover {
+  filter: brightness(1.25);
+  transform: scale(1.05);
+}
+
+.ab.mic-on {
+  background: #ffaa00;
+  color: #000;
+}
+
+.ab.red {
+  background: #b71c1c;
+}
+
+/* ================================================ */
+/* [012] أيقونة النيون (Highlight)                  */
+/* ================================================ */
+#tiHL:not(.on) i {
+  color: #aaa !important;
+  text-shadow: none !important;
+}
+
+#tiHL.on i {
+  color: #ffff00 !important;
+  text-shadow: 0 0 6px #ffff00 !important;
+}
+
+/* ================================================ */
+/* [013] النافذة المنبثقة (Modal)                   */
+/* ================================================ */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .93);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.mc-modal {
+  background: #1e3228;
+  width: 94%;
+  height: 92%;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #ffaa00;
+  overflow: hidden;
+}
+
+.mh {
+  padding: 10px 16px;
+  background: #0f2a1f;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.mh-title {
+  font-weight: 700;
+  color: #ffaa00;
+  font-size: 14px;
+}
+
+.mb {
+  flex: 1;
+  background: #f0f0f0;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.mb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.mf {
+  padding: 8px 16px;
+  background: #0f2a1f;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ================================================ */
+/* [014] تعريفات عامة (Animations, Misc)            */
+/* ================================================ */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .3; }
+}
+
+.blink {
+  animation: blink 1s infinite;
+}
+
+.mic-btn.mic-on {
+  background: #ffaa00 !important;
+  color: #000 !important;
 }
