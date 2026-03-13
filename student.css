@@ -34,8 +34,8 @@ html,body{width:100%;height:100%;background:#0f1e35;color:#fff;overflow:hidden;d
 .sb-badge.on{display:flex}
 
 /* ══ CONTENT AREA ══ */
-.content-area{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;overflow:hidden}
-.tab-pane{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+.content-area{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;overflow:hidden;}
+.tab-pane{display:none;flex-direction:column;flex:1;min-height:0;min-width:0;overflow:hidden}
 .tab-pane.on{display:flex}
 .bh{height:38px;min-height:38px;background:#0a1828;padding:0 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1e4080;flex-shrink:0}
 .bh-title{font-weight:700;color:#00aaff;font-size:12px}
@@ -45,8 +45,8 @@ html,body{width:100%;height:100%;background:#0f1e35;color:#fff;overflow:hidden;d
 .zv{font-size:10px;color:#aaa;min-width:32px;text-align:center}
 .ci{color:#00aaff;cursor:pointer;font-size:14px;transition:.2s}
 .ci:hover{color:#fff}
-.board-wrap{flex:1;min-height:0;min-width:0;overflow:auto;background:#1a1a2e;display:flex;align-items:flex-start;justify-content:flex-start;direction:ltr;}
-.canvas-stack{position:relative;display:inline-block;flex-shrink:0;}
+.board-wrap{flex:1;min-height:0;min-width:0;overflow:auto;background:#1a1a2e;display:flex;align-items:flex-start;justify-content:flex-start;direction:ltr;position:relative;}
+.canvas-stack{position:relative;display:block;flex-shrink:0;}
 #cSBG{display:block;background:transparent;position:absolute;top:0;left:0;pointer-events:none;}
 #cS{display:block;background:transparent;position:relative;cursor:crosshair;touch-action:none;}
 #cT{display:block;background:#fff;touch-action:none;flex-shrink:0;cursor:default;}
@@ -243,4 +243,36 @@ html,body{width:100%;height:100%;background:#0f1e35;color:#fff;overflow:hidden;d
   .stu-slides-panel{width:60px;min-width:60px;}
   .stu-slide-item{width:52px;}
   .stu-slide-thumb{height:36px;}
+}
+
+/* ✅ أضف هذا في نهاية student.css */
+
+/* ✅ أضف هذا في نهاية student.css */
+
+/* إصلاح عرض الموبايل */
+.board-wrap {
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+.canvas-stack {
+    min-width: 100%;
+    min-height: 100%;
+}
+
+#cS, #cSBG {
+    min-width: 100%;
+    min-height: 100%;
+}
+
+/* ضمان ظهور scroll على الموبايل */
+@media (max-width: 768px) {
+    .board-wrap {
+        overflow: auto !important;
+    }
+    
+    .canvas-stack {
+        width: auto !important;
+        height: auto !important;
+    }
 }
