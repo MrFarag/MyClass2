@@ -491,12 +491,9 @@ html, body {
     flex: 1;
     min-height: 0;
     min-width: 0;
-    overflow: auto !important;
+    overflow: auto;
     background: #2a2a2a;
-    display: flex;
-    direction: ltr;
-    align-items: flex-start;
-    justify-content: flex-start;
+    display: block;
 }
 
 canvas#mc {

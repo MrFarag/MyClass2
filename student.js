@@ -152,14 +152,7 @@ function applyScale(id, s) {
     }
     
     if (wr) {
-        const wrW = wr.clientWidth;
-        const wrH = wr.clientHeight;
-        const fitsH = scaledH <= wrH;
-        const fitsW = scaledW <= wrW;
-        // ✅ إصلاح الموبايل: scroll دائماً إذا كان أكبر
-        wr.style.alignItems     = fitsH ? 'center'    : 'flex-start';
-        wr.style.justifyContent = fitsW ? 'center'    : 'flex-start';
-        wr.style.overflow       = 'auto';  // ✅ دائماً scroll متاح
+        wr.style.overflow = 'auto';
     }
     
     const zv = document.getElementById('zv' + id);
@@ -181,20 +174,12 @@ function fitId(id) {
 window.Z = (id, d) => { applyScale(id, sc[id] + d); };
 window.fit = id => fitId(id);
 
-let initialFitDone = false;
-setTimeout(() => {
-    if (!initialFitDone) {
-        applyScale('S', 1);
-        initialFitDone = true;
-    }
-}, 200);
-
-// ✅ إصلاح الموبايل: إعادة fit عند تغيير الحجم
+// عند الفتح: fit تلقائي يملأ الشاشة بالكامل
+window.addEventListener('load', () => {
+    setTimeout(() => { fitId('S'); fitId('T'); }, 100);
+});
 window.addEventListener('resize', () => {
-    requestAnimationFrame(() => { 
-        applyScale('S', sc.S);
-        fit('S');
-    });
+    requestAnimationFrame(() => { fitId('S'); });
 });
 
 /* ================================================ /
@@ -426,7 +411,8 @@ function listen() {
         }
         
         if (cmd.type === 'show_student_board') {
-            if (cmd.studentId === myId) return;
+            // يُعرض فقط عند الطالب المستهدف وليس باقي الطلاب
+            if (cmd.targetId && cmd.targetId !== myId) return;
             if (activeStuSlide === 'main') {
                 loadStudentImage(cmd.data, false, () => {
                     toast('📋 المدرس يعرض سبورة: ' + cmd.studentName, 'a');

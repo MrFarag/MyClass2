@@ -34,7 +34,7 @@ html,body{width:100%;height:100%;background:#0f1e35;color:#fff;overflow:hidden;d
 .sb-badge.on{display:flex}
 
 /* ══ CONTENT AREA ══ */
-.content-area{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;overflow:hidden;}
+.content-area{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;overflow:hidden;order:1;}
 .tab-pane{display:none;flex-direction:column;flex:1;min-height:0;min-width:0;overflow:hidden}
 .tab-pane.on{display:flex}
 .bh{height:38px;min-height:38px;background:#0a1828;padding:0 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1e4080;flex-shrink:0}
@@ -45,7 +45,7 @@ html,body{width:100%;height:100%;background:#0f1e35;color:#fff;overflow:hidden;d
 .zv{font-size:10px;color:#aaa;min-width:32px;text-align:center}
 .ci{color:#00aaff;cursor:pointer;font-size:14px;transition:.2s}
 .ci:hover{color:#fff}
-.board-wrap{flex:1;min-height:0;min-width:0;overflow:auto;background:#1a1a2e;display:flex;align-items:flex-start;justify-content:flex-start;direction:ltr;position:relative;}
+.board-wrap{flex:1;min-height:0;min-width:0;overflow:auto;background:#1a1a2e;display:block;padding:0;margin:0;}
 .canvas-stack{position:relative;display:block;flex-shrink:0;}
 #cSBG{display:block;background:transparent;position:absolute;top:0;left:0;pointer-events:none;}
 #cS{display:block;background:transparent;position:relative;cursor:crosshair;touch-action:none;}
@@ -206,8 +206,8 @@ html,body{width:100%;height:100%;background:#0f1e35;color:#fff;overflow:hidden;d
 
 /* ══ STUDENT SLIDES PANEL ══ */
 .stu-slides-panel{
-  width:80px;min-width:80px;background:#071524;border-left:2px solid #1e3a60;
-  display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;order:-1;
+  width:80px;min-width:80px;background:#071524;border-right:2px solid #1e3a60;
+  display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;order:2;
 }
 .stu-slides-header{
   height:38px;min-height:38px;background:#0a1828;border-bottom:1px solid #1e4080;

@@ -67,41 +67,35 @@
     mxBG.fillRect(0, 0, CW, CH);
     composite();
 
+    /* ================================================ */
+    /* [001] السبورة بحجم ثابت - سكرول عند الحاجة     */
+    /* ================================================ */
     let scale = 1;
     const bWrap = document.getElementById('bWrap');
-    
+
     function applyScale(s) {
-        s = Math.max(0.15, Math.min(5, s));
+        s = Math.max(0.1, Math.min(5, s));
         scale = s;
-        mc.style.width = (CW * s) + 'px';
+        mc.style.width  = (CW * s) + 'px';
         mc.style.height = (CH * s) + 'px';
-        
-        const wrapH = bWrap.clientHeight;
-        const wrapW = bWrap.clientWidth;
-        const canvasH = CH * s;
-        const canvasW = CW * s;
-        
-        bWrap.style.alignItems = (canvasH < wrapH) ? 'center' : 'flex-start';
-        bWrap.style.justifyContent = (canvasW < wrapW) ? 'center' : 'flex-start';
-        
         document.getElementById('zv').textContent = Math.round(s * 100) + '%';
     }
 
     function fit() {
-        const W = bWrap.clientWidth;
-        const H = bWrap.clientHeight;
-        if (!W || !H) return;
-        applyScale(Math.min(W / CW, H / CH));
+        const wr = bWrap;
+        if (!wr || !wr.clientWidth) { applyScale(1); return; }
+        const s = Math.min(wr.clientWidth / CW, wr.clientHeight / CH);
+        applyScale(Math.max(0.1, s));
     }
 
-    window.Z = function(d) { applyScale(scale + d); };
+    window.Z   = function(d) { applyScale(scale + d); };
     window.fit = fit;
-    
-    setTimeout(function() { fit(); }, 200);
-    
-    window.addEventListener('resize', function() {
-        applyScale(scale);
-    });
+
+    // fit عند الفتح وعند تغيير الحجم
+    window.addEventListener('load', function() { setTimeout(fit, 100); });
+    window.addEventListener('resize', function() { requestAnimationFrame(fit); });
+
+    applyScale(1);
 
     function xyOf(e) {
         const r = mc.getBoundingClientRect();
