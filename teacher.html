@@ -1,137 +1,159 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyClass - المدرس</title>
-    <link rel="stylesheet" href="teacher.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>MyClass - المدرس</title>
+  <link rel="stylesheet" href="teacher.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="top-bar">
-        <div class="brand">
-            <span class="brand-name">MyClass - المدرس</span>
-            <a href="https://wa.me/201141010981" class="wa-btn" target="_blank"><i class="fab fa-whatsapp"></i></a>
-        </div>
-        
-        <div class="preview-section" id="previewSection" style="display:none;">
-            <span id="previewTitle" style="color:#ffaa00;font-size:12px;font-weight:700;">معاينة</span>
-            <select id="studentSlideSelect" onchange="onStudentSlideSelect(this)" style="padding:4px 8px;border-radius:6px;border:1px solid #2a5090;background:#071524;color:#fff;font-family:Cairo,sans-serif;font-size:11px;cursor:pointer;">
-                <option value="__current__">📋 السبورة الحالية</option>
-            </select>
 
-        </div>
-        
-        <div class="mode-btns">
-            <button class="mode-btn mode-send" id="modeSend" onclick="sendSlideToStudents()">
-                <i class="fas fa-upload"></i> رفع
-            </button>
-        </div>
-        
-        <div class="stats">
-            <span class="phone"><i class="fab fa-whatsapp"></i> 01141010981</span>
-            <span><i class="fas fa-users"></i> <span id="cnt">0</span> طالب</span>
-            <span><i class="fas fa-signal"></i> <span id="lat">--ms</span></span>
-        </div>
+<!-- الشريط العلوي -->
+<div class="top-bar">
+  <div class="brand">
+    <a class="wa-btn" href="https://wa.me/201141010981" target="_blank"><i class="fab fa-whatsapp"></i></a>
+    <span class="brand-name">Mr. Farag | Physics</span>
+  </div>
+  <div class="stats">
+    <span><i class="fas fa-circle" style="color:#4CAF50"></i>مباشر</span>
+    <span><i class="fas fa-users"></i><span id="cnt">0</span></span>
+    <span><i class="fas fa-wifi"></i><span id="lat">--</span></span>
+  </div>
+  <div class="mode-btns">
+    <button class="mode-btn mode-explain on" id="modeExplain" onclick="setClassMode('explain')">
+      <i class="fas fa-chalkboard-teacher"></i> السبورة الرئيسية
+    </button>
+    <button class="mode-btn mode-exam" id="modeExam" onclick="setClassMode('exam')">
+      <i class="fas fa-pen-square"></i> اختبار
+    </button>
+  </div>
+  <span class="phone">01141010981</span>
+</div>
+
+<!-- المحتوى الرئيسي -->
+<div class="body">
+
+  <!-- شريط الشرائح (يسار) -->
+  <div class="slides-panel" id="slidesPanel">
+    <div class="slides-header">
+      <span><i class="fas fa-layer-group"></i> الشرائح</span>
+      <label class="slide-upload-btn" title="رفع صورة/ملف">
+        <i class="fas fa-upload"></i>
+        <input type="file" id="slideUploadInput" accept="image/*,.pdf" multiple onchange="uploadSlides(this)">
+      </label>
     </div>
+    <div class="slides-list" id="slidesList"></div>
+  </div>
 
-    <div class="body">
-        <div class="slides-panel" id="slidesPanel">
-            <div class="slides-header">
-                <span><i class="fas fa-layer-group"></i> شرائحي</span>
-                <label class="slide-upload-btn">
-                    <i class="fas fa-upload"></i>
-                    <input type="file" multiple accept="image/*" onchange="uploadSlides(this)">
-                </label>
-            </div>
-            <div class="slides-list" id="slidesList"></div>
-        </div>
+  <!-- قائمة الطلاب -->
+  <div class="panel">
+    <div class="panel-h"><span><i class="fas fa-users"></i> الطلاب</span><span id="cntP">0</span></div>
+    <div class="panel-list" id="sList"><div style="color:#aaa;text-align:center;padding:14px;font-size:11px">لا يوجد طلاب</div></div>
+  </div>
 
-        <div class="board-col">
-            <div class="bh">
-                <div class="bh-title" id="bTitle">السبورة الرئيسية</div>
-                <div class="bh-ctrl">
-                    <button class="zb" onclick="Z(-0.1)">−</button>
-                    <span class="zv" id="zv">100%</span>
-                    <button class="zb" onclick="Z(0.1)">+</button>
-                    <button class="zb" onclick="fit()"><i class="fas fa-expand"></i></button>
-                    <button class="zb zb-clear" onclick="clearB()">Clear</button>
-                    <label class="ulbl">
-                        <i class="fas fa-image"></i> صورة
-                        <input type="file" accept="image/*" onchange="uploadImg(this)">
-                    </label>
-                </div>
-            </div>
-            
-            <div class="board-wrap" id="bWrap">
-                <canvas id="mc"></canvas>
-            </div>
-        </div>
-
-        <div class="panel" id="studentsPanel">
-            <div class="panel-h">
-                <span><i class="fas fa-users"></i> الطلاب</span>
-                <span id="cntP">0</span>
-            </div>
-            <div class="panel-list" id="sList">
-                <div style="color:#aaa;text-align:center;padding:12px;font-size:11px">لا يوجد طلاب</div>
-            </div>
-        </div>
+  <!-- منطقة السبورة -->
+  <div class="board-col">
+    <div class="bh">
+      <span class="bh-title" id="bTitle">السبورة الرئيسية</span>
+      <div class="bh-ctrl">
+        <button class="zb" onclick="Z(-0.15)"><i class="fas fa-minus"></i></button>
+        <span class="zv" id="zv">—</span>
+        <button class="zb" onclick="Z(0.15)"><i class="fas fa-plus"></i></button>
+        <button class="zb" onclick="fit()">ملاءمة</button>
+        <i class="ci fas fa-trash-alt" onclick="clearB()" title="مسح"></i>
+        <i class="ci fas fa-download" onclick="saveB()" title="حفظ"></i>
+        <i class="ci fas fa-expand" onclick="goFS()"></i>
+      </div>
     </div>
-
-    <div class="bot">
-        <div class="tools">
-            <div class="ti on" id="tiPen" onclick="setTool('pen')"><i class="fas fa-pen"></i><span>قلم</span></div>
-            <div class="ti" id="tiEra" onclick="setTool('eraser')"><i class="fas fa-eraser"></i><span>ممحاة</span></div>
-            <div class="ti" id="tiHL" onclick="setTool('highlight')"><i class="fas fa-highlighter"></i><span>نيون</span></div>
-            <div class="ti-sep"></div>
-            <div class="ti" id="tiSel" onclick="setTool('select')"><i class="fas fa-mouse-pointer"></i><span>تحديد</span></div>
-            <div class="ti" id="tiLine" onclick="setTool('line')"><i class="fas fa-slash"></i><span>خط</span></div>
-            <div class="ti" id="tiArrow" onclick="setTool('arrow')"><i class="fas fa-long-arrow-alt-right"></i><span>سهم</span></div>
-            <div class="ti" id="tiRect" onclick="setTool('rect')"><i class="far fa-square"></i><span>مستطيل</span></div>
-            <div class="ti" id="tiCircle" onclick="setTool('circle')"><i class="far fa-circle"></i><span>دائرة</span></div>
-            <div class="ti" id="tiTri" onclick="setTool('tri')"><i class="fas fa-play" style="transform:rotate(-90deg)"></i><span>مثلث</span></div>
-        </div>
-        
-        <div class="dots">
-            <div class="dot dot-neon" style="background:#000000" onclick="setClr('#000000',this)"></div>
-            <div class="dot dot-neon" style="background:#e53935" onclick="setClr('#e53935',this)"></div>
-            <div class="dot dot-neon" style="background:#f59e0b" onclick="setClr('#f59e0b',this)"></div>
-            <div class="dot dot-neon" style="background:#22c55e" onclick="setClr('#22c55e',this)"></div>
-            <div class="dot dot-neon" style="background:#00aaff" onclick="setClr('#00aaff',this)"></div>
-            <div class="dot dot-neon" style="background:#9c27b0" onclick="setClr('#9c27b0',this)"></div>
-            <div class="dot dot-neon" style="background:#ffffff" onclick="setClr('#ffffff',this)"></div>
-        </div>
-        
-        <div class="sz-row">
-            <button class="sz-btn" onclick="adjSz(-1)">−</button>
-            <span class="sz-val" id="szV">4</span>
-            <button class="sz-btn" onclick="adjSz(1)">+</button>
-        </div>
-        
-        <div class="bg-dots-wrap">
-            <span class="bg-label">خلفية</span>
-            <div class="bg-dot" style="background:#ffffff" onclick="setBoardBg('#ffffff',this)"></div>
-            <div class="bg-dot" style="background:#fef9e7" onclick="setBoardBg('#fef9e7',this)"></div>
-            <div class="bg-dot" style="background:#e8f5e9" onclick="setBoardBg('#e8f5e9',this)"></div>
-            <div class="bg-dot" style="background:#e3f2fd" onclick="setBoardBg('#e3f2fd',this)"></div>
-            <div class="bg-dot" style="background:#1a2e25" onclick="setBoardBg('#1a2e25',this)"></div>
-        </div>
-        
-        <div class="acts">
-            <button class="ab" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone-slash"></i></button>
-            <button class="ab" onclick="saveB()"><i class="fas fa-download"></i></button>
-            <button class="ab" onclick="goFS()"><i class="fas fa-expand"></i></button>
-            <button class="ab" id="sendCorrBtn" onclick="sendCorr()" style="display:none;background:#4CAF50;"><i class="fas fa-check"></i></button>
-            <button class="ab red" onclick="endClass()"><i class="fas fa-sign-out-alt"></i></button>
-        </div>
+    <div class="board-wrap" id="bWrap">
+      <canvas id="mc"></canvas>
     </div>
+  </div>
+</div>
 
-    <audio id="audioEl" autoplay></audio>
+<!-- الشريط السفلي -->
+<div class="bot">
+  <div class="tools">
+    <div class="ti"     id="tiSel"    onclick="setTool('select')"><i class="fas fa-mouse-pointer"></i><span>تحديد</span></div>
+    <div class="ti on" id="tiPen"    onclick="setTool('pen')">   <i class="fas fa-pen-nib"></i><span>قلم</span></div>
+    <div class="ti"    id="tiEra"    onclick="setTool('eraser')"><i class="fas fa-eraser"></i><span>ممحاة</span></div>
+    <div class="ti"    id="tiHL"     onclick="setTool('highlight')">
+      <i class="fas fa-highlighter" id="tiHLicon"></i><span>نيون</span>
+    </div>
+    <div class="ti-sep"></div>
+    <div class="ti" id="tiLine"   onclick="setTool('line')"  ><i class="fas fa-slash"></i><span>خط</span></div>
+    <div class="ti" id="tiArrow"  onclick="setTool('arrow')" ><i class="fas fa-arrow-right"></i><span>سهم</span></div>
+    <div class="ti" id="tiRect"   onclick="setTool('rect')"  ><i class="far fa-square"></i><span>مستطيل</span></div>
+    <div class="ti" id="tiCircle" onclick="setTool('circle')"><i class="far fa-circle"></i><span>دائرة</span></div>
+    <div class="ti" id="tiTri"    onclick="setTool('tri')"   ><i class="fas fa-caret-up" style="font-size:18px"></i><span>مثلث</span></div>
+    <div class="ti-sep"></div>
+    <div class="dots" id="colorDots">
+      <div class="dot on"  style="background:#000"    onclick="setClr('#000',this)"></div>
+      <div class="dot"     style="background:#e53935" onclick="setClr('#e53935',this)"></div>
+      <div class="dot"     style="background:#1e88e5" onclick="setClr('#1e88e5',this)"></div>
+      <div class="dot"     style="background:#43a047" onclick="setClr('#43a047',this)"></div>
+      <div class="dot"     style="background:#fb8c00" onclick="setClr('#fb8c00',this)"></div>
+      <div class="dot"     style="background:#8e24aa" onclick="setClr('#8e24aa',this)"></div>
+      <div class="dot"     style="background:#fff;border:2px solid #555" onclick="setClr('#fff',this)"></div>
+      <div class="dot dot-neon" style="background:#39ff14" onclick="setClr('#39ff14',this)"></div>
+      <div class="dot dot-neon" style="background:#ffff00" onclick="setClr('#ffff00',this)"></div>
+      <div class="dot dot-neon" style="background:#ff69b4" onclick="setClr('#ff69b4',this)"></div>
+      <div class="dot dot-neon" style="background:#00ffff" onclick="setClr('#00ffff',this)"></div>
+    </div>
+    <div class="ti-sep"></div>
+    <div class="sz-row">
+      <button class="sz-btn" onclick="adjSz(-1)">−</button>
+      <span class="sz-val" id="szV">4</span>
+      <button class="sz-btn" onclick="adjSz(1)">+</button>
+    </div>
+    <div class="ti-sep"></div>
+    <!-- ألوان خلفية السبورة -->
+    <div class="bg-dots-wrap">
+      <span class="bg-label">خلفية</span>
+      <div class="bg-dot on"  style="background:#ffffff;border:2px solid #aaa"     onclick="setBoardBg('#ffffff',this)" title="أبيض"></div>
+      <div class="bg-dot"     style="background:#1a1a2e"                            onclick="setBoardBg('#1a1a2e',this)" title="ليلي داكن"></div>
+      <div class="bg-dot"     style="background:#0f3460"                            onclick="setBoardBg('#0f3460',this)" title="أزرق غامق"></div>
+      <div class="bg-dot"     style="background:#1a3a1a"                            onclick="setBoardBg('#1a3a1a',this)" title="أخضر داكن (سبورة)"></div>
+      <div class="bg-dot"     style="background:#2d1b00"                            onclick="setBoardBg('#2d1b00',this)" title="بني داكن"></div>
+      <div class="bg-dot"     style="background:#f5f0e8"                            onclick="setBoardBg('#f5f0e8',this)" title="كريمي (ورق)"></div>
+    </div>
+    <div class="ti-sep"></div>
+    <button class="zb zb-clear" onclick="clearB()"><i class="fas fa-eraser"></i> Clear</button>
+    <label class="ulbl"><i class="fas fa-image"></i>صورة<input type="file" accept="image/*" onchange="uploadImg(this)"></label>
+  </div>
+  <div class="acts">
+    <button class="ab mic-btn" id="micBtn" onclick="toggleMic()"><i class="fas fa-microphone-slash"></i></button>
+    <button class="ab" onclick="resetAll()" title="تصفير"><i class="fas fa-broom"></i></button>
+    <button class="ab red" onclick="endClass()"><i class="fas fa-power-off"></i></button>
+  </div>
+</div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="teacher.js"></script>
+<!-- نافذة المعاينة -->
+<div class="modal" id="corrModal">
+  <div class="mc-modal">
+    <div class="mh">
+      <span class="mh-title" id="corrTitle">معاينة</span>
+      <div style="display:flex;gap:8px;">
+        <button onclick="sendCorr()" style="background:#4CAF50;color:#fff;border:none;padding:7px 18px;border-radius:20px;cursor:pointer;font-family:Cairo,sans-serif;font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;">
+          <i class="fas fa-paper-plane"></i> إرسال للطالب
+        </button>
+        <button onclick="closeCorr()" style="background:#b71c1c;color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="mb" id="corrImgWrap"></div>
+    <div class="mf">
+      <span style="font-size:11px;color:#aaa;"><i class="fas fa-info-circle"></i> اضغط "إرسال للطالب" لإرسالها لسبورته</span>
+    </div>
+  </div>
+</div>
+
+<audio id="audioEl" autoplay playsinline style="display:none"></audio>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="teacher.js"></script>
 </body>
 </html>
